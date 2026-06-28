@@ -16,16 +16,13 @@ import {
   School as SchoolIcon,
   Sparkles,
   Heart,
-  Star,
   ChevronRight,
   MapPin,
   Bookmark,
   Send,
   TrendingUp,
   Radio,
-  Globe,
   Bot,
-  Bell,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { hbcus } from "@/lib/mock-data";
@@ -879,5 +876,4 @@ function AISheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-// Unused but reserved for future per-school feed UI
 
