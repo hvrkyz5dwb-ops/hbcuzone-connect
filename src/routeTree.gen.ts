@@ -24,6 +24,7 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as HbcusRouteImport } from './routes/hbcus'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -104,6 +105,11 @@ const HbcusRoute = HbcusRouteImport.update({
   path: '/hbcus',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/events'
     | '/hbcus'
     | '/hub'
     | '/manage-plan'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/events'
     | '/hbcus'
     | '/hub'
     | '/manage-plan'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/events'
     | '/hbcus'
     | '/hub'
     | '/manage-plan'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRoute
+  EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRoute
   HubRoute: typeof HubRoute
   ManagePlanRoute: typeof ManagePlanRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HbcusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRoute,
+  EventsRoute: EventsRoute,
   HbcusRoute: HbcusRoute,
   HubRoute: HubRoute,
   ManagePlanRoute: ManagePlanRoute,
