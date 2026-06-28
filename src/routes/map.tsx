@@ -15,6 +15,7 @@ import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import mapImg from "@/assets/campus-map.jpg";
+import statue from "@/assets/plugu-statue.jpg.asset.json";
 
 export const Route = createFileRoute("/map")({
   head: () => ({
@@ -65,8 +66,33 @@ function MapPage() {
 
   return (
     <AppShell title="CAMPUS MAP">
-      {/* Search + campus */}
+      {/* Brand hero */}
       <section className="px-5 pt-5">
+        <div className="relative overflow-hidden rounded-3xl border border-border h-40">
+          <img src={statue.url} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_25%]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
+          <div
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(60% 80% at 100% 0%, color-mix(in oklab, var(--plugu-purple) 35%, transparent), transparent 70%)" }}
+          />
+          <div className="relative h-full flex flex-col justify-end p-4">
+            <h2 className="text-lg font-bold" style={{ color: "var(--plugu-gold)" }}>Live Campus Map</h2>
+            <p className="text-[11px] text-white/80 mt-0.5 max-w-[240px]">
+              Find vendors, events, buildings, rides, and student hotspots in real time.
+            </p>
+            <button
+              onClick={() => setNearMe(true)}
+              className="mt-3 self-start text-xs font-semibold px-3 py-2 rounded-xl text-black"
+              style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
+            >
+              Open Full Map
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Search + campus */}
+      <section className="px-5 pt-4">
         <div className="flex items-center gap-2">
           <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
             <Search className="h-4 w-4 text-muted-foreground" />
