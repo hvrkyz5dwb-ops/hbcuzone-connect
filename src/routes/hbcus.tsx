@@ -52,7 +52,7 @@ import {
   type HbcusSection,
   type SchoolProfile,
 } from "@/lib/hbcus-data";
-import statueImg from "@/assets/plugu-statue.jpg";
+import statueImg from "@/assets/plugu-statue.jpg.asset.json";
 
 export const Route = createFileRoute("/hbcus")({
   head: () => ({
@@ -84,7 +84,7 @@ function HbcusPage() {
       {/* Hero */}
       <section className="px-5 pt-5">
         <div className="relative overflow-hidden rounded-3xl border border-border">
-          <img src={statueImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+          <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
           <div className="relative p-5">
             <p className="text-[10px] tracking-[0.3em] uppercase text-primary">The HBCU Experience</p>
