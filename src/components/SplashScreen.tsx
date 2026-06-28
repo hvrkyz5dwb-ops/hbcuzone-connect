@@ -3,16 +3,18 @@ import pluguLogo from "@/assets/plugu-logo.png";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 
 export function SplashScreen() {
+  const [mounted, setMounted] = useState(false);
   const [gone, setGone] = useState(false);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const t1 = setTimeout(() => setFading(true), 2200);
     const t2 = setTimeout(() => setGone(true), 2800);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  if (gone) return null;
+  if (!mounted || gone) return null;
 
   return (
     <div
