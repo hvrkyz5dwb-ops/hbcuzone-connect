@@ -8,6 +8,8 @@ import { AppShell, SectionHeader } from "@/components/AppShell";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 import campusMap from "@/assets/campus-map.jpg";
 import { PluguDaily } from "@/components/PluguDaily";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { toast } from "sonner";
 import {
   announcements, categories, events, featuredKingpins,
   nearbyServices, messagesList, scholarships, hbcuDiscounts,
@@ -40,8 +42,9 @@ export const Route = createFileRoute("/")({
 function Home() {
   return (
     <AppShell title="PLUGU">
+      <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
       {/* Greeting */}
-      <section className="px-5 pt-5">
+      <section className="px-5 pt-5 slide-up">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Welcome back,</p>
