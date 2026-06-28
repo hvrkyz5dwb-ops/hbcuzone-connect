@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   dailyItems, dailyTabs, dailyGreetingTime,
   type DailyCategory, type DailyItem,
@@ -55,7 +56,7 @@ export function PluguDaily() {
               {greet} — your campus briefing.
             </p>
           </div>
-          <button className="text-[11px] text-primary shrink-0">See all</button>
+          <Link to="/news" className="text-[11px] text-primary shrink-0">See all</Link>
         </div>
 
         {/* Tabs */}
