@@ -35,7 +35,7 @@ export function EmptyState({
 
 export function LoadingList({ rows = 4 }: { rows?: number }) {
   return (
-    <ul className="mx-5 space-y-2" aria-busy="true" aria-label="Loading">
+    <ul className="mx-5 space-y-2 view-enter" aria-busy="true" aria-label="Loading">
       {Array.from({ length: rows }).map((_, i) => (
         <li
           key={i}
@@ -49,5 +49,28 @@ export function LoadingList({ rows = 4 }: { rows?: number }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+export function LoadingGrid({ rows = 4 }: { rows?: number }) {
+  return (
+    <div
+      className="mx-5 grid grid-cols-2 gap-3 view-enter"
+      aria-busy="true"
+      aria-label="Loading listings"
+    >
+      {Array.from({ length: rows }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-2xl bg-card border border-border overflow-hidden"
+        >
+          <div className="aspect-square shimmer" />
+          <div className="p-3 space-y-2">
+            <div className="h-3 w-3/4 rounded shimmer" />
+            <div className="h-3 w-1/3 rounded shimmer" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
