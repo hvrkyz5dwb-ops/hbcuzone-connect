@@ -71,7 +71,7 @@ function HbcusPage() {
   const [showSwitch, setShowSwitch] = useState(false);
   const [section, setSection] = useState<HbcusSection>("News");
   const [showAI, setShowAI] = useState(false);
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const sectionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   // Scroll horizontally to active section pill
   useEffect(() => {
