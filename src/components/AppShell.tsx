@@ -2,10 +2,13 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon, type LucideIcon,
 } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
+import { SplashScreen } from "@/components/SplashScreen";
+
+let SPLASH_SHOWN = false;
 
 type Tab = { to: string; label: string; icon: LucideIcon };
 
@@ -21,6 +24,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
+  const [showSplash] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (SPLASH_SHOWN) return false;
+    SPLASH_SHOWN = true;
+    return true;
+  });
 
   // First-visit onboarding redirect (skips when already on /onboarding)
   useEffect(() => {
@@ -104,6 +113,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         </nav>
       </div>
       <Toaster position="top-center" />
+      {showSplash && <SplashScreen />}
     </div>
   );
 }
