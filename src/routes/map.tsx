@@ -299,6 +299,16 @@ function MapPage() {
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{selected.description}</p>
 
+            <div className="mt-4 flex items-center gap-2 p-3 rounded-2xl bg-secondary border border-border">
+              <Footprints className="h-4 w-4 text-primary shrink-0" />
+              <div className="text-xs">
+                <p className="font-medium">Walking directions</p>
+                <p className="text-muted-foreground">
+                  {selected.distance} · about {Math.max(1, Math.round(parseFloat(selected.distance) * 20))} min walk
+                </p>
+              </div>
+            </div>
+
             <div className="mt-5 grid grid-cols-2 gap-2">
               <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium">
                 <RouteIcon className="h-4 w-4" /> Directions
@@ -311,6 +321,12 @@ function MapPage() {
             {selected.category === "safety" && (
               <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium">
                 <Phone className="h-4 w-4" /> Call Campus Safety
+              </button>
+            )}
+
+            {selected.category === "phone" && (
+              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium">
+                <Phone className="h-4 w-4" /> One-press Emergency
               </button>
             )}
           </div>
