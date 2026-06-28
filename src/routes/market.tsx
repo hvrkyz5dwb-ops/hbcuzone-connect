@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag } from "lucide-react";
+import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { categories, listings } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
-import { Search as SearchIcon } from "lucide-react";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -87,7 +86,7 @@ function Market() {
         <div className="mt-5"><LoadingGrid rows={6} /></div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon={SearchIcon}
+          icon={SearchX}
           title="No listings yet"
           description="Try clearing the search or switching categories."
         />
