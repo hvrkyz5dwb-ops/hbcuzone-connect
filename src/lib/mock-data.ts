@@ -2,13 +2,26 @@ import hoodieImg from "@/assets/listing-hoodie.jpg";
 
 export const categories = [
   { key: "hair", label: "Hair", emoji: "💈" },
+  { key: "hairstyles", label: "Hairstyles", emoji: "💁🏽‍♀️" },
   { key: "nails", label: "Nails", emoji: "💅" },
   { key: "clothing", label: "Clothing", emoji: "👕" },
+  { key: "sneakers", label: "Sneakers", emoji: "👟" },
   { key: "food", label: "Food", emoji: "🍔" },
   { key: "rides", label: "Rides", emoji: "🚗" },
   { key: "tutoring", label: "Tutoring", emoji: "📚" },
   { key: "photo", label: "Photo", emoji: "📸" },
+  { key: "video", label: "Video", emoji: "🎥" },
+  { key: "design", label: "Design", emoji: "🖌️" },
   { key: "studio", label: "Studio", emoji: "🎙️" },
+  { key: "electronics", label: "Electronics", emoji: "🎧" },
+  { key: "books", label: "Books", emoji: "📖" },
+  { key: "tickets", label: "Tickets", emoji: "🎟️" },
+  { key: "furniture", label: "Furniture", emoji: "🛋️" },
+  { key: "dorm", label: "Dorm", emoji: "🛏️" },
+  { key: "cleaning", label: "Cleaning", emoji: "🧼" },
+  { key: "laundry", label: "Laundry", emoji: "🧺" },
+  { key: "moving", label: "Moving", emoji: "📦" },
+  { key: "events", label: "Event Svc", emoji: "🎉" },
 ];
 
 export type Listing = {
