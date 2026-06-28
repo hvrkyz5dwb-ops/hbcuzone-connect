@@ -218,6 +218,7 @@ export type PricingTier = {
   key: string;
   name: string;
   price: number;
+  duration?: string;
   tagline: string;
   features: string[];
   highlight?: boolean;
@@ -228,6 +229,7 @@ export const pricingTiers: PricingTier[] = [
     key: "local-boost",
     name: "Local Boost",
     price: 4,
+    duration: "24 hours",
     tagline: "Boost one listing on your campus for 24 hours.",
     features: ["24h boosted placement", "Single campus reach", "Listing highlight"],
   },
@@ -235,6 +237,7 @@ export const pricingTiers: PricingTier[] = [
     key: "campus-featured",
     name: "Campus Featured",
     price: 8,
+    duration: "7 days",
     tagline: "Feature a vendor or service on the campus homepage.",
     features: ["Featured on home feed", "Vendor spotlight", "7 day run"],
   },
@@ -242,30 +245,34 @@ export const pricingTiers: PricingTier[] = [
     key: "kingpin-basic",
     name: "KingPin Basic",
     price: 16,
+    duration: "14 days",
     tagline: "Get verified, trusted, and seen first.",
-    features: ["KingPin verified badge", "Better profile placement", "Trust status"],
+    features: ["KingPin verified badge", "Better profile placement", "Trust status", "14 day run"],
     highlight: true,
   },
   {
     key: "kingpin-pro",
     name: "KingPin Pro",
     price: 32,
+    duration: "21 days",
     tagline: "Full creator/vendor toolkit.",
-    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics"],
+    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics", "21 day run"],
   },
   {
     key: "campus-takeover",
     name: "Campus Takeover",
     price: 64,
+    duration: "1 month",
     tagline: "Premium promo placement across one campus.",
-    features: ["Top of every tab", "Event / brand / vendor", "Single campus, full week"],
+    features: ["Top of every tab", "Event / brand / vendor", "Single campus", "Full 1 month run"],
   },
   {
     key: "hbcu-network-boost",
     name: "HBCU Network Boost",
     price: 128,
+    duration: "2 months",
     tagline: "Promote across HBCUs nationwide — multi-campus reach.",
-    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report"],
+    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report", "Full 2 month run"],
   },
 ];
 
