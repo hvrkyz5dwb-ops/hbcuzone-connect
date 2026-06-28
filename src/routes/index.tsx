@@ -346,6 +346,7 @@ function Home() {
           ))}
         </ul>
       </section>
+      </PullToRefresh>
     </AppShell>
   );
 }
