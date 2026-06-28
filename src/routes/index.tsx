@@ -202,7 +202,7 @@ function Home() {
         <SectionHeader title="Internships & Jobs" action="See all" />
         <ul className="px-5 space-y-2">
           {internships.map((j) => (
-            <li key={j.role} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
+            <Link key={j.role} to="/hub" className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
               <div className="h-10 w-10 grid place-items-center rounded-xl border border-border bg-secondary">
                 <Briefcase className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
               </div>
@@ -211,9 +211,33 @@ function Home() {
                 <p className="text-[11px] text-muted-foreground truncate">{j.company} · {j.tag}</p>
               </div>
               <span className="text-[11px] font-semibold text-primary shrink-0">{j.pay}</span>
-            </li>
+            </Link>
           ))}
         </ul>
+        <div className="px-5 mt-3">
+          <Link
+            to="/hub"
+            className="relative block overflow-hidden rounded-3xl border border-border bg-card p-5"
+          >
+            <div
+              className="pointer-events-none absolute -top-12 -left-12 h-44 w-44 rounded-full blur-3xl opacity-40"
+              style={{ background: "var(--plugu-purple)" }}
+            />
+            <div className="relative flex items-start gap-3">
+              <div className="h-11 w-11 grid place-items-center rounded-2xl bg-[image:var(--gradient-bronze)]">
+                <Briefcase className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>Career & Money Hub</p>
+                <p className="text-sm font-semibold mt-0.5">Internships, scholarships, side hustles & more.</p>
+                <p className="text-xs text-muted-foreground mt-1">Every opportunity, deal, and money skill — in one place.</p>
+                <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                  Open Hub <ArrowRight className="h-3.5 w-3.5" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
       </section>
 
       {/* Student Deals */}
