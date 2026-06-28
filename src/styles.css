@@ -87,6 +87,10 @@
   --gradient-surface: linear-gradient(180deg, oklch(0.17 0.008 60), oklch(0.13 0.005 60));
   --shadow-elegant: 0 20px 50px -20px oklch(0 0 0 / 0.7);
   --shadow-glow: 0 0 40px oklch(0.62 0.11 55 / 0.25);
+  --plugu-purple: oklch(0.62 0.22 295);
+  --plugu-gold: oklch(0.82 0.16 85);
+  --shadow-purple: 0 0 60px oklch(0.62 0.22 295 / 0.35);
+  --shadow-gold: 0 0 50px oklch(0.82 0.16 85 / 0.3);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -197,4 +201,18 @@
     color-mix(in oklab, var(--color-muted) 80%, transparent));
   background-size: 800px 100%;
   animation: plugu-shimmer 1.6s linear infinite;
+}
+
+@keyframes plugu-pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px var(--plugu-gold), 0 0 60px var(--plugu-purple); opacity: 1; }
+  50% { box-shadow: 0 0 50px var(--plugu-gold), 0 0 90px var(--plugu-purple); opacity: 0.85; }
+}
+
+@utility plugu-pulse {
+  animation: plugu-pulse-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes plugu-splash-out {
+  0%, 80% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
 }
