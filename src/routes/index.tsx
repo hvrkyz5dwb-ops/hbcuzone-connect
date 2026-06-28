@@ -9,6 +9,7 @@ import statue from "@/assets/plugu-statue.jpg.asset.json";
 import campusMap from "@/assets/campus-map.jpg";
 import { PluguDaily } from "@/components/PluguDaily";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { CampusFeed } from "@/components/CampusFeed";
 import { toast } from "sonner";
 import {
   announcements, categories, events, featuredKingpins,
@@ -121,6 +122,9 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {/* Campus Social Feed — Instagram-style hub */}
+      <CampusFeed />
 
       {/* PlugU Daily — personalized briefing */}
       <PluguDaily />
