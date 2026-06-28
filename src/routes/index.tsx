@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Bell, Crown, Star, ChevronRight } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
+import statue from "@/assets/plugu-statue.jpg.asset.json";
 import {
   announcements,
   categories,
@@ -46,6 +47,22 @@ function Home() {
             placeholder="Search PlugU"
             className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
           />
+        </div>
+
+        {/* Brand banner */}
+        <div className="mt-5 relative overflow-hidden rounded-3xl border border-border h-28">
+          <img src={statue.url} alt="PlugU statue" className="absolute inset-0 h-full w-full object-cover object-[50%_30%]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/30" />
+          <div
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(70% 100% at 0% 50%, color-mix(in oklab, var(--plugu-purple) 30%, transparent), transparent 70%)" }}
+          />
+          <div className="relative h-full flex flex-col justify-center px-4">
+            <p className="text-sm font-bold text-white">Welcome to PlugU</p>
+            <p className="text-[11px] text-white/75 mt-0.5 max-w-[200px]">
+              The campus plug for everything students need.
+            </p>
+          </div>
         </div>
 
         {/* Category chips */}
