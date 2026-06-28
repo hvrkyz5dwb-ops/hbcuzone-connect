@@ -35,6 +35,9 @@ function Checkout() {
             <h1 className="text-xl font-bold">{tier.name}</h1>
             <p className="text-2xl font-bold text-primary">${tier.price}</p>
           </div>
+          {tier.duration && (
+            <p className="text-[11px] tracking-wider uppercase text-accent mt-1">Runs for {tier.duration}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-1">{tier.tagline}</p>
         </div>
 

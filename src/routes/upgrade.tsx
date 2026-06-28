@@ -42,6 +42,9 @@ function Upgrade() {
                   {t.highlight && <Crown className="h-3 w-3 text-accent" />} {t.name}
                 </p>
                 <p className="mt-1 text-2xl font-bold">${t.price}</p>
+                {t.duration && (
+                  <p className="text-[10px] tracking-wider uppercase text-accent mt-0.5">{t.duration}</p>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">{t.tagline}</p>
               </div>
               <span className="text-[10px] tracking-wider uppercase text-primary">Choose →</span>
