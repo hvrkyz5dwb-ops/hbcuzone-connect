@@ -274,3 +274,152 @@ export const aiSuggestedPrompts = [
   "How do I transfer to an HBCU?",
   "What companies are recruiting HBCU students?",
 ];
+/* ============================================================
+   PHASE 3 — HBCUS exclusive additions
+============================================================ */
+
+export const hbcusHomeSections = [
+  "Home", "News", "Sports", "Schools", "Communities", "Marketplace",
+  "Events", "Scholarships", "Internships", "Alumni", "Excellence",
+  "Rankings", "Networking", "PlugU Daily",
+] as const;
+export type HbcusHomeSection = (typeof hbcusHomeSections)[number];
+
+export const breakingNews = [
+  { id: "br1", title: "Vice President addresses HBCU summit at Howard tonight", time: "12m", school: "Howard" },
+  { id: "br2", title: "FAMU lands $50M federal STEM expansion", time: "47m", school: "FAMU" },
+  { id: "br3", title: "Spelman & Morehouse announce joint AI institute", time: "1h", school: "Spelman" },
+];
+
+export const announcements = [
+  { id: "a1", title: "Spring registration opens Monday 8AM", school: "Howard", tag: "Registrar" },
+  { id: "a2", title: "New shuttle route to Aramark dining", school: "Spelman", tag: "Transit" },
+  { id: "a3", title: "Library 24/7 hours start Sunday", school: "Talladega", tag: "Academics" },
+];
+
+export const homecomingCountdowns = [
+  { school: "Howard", days: 12, theme: "Bison Forever" },
+  { school: "FAMU", days: 24, theme: "Rattler Reign" },
+  { school: "Morehouse", days: 38, theme: "Maroon Pride" },
+];
+
+export const successStories = [
+  { id: "ss1", name: "Aaliyah Pierce", school: "Hampton '24", note: "Signed offer letter at Apple — first in family." },
+  { id: "ss2", name: "Devon Whitaker", school: "FAMU '25", note: "Closed first $10K month with PixelMade Studios." },
+  { id: "ss3", name: "Brielle Akins", school: "Spelman '26", note: "Luxe Nails crosses 1K bookings on PlugU." },
+];
+
+export const trendingConvos = [
+  { id: "tc1", title: "Best HBCU homecoming in 2026?", replies: 412 },
+  { id: "tc2", title: "How are y'all paying for grad school?", replies: 289 },
+  { id: "tc3", title: "Dorm tips for incoming Bison freshmen", replies: 167 },
+];
+
+export const dailyMotivation = [
+  "You are not the sum of your circumstances. You are the sum of your decisions.",
+  "Excellence is the gradual result of always striving to do better.",
+  "We are the dream and the hope of the slave.",
+  "Lift as you climb.",
+];
+
+/* === School Communities === */
+export type CommunityFeedItem = { id: string; user: string; tag: string; post: string; likes: number; time: string };
+export const communityFeedSample: CommunityFeedItem[] = [
+  { id: "cf1", user: "Maya G.", tag: "Marketplace", post: "Plates ready by 7 — DM the plug 🍝", likes: 184, time: "8m" },
+  { id: "cf2", user: "Quincy R.", tag: "Greek Life", post: "Probate dropping Friday at the Yard 👀", likes: 921, time: "1h" },
+  { id: "cf3", user: "Solomon E.", tag: "Study", post: "MCAT group meets at the Cafe, 6pm", likes: 42, time: "2h" },
+];
+
+export const communityRails = [
+  "School Feed", "Marketplace", "Student Businesses", "Athletics", "Organizations",
+  "Greek Life", "Events", "Campus News", "Alumni", "Lost & Found", "Campus Alerts", "Discussions",
+] as const;
+
+/* === Alumni Network === */
+export type Alum = {
+  id: string; name: string; school: string; year: string; company: string;
+  role: string; industry: "Tech" | "Finance" | "Media" | "Healthcare" | "Law" | "Engineering" | "Entrepreneurship" | "Sports";
+  location: string; offers: ("Mentorship" | "Internships" | "Jobs" | "Investment")[];
+};
+export const alumniNetwork: Alum[] = [
+  { id: "al1", name: "Kendra Allen", school: "Howard", year: "2019", company: "Meta", role: "Senior PM", industry: "Tech", location: "Menlo Park, CA", offers: ["Mentorship", "Jobs"] },
+  { id: "al2", name: "Marcus Jenkins", school: "Morehouse", year: "2022", company: "Caelum AI", role: "Founder & CEO", industry: "Entrepreneurship", location: "NYC", offers: ["Internships", "Investment"] },
+  { id: "al3", name: "Jada Reed", school: "Spelman", year: "2023", company: "Atlanta Dream", role: "Forward · WNBA", industry: "Sports", location: "Atlanta, GA", offers: ["Mentorship"] },
+  { id: "al4", name: "Solomon Estes", school: "Hampton", year: "2014", company: "Harlem Capital", role: "Partner", industry: "Finance", location: "NYC", offers: ["Investment", "Mentorship"] },
+  { id: "al5", name: "Trey Lewis", school: "Howard", year: "2018", company: "Goldman Sachs", role: "University Recruiter", industry: "Finance", location: "NYC", offers: ["Jobs", "Internships"] },
+  { id: "al6", name: "Imani Knox", school: "FAMU", year: "2021", company: "Self", role: "Creative Director", industry: "Media", location: "LA", offers: ["Mentorship"] },
+  { id: "al7", name: "Naima Owens", school: "Tuskegee", year: "2023", company: "Sable Canvas", role: "Visual Artist", industry: "Entrepreneurship", location: "Atlanta, GA", offers: ["Mentorship"] },
+  { id: "al8", name: "Dr. Renee Carter", school: "NCCU", year: "2008", company: "Duke Health", role: "Cardiologist", industry: "Healthcare", location: "Durham, NC", offers: ["Mentorship"] },
+];
+export const alumniIndustries = ["All", "Tech", "Finance", "Media", "Healthcare", "Law", "Engineering", "Entrepreneurship", "Sports"] as const;
+
+/* === Black Excellence Hub === */
+export type ExcellenceItem = {
+  id: string; name: string; school: string;
+  category: "Entrepreneur" | "Artist" | "Athlete" | "Researcher" | "Faculty" | "Alumni" | "Business" | "Historical";
+  highlight: string;
+};
+export const excellenceFeed: ExcellenceItem[] = [
+  { id: "ex1", name: "Marcus Jenkins", school: "Morehouse", category: "Entrepreneur", highlight: "Closed $40M Series B for Caelum AI." },
+  { id: "ex2", name: "Naima Owens", school: "Tuskegee", category: "Artist", highlight: "Solo show at the High Museum next spring." },
+  { id: "ex3", name: "Marcus Jordan", school: "Howard", category: "Athlete", highlight: "First Bison QB drafted in 25 years." },
+  { id: "ex4", name: "Dr. Lela Brown", school: "Spelman", category: "Researcher", highlight: "Sickle cell breakthrough published in Nature." },
+  { id: "ex5", name: "Prof. Ade Okafor", school: "FAMU", category: "Faculty", highlight: "MacArthur 'Genius' grant recipient 2026." },
+  { id: "ex6", name: "Aaliyah Pierce", school: "Hampton", category: "Alumni", highlight: "Apple SWE — first in family college grad." },
+  { id: "ex7", name: "Crowned Curls Co.", school: "Spelman", category: "Business", highlight: "Ulta national distribution deal." },
+  { id: "ex8", name: "Mary McLeod Bethune", school: "Bethune-Cookman", category: "Historical", highlight: "Founder. Educator. Stateswoman." },
+];
+export const excellenceCategories = ["All", "Entrepreneur", "Artist", "Athlete", "Researcher", "Faculty", "Alumni", "Business", "Historical"] as const;
+
+/* === HBCUS National Rankings === */
+export type RankingCategory =
+  | "Campus Economy" | "Student Businesses" | "Marketplace Activity"
+  | "Student Engagement" | "Athletic Success" | "Fastest Growing";
+export const rankingCategories: RankingCategory[] = [
+  "Campus Economy", "Student Businesses", "Marketplace Activity",
+  "Student Engagement", "Athletic Success", "Fastest Growing",
+];
+export const hbcusRankings: Record<RankingCategory, { school: string; metric: string; delta: string }[]> = {
+  "Campus Economy": [
+    { school: "Howard", metric: "$842K", delta: "+18%" },
+    { school: "FAMU", metric: "$612K", delta: "+24%" },
+    { school: "Spelman", metric: "$498K", delta: "+9%" },
+    { school: "Hampton", metric: "$412K", delta: "+12%" },
+    { school: "Morehouse", metric: "$388K", delta: "+15%" },
+  ],
+  "Student Businesses": [
+    { school: "Howard", metric: "412 active", delta: "+32" },
+    { school: "Spelman", metric: "318 active", delta: "+24" },
+    { school: "FAMU", metric: "289 active", delta: "+19" },
+    { school: "Morehouse", metric: "211 active", delta: "+14" },
+    { school: "Talladega", metric: "94 active", delta: "+8" },
+  ],
+  "Marketplace Activity": [
+    { school: "FAMU", metric: "2.4K orders", delta: "+41%" },
+    { school: "Howard", metric: "2.1K orders", delta: "+22%" },
+    { school: "Hampton", metric: "1.3K orders", delta: "+18%" },
+    { school: "NCCU", metric: "1.1K orders", delta: "+14%" },
+    { school: "Tuskegee", metric: "0.8K orders", delta: "+9%" },
+  ],
+  "Student Engagement": [
+    { school: "Spelman", metric: "92 DAU/100", delta: "+4" },
+    { school: "Morehouse", metric: "88 DAU/100", delta: "+3" },
+    { school: "Howard", metric: "86 DAU/100", delta: "+5" },
+    { school: "FAMU", metric: "81 DAU/100", delta: "+6" },
+    { school: "Hampton", metric: "78 DAU/100", delta: "+2" },
+  ],
+  "Athletic Success": [
+    { school: "Jackson State", metric: "9-1 FB", delta: "↑2" },
+    { school: "Howard", metric: "7-2 FB", delta: "↑1" },
+    { school: "Southern", metric: "8-2 FB", delta: "→" },
+    { school: "NCCU", metric: "6-3 FB", delta: "↑3" },
+    { school: "FAMU", metric: "6-4 FB", delta: "↓1" },
+  ],
+  "Fastest Growing": [
+    { school: "Talladega", metric: "PlugU users", delta: "+62%" },
+    { school: "Tuskegee", metric: "PlugU users", delta: "+48%" },
+    { school: "NCCU", metric: "PlugU users", delta: "+39%" },
+    { school: "Hampton", metric: "PlugU users", delta: "+27%" },
+    { school: "FAMU", metric: "PlugU users", delta: "+21%" },
+  ],
+};
