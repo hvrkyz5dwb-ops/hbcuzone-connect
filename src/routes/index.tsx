@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Search, Bell, Crown, Star, ChevronRight, Plug, Map as MapIcon,
   Calendar, GraduationCap, Briefcase, Tag, Building2, MessageSquare,
-  Sparkles, Flame, ArrowRight,
+  Flame, ArrowRight,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
