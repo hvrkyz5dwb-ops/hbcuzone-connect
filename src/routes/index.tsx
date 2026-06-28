@@ -43,9 +43,9 @@ function Home() {
       <OpportunityRail />
 
       {/* Category shortcuts */}
-      <section className="mt-7 px-5">
-        <SectionHeader title="Browse the Market" />
-        <div className="grid grid-cols-4 gap-3">
+      <section className="mt-7">
+        <SectionHeader title="Browse the Market" action="See all" />
+        <div className="px-5 grid grid-cols-4 gap-3">
           {categories.slice(0, 8).map((c) => (
             <Link key={c.key} to="/market" className="tap flex flex-col items-center gap-2">
               <div className="h-14 w-14 grid place-items-center rounded-2xl bg-card border border-border text-2xl">
