@@ -3,6 +3,7 @@ import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRig
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
+import statue from "@/assets/plugu-statue.jpg.asset.json";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -33,7 +34,14 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
 function Profile() {
   return (
     <AppShell title="PROFILE">
-      <section className="px-5 pt-6 text-center">
+      {/* Cover photo */}
+      <section className="relative">
+        <div className="relative h-32 overflow-hidden">
+          <img src={statue.url} alt="cover" className="absolute inset-0 h-full w-full object-cover object-[50%_30%]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-background" />
+        </div>
+      </section>
+      <section className="px-5 -mt-12 text-center relative">
         <div className="mx-auto h-24 w-24 rounded-full border-2 border-primary/60 bg-card grid place-items-center shadow-[var(--shadow-glow)]">
           <img src={pluguLogo} alt="Kingpin avatar" className="h-16 w-16 object-contain" />
         </div>
@@ -47,6 +55,18 @@ function Profile() {
         <p className="mt-3 text-sm text-muted-foreground max-w-xs mx-auto">
           Plug for the culture. Vendor connect, event promoter, and student of the game.
         </p>
+      </section>
+
+      {/* Skills & interests */}
+      <section className="mt-4 px-5">
+        <h2 className="text-sm font-semibold tracking-tight mb-2">Skills & Interests</h2>
+        <div className="flex flex-wrap gap-2">
+          {["Branding", "Event Promo", "Photography", "Sales", "Marketing", "Entrepreneurship"].map((s) => (
+            <span key={s} className="text-[11px] px-3 py-1.5 rounded-full bg-card border border-border text-foreground/80">
+              {s}
+            </span>
+          ))}
+        </div>
       </section>
 
       <section className="mt-5 px-5">
