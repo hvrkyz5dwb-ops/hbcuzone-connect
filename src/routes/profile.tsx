@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star, ShieldAlert, Sparkles, Receipt, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
@@ -16,12 +16,16 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const menu = [
-  { label: "My Listings", icon: ListOrdered },
-  { label: "Saved", icon: Heart },
-  { label: "Reviews", icon: Star },
-  { label: "Payments", icon: CreditCard },
-  { label: "Settings", icon: Settings },
+const menu: { label: string; icon: typeof Heart; to: string }[] = [
+  { label: "Upgrade to KingPin", icon: Sparkles, to: "/upgrade" },
+  { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
+  { label: "Payment History", icon: Receipt, to: "/payment-history" },
+  { label: "My Listings", icon: ListOrdered, to: "/market" },
+  { label: "Saved", icon: Heart, to: "/saved" },
+  { label: "Reviews", icon: Star, to: "/profile" },
+  { label: "Safety & Tools", icon: ShieldAlert, to: "/safety" },
+  { label: "Admin", icon: ShieldCheck, to: "/admin" },
+  { label: "Settings", icon: Settings, to: "/profile" },
 ];
 
 function Profile() {
@@ -64,11 +68,11 @@ function Profile() {
             const Icon = m.icon;
             return (
               <li key={m.label}>
-                <button className="w-full flex items-center gap-3 px-4 py-4 text-sm">
+                <Link to={m.to as "/upgrade"} className="w-full flex items-center gap-3 px-4 py-4 text-sm">
                   <Icon className="h-4 w-4 text-primary" />
                   <span className="flex-1 text-left">{m.label}</span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </button>
+                </Link>
               </li>
             );
           })}

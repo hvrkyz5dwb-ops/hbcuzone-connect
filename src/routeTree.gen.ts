@@ -9,16 +9,61 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UpgradeRouteImport } from './routes/upgrade'
+import { Route as SavedRouteImport } from './routes/saved'
+import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
+import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as HbcusRouteImport } from './routes/hbcus'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const UpgradeRoute = UpgradeRouteImport.update({
+  id: '/upgrade',
+  path: '/upgrade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafetyRoute = SafetyRouteImport.update({
+  id: '/safety',
+  path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentHistoryRoute = PaymentHistoryRouteImport.update({
+  id: '/payment-history',
+  path: '/payment-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentFailedRoute = PaymentFailedRouteImport.update({
+  id: '/payment-failed',
+  path: '/payment-failed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -36,9 +81,24 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagePlanRoute = ManagePlanRouteImport.update({
+  id: '/manage-plan',
+  path: '/manage-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HbcusRoute = HbcusRouteImport.update({
   id: '/hbcus',
   path: '/hbcus',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,60 +109,191 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/hbcus': typeof HbcusRoute
+  '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/payment-history': typeof PaymentHistoryRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
+  '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/hbcus': typeof HbcusRoute
+  '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/payment-history': typeof PaymentHistoryRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
+  '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/hbcus': typeof HbcusRoute
+  '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/payment-history': typeof PaymentHistoryRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
+  '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/hbcus' | '/map' | '/market' | '/messages' | '/profile'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/hbcus' | '/map' | '/market' | '/messages' | '/profile'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/admin'
+    | '/checkout'
     | '/hbcus'
+    | '/manage-plan'
     | '/map'
     | '/market'
     | '/messages'
+    | '/onboarding'
+    | '/payment-failed'
+    | '/payment-history'
+    | '/payment-success'
     | '/profile'
+    | '/safety'
+    | '/saved'
+    | '/upgrade'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/admin'
+    | '/checkout'
+    | '/hbcus'
+    | '/manage-plan'
+    | '/map'
+    | '/market'
+    | '/messages'
+    | '/onboarding'
+    | '/payment-failed'
+    | '/payment-history'
+    | '/payment-success'
+    | '/profile'
+    | '/safety'
+    | '/saved'
+    | '/upgrade'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/checkout'
+    | '/hbcus'
+    | '/manage-plan'
+    | '/map'
+    | '/market'
+    | '/messages'
+    | '/onboarding'
+    | '/payment-failed'
+    | '/payment-history'
+    | '/payment-success'
+    | '/profile'
+    | '/safety'
+    | '/saved'
+    | '/upgrade'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CheckoutRoute: typeof CheckoutRoute
   HbcusRoute: typeof HbcusRoute
+  ManagePlanRoute: typeof ManagePlanRoute
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
+  OnboardingRoute: typeof OnboardingRoute
+  PaymentFailedRoute: typeof PaymentFailedRoute
+  PaymentHistoryRoute: typeof PaymentHistoryRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
   ProfileRoute: typeof ProfileRoute
+  SafetyRoute: typeof SafetyRoute
+  SavedRoute: typeof SavedRoute
+  UpgradeRoute: typeof UpgradeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/upgrade': {
+      id: '/upgrade'
+      path: '/upgrade'
+      fullPath: '/upgrade'
+      preLoaderRoute: typeof UpgradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safety': {
+      id: '/safety'
+      path: '/safety'
+      fullPath: '/safety'
+      preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-history': {
+      id: '/payment-history'
+      path: '/payment-history'
+      fullPath: '/payment-history'
+      preLoaderRoute: typeof PaymentHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-failed': {
+      id: '/payment-failed'
+      path: '/payment-failed'
+      fullPath: '/payment-failed'
+      preLoaderRoute: typeof PaymentFailedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -126,11 +317,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manage-plan': {
+      id: '/manage-plan'
+      path: '/manage-plan'
+      fullPath: '/manage-plan'
+      preLoaderRoute: typeof ManagePlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hbcus': {
       id: '/hbcus'
       path: '/hbcus'
       fullPath: '/hbcus'
       preLoaderRoute: typeof HbcusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -145,11 +357,21 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CheckoutRoute: CheckoutRoute,
   HbcusRoute: HbcusRoute,
+  ManagePlanRoute: ManagePlanRoute,
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
+  OnboardingRoute: OnboardingRoute,
+  PaymentFailedRoute: PaymentFailedRoute,
+  PaymentHistoryRoute: PaymentHistoryRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
   ProfileRoute: ProfileRoute,
+  SafetyRoute: SafetyRoute,
+  SavedRoute: SavedRoute,
+  UpgradeRoute: UpgradeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
