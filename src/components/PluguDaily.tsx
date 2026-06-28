@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   dailyItems, dailyTabs, dailyGreetingTime,
   type DailyCategory, type DailyItem,
@@ -21,8 +22,13 @@ function accentStyles(accent: DailyItem["accent"]) {
 
 export function PluguDaily() {
   const [tab, setTab] = useState<DailyCategory>("For You");
-  const [mountedLabel] = useState(() => todayLabel());
-  const [greet] = useState(() => dailyGreetingTime());
+  const [mountedLabel, setMountedLabel] = useState("");
+  const [greet, setGreet] = useState("Welcome");
+
+  useEffect(() => {
+    setMountedLabel(todayLabel());
+    setGreet(dailyGreetingTime());
+  }, []);
 
   const items = useMemo(() => {
     if (tab === "For You") return dailyItems.slice(0, 6);
@@ -50,7 +56,7 @@ export function PluguDaily() {
               {greet} — your campus briefing.
             </p>
           </div>
-          <button className="text-[11px] text-primary shrink-0">See all</button>
+          <Link to="/news" className="text-[11px] text-primary shrink-0">See all</Link>
         </div>
 
         {/* Tabs */}
