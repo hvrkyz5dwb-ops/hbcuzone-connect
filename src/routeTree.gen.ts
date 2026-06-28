@@ -16,6 +16,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
@@ -58,6 +59,11 @@ const PaymentHistoryRoute = PaymentHistoryRouteImport.update({
 const PaymentFailedRoute = PaymentFailedRouteImport.update({
   id: '/payment-failed',
   path: '/payment-failed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/onboarding'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/onboarding'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/onboarding'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -216,6 +228,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
+  OnboardingRoute: typeof OnboardingRoute
   PaymentFailedRoute: typeof PaymentFailedRoute
   PaymentHistoryRoute: typeof PaymentHistoryRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/payment-failed'
       fullPath: '/payment-failed'
       preLoaderRoute: typeof PaymentFailedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -344,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
+  OnboardingRoute: OnboardingRoute,
   PaymentFailedRoute: PaymentFailedRoute,
   PaymentHistoryRoute: PaymentHistoryRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
