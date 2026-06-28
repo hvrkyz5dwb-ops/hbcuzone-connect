@@ -96,6 +96,7 @@ export type PinCategory =
   | "gym"
   | "parking"
   | "safety"
+  | "phone"
   | "hotspot"
   | "vendor";
 
@@ -112,6 +113,7 @@ export const pinFilters: { key: PinCategory | "all"; label: string; emoji: strin
   { key: "gym", label: "Gym", emoji: "🏋️" },
   { key: "parking", label: "Parking", emoji: "🅿️" },
   { key: "safety", label: "Safety", emoji: "🚨" },
+  { key: "phone", label: "Emergency Phone", emoji: "📞" },
   { key: "hotspot", label: "Hot Spots", emoji: "🔥" },
   { key: "building", label: "Buildings", emoji: "🏛️" },
 ];
@@ -143,6 +145,10 @@ export const mapPins: MapPin[] = [
   { id: "p12", name: "Quiet Reading Room", category: "study", distance: "0.4 mi", description: "Inside Founders, 3rd floor", x: 28, y: 50 },
   { id: "p13", name: "Swayne Hall", category: "building", distance: "0.5 mi", description: "Historic academic building", x: 38, y: 22 },
   { id: "p14", name: "Late Night Wings", category: "food", distance: "0.6 mi", description: "Vendor pop-up · 9pm–2am", open: true, x: 82, y: 80 },
+  { id: "p15", name: "Blue Light Phone — Quad", category: "phone", distance: "0.05 mi", description: "Emergency call box · One-press to Campus Safety", open: true, x: 47, y: 35 },
+  { id: "p16", name: "Blue Light Phone — Lot B", category: "phone", distance: "0.2 mi", description: "Emergency call box · Parking entrance", open: true, x: 20, y: 78 },
+  { id: "p17", name: "Blue Light Phone — Rec", category: "phone", distance: "0.4 mi", description: "Emergency call box · Outside gym", open: true, x: 80, y: 55 },
+  { id: "p18", name: "Blue Light Phone — Library", category: "phone", distance: "0.35 mi", description: "Emergency call box · West entry", open: true, x: 22, y: 60 },
 ];
 
 /* -------- HBCUs feature -------- */
@@ -218,6 +224,7 @@ export type PricingTier = {
   key: string;
   name: string;
   price: number;
+  duration?: string;
   tagline: string;
   features: string[];
   highlight?: boolean;
@@ -228,6 +235,7 @@ export const pricingTiers: PricingTier[] = [
     key: "local-boost",
     name: "Local Boost",
     price: 4,
+    duration: "24 hours",
     tagline: "Boost one listing on your campus for 24 hours.",
     features: ["24h boosted placement", "Single campus reach", "Listing highlight"],
   },
@@ -235,6 +243,7 @@ export const pricingTiers: PricingTier[] = [
     key: "campus-featured",
     name: "Campus Featured",
     price: 8,
+    duration: "7 days",
     tagline: "Feature a vendor or service on the campus homepage.",
     features: ["Featured on home feed", "Vendor spotlight", "7 day run"],
   },
@@ -242,30 +251,34 @@ export const pricingTiers: PricingTier[] = [
     key: "kingpin-basic",
     name: "KingPin Basic",
     price: 16,
+    duration: "14 days",
     tagline: "Get verified, trusted, and seen first.",
-    features: ["KingPin verified badge", "Better profile placement", "Trust status"],
+    features: ["KingPin verified badge", "Better profile placement", "Trust status", "14 day run"],
     highlight: true,
   },
   {
     key: "kingpin-pro",
     name: "KingPin Pro",
     price: 32,
+    duration: "21 days",
     tagline: "Full creator/vendor toolkit.",
-    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics"],
+    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics", "21 day run"],
   },
   {
     key: "campus-takeover",
     name: "Campus Takeover",
     price: 64,
+    duration: "1 month",
     tagline: "Premium promo placement across one campus.",
-    features: ["Top of every tab", "Event / brand / vendor", "Single campus, full week"],
+    features: ["Top of every tab", "Event / brand / vendor", "Single campus", "Full 1 month run"],
   },
   {
     key: "hbcu-network-boost",
     name: "HBCU Network Boost",
     price: 128,
+    duration: "2 months",
     tagline: "Promote across HBCUs nationwide — multi-campus reach.",
-    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report"],
+    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report", "Full 2 month run"],
   },
 ];
 

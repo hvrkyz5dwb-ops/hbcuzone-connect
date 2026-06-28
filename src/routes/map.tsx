@@ -10,6 +10,8 @@ import {
   X,
   Phone,
   Route as RouteIcon,
+  Flame,
+  Footprints,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
@@ -41,6 +43,7 @@ const pinColor: Record<PinCategory, string> = {
   gym: "bg-lime-500",
   parking: "bg-zinc-400",
   safety: "bg-red-600",
+  phone: "bg-blue-500",
   hotspot: "bg-yellow-400",
   vendor: "bg-fuchsia-500",
 };
@@ -51,6 +54,7 @@ function MapPage() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PinType | null>(null);
   const [nearMe, setNearMe] = useState(false);
+  const [heatmap, setHeatmap] = useState(false);
 
   const filtered = useMemo(() => {
     return mapPins.filter((p) => {
@@ -129,6 +133,18 @@ function MapPage() {
             <Crosshair className="h-3 w-3" /> What's near me
           </button>
         </div>
+        <div className="mt-2 flex justify-end">
+          <button
+            onClick={() => setHeatmap((v) => !v)}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] tracking-wide border transition-colors ${
+              heatmap
+                ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground border-border"
+            }`}
+          >
+            <Flame className="h-3 w-3" /> Heat map
+          </button>
+        </div>
       </section>
 
       {/* Map canvas */}
@@ -140,6 +156,21 @@ function MapPage() {
             className="absolute inset-0 w-full h-full object-cover opacity-90"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+
+          {/* Heat map overlay */}
+          {heatmap && (
+            <div
+              className="absolute inset-0 pointer-events-none mix-blend-screen"
+              style={{
+                background:
+                  "radial-gradient(18% 14% at 50% 45%, rgba(255,80,40,0.75), transparent 70%)," +
+                  "radial-gradient(14% 11% at 32% 38%, rgba(255,160,40,0.65), transparent 70%)," +
+                  "radial-gradient(12% 10% at 68% 44%, rgba(255,60,160,0.55), transparent 70%)," +
+                  "radial-gradient(16% 12% at 48% 50%, rgba(255,220,40,0.55), transparent 70%)," +
+                  "radial-gradient(10% 8% at 82% 80%, rgba(255,120,40,0.5), transparent 70%)",
+              }}
+            />
+          )}
 
           {/* "You are here" */}
           <div
@@ -268,6 +299,16 @@ function MapPage() {
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{selected.description}</p>
 
+            <div className="mt-4 flex items-center gap-2 p-3 rounded-2xl bg-secondary border border-border">
+              <Footprints className="h-4 w-4 text-primary shrink-0" />
+              <div className="text-xs">
+                <p className="font-medium">Walking directions</p>
+                <p className="text-muted-foreground">
+                  {selected.distance} · about {Math.max(1, Math.round(parseFloat(selected.distance) * 20))} min walk
+                </p>
+              </div>
+            </div>
+
             <div className="mt-5 grid grid-cols-2 gap-2">
               <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium">
                 <RouteIcon className="h-4 w-4" /> Directions
@@ -280,6 +321,12 @@ function MapPage() {
             {selected.category === "safety" && (
               <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium">
                 <Phone className="h-4 w-4" /> Call Campus Safety
+              </button>
+            )}
+
+            {selected.category === "phone" && (
+              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium">
+                <Phone className="h-4 w-4" /> One-press Emergency
               </button>
             )}
           </div>
