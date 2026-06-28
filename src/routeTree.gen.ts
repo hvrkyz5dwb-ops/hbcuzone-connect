@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
@@ -16,6 +17,11 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as IndexRouteImport } from './routes/index'
 
+const UpgradeRoute = UpgradeRouteImport.update({
+  id: '/upgrade',
+  path: '/upgrade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +79,27 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/upgrade': typeof UpgradeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/hbcus' | '/map' | '/market' | '/messages' | '/profile'
+  fullPaths:
+    | '/'
+    | '/hbcus'
+    | '/map'
+    | '/market'
+    | '/messages'
+    | '/profile'
+    | '/upgrade'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/hbcus' | '/map' | '/market' | '/messages' | '/profile'
+  to:
+    | '/'
+    | '/hbcus'
+    | '/map'
+    | '/market'
+    | '/messages'
+    | '/profile'
+    | '/upgrade'
   id:
     | '__root__'
     | '/'
@@ -85,6 +108,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/profile'
+    | '/upgrade'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,10 +118,18 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
+  UpgradeRoute: typeof UpgradeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/upgrade': {
+      id: '/upgrade'
+      path: '/upgrade'
+      fullPath: '/upgrade'
+      preLoaderRoute: typeof UpgradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -150,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
+  UpgradeRoute: UpgradeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
