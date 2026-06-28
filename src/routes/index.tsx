@@ -200,7 +200,7 @@ function Home() {
       {/* Internships & Jobs */}
       <section className="mt-7">
         <SectionHeader title="Internships & Jobs" action="See all" />
-        <ul className="px-5 space-y-2">
+        <div className="px-5 space-y-2">
           {internships.map((j) => (
             <Link key={j.role} to="/hub" className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
               <div className="h-10 w-10 grid place-items-center rounded-xl border border-border bg-secondary">
@@ -213,7 +213,7 @@ function Home() {
               <span className="text-[11px] font-semibold text-primary shrink-0">{j.pay}</span>
             </Link>
           ))}
-        </ul>
+        </div>
         <div className="px-5 mt-3">
           <Link
             to="/hub"
