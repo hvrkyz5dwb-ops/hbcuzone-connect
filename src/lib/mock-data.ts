@@ -81,3 +81,133 @@ export const events = [
   { title: "Open Mic + Plug Mixer", when: "Fri · 8pm", where: "Student Center" },
   { title: "Tailgate Pop-Up", when: "Sat · 12pm", where: "Stadium Lot B" },
 ];
+
+/* -------- Live Campus Map -------- */
+
+export type PinCategory =
+  | "food"
+  | "event"
+  | "ride"
+  | "study"
+  | "building"
+  | "dorm"
+  | "dining"
+  | "library"
+  | "gym"
+  | "parking"
+  | "safety"
+  | "hotspot"
+  | "vendor";
+
+export const pinFilters: { key: PinCategory | "all"; label: string; emoji: string }[] = [
+  { key: "all", label: "All", emoji: "✨" },
+  { key: "food", label: "Food", emoji: "🍔" },
+  { key: "event", label: "Events", emoji: "🎉" },
+  { key: "vendor", label: "Vendors", emoji: "🛍️" },
+  { key: "ride", label: "Rides", emoji: "🚗" },
+  { key: "study", label: "Study", emoji: "📚" },
+  { key: "dorm", label: "Dorms", emoji: "🛏️" },
+  { key: "dining", label: "Dining", emoji: "🍽️" },
+  { key: "library", label: "Library", emoji: "📖" },
+  { key: "gym", label: "Gym", emoji: "🏋️" },
+  { key: "parking", label: "Parking", emoji: "🅿️" },
+  { key: "safety", label: "Safety", emoji: "🚨" },
+  { key: "hotspot", label: "Hot Spots", emoji: "🔥" },
+  { key: "building", label: "Buildings", emoji: "🏛️" },
+];
+
+export type MapPin = {
+  id: string;
+  name: string;
+  category: PinCategory;
+  distance: string; // "0.2 mi"
+  description: string;
+  open?: boolean;
+  // approx % position over the campus map image (top-left origin)
+  x: number;
+  y: number;
+};
+
+export const mapPins: MapPin[] = [
+  { id: "p1", name: "The Plug Eats", category: "food", distance: "0.1 mi", description: "Soul food popup · Open till 10pm", open: true, x: 32, y: 38 },
+  { id: "p2", name: "Yard Show", category: "event", distance: "0.2 mi", description: "Tonight · 7pm @ The Quad", x: 52, y: 30 },
+  { id: "p3", name: "Drip Locker Pop-Up", category: "vendor", distance: "0.3 mi", description: "Streetwear drop · Until 9pm", open: true, x: 68, y: 44 },
+  { id: "p4", name: "QuickPlug Rides", category: "ride", distance: "0.1 mi", description: "Driver 2 min away", x: 42, y: 62 },
+  { id: "p5", name: "Founders Library", category: "library", distance: "0.4 mi", description: "24/7 study floor open", open: true, x: 25, y: 55 },
+  { id: "p6", name: "Savery Hall", category: "dorm", distance: "0.2 mi", description: "Residence hall", x: 60, y: 70 },
+  { id: "p7", name: "Dining Commons", category: "dining", distance: "0.3 mi", description: "Late night menu · Open till 1am", open: true, x: 48, y: 50 },
+  { id: "p8", name: "Rec Center Gym", category: "gym", distance: "0.5 mi", description: "Open till 11pm", open: true, x: 78, y: 60 },
+  { id: "p9", name: "Lot B Parking", category: "parking", distance: "0.2 mi", description: "Student permits only", x: 18, y: 72 },
+  { id: "p10", name: "Campus Safety", category: "safety", distance: "0.3 mi", description: "24/7 escort service", open: true, x: 72, y: 25 },
+  { id: "p11", name: "The Yard", category: "hotspot", distance: "0.1 mi", description: "Where everybody at", x: 50, y: 45 },
+  { id: "p12", name: "Quiet Reading Room", category: "study", distance: "0.4 mi", description: "Inside Founders, 3rd floor", x: 28, y: 50 },
+  { id: "p13", name: "Swayne Hall", category: "building", distance: "0.5 mi", description: "Historic academic building", x: 38, y: 22 },
+  { id: "p14", name: "Late Night Wings", category: "food", distance: "0.6 mi", description: "Vendor pop-up · 9pm–2am", open: true, x: 82, y: 80 },
+];
+
+/* -------- HBCUs feature -------- */
+
+export type HbcuTab =
+  | "directory"
+  | "events"
+  | "businesses"
+  | "discounts"
+  | "news"
+  | "transfer"
+  | "scholarships"
+  | "ambassadors";
+
+export const hbcuEvents = [
+  { title: "Homecoming Yard Fest", school: "Howard", when: "Oct 18 · 4pm", where: "The Yard" },
+  { title: "Spelhouse Battle of the Bands", school: "Spelman / Morehouse", when: "Nov 2 · 7pm", where: "AUC" },
+  { title: "HBCU Founders Day Gala", school: "FAMU", when: "Oct 25 · 8pm", where: "Grand Ballroom" },
+  { title: "Plug-In Tour Stop", school: "Hampton", when: "Nov 9 · 6pm", where: "Student Center" },
+];
+
+export const hbcuBusinesses = [
+  { name: "Kreme + Co", owner: "Kennedy J.", school: "Spelman", category: "Skincare", verified: true },
+  { name: "Trapsoul Studio", owner: "Andre R.", school: "Morehouse", category: "Music", verified: true },
+  { name: "Bayou Bites", owner: "Jasmine T.", school: "Southern", category: "Food", verified: false },
+  { name: "Royal Stitch", owner: "Marcus B.", school: "Talladega", category: "Apparel", verified: true },
+];
+
+export const hbcuDiscounts = [
+  { brand: "Drip Locker", offer: "15% off with .edu", code: "PLUGU15" },
+  { brand: "Fade God", offer: "$5 off first cut", code: "FRESH5" },
+  { brand: "The Plug Eats", offer: "Free drink w/ plate", code: "EATWELL" },
+  { brand: "Vault Sound", offer: "1 free studio hour", code: "VAULT1" },
+];
+
+export const hbcuNews = [
+  { title: "HBCU enrollment hits 10-year high", source: "PlugU Daily", time: "2h" },
+  { title: "New federal grant boosts STEM at 4 HBCUs", source: "Campus Wire", time: "1d" },
+  { title: "Morehouse partners with major tech firm", source: "Atlanta Beat", time: "2d" },
+];
+
+export const transferResources = [
+  { title: "HBCU Common Application", note: "Apply to 60+ HBCUs at once" },
+  { title: "Credit Transfer Guide", note: "Course equivalency by school" },
+  { title: "Transfer Scholarship List", note: "Aid for incoming transfers" },
+  { title: "Housing for Transfers", note: "On-campus options after Year 1" },
+];
+
+export const scholarships = [
+  { name: "Tom Joyner Foundation", amount: "$2,500", deadline: "Rolling" },
+  { name: "UNCF Merit Scholarship", amount: "$5,000", deadline: "Mar 31" },
+  { name: "Thurgood Marshall College Fund", amount: "Up to $6,200", deadline: "May 15" },
+  { name: "HBCU Future Leaders", amount: "$1,500", deadline: "Feb 1" },
+];
+
+export const ambassadors = [
+  { name: "Imani", school: "Howard", year: "Senior · Comms", quote: "I plug freshmen into the right people, fast." },
+  { name: "Devin", school: "Morehouse", year: "Junior · CS", quote: "AUC is built different. Come see." },
+  { name: "Aaliyah", school: "Spelman", year: "Sophomore · Bio", quote: "Sisterhood is the real currency." },
+  { name: "Khalil", school: "FAMU", year: "Senior · Business", quote: "Rattlers move in packs. Tap in." },
+];
+
+export const repProfiles = [
+  { name: "Kingpin", handle: "@kingpin", school: "Talladega", reps: 312 },
+  { name: "Jada", handle: "@jadadrip", school: "Spelman", reps: 287 },
+  { name: "Marcus", handle: "@kingmarc", school: "Howard", reps: 251 },
+  { name: "Trey", handle: "@treybeats", school: "Morehouse", reps: 198 },
+];
