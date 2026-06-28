@@ -43,6 +43,18 @@ export const listings: Listing[] = [
   { id: "4", title: "Sunday Plate — Soul Food", price: "$12", category: "Food", seller: "The Plug Eats", campus: "Howard", rating: 4.6, image: hoodieImg },
   { id: "5", title: "Campus Ride — Airport Run", price: "$20", category: "Rides", seller: "QuickPlug", campus: "Hampton", rating: 4.5, image: hoodieImg },
   { id: "6", title: "Studio Time — 2hr Block", price: "$60", category: "Studio", seller: "Vault Sound", campus: "Morehouse", rating: 4.9, image: hoodieImg },
+  { id: "7", title: "Photoshoot — 1hr session", price: "$80", category: "Photo", seller: "Lens by Andre", campus: "Morehouse", rating: 4.9, image: hoodieImg },
+  { id: "8", title: "Promo Video Edit", price: "$120", category: "Video", seller: "Trapsoul Studio", campus: "Morehouse", rating: 4.8, image: hoodieImg },
+  { id: "9", title: "Logo & Brand Pack", price: "$150", category: "Design", seller: "Royal Stitch", campus: "Talladega", rating: 4.7, image: hoodieImg },
+  { id: "10", title: "Jordan 4 'Bred' — DS sz 10", price: "$240", category: "Sneakers", seller: "Sole Plug", campus: "FAMU", rating: 4.9, image: hoodieImg },
+  { id: "11", title: "Homecoming Ticket", price: "$35", category: "Tickets", seller: "Yard Crew", campus: "Howard", rating: 4.6, image: hoodieImg },
+  { id: "12", title: "Mini Fridge — like new", price: "$45", category: "Dorm", seller: "Resold by Imani", campus: "Spelman", rating: 4.5, image: hoodieImg },
+  { id: "13", title: "BIO 201 Textbook", price: "$25", category: "Books", seller: "Used by Jamal", campus: "Hampton", rating: 4.4, image: hoodieImg },
+  { id: "14", title: "Move-out Help — truck + 2 ppl", price: "$60", category: "Moving", seller: "Lift Crew", campus: "Talladega", rating: 4.8, image: hoodieImg },
+  { id: "15", title: "Laundry Pickup + Fold", price: "$18", category: "Laundry", seller: "Fresh Fold", campus: "FAMU", rating: 4.7, image: hoodieImg },
+  { id: "16", title: "AirPods Pro — barely used", price: "$140", category: "Electronics", seller: "Tasha", campus: "FAMU", rating: 4.6, image: hoodieImg },
+  { id: "17", title: "Knotless Braids — mid back", price: "$180", category: "Hairstyles", seller: "Crowned by K", campus: "Spelman", rating: 4.9, image: hoodieImg },
+  { id: "18", title: "Party DJ — 3hr set", price: "$250", category: "Events", seller: "DJ Pulse", campus: "Hampton", rating: 4.8, image: hoodieImg },
 ];
 
 export const nearbyServices = [
@@ -162,6 +174,10 @@ export const mapPins: MapPin[] = [
   { id: "p16", name: "Blue Light Phone — Lot B", category: "phone", distance: "0.2 mi", description: "Emergency call box · Parking entrance", open: true, x: 20, y: 78 },
   { id: "p17", name: "Blue Light Phone — Rec", category: "phone", distance: "0.4 mi", description: "Emergency call box · Outside gym", open: true, x: 80, y: 55 },
   { id: "p18", name: "Blue Light Phone — Library", category: "phone", distance: "0.35 mi", description: "Emergency call box · West entry", open: true, x: 22, y: 60 },
+  { id: "p19", name: "Lost & Found Desk", category: "building", distance: "0.3 mi", description: "Drop off / claim items · Student Center 1st flr", open: true, x: 55, y: 55 },
+  { id: "p20", name: "Wing Wagon Food Truck", category: "food", distance: "0.2 mi", description: "Lemon pepper wings · until midnight", open: true, x: 64, y: 38 },
+  { id: "p21", name: "Que Dogs HQ", category: "building", distance: "0.3 mi", description: "Omega Psi Phi org house", x: 36, y: 60 },
+  { id: "p22", name: "NPHC Plot", category: "hotspot", distance: "0.15 mi", description: "Greek organizations · meet & step", x: 44, y: 28 },
 ];
 
 /* -------- HBCUs feature -------- */
