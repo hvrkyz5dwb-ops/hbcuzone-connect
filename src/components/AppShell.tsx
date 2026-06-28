@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
-  Plug, Sparkles, Briefcase, Building2, ShieldAlert, X,
+  Plug, Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -24,6 +24,7 @@ const tabs: Tab[] = [
 
 const quickActions: { to: string; label: string; icon: LucideIcon; hint: string }[] = [
   { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
+  { to: "/economy", label: "Campus Economy", icon: Trophy, hint: "Live rankings, grant & wealth index" },
   { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
   { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
   { to: "/map", label: "Live Campus Map", icon: Map, hint: "What's near you, right now" },

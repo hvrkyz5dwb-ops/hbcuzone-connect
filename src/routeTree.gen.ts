@@ -25,6 +25,7 @@ import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -110,6 +111,11 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EconomyRoute = EconomyRouteImport.update({
+  id: '/economy',
+  path: '/economy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRoute
+  '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
   '/hub': typeof HubRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/economy'
     | '/events'
     | '/hbcus'
     | '/hub'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/economy'
     | '/events'
     | '/hbcus'
     | '/hub'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/checkout'
+    | '/economy'
     | '/events'
     | '/hbcus'
     | '/hub'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRoute
+  EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRoute
   HubRoute: typeof HubRoute
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/economy': {
+      id: '/economy'
+      path: '/economy'
+      fullPath: '/economy'
+      preLoaderRoute: typeof EconomyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -440,6 +460,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRoute,
+  EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRoute,
   HubRoute: HubRoute,
