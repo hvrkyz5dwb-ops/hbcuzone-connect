@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Sparkles } from "lucide-react";
 import {
   dailyItems, dailyTabs, dailyGreetingTime,
@@ -21,8 +21,13 @@ function accentStyles(accent: DailyItem["accent"]) {
 
 export function PluguDaily() {
   const [tab, setTab] = useState<DailyCategory>("For You");
-  const [mountedLabel] = useState(() => todayLabel());
-  const [greet] = useState(() => dailyGreetingTime());
+  const [mountedLabel, setMountedLabel] = useState("");
+  const [greet, setGreet] = useState("Welcome");
+
+  useEffect(() => {
+    setMountedLabel(todayLabel());
+    setGreet(dailyGreetingTime());
+  }, []);
 
   const items = useMemo(() => {
     if (tab === "For You") return dailyItems.slice(0, 6);
