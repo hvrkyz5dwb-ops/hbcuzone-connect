@@ -211,3 +211,126 @@ export const repProfiles = [
   { name: "Marcus", handle: "@kingmarc", school: "Howard", reps: 251 },
   { name: "Trey", handle: "@treybeats", school: "Morehouse", reps: 198 },
 ];
+
+/* -------- Pricing tiers -------- */
+
+export type PricingTier = {
+  key: string;
+  name: string;
+  price: number;
+  tagline: string;
+  features: string[];
+  highlight?: boolean;
+};
+
+export const pricingTiers: PricingTier[] = [
+  {
+    key: "local-boost",
+    name: "Local Boost",
+    price: 4,
+    tagline: "Boost one listing on your campus for 24 hours.",
+    features: ["24h boosted placement", "Single campus reach", "Listing highlight"],
+  },
+  {
+    key: "campus-featured",
+    name: "Campus Featured",
+    price: 8,
+    tagline: "Feature a vendor or service on the campus homepage.",
+    features: ["Featured on home feed", "Vendor spotlight", "7 day run"],
+  },
+  {
+    key: "kingpin-basic",
+    name: "KingPin Basic",
+    price: 16,
+    tagline: "Get verified, trusted, and seen first.",
+    features: ["KingPin verified badge", "Better profile placement", "Trust status"],
+    highlight: true,
+  },
+  {
+    key: "kingpin-pro",
+    name: "KingPin Pro",
+    price: 32,
+    tagline: "Full creator/vendor toolkit.",
+    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics"],
+  },
+  {
+    key: "campus-takeover",
+    name: "Campus Takeover",
+    price: 64,
+    tagline: "Premium promo placement across one campus.",
+    features: ["Top of every tab", "Event / brand / vendor", "Single campus, full week"],
+  },
+  {
+    key: "hbcu-boost",
+    name: "HBCU Boost",
+    price: 100,
+    tagline: "Reach HBCUs across the country, not just local.",
+    features: ["National HBCU exposure", "HBCUS tab placement", "Cross-campus discovery"],
+  },
+  {
+    key: "network-boost",
+    name: "Network Boost",
+    price: 128,
+    tagline: "Promote across multiple HBCUs at once.",
+    features: ["Multi-campus campaign", "Targeted by region", "Performance report"],
+  },
+];
+
+/* -------- Safety / Need-based -------- */
+
+export const lostAndFound = [
+  { id: "lf1", title: "AirPods Pro — gray case", where: "Founders Library 2nd floor", when: "2h ago", kind: "Found" },
+  { id: "lf2", title: "Student ID — Jasmine T.", where: "Dining Commons", when: "5h ago", kind: "Found" },
+  { id: "lf3", title: "Silver hoop earring", where: "Rec Center", when: "1d ago", kind: "Lost" },
+];
+
+export const rideBoard = [
+  { id: "r1", from: "Campus", to: "ATL Airport", when: "Fri 4pm", seats: 3, price: "$20" },
+  { id: "r2", from: "Dorm", to: "Walmart", when: "Tonight 8pm", seats: 2, price: "$5" },
+  { id: "r3", from: "Campus", to: "Home — Birmingham", when: "Sat 10am", seats: 1, price: "$30" },
+];
+
+export const studyGroups = [
+  { id: "s1", course: "BIO 201", topic: "Midterm review", when: "Tue 7pm", where: "Library Rm 204", size: 6 },
+  { id: "s2", course: "ACC 305", topic: "Problem set 4", when: "Wed 6pm", where: "Student Center", size: 4 },
+  { id: "s3", course: "CS 150", topic: "Intro to React", when: "Thu 8pm", where: "Online", size: 12 },
+];
+
+export const housingBoard = [
+  { id: "h1", title: "Roommate needed — 2BR off campus", rent: "$650/mo", when: "Spring", contact: "@jadadrip" },
+  { id: "h2", title: "Sublet single — Savery Hall", rent: "$500/mo", when: "Summer", contact: "@treybeats" },
+  { id: "h3", title: "Female roommate — quiet, junior+", rent: "$700/mo", when: "Fall", contact: "@imaniH" },
+];
+
+export const studentDeals = [
+  { brand: "Spotify", offer: "Student Premium — $5.99/mo", code: "EDU" },
+  { brand: "Amazon Prime", offer: "6 months free for students", code: "PRIMESTUDENT" },
+  { brand: "Apple Music", offer: "Student plan — $5.99/mo", code: "EDU" },
+  { brand: "Nike", offer: "10% student discount", code: "STUDENT10" },
+];
+
+/* -------- Admin -------- */
+
+export const adminStats = [
+  { label: "Active Users", value: "12,418" },
+  { label: "KingPins", value: "342" },
+  { label: "Vendors", value: "1,205" },
+  { label: "Reports Open", value: "17" },
+];
+
+export const pendingVendors = [
+  { id: "v1", name: "Bayou Bites", owner: "Jasmine T.", campus: "Southern", category: "Food" },
+  { id: "v2", name: "Trapsoul Studio", owner: "Andre R.", campus: "Morehouse", category: "Music" },
+  { id: "v3", name: "Royal Stitch", owner: "Marcus B.", campus: "Talladega", category: "Apparel" },
+];
+
+export const openReports = [
+  { id: "rp1", target: "@scammerX", reason: "Took payment, never delivered", when: "1h" },
+  { id: "rp2", target: "Listing #482", reason: "Inappropriate image", when: "4h" },
+  { id: "rp3", target: "@drip_fake", reason: "Impersonating Drip Locker", when: "1d" },
+];
+
+export const pendingAmbassadors = [
+  { name: "Tasha", school: "FAMU", year: "Junior · Marketing" },
+  { name: "Jamal", school: "Hampton", year: "Senior · Engineering" },
+];
