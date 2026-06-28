@@ -4,6 +4,7 @@ import {
   Store, Package, Scissors, Image as ImageIcon, Tag, Calendar,
   MessageSquare, BarChart3, DollarSign, Rocket, Crown, CreditCard,
   Plus, X, Upload, ChevronRight, Sparkles, TrendingUp, ArrowRight,
+  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -594,9 +595,4 @@ function BusinessCenter() {
       <NewListingSheet open={sheet !== null} onClose={() => setSheet(null)} defaultKind={sheet ?? "product"} />
     </AppShell>
   );
-}
-
-// Local Receipt icon (lucide alias to keep imports tight)
-function Receipt(props: React.SVGProps<SVGSVGElement>) {
-  return <CreditCard {...props} />;
 }
