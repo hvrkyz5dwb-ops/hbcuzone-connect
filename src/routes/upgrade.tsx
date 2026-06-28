@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Check, Sparkles } from "lucide-react";
+import { Crown, Check, Sparkles, Minus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { pricingTiers } from "@/lib/mock-data";
 
@@ -59,7 +59,66 @@ function Upgrade() {
         <Link to="/manage-plan" className="block text-center text-xs text-muted-foreground py-3">
           Manage current plan →
         </Link>
+
+        <PlanComparison />
       </section>
     </AppShell>
+  );
+}
+
+const compareRows: { label: string; tiers: Record<string, boolean | string> }[] = [
+  { label: "Boosted listing", tiers: { "local-boost": "24h", "campus-featured": "7d", "kingpin-basic": true, "kingpin-pro": true, "campus-takeover": true, "hbcu-network-boost": true } },
+  { label: "Verified KingPin badge", tiers: { "kingpin-basic": true, "kingpin-pro": true, "campus-takeover": true, "hbcu-network-boost": true } },
+  { label: "Featured profile", tiers: { "campus-featured": true, "kingpin-pro": true, "campus-takeover": true, "hbcu-network-boost": true } },
+  { label: "Vendor analytics", tiers: { "kingpin-pro": true, "campus-takeover": true, "hbcu-network-boost": true } },
+  { label: "Priority search", tiers: { "kingpin-pro": true, "campus-takeover": true, "hbcu-network-boost": true } },
+  { label: "Multi-campus reach", tiers: { "hbcu-network-boost": true } },
+  { label: "Full campus takeover", tiers: { "campus-takeover": true, "hbcu-network-boost": true } },
+];
+
+function PlanComparison() {
+  return (
+    <div className="mt-6 rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="px-4 py-3 border-b border-border">
+        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Compare Plans</p>
+        <p className="text-sm font-semibold mt-0.5">What's included in each tier</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-left text-muted-foreground border-b border-border">
+              <th className="py-2 pl-4 pr-2 font-normal">Feature</th>
+              {pricingTiers.map((t) => (
+                <th key={t.key} className="px-2 py-2 font-normal whitespace-nowrap">
+                  <div className="text-foreground font-semibold">${t.price}</div>
+                  <div className="text-[10px] text-muted-foreground">{t.name}</div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {compareRows.map((row) => (
+              <tr key={row.label} className="border-b border-border/50 last:border-0">
+                <td className="py-2.5 pl-4 pr-2 text-muted-foreground">{row.label}</td>
+                {pricingTiers.map((t) => {
+                  const v = row.tiers[t.key];
+                  return (
+                    <td key={t.key} className="px-2 py-2.5 text-center">
+                      {v === true ? (
+                        <Check className="inline h-3.5 w-3.5 text-primary" />
+                      ) : typeof v === "string" ? (
+                        <span className="text-[10px] text-foreground">{v}</span>
+                      ) : (
+                        <Minus className="inline h-3 w-3 text-muted-foreground/40" />
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
