@@ -96,6 +96,7 @@ export type PinCategory =
   | "gym"
   | "parking"
   | "safety"
+  | "phone"
   | "hotspot"
   | "vendor";
 
@@ -112,6 +113,7 @@ export const pinFilters: { key: PinCategory | "all"; label: string; emoji: strin
   { key: "gym", label: "Gym", emoji: "🏋️" },
   { key: "parking", label: "Parking", emoji: "🅿️" },
   { key: "safety", label: "Safety", emoji: "🚨" },
+  { key: "phone", label: "Emergency Phone", emoji: "📞" },
   { key: "hotspot", label: "Hot Spots", emoji: "🔥" },
   { key: "building", label: "Buildings", emoji: "🏛️" },
 ];
@@ -143,6 +145,10 @@ export const mapPins: MapPin[] = [
   { id: "p12", name: "Quiet Reading Room", category: "study", distance: "0.4 mi", description: "Inside Founders, 3rd floor", x: 28, y: 50 },
   { id: "p13", name: "Swayne Hall", category: "building", distance: "0.5 mi", description: "Historic academic building", x: 38, y: 22 },
   { id: "p14", name: "Late Night Wings", category: "food", distance: "0.6 mi", description: "Vendor pop-up · 9pm–2am", open: true, x: 82, y: 80 },
+  { id: "p15", name: "Blue Light Phone — Quad", category: "phone", distance: "0.05 mi", description: "Emergency call box · One-press to Campus Safety", open: true, x: 47, y: 35 },
+  { id: "p16", name: "Blue Light Phone — Lot B", category: "phone", distance: "0.2 mi", description: "Emergency call box · Parking entrance", open: true, x: 20, y: 78 },
+  { id: "p17", name: "Blue Light Phone — Rec", category: "phone", distance: "0.4 mi", description: "Emergency call box · Outside gym", open: true, x: 80, y: 55 },
+  { id: "p18", name: "Blue Light Phone — Library", category: "phone", distance: "0.35 mi", description: "Emergency call box · West entry", open: true, x: 22, y: 60 },
 ];
 
 /* -------- HBCUs feature -------- */
