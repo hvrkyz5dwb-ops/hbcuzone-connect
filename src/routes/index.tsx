@@ -1,32 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Search, Bell, Crown, Star, ChevronRight, Plug, Map as MapIcon,
-  Calendar, GraduationCap, Briefcase, Tag, Building2, MessageSquare,
-  Flame, ArrowRight,
+  Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
+  Building2, MessageSquare, ArrowRight, Star,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
-import statue from "@/assets/plugu-statue.jpg.asset.json";
 import campusMap from "@/assets/campus-map.jpg";
 import { PluguDaily } from "@/components/PluguDaily";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { CampusFeed } from "@/components/CampusFeed";
+import { CampusPulse } from "@/components/CampusPulse";
+import { SmartSearch } from "@/components/SmartSearch";
+import { OpportunityRail } from "@/components/OpportunityRail";
 import { toast } from "sonner";
 import {
-  announcements, categories, events, featuredKingpins,
-  nearbyServices, messagesList, scholarships, hbcuDiscounts,
+  categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
-
-const internships = [
-  { role: "SWE Intern — Summer '26", company: "Google BOLD", tag: "Internship", pay: "$10.5K/mo" },
-  { role: "Brand Ambassador", company: "Nike", tag: "Job · On-campus", pay: "$22/hr" },
-  { role: "Product Design Co-op", company: "Capital One", tag: "Co-op", pay: "Paid" },
-];
-
-const campusPulse = [
-  { tag: "Trending", text: "Homecoming tickets dropped — 60% claimed in 1 hr" },
-  { tag: "Hot", text: "Fade God fully booked through Saturday" },
-  { tag: "New", text: "PlugU x HBCU Founders Grant now accepting apps" },
-];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,76 +31,23 @@ function Home() {
   return (
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
-      {/* Greeting */}
-      <section className="px-5 pt-5 slide-up">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Welcome back,</p>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              Kingpin <Crown className="h-6 w-6 text-accent" />
-            </h1>
-          </div>
-          <button className="relative h-10 w-10 grid place-items-center rounded-full bg-secondary border border-border">
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
-          </button>
-        </div>
+      {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
+      <CampusPulse />
 
-        {/* Search */}
-        <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input
-            placeholder="Search PlugU"
-            className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-          />
-        </div>
+      {/* Smart universal search */}
+      <section className="px-5">
+        <SmartSearch />
+      </section>
 
-        {/* Brand banner */}
-        <div className="mt-5 relative overflow-hidden rounded-3xl border border-border h-28">
-          <img src={statue.url} alt="PlugU statue" className="absolute inset-0 h-full w-full object-cover object-[50%_30%]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/30" />
-          <div
-            className="absolute inset-0"
-            style={{ background: "radial-gradient(70% 100% at 0% 50%, color-mix(in oklab, var(--plugu-purple) 30%, transparent), transparent 70%)" }}
-          />
-          <div className="relative h-full flex flex-col justify-center px-4">
-            <p className="text-sm font-bold text-white">Welcome to PlugU</p>
-            <p className="text-[11px] text-white/75 mt-0.5 max-w-[200px]">
-              The campus plug for everything students need.
-            </p>
-          </div>
-        </div>
+      {/* Opportunity rail — jobs / internships / scholarships / research / leadership / volunteer */}
+      <OpportunityRail />
 
-        {/* Become a Plug CTA */}
-        <Link
-          to="/business"
-          className="mt-4 group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/40 p-4"
-          style={{ background: "image-set(var(--gradient-bronze))" as any }}
-        >
-          <div
-            className="absolute inset-0 -z-10"
-            style={{ background: "var(--gradient-bronze)" }}
-          />
-          <div className="h-11 w-11 grid place-items-center rounded-2xl bg-black/30 border border-white/15">
-            <Plug className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-primary-foreground">Become a Plug</p>
-            <p className="text-[11px] text-primary-foreground/80">
-              Sell items, food, services, rides, tickets, tutoring & more.
-            </p>
-          </div>
-          <ArrowRight className="h-4 w-4 text-primary-foreground transition-transform group-hover:translate-x-0.5" />
-        </Link>
-
-        {/* Category chips */}
-        <div className="mt-5 grid grid-cols-4 gap-3">
-          {categories.slice(0, 4).map((c) => (
-            <Link
-              key={c.key}
-              to="/market"
-              className="flex flex-col items-center gap-2"
-            >
+      {/* Category shortcuts */}
+      <section className="mt-7">
+        <SectionHeader title="Browse the Market" action="See all" />
+        <div className="px-5 grid grid-cols-4 gap-3">
+          {categories.slice(0, 8).map((c) => (
+            <Link key={c.key} to="/market" className="tap flex flex-col items-center gap-2">
               <div className="h-14 w-14 grid place-items-center rounded-2xl bg-card border border-border text-2xl">
                 {c.emoji}
               </div>
@@ -123,67 +57,8 @@ function Home() {
         </div>
       </section>
 
-      {/* Campus Social Feed — Instagram-style hub */}
-      <CampusFeed />
-
-      {/* PlugU Daily — personalized briefing */}
+      {/* PlugU Daily — briefing */}
       <PluguDaily />
-
-      {/* Campus Pulse */}
-      <section className="mt-7">
-        <SectionHeader title="Campus Pulse" action="See all" />
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {campusPulse.map((p) => (
-            <div key={p.text} className="min-w-[240px] rounded-2xl border border-border bg-card p-4">
-              <div className="flex items-center gap-1.5 text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>
-                <Flame className="h-3 w-3" /> {p.tag}
-              </div>
-              <p className="mt-1.5 text-sm font-medium leading-snug">{p.text}</p>
-            </div>
-          ))}
-          {announcements.map((a) => (
-            <div key={a.title} className="min-w-[240px] rounded-2xl border border-border bg-card p-4">
-              <p className="text-[10px] tracking-widest uppercase text-primary">{a.tag} · {a.time}</p>
-              <p className="mt-1.5 text-sm font-medium leading-snug">{a.title}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Trending Vendors */}
-      <section className="mt-7">
-        <SectionHeader title="Trending Vendors" action="See all" />
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {featuredKingpins.map((k) => (
-            <div key={k.handle} className="min-w-[160px] rounded-2xl border border-border bg-card p-4 text-center">
-              <div className="mx-auto h-14 w-14 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-lg font-bold text-primary-foreground">
-                {k.name[0]}
-              </div>
-              <p className="mt-2 font-semibold flex items-center justify-center gap-1">
-                {k.name} <Crown className="h-3.5 w-3.5 text-accent" />
-              </p>
-              <p className="text-[11px] text-muted-foreground">{k.campus}</p>
-              <p className="text-[11px] text-primary mt-1">{k.followers} followers</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Upcoming Events */}
-      <section className="mt-7">
-        <SectionHeader title="Upcoming Events" action="See all" />
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {events.map((e) => (
-            <div key={e.title} className="min-w-[220px] rounded-2xl border border-border bg-[image:var(--gradient-surface)] p-4">
-              <div className="flex items-center gap-1.5 text-xs text-primary">
-                <Calendar className="h-3 w-3" /> {e.when}
-              </div>
-              <h3 className="mt-1 font-semibold text-base">{e.title}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{e.where}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Scholarships & Grants */}
       <section className="mt-7">
@@ -204,47 +79,47 @@ function Home() {
         </ul>
       </section>
 
-      {/* Internships & Jobs */}
-      <section className="mt-7">
-        <SectionHeader title="Internships & Jobs" action="See all" />
-        <div className="px-5 space-y-2">
-          {internships.map((j) => (
-            <Link key={j.role} to="/hub" className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
-              <div className="h-10 w-10 grid place-items-center rounded-xl border border-border bg-secondary">
-                <Briefcase className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{j.role}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{j.company} · {j.tag}</p>
-              </div>
-              <span className="text-[11px] font-semibold text-primary shrink-0">{j.pay}</span>
-            </Link>
-          ))}
-        </div>
-        <div className="px-5 mt-3">
-          <Link
-            to="/hub"
-            className="relative block overflow-hidden rounded-3xl border border-border bg-card p-5"
-          >
-            <div
-              className="pointer-events-none absolute -top-12 -left-12 h-44 w-44 rounded-full blur-3xl opacity-40"
-              style={{ background: "var(--plugu-purple)" }}
-            />
-            <div className="relative flex items-start gap-3">
-              <div className="h-11 w-11 grid place-items-center rounded-2xl bg-[image:var(--gradient-bronze)]">
-                <Briefcase className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>Career & Money Hub</p>
-                <p className="text-sm font-semibold mt-0.5">Internships, scholarships, side hustles & more.</p>
-                <p className="text-xs text-muted-foreground mt-1">Every opportunity, deal, and money skill — in one place.</p>
-                <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                  Open Hub <ArrowRight className="h-3.5 w-3.5" />
-                </div>
+      {/* Become a Plug CTA */}
+      <section className="mt-7 px-5">
+        <Link
+          to="/business"
+          className="tap group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/40 p-4"
+          style={{ background: "var(--gradient-bronze)" }}
+        >
+          <div className="h-11 w-11 grid place-items-center rounded-2xl bg-black/30 border border-white/15">
+            <Plug className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-primary-foreground">Become a Plug</p>
+            <p className="text-[11px] text-primary-foreground/80">
+              Sell items, food, services, rides, tickets, tutoring & more.
+            </p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-primary-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </section>
+
+      {/* Career & Money Hub teaser */}
+      <section className="mt-5 px-5">
+        <Link to="/hub" className="relative block overflow-hidden rounded-3xl border border-border bg-card p-5">
+          <div
+            className="pointer-events-none absolute -top-12 -left-12 h-44 w-44 rounded-full blur-3xl opacity-40"
+            style={{ background: "var(--plugu-purple)" }}
+          />
+          <div className="relative flex items-start gap-3">
+            <div className="h-11 w-11 grid place-items-center rounded-2xl bg-[image:var(--gradient-bronze)]">
+              <Briefcase className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>Career & Money Hub</p>
+              <p className="text-sm font-semibold mt-0.5">Internships, scholarships, side hustles & more.</p>
+              <p className="text-xs text-muted-foreground mt-1">Every opportunity, deal, and money skill — in one place.</p>
+              <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                Open Hub <ArrowRight className="h-3.5 w-3.5" />
               </div>
             </div>
-          </Link>
-        </div>
+          </div>
+        </Link>
       </section>
 
       {/* Student Deals */}
