@@ -261,18 +261,11 @@ export const pricingTiers: PricingTier[] = [
     features: ["Top of every tab", "Event / brand / vendor", "Single campus, full week"],
   },
   {
-    key: "hbcu-boost",
-    name: "HBCU Boost",
-    price: 100,
-    tagline: "Reach HBCUs across the country, not just local.",
-    features: ["National HBCU exposure", "HBCUS tab placement", "Cross-campus discovery"],
-  },
-  {
-    key: "network-boost",
-    name: "Network Boost",
+    key: "hbcu-network-boost",
+    name: "HBCU Network Boost",
     price: 128,
-    tagline: "Promote across multiple HBCUs at once.",
-    features: ["Multi-campus campaign", "Targeted by region", "Performance report"],
+    tagline: "Promote across HBCUs nationwide — multi-campus reach.",
+    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report"],
   },
 ];
 
