@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Bell, Crown, Star, ChevronRight } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
+import { PluguDaily } from "@/components/PluguDaily";
 import {
   announcements,
   categories,
@@ -81,6 +82,9 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {/* PlugU Daily — personalized briefing */}
+      <PluguDaily />
 
       {/* Whats happening today */}
       <section className="mt-7">
