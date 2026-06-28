@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
+import { usePersona, interestOptions, type PersonaInterest } from "@/hooks/use-persona";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({ meta: [{ title: "Welcome — PlugU" }] }),
@@ -10,9 +11,10 @@ export const Route = createFileRoute("/onboarding")({
 });
 
 const STEPS = [
-  { title: "Welcome to PlugU", body: "The campus marketplace built for HBCU students. Buy, sell, book, and link up." },
+  { title: "Welcome to PlugU", body: "The campus hub built for HBCU students. Buy, sell, book, and link up." },
   { title: "Find your plug", body: "Tap Market for haircuts, food, rides, tutoring and more — all on your campus." },
   { title: "Live Campus Map", body: "See what's open, what's poppin, and how to get there in real time." },
+  { title: "What are you into?", body: "Pick a few — we'll personalize your Campus Pulse.", picker: true },
   { title: "Get verified", body: "Add your .edu email for the trusted badge, campus chats, and student deals." },
   { title: "Become a KingPin", body: "Upgrade to boost listings, feature your vendor page, and rep your campus." },
 ];
@@ -23,6 +25,13 @@ function Onboarding() {
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
   const touchStartX = useRef<number | null>(null);
+  const [persona, updatePersona] = usePersona();
+
+  function toggleInterest(k: PersonaInterest) {
+    const set = new Set(persona.interests);
+    set.has(k) ? set.delete(k) : set.add(k);
+    updatePersona({ interests: Array.from(set) });
+  }
 
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
@@ -55,6 +64,26 @@ function Onboarding() {
         <div key={i} className="slide-up">
           <h1 className="mt-4 text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>{step.title}</h1>
           <p className="mt-2 text-sm text-white/80 max-w-xs mx-auto">{step.body}</p>
+          {step.picker && (
+            <div className="mt-5 mx-auto max-w-xs grid grid-cols-2 gap-2">
+              {interestOptions.map((opt) => {
+                const active = persona.interests.includes(opt.key);
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => toggleInterest(opt.key)}
+                    className={`tap flex items-center gap-2 px-3 py-2.5 rounded-2xl border text-xs text-left transition-colors ${
+                      active
+                        ? "border-primary bg-[image:var(--gradient-bronze)] text-primary-foreground"
+                        : "border-white/15 bg-black/40 text-white/90"
+                    }`}
+                  >
+                    <span>{opt.emoji}</span> <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
         <p className="mt-3 text-[10px] tracking-widest uppercase text-white/40">Swipe to continue →</p>
 
