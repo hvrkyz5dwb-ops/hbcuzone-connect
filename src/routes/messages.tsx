@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
+import { Search, MessageSquare } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { messagesList } from "@/lib/mock-data";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { LoadingList, EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
@@ -16,19 +19,44 @@ export const Route = createFileRoute("/messages")({
 });
 
 function Messages() {
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
+  const filtered = messagesList.filter(
+    (m) => !query || `${m.name} ${m.preview}`.toLowerCase().includes(query.toLowerCase()),
+  );
+
   return (
     <AppShell title="INBOX">
+      <PullToRefresh onRefresh={async () => { setLoading(true); await new Promise(r => setTimeout(r, 600)); setLoading(false); }}>
       <section className="px-5 pt-5">
         <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
           <Search className="h-4 w-4 text-muted-foreground" />
-          <input placeholder="Search messages" className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search messages"
+            className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
+          />
         </div>
       </section>
 
-      <ul className="mt-4 px-2">
-        {messagesList.map((m) => (
-          <li key={m.id}>
-            <button className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-card transition-colors text-left">
+      {loading ? (
+        <div className="mt-4"><LoadingList rows={5} /></div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={MessageSquare}
+          title="No conversations"
+          description="Reach out to a vendor from any listing to start chatting."
+        />
+      ) : (
+      <ul className="mt-4 px-2 slide-up">
+        {filtered.map((m, i) => (
+          <li key={m.id} style={{ animation: `plugu-fade-up 0.35s ease-out ${i * 40}ms both` }}>
+            <button className="tap w-full flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-card transition-colors text-left">
               <div className="relative h-12 w-12 shrink-0">
                 <div className="h-12 w-12 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
                   {m.name[0]}
@@ -48,6 +76,8 @@ function Messages() {
           </li>
         ))}
       </ul>
+      )}
+      </PullToRefresh>
     </AppShell>
   );
 }
