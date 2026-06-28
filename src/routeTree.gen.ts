@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
@@ -27,6 +28,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const UpgradeRoute = UpgradeRouteImport.update({
   id: '/upgrade',
   path: '/upgrade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SafetyRoute = SafetyRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
   '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesByTo {
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
   '/upgrade': typeof UpgradeRoute
 }
 export interface FileRoutesById {
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/payment-success': typeof PaymentSuccessRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
+  '/saved': typeof SavedRoute
   '/upgrade': typeof UpgradeRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/profile'
     | '/safety'
+    | '/saved'
     | '/upgrade'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/profile'
     | '/safety'
+    | '/saved'
     | '/upgrade'
   id:
     | '__root__'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/profile'
     | '/safety'
+    | '/saved'
     | '/upgrade'
   fileRoutesById: FileRoutesById
 }
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   ProfileRoute: typeof ProfileRoute
   SafetyRoute: typeof SafetyRoute
+  SavedRoute: typeof SavedRoute
   UpgradeRoute: typeof UpgradeRoute
 }
 
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/upgrade'
       fullPath: '/upgrade'
       preLoaderRoute: typeof UpgradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/safety': {
@@ -329,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentSuccessRoute: PaymentSuccessRoute,
   ProfileRoute: ProfileRoute,
   SafetyRoute: SafetyRoute,
+  SavedRoute: SavedRoute,
   UpgradeRoute: UpgradeRoute,
 }
 export const routeTree = rootRouteImport
