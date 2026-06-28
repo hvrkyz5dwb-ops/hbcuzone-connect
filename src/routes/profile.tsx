@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star, ShieldAlert, Sparkles, Receipt, ShieldCheck } from "lucide-react";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 const menu: { label: string; icon: typeof Heart; to: string }[] = [
+  { label: "Plug Business Center", icon: Store, to: "/business" },
   { label: "Upgrade to KingPin", icon: Sparkles, to: "/upgrade" },
   { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
   { label: "Payment History", icon: Receipt, to: "/payment-history" },

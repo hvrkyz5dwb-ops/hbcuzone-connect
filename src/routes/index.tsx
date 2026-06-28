@@ -82,7 +82,7 @@ function Home() {
 
         {/* Become a Plug CTA */}
         <Link
-          to="/upgrade"
+          to="/business"
           className="mt-4 group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/40 p-4"
           style={{ background: "image-set(var(--gradient-bronze))" as any }}
         >
@@ -235,7 +235,7 @@ function Home() {
 
       {/* Plug Business Center */}
       <section className="mt-7 px-5">
-        <Link to="/upgrade" className="relative block overflow-hidden rounded-3xl border border-border bg-card p-5">
+        <Link to="/business" className="relative block overflow-hidden rounded-3xl border border-border bg-card p-5">
           <div
             className="pointer-events-none absolute -bottom-12 -right-12 h-44 w-44 rounded-full blur-3xl opacity-40"
             style={{ background: "var(--plugu-purple)" }}
