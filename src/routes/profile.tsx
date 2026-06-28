@@ -68,7 +68,7 @@ function Profile() {
             const Icon = m.icon;
             return (
               <li key={m.label}>
-                <Link to={m.to} className="w-full flex items-center gap-3 px-4 py-4 text-sm">
+                <Link to={m.to as "/upgrade"} className="w-full flex items-center gap-3 px-4 py-4 text-sm">
                   <Icon className="h-4 w-4 text-primary" />
                   <span className="flex-1 text-left">{m.label}</span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
