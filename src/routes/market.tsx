@@ -113,7 +113,10 @@ function Market() {
               <p className="text-sm font-medium line-clamp-2">{l.title}</p>
               <p className="text-primary font-bold mt-1">{l.price}</p>
               <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="truncate">{l.seller}</span>
+                <span className="truncate inline-flex items-center gap-1">
+                  {l.seller}
+                  <VerifiedStudentBadge size="xs" iconOnly />
+                </span>
                 <span className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-accent fill-accent" />
                   {l.rating}
