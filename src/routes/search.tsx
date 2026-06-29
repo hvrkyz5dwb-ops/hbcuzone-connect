@@ -77,7 +77,7 @@ function SearchPage() {
   const [sort, setSort] = useState(SORTS[0]);
 
   useEffect(() => {
-    navigate({ search: (prev) => ({ ...prev, q: query || undefined, tab }), replace: true });
+    navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, q: query || undefined, tab }), replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, query]);
 
