@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, Bookmark, MoreHorizontal, BadgeCheck,
   Crown, ImagePlus, Video, Tag, Plus, ChevronLeft, ChevronRight, X,
   ShoppingBag, CalendarCheck2, GraduationCap, Car, Megaphone, Sparkles,
-  Flame, AlertTriangle, Trophy, Bell,
+  Flame, AlertTriangle, Trophy, Bell, UserPlus, Check, Store,
 } from "lucide-react";
 import {
   feedPosts, stories, feedFilters, filterPosts,
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
+const FOLLOW_KEY = "plugu.feed.follows";
 
 function readSet(key: string): Set<string> {
   if (typeof window === "undefined") return new Set();
@@ -30,6 +31,7 @@ export function CampusFeed() {
   const [storyOpen, setStoryOpen] = useState<string | null>(null);
   const [liked, setLiked] = useState<Set<string>>(() => readSet(LIKED_KEY));
   const [saved, setSaved] = useState<Set<string>>(() => readSet(SAVED_KEY));
+  const [follows, setFollows] = useState<Set<string>>(() => readSet(FOLLOW_KEY));
 
   const posts = useMemo(() => filterPosts(feedPosts, filter), [filter]);
 
@@ -47,6 +49,15 @@ export function CampusFeed() {
       if (next.has(id)) { next.delete(id); toast("Removed from saved"); }
       else { next.add(id); toast.success("Saved to your collection"); }
       writeSet(SAVED_KEY, next);
+      return next;
+    });
+  }
+  function toggleFollow(name: string) {
+    setFollows((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) { next.delete(name); toast(`Unfollowed ${name}`); }
+      else { next.add(name); toast.success(`Following ${name}`); }
+      writeSet(FOLLOW_KEY, next);
       return next;
     });
   }
