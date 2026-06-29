@@ -10,6 +10,8 @@ export type FeedPostType =
   | "scholarship"
   | "hbcu"
   | "daily"
+  | "product"
+  | "announcement"
   | "sponsored";
 
 export type FeedPost = {
@@ -177,6 +179,7 @@ export const feedFilters = [
   "HBCUs",
   "News",
   "Deals",
+  "Creators",
 ] as const;
 
 export type FeedFilter = (typeof feedFilters)[number];
@@ -196,10 +199,98 @@ export function filterPosts(posts: FeedPost[], filter: FeedFilter): FeedPost[] {
     case "HBCUs":
       return posts.filter((p) => p.type === "hbcu" || p.type === "scholarship");
     case "News":
-      return posts.filter((p) => p.type === "daily" || p.type === "hbcu");
+      return posts.filter((p) => p.type === "daily" || p.type === "hbcu" || p.type === "announcement");
     case "Deals":
-      return posts.filter((p) => p.type === "drop" || p.sponsored);
+      return posts.filter((p) => p.type === "drop" || p.type === "product" || p.sponsored);
+    case "Creators":
+      return posts.filter((p) => p.type === "lifestyle" || p.user.kingpin);
     default:
       return posts;
   }
 }
+
+/* ============ Featured creators ============ */
+
+export type Creator = {
+  id: string;
+  name: string;
+  handle: string;
+  campus: string;
+  emoji: string;
+  craft: string;
+  followers: string;
+  gradient: string;
+  kingpin?: boolean;
+};
+
+export const featuredCreators: Creator[] = [
+  { id: "c1", name: "Fade God",  handle: "@fadegod",  campus: "Howard",  craft: "Barber",   emoji: "💈", followers: "4.2k", kingpin: true,
+    gradient: "linear-gradient(135deg,#3a1d12,#7a3a1f 55%,#d49a4a)" },
+  { id: "c2", name: "Lash Loft", handle: "@lashloft", campus: "Hampton", craft: "Lashes",   emoji: "👁️", followers: "3.1k",
+    gradient: "linear-gradient(135deg,#1a0f2a,#3b1f5a 55%,#a78bfa)" },
+  { id: "c3", name: "Plate Plug",handle: "@plateplug",campus: "Spelman", craft: "Chef",     emoji: "🍱", followers: "5.6k", kingpin: true,
+    gradient: "linear-gradient(135deg,#1c1a08,#5a4d12 55%,#f1c75b)" },
+  { id: "c4", name: "Drip Co.",  handle: "@dripco",   campus: "AUC",     craft: "Fashion",  emoji: "👕", followers: "8.9k",
+    gradient: "linear-gradient(135deg,#0e1d2a,#1f4a6e 55%,#7dd3fc)" },
+  { id: "c5", name: "Jasmine T.",handle: "@jaztutors",campus: "Howard",  craft: "Tutor",    emoji: "📚", followers: "1.8k",
+    gradient: "linear-gradient(135deg,#1a1212,#5a2a2a 55%,#fda4af)" },
+  { id: "c6", name: "Campus Rides",handle:"@cmpride", campus: "ATL",     craft: "Driver",   emoji: "🚗", followers: "2.4k",
+    gradient: "linear-gradient(135deg,#0a1a14,#16433a 55%,#73ffb8)" },
+];
+
+/* ============ School announcements (pinned ticker) ============ */
+
+export type Announcement = {
+  id: string;
+  campus: string;
+  title: string;
+  tag: "Alert" | "Notice" | "Win" | "Event";
+};
+
+export const announcements: Announcement[] = [
+  { id: "a1", campus: "Howard U",  title: "Library open 24/7 through finals week.",        tag: "Notice" },
+  { id: "a2", campus: "Spelman",   title: "Homecoming parade route updated — check map.",  tag: "Event" },
+  { id: "a3", campus: "Hampton",   title: "Free flu shots at Health Center Thursday.",     tag: "Notice" },
+  { id: "a4", campus: "Morehouse", title: "Men of Morehouse raised $40K for scholarships.",tag: "Win" },
+  { id: "a5", campus: "FAMU",      title: "Severe weather watch — shuttle service delayed.",tag: "Alert" },
+];
+
+/* ============ Extra posts: products + announcements ============ */
+
+feedPosts.push(
+  {
+    id: "p11",
+    type: "product",
+    user: { name: "Yard Vintage", campus: "Trending · AUC", verified: true },
+    time: "20m",
+    caption: "Restocked: vintage HBCU crewnecks. 24 pieces, all sizes. Going fast.",
+    media: ["🧥", "👟", "🧢"],
+    likes: 982,
+    comments: 74,
+    vendor: { cta: "Shop", price: "$38", tag: "Trending" },
+    scope: "nearby",
+  },
+  {
+    id: "p12",
+    type: "announcement",
+    user: { name: "Howard Student Affairs", campus: "Official", verified: true },
+    time: "30m",
+    caption: "Reminder: Spring registration opens Monday 8AM. Holds must be cleared by Friday.",
+    media: ["📢"],
+    likes: 421,
+    comments: 56,
+    scope: "campus",
+  },
+  {
+    id: "p13",
+    type: "product",
+    user: { name: "Sole Plug", campus: "Trending · National", verified: true, kingpin: true },
+    time: "1h",
+    caption: "Jordan 4 'Bred Reimagined' — 6 pairs left, student price only on PlugU.",
+    media: ["👟"],
+    likes: 2410,
+    comments: 188,
+    vendor: { cta: "Shop", price: "$210", tag: "Drop" },
+    scope: "national",
+  },
+);

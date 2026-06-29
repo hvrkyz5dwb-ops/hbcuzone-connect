@@ -344,3 +344,8 @@
 .login-transition { animation: login-fade-out 2.4s ease-in forwards; }
 .login-zoom { animation: login-zoom 2.4s cubic-bezier(0.5, 0, 0.75, 0) forwards; transform-origin: 50% 42%; }
 .login-flash { animation: login-flash 0.7s ease-out forwards; }
+
+@keyframes plugu-ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
