@@ -1294,22 +1294,14 @@ function DailyPanel() {
   return (
     <div className="space-y-4">
       <SectionHeader icon={Sparkles} title="PlugU Daily" subtitle="Curated for college minds, 18–24" />
-      <ul className="space-y-2">
-        {pluguDailyTopics.map((t, i) => (
-          <li key={t.title} className="p-4 rounded-2xl bg-card border border-border flex items-start gap-3 slide-up" style={{ animationDelay: `${i * 30}ms` }}>
-            <div className="h-10 w-10 rounded-xl grid place-items-center border border-border" style={{ background: "color-mix(in oklab, var(--plugu-purple) 14%, transparent)" }}>
-              <TrendingUp className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>
-                {t.tag} · {t.time}
-              </p>
-              <p className="font-semibold leading-snug mt-0.5">{t.title}</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground self-center shrink-0" />
-          </li>
-        ))}
-      </ul>
+      <AiNewsFeed
+        category="PlugU Daily — top stories Black college students should know today"
+        count={10}
+        fallback={pluguDailyTopics.map((t, i) => ({
+          id: `pd${i}`, headline: t.title, summary: "",
+          source: "PlugU", time: t.time, tag: t.tag, emoji: "🔌",
+        }))}
+      />
     </div>
   );
 }
