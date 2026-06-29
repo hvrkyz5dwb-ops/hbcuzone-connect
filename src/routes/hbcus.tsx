@@ -131,70 +131,83 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
 
   return (
     <AppShell title='HBC"US"'>
-      {/* Hero */}
-      <section className="px-5 pt-5">
-        <div className="relative overflow-hidden rounded-3xl border border-border">
-          <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
-          <div className="relative p-5">
-            <div className="flex items-center gap-2">
-              <p className="text-[10px] tracking-[0.3em] uppercase text-primary">The HBCU Experience</p>
-              <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/10">
-                <BadgeCheck className="h-3 w-3" /> Verified Member
-              </span>
-            </div>
-            <h1 className="mt-1 text-3xl font-black tracking-tight">
-              HBC<span style={{ color: "var(--plugu-gold)" }}>"US"</span>
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1.5 max-w-xs">
-              The members-only digital home of Historically Black Colleges and Universities.
-            </p>
-            <div className="mt-4 flex items-center gap-2">
-              <button
-                onClick={() => setShowSwitch(true)}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium tap"
-              >
-                <SchoolIcon className="h-3.5 w-3.5" />
-                {active}
-              </button>
-              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <HomeIcon className="h-3 w-3" /> Home: {home}
-              </span>
-              <button
-                onClick={() => setShowAI(true)}
-                className="ml-auto inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs border border-accent/40 text-accent bg-card/60 backdrop-blur tap"
-              >
-                <Bot className="h-3.5 w-3.5" /> Ask AI
-              </button>
+      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
+        <div className="hbcus-theme-bg" aria-hidden="true" />
+
+        {/* Hero */}
+        <section className="px-5 pt-5 hbcus-rise">
+          <div className="hbcus-card overflow-hidden">
+            <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.18] mix-blend-luminosity" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--hbcu-night) 88%, transparent) 80%)" }} />
+            <div className="relative p-5">
+              <div className="flex items-center gap-2">
+                <span className="hbcus-chip">
+                  <Crown className="h-3 w-3 hbcus-crown" /> Exclusive Network
+                </span>
+                <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-emerald-400/40 text-emerald-200 bg-emerald-500/10">
+                  <BadgeCheck className="h-3 w-3" /> Verified
+                </span>
+              </div>
+              <h1 className="mt-3 text-[2.6rem] leading-none tracking-tight">
+                <span className="hbcus-wordmark">HBC</span>
+                <span className="hbcus-wordmark italic">"US"</span>
+              </h1>
+              <div className="hbcus-rule my-3 max-w-[12rem]" />
+              <p className="text-[12px] leading-relaxed max-w-xs" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 78%, transparent)" }}>
+                The members-only digital home of Historically Black Colleges & Universities — built for the culture, by the culture.
+              </p>
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => setShowSwitch(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold tap"
+                  style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)", boxShadow: "0 8px 22px -10px color-mix(in oklab, var(--hbcu-gold) 70%, transparent)" }}
+                >
+                  <SchoolIcon className="h-3.5 w-3.5" />
+                  {active}
+                </button>
+                <span className="text-[10px] inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 65%, transparent)" }}>
+                  <HomeIcon className="h-3 w-3" /> Home: {home}
+                </span>
+                <button
+                  onClick={() => setShowAI(true)}
+                  className="ml-auto inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs tap"
+                  style={{ border: "1px solid color-mix(in oklab, var(--hbcu-gold) 45%, transparent)", color: "var(--hbcu-gold)", background: "color-mix(in oklab, var(--hbcu-deep) 70%, transparent)" }}
+                >
+                  <Bot className="h-3.5 w-3.5" /> Ask AI
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Sticky section nav */}
-      <nav className="sticky top-0 z-30 mt-4 bg-background/80 backdrop-blur-xl border-y border-border">
-        <div className="px-5 flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {hbcusHomeSections.map((key) => {
-            const isActive = section === key;
-            return (
-              <button
-                key={key}
-                ref={(el) => { sectionRefs.current[key] = el; }}
-                onClick={() => setSection(key)}
-                className={`shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium tap transition-all border ${
-                  isActive
-                    ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary shadow-[0_0_20px_-4px_var(--plugu-gold)]"
-                    : "bg-secondary text-muted-foreground border-border"
-                }`}
-              >
-                {key}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+        {/* Sticky section nav */}
+        <nav
+          className="sticky top-0 z-30 mt-4 backdrop-blur-xl"
+          style={{
+            background: "color-mix(in oklab, var(--hbcu-night) 72%, transparent)",
+            borderTop: "1px solid color-mix(in oklab, var(--hbcu-gold) 18%, transparent)",
+            borderBottom: "1px solid color-mix(in oklab, var(--hbcu-gold) 18%, transparent)",
+          }}
+        >
+          <div className="px-5 flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {hbcusHomeSections.map((key) => {
+              const isActive = section === key;
+              return (
+                <button
+                  key={key}
+                  ref={(el) => { sectionRefs.current[key] = el; }}
+                  onClick={() => setSection(key)}
+                  data-active={isActive}
+                  className="hbcus-tab shrink-0 tap"
+                >
+                  {key}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
 
-      <section className="px-5 pt-4 pb-6 view-enter" key={section}>
+        <section className="px-5 pt-4 pb-6 view-enter hbcus-rise" key={section}>
         {section === "Home" && <HomePanel activeSchool={active} onJump={setSection} />}
         {section === "News" && <NewsPanel activeSchool={active} />}
         {section === "Sports" && <SportsPanel />}
@@ -209,7 +222,8 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
         {section === "Rankings" && <RankingsPanel />}
         {section === "Events" && <EventsPanel />}
         {section === "PlugU Daily" && <DailyPanel />}
-      </section>
+        </section>
+      </div>
 
       {showSwitch && (
         <SwitchSheet
