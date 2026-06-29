@@ -13,6 +13,7 @@ import {
 } from "@/lib/feed-data";
 import { toast } from "sonner";
 import { LoadingFeed } from "@/components/EmptyState";
+import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
