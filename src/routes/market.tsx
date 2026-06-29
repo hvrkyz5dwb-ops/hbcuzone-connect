@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { categories, listings } from "@/lib/mock-data";
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/market")({
 });
 
 function Market() {
+  const navigate = useNavigate();
   const [active, setActive] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -49,16 +50,23 @@ function Market() {
       <PullToRefresh onRefresh={async () => { setLoading(true); await new Promise(r => setTimeout(r, 600)); setLoading(false); }}>
       <section className="px-5 pt-5 slide-up">
         <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
+          <button
+            onClick={() => navigate({ to: "/search", search: { q: query || undefined, tab: "browse" } })}
+            className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border text-left tap"
+          >
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search listings"
-              className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-            />
-          </div>
-          <button aria-label="Filters" className="tap h-11 w-11 grid place-items-center rounded-2xl bg-card border border-border">
+            <span className="text-sm text-muted-foreground flex-1 truncate">
+              {query || "Search hair, food, parties, internships…"}
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-[var(--plugu-purple)] inline-flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> AI
+            </span>
+          </button>
+          <button
+            aria-label="Filters"
+            onClick={() => navigate({ to: "/search", search: { tab: "browse" } })}
+            className="tap h-11 w-11 grid place-items-center rounded-2xl bg-card border border-border"
+          >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
         </div>
