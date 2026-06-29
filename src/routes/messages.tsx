@@ -67,7 +67,10 @@ function Messages() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className={`text-sm ${m.unread ? "font-semibold" : "font-medium"}`}>{m.name}</p>
+                  <p className={`text-sm inline-flex items-center gap-1 ${m.unread ? "font-semibold" : "font-medium"}`}>
+                    {m.name}
+                    <VerifiedStudentBadge size="xs" iconOnly />
+                  </p>
                   <span className="text-[11px] text-muted-foreground">{m.time}</span>
                 </div>
                 <p className={`text-xs truncate ${m.unread ? "text-foreground" : "text-muted-foreground"}`}>{m.preview}</p>
