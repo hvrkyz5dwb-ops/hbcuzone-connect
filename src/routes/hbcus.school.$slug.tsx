@@ -57,22 +57,25 @@ function SchoolCommunity() {
 
   return (
     <AppShell title={school.name}>
-      {/* Header */}
-      <section className="px-5 pt-5">
-        <Link to="/hbcus" className="inline-flex items-center gap-1 text-[11px] text-muted-foreground tap">
+      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
+        <div className="hbcus-theme-bg" aria-hidden="true" />
+        {/* Header */}
+        <section className="px-5 pt-5 hbcus-rise">
+        <Link to="/hbcus" className="inline-flex items-center gap-1 text-[11px] tap" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 65%, transparent)" }}>
           <ArrowLeft className="h-3.5 w-3.5" /> HBCUS Directory
         </Link>
-        <div className={`mt-3 relative overflow-hidden rounded-3xl border border-border h-36 bg-gradient-to-br ${school.color}`}>
-          <div className="absolute inset-0 bg-black/35" />
-          <div className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
+        <div className={`mt-3 relative overflow-hidden hbcus-card h-40 bg-gradient-to-br ${school.color}`}>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, color-mix(in oklab, var(--hbcu-night) 25%, transparent) 0%, color-mix(in oklab, var(--hbcu-night) 85%, transparent) 100%)" }} />
+          <div className="absolute top-3 right-3 hbcus-chip">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" /> Live
           </div>
           <div className="absolute bottom-3 left-4 right-4">
-            <p className="text-white font-bold text-lg leading-tight">{school.name}</p>
-            <p className="text-white/80 text-xs mt-0.5 inline-flex items-center gap-1">
+            <p className="hbcus-wordmark text-2xl leading-tight">{school.name}</p>
+            <div className="hbcus-rule my-2 max-w-[8rem]" />
+            <p className="text-xs inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 80%, transparent)" }}>
               <MapPin className="h-3 w-3" /> {school.city} · Est. {school.founded}
             </p>
-            <p className="text-white/90 text-[11px] mt-1.5 inline-flex items-center gap-1">
+            <p className="text-[11px] mt-1 inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 85%, transparent)" }}>
               <Users className="h-3 w-3" /> {school.pluguStudents.toLocaleString()} on PlugU · {school.liveActivity}
             </p>
           </div>
@@ -81,25 +84,19 @@ function SchoolCommunity() {
 
       {/* Tabs */}
       <div className="mt-4 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TABS.map((t) => {
-          const active = t === tab;
-          return (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-colors border ${
-                active
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary text-muted-foreground border-border hover:text-foreground"
-              }`}
-            >
-              {t}
-            </button>
-          );
-        })}
+        {TABS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            data-active={t === tab}
+            className="hbcus-tab shrink-0 tap"
+          >
+            {t}
+          </button>
+        ))}
       </div>
 
-      <section className="mt-4 px-5 pb-6 slide-up">
+      <section className="mt-4 px-5 pb-6 hbcus-rise" key={tab}>
         {tab === "Feed" && <FeedTab school={school.name} />}
         {tab === "Businesses" && <BusinessesTab school={school.name} />}
         {tab === "Events" && <EventsTab school={school.name} />}
@@ -116,20 +113,21 @@ function SchoolCommunity() {
 
       {/* Cross-links to other HBCUs */}
       <section className="px-5 pb-10">
-        <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Jump to another HBCU</p>
+        <p className="text-[10px] tracking-[0.3em] uppercase mb-2" style={{ color: "color-mix(in oklab, var(--hbcu-gold) 70%, transparent)" }}>Jump to another HBCU</p>
         <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {schoolProfiles.filter((s) => s.name !== school.name).map((s) => (
             <Link
               key={s.name}
               to="/hbcus/school/$slug"
               params={{ slug: schoolSlug(s.name) }}
-              className="shrink-0 rounded-full px-3 py-1.5 text-[11px] bg-secondary border border-border tap"
+              className="shrink-0 hbcus-tab tap"
             >
               {s.name}
             </Link>
           ))}
         </div>
       </section>
+      </div>
     </AppShell>
   );
 }
