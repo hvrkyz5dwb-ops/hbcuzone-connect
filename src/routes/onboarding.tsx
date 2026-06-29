@@ -108,7 +108,7 @@ function Onboarding() {
               Get Started
             </button>
             <button
-              onClick={() => navigate({ to: "/" })}
+              onClick={() => navigate({ to: "/login" })}
               className="tap py-3 rounded-2xl text-sm font-medium text-white border"
               style={{ borderColor: "var(--plugu-purple)", background: "color-mix(in oklab, var(--plugu-purple) 18%, transparent)" }}
             >
