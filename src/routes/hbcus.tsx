@@ -31,6 +31,7 @@ import {
   Sun,
   Quote,
   Flame,
+  Crown,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
