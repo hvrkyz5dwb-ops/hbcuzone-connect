@@ -274,17 +274,21 @@ function typeBadge(type: FeedPost["type"]): { label: string; icon: any; tint: st
 }
 
 function PostCard({
-  post, liked, saved, onLike, onSave, index,
+  post, liked, saved, following, onLike, onSave, onFollow, index,
 }: {
   post: FeedPost; liked: boolean; saved: boolean;
-  onLike: () => void; onSave: () => void; index: number;
+  following: boolean;
+  onLike: () => void; onSave: () => void; onFollow: () => void; index: number;
 }) {
   const [slide, setSlide] = useState(0);
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const total = post.media.length;
   const CtaIcon = post.vendor ? ctaIcon(post.vendor.cta) : null;
   const badge = typeBadge(post.type);
   const BadgeIcon = badge?.icon;
   const isAnnouncement = post.type === "announcement";
+  const isBusiness = !!post.vendor && (post.vendor.cta === "Shop" || post.vendor.cta === "Book");
 
   return (
     <article
@@ -327,6 +331,16 @@ function PostCard({
         </div>
         <button aria-label="More" className="tap h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground">
           <MoreHorizontal className="h-4 w-4" />
+        </button>
+        <button
+          onClick={onFollow}
+          className={`tap ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
+            following
+              ? "bg-secondary text-foreground border-border"
+              : "text-primary-foreground border-transparent bg-[image:var(--gradient-bronze)]"
+          }`}
+        >
+          {following ? (<><Check className="h-3 w-3" /> Following</>) : (<><UserPlus className="h-3 w-3" /> Follow</>)}
         </button>
       </header>
 
