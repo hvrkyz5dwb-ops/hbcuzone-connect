@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
@@ -83,6 +83,7 @@ import {
   marketHeadlines,
   mustReadNews,
   careerOpportunities,
+  schoolSlug,
 } from "@/lib/hbcus-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
 
