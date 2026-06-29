@@ -5,6 +5,7 @@ import {
   dailyItems, dailyTabs, dailyGreetingTime,
   type DailyCategory, type DailyItem,
 } from "@/lib/daily-data";
+import { AiNewsFeed } from "@/components/AiNewsFeed";
 
 function todayLabel() {
   try {
@@ -30,10 +31,15 @@ export function PluguDaily() {
     setGreet(dailyGreetingTime());
   }, []);
 
-  const items = useMemo(() => {
+  const fallbackItems = useMemo(() => {
     if (tab === "For You") return dailyItems.slice(0, 6);
     return dailyItems.filter((d) => d.category === tab);
   }, [tab]);
+
+  const aiCategory =
+    tab === "For You"
+      ? "PlugU Daily — top stories Black college students should know today"
+      : `PlugU Daily — ${tab} news for Black college students`;
 
   return (
     <section className="mt-7 px-5">
@@ -80,46 +86,19 @@ export function PluguDaily() {
         </div>
       </div>
 
-      {/* Items */}
-      <ul className="mt-3 space-y-2">
-        {items.map((it) => {
-          const Icon = it.icon;
-          return (
-            <li
-              key={it.id}
-              className="group flex items-start gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
-            >
-              <div
-                className="h-10 w-10 shrink-0 rounded-xl grid place-items-center border border-border"
-                style={{
-                  background:
-                    "color-mix(in oklab, var(--plugu-purple) 12%, transparent)",
-                }}
-              >
-                <Icon className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-[10px] tracking-widest uppercase"
-                    style={accentStyles(it.accent)}
-                  >
-                    {it.kind}
-                  </span>
-                  {it.meta && (
-                    <span className="text-[10px] text-muted-foreground">· {it.meta}</span>
-                  )}
-                </div>
-                <p className="text-sm font-semibold leading-snug truncate">{it.title}</p>
-                <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                  {it.summary}
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground self-center shrink-0 transition-transform group-hover:translate-x-0.5" />
-            </li>
-          );
-        })}
-      </ul>
+      {/* AI-generated daily feed */}
+      <div className="mt-3">
+        <AiNewsFeed
+          category={aiCategory}
+          count={6}
+          fallback={fallbackItems.map((it) => ({
+            id: it.id, headline: it.title, summary: it.summary,
+            source: it.meta?.split("·").pop()?.trim() ?? "PlugU",
+            time: it.meta?.split("·")[0]?.trim() ?? "now",
+            tag: it.kind, emoji: "✨",
+          }))}
+        />
+      </div>
     </section>
   );
 }
