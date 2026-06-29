@@ -410,7 +410,7 @@ function PostCard({
         <button onClick={onLike} aria-label="Like" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
           <Heart className={`h-[22px] w-[22px] transition-all ${liked ? "fill-accent text-accent scale-110" : "text-foreground"}`} />
         </button>
-        <button aria-label="Comment" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
+        <button onClick={() => setCommentOpen((v) => !v)} aria-label="Comment" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
           <MessageCircle className="h-[22px] w-[22px]" />
         </button>
         <Link to="/messages" aria-label="Share" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
@@ -429,11 +429,40 @@ function PostCard({
           <span className="font-semibold mr-1.5">{post.user.name}</span>
           {post.caption}
         </p>
-        <button className="mt-1.5 text-xs text-muted-foreground tap">View all {post.comments} comments</button>
+        <button onClick={() => setCommentOpen((v) => !v)} className="mt-1.5 text-xs text-muted-foreground tap">
+          View all {post.comments} comments
+        </button>
+        {commentOpen && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!commentText.trim()) return;
+              toast.success("Comment posted");
+              setCommentText("");
+              setCommentOpen(false);
+            }}
+            className="mt-2.5 flex items-center gap-2"
+          >
+            <input
+              autoFocus
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Add a comment…"
+              className="flex-1 bg-secondary border border-border rounded-full px-3.5 py-2 text-xs outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              disabled={!commentText.trim()}
+              className="tap text-xs font-semibold px-3 py-2 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground disabled:opacity-50"
+            >
+              Post
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Vendor CTAs */}
-      {post.vendor && CtaIcon && (
+      {post.vendor && CtaIcon && !isBusiness && (
         <div className="grid grid-cols-3 gap-2 px-3 pb-4">
           <Link
             to="/market"
@@ -445,6 +474,21 @@ function PostCard({
             to="/messages"
             className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-medium"
           >
+            <MessageCircle className="h-4 w-4" /> Message
+          </Link>
+        </div>
+      )}
+
+      {/* Business action row: Shop · Book · Message Seller */}
+      {post.vendor && isBusiness && (
+        <div className="grid grid-cols-3 gap-2 px-3 pb-4">
+          <Link to="/market" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-semibold">
+            <Store className="h-4 w-4" /> Shop
+          </Link>
+          <Link to="/market" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-semibold" style={{ color: "var(--plugu-gold)" }}>
+            <CalendarCheck2 className="h-4 w-4" /> Book
+          </Link>
+          <Link to="/messages" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-medium">
             <MessageCircle className="h-4 w-4" /> Message
           </Link>
         </div>
