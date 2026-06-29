@@ -206,9 +206,16 @@ export function CampusFeed() {
                   {c.kingpin && <Crown className="h-3 w-3 shrink-0" style={{ color: "var(--plugu-gold)" }} />}
                 </div>
                 <p className="text-[10px] text-white/70 truncate">{c.craft} · {c.campus}</p>
-                <button className="tap mt-2 w-full py-1.5 rounded-full text-[11px] font-semibold text-black"
-                  style={{ background: "var(--plugu-gold)" }}>
-                  Follow
+                <button
+                  onClick={() => toggleFollow(c.name)}
+                  className={`tap mt-2 w-full py-1.5 rounded-full text-[11px] font-semibold inline-flex items-center justify-center gap-1 border ${
+                    follows.has(c.name)
+                      ? "bg-white/10 text-white border-white/20"
+                      : "text-black border-transparent"
+                  }`}
+                  style={follows.has(c.name) ? undefined : { background: "var(--plugu-gold)" }}
+                >
+                  {follows.has(c.name) ? (<><Check className="h-3 w-3" /> Following</>) : (<><UserPlus className="h-3 w-3" /> Follow</>)}
                 </button>
               </div>
             </article>
@@ -224,6 +231,8 @@ export function CampusFeed() {
             post={p}
             liked={liked.has(p.id)}
             saved={saved.has(p.id)}
+            following={follows.has(p.user.name)}
+            onFollow={() => toggleFollow(p.user.name)}
             onLike={() => toggleLike(p.id)}
             onSave={() => toggleSave(p.id)}
             index={i}
