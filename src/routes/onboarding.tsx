@@ -101,11 +101,11 @@ function Onboarding() {
         {last ? (
           <div className="mt-8 grid gap-3 max-w-xs mx-auto">
             <button
-              onClick={() => navigate({ to: "/" })}
+              onClick={() => navigate({ to: "/signup" })}
               className="tap py-3 rounded-2xl text-sm font-semibold text-black"
               style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
             >
-              Get Started
+              Sign Up With School Email
             </button>
             <button
               onClick={() => navigate({ to: "/login" })}

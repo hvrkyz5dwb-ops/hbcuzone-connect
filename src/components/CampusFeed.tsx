@@ -13,6 +13,7 @@ import {
 } from "@/lib/feed-data";
 import { toast } from "sonner";
 import { LoadingFeed } from "@/components/EmptyState";
+import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
@@ -319,7 +320,7 @@ function PostCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
             <p className="text-sm font-semibold truncate">{post.user.name}</p>
-            {post.user.verified && <BadgeCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
+            {post.user.verified && <VerifiedStudentBadge size="xs" iconOnly />}
             {post.user.kingpin && <Crown className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--plugu-gold)" }} />}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
