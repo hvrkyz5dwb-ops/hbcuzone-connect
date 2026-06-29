@@ -22,6 +22,8 @@ export function CampusPulse() {
   const [persona] = usePersona();
   const [rsvped, setRsvped] = useState<Record<string, boolean>>({});
   const [tick, setTick] = useState(0);
+  const [greeting, setGreeting] = useState("Welcome back");
+  useEffect(() => { setGreeting(greetingFor()); }, []);
   useEffect(() => {
     const i = setInterval(() => setTick((t) => (t + 1) % liveActivity.length), 3500);
     return () => clearInterval(i);
@@ -34,7 +36,7 @@ export function CampusPulse() {
       <section className="px-5 pt-5 slide-up">
         <div className="flex items-start justify-between">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{greetingFor()},</p>
+            <p className="text-xs text-muted-foreground">{greeting},</p>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2 truncate">
               {persona.name} <Crown className="h-6 w-6 text-accent shrink-0" />
             </h1>
