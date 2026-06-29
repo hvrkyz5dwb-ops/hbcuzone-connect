@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, Bookmark, MoreHorizontal, BadgeCheck,
   Crown, ImagePlus, Video, Tag, Plus, ChevronLeft, ChevronRight, X,
   ShoppingBag, CalendarCheck2, GraduationCap, Car, Megaphone, Sparkles,
-  Flame, AlertTriangle, Trophy, Bell,
+  Flame, AlertTriangle, Trophy, Bell, UserPlus, Check, Store,
 } from "lucide-react";
 import {
   feedPosts, stories, feedFilters, filterPosts,
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
+const FOLLOW_KEY = "plugu.feed.follows";
 
 function readSet(key: string): Set<string> {
   if (typeof window === "undefined") return new Set();
@@ -30,6 +31,7 @@ export function CampusFeed() {
   const [storyOpen, setStoryOpen] = useState<string | null>(null);
   const [liked, setLiked] = useState<Set<string>>(() => readSet(LIKED_KEY));
   const [saved, setSaved] = useState<Set<string>>(() => readSet(SAVED_KEY));
+  const [follows, setFollows] = useState<Set<string>>(() => readSet(FOLLOW_KEY));
 
   const posts = useMemo(() => filterPosts(feedPosts, filter), [filter]);
 
@@ -47,6 +49,15 @@ export function CampusFeed() {
       if (next.has(id)) { next.delete(id); toast("Removed from saved"); }
       else { next.add(id); toast.success("Saved to your collection"); }
       writeSet(SAVED_KEY, next);
+      return next;
+    });
+  }
+  function toggleFollow(name: string) {
+    setFollows((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) { next.delete(name); toast(`Unfollowed ${name}`); }
+      else { next.add(name); toast.success(`Following ${name}`); }
+      writeSet(FOLLOW_KEY, next);
       return next;
     });
   }
@@ -195,9 +206,16 @@ export function CampusFeed() {
                   {c.kingpin && <Crown className="h-3 w-3 shrink-0" style={{ color: "var(--plugu-gold)" }} />}
                 </div>
                 <p className="text-[10px] text-white/70 truncate">{c.craft} · {c.campus}</p>
-                <button className="tap mt-2 w-full py-1.5 rounded-full text-[11px] font-semibold text-black"
-                  style={{ background: "var(--plugu-gold)" }}>
-                  Follow
+                <button
+                  onClick={() => toggleFollow(c.name)}
+                  className={`tap mt-2 w-full py-1.5 rounded-full text-[11px] font-semibold inline-flex items-center justify-center gap-1 border ${
+                    follows.has(c.name)
+                      ? "bg-white/10 text-white border-white/20"
+                      : "text-black border-transparent"
+                  }`}
+                  style={follows.has(c.name) ? undefined : { background: "var(--plugu-gold)" }}
+                >
+                  {follows.has(c.name) ? (<><Check className="h-3 w-3" /> Following</>) : (<><UserPlus className="h-3 w-3" /> Follow</>)}
                 </button>
               </div>
             </article>
@@ -213,6 +231,8 @@ export function CampusFeed() {
             post={p}
             liked={liked.has(p.id)}
             saved={saved.has(p.id)}
+            following={follows.has(p.user.name)}
+            onFollow={() => toggleFollow(p.user.name)}
             onLike={() => toggleLike(p.id)}
             onSave={() => toggleSave(p.id)}
             index={i}
@@ -254,17 +274,21 @@ function typeBadge(type: FeedPost["type"]): { label: string; icon: any; tint: st
 }
 
 function PostCard({
-  post, liked, saved, onLike, onSave, index,
+  post, liked, saved, following, onLike, onSave, onFollow, index,
 }: {
   post: FeedPost; liked: boolean; saved: boolean;
-  onLike: () => void; onSave: () => void; index: number;
+  following: boolean;
+  onLike: () => void; onSave: () => void; onFollow: () => void; index: number;
 }) {
   const [slide, setSlide] = useState(0);
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const total = post.media.length;
   const CtaIcon = post.vendor ? ctaIcon(post.vendor.cta) : null;
   const badge = typeBadge(post.type);
   const BadgeIcon = badge?.icon;
   const isAnnouncement = post.type === "announcement";
+  const isBusiness = !!post.vendor && (post.vendor.cta === "Shop" || post.vendor.cta === "Book");
 
   return (
     <article
@@ -307,6 +331,16 @@ function PostCard({
         </div>
         <button aria-label="More" className="tap h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground">
           <MoreHorizontal className="h-4 w-4" />
+        </button>
+        <button
+          onClick={onFollow}
+          className={`tap ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
+            following
+              ? "bg-secondary text-foreground border-border"
+              : "text-primary-foreground border-transparent bg-[image:var(--gradient-bronze)]"
+          }`}
+        >
+          {following ? (<><Check className="h-3 w-3" /> Following</>) : (<><UserPlus className="h-3 w-3" /> Follow</>)}
         </button>
       </header>
 
@@ -376,7 +410,7 @@ function PostCard({
         <button onClick={onLike} aria-label="Like" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
           <Heart className={`h-[22px] w-[22px] transition-all ${liked ? "fill-accent text-accent scale-110" : "text-foreground"}`} />
         </button>
-        <button aria-label="Comment" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
+        <button onClick={() => setCommentOpen((v) => !v)} aria-label="Comment" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
           <MessageCircle className="h-[22px] w-[22px]" />
         </button>
         <Link to="/messages" aria-label="Share" className="tap h-9 w-9 grid place-items-center rounded-full hover:bg-secondary">
@@ -395,11 +429,40 @@ function PostCard({
           <span className="font-semibold mr-1.5">{post.user.name}</span>
           {post.caption}
         </p>
-        <button className="mt-1.5 text-xs text-muted-foreground tap">View all {post.comments} comments</button>
+        <button onClick={() => setCommentOpen((v) => !v)} className="mt-1.5 text-xs text-muted-foreground tap">
+          View all {post.comments} comments
+        </button>
+        {commentOpen && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!commentText.trim()) return;
+              toast.success("Comment posted");
+              setCommentText("");
+              setCommentOpen(false);
+            }}
+            className="mt-2.5 flex items-center gap-2"
+          >
+            <input
+              autoFocus
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Add a comment…"
+              className="flex-1 bg-secondary border border-border rounded-full px-3.5 py-2 text-xs outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              disabled={!commentText.trim()}
+              className="tap text-xs font-semibold px-3 py-2 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground disabled:opacity-50"
+            >
+              Post
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Vendor CTAs */}
-      {post.vendor && CtaIcon && (
+      {post.vendor && CtaIcon && !isBusiness && (
         <div className="grid grid-cols-3 gap-2 px-3 pb-4">
           <Link
             to="/market"
@@ -411,6 +474,21 @@ function PostCard({
             to="/messages"
             className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-medium"
           >
+            <MessageCircle className="h-4 w-4" /> Message
+          </Link>
+        </div>
+      )}
+
+      {/* Business action row: Shop · Book · Message Seller */}
+      {post.vendor && isBusiness && (
+        <div className="grid grid-cols-3 gap-2 px-3 pb-4">
+          <Link to="/market" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-semibold">
+            <Store className="h-4 w-4" /> Shop
+          </Link>
+          <Link to="/market" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-semibold" style={{ color: "var(--plugu-gold)" }}>
+            <CalendarCheck2 className="h-4 w-4" /> Book
+          </Link>
+          <Link to="/messages" className="tap flex items-center justify-center gap-1.5 py-2.5 rounded-2xl bg-secondary border border-border text-sm font-medium">
             <MessageCircle className="h-4 w-4" /> Message
           </Link>
         </div>
