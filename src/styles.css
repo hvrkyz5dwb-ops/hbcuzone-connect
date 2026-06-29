@@ -320,3 +320,27 @@
 .splash-slogan {
   animation: splash-fade-up 1s ease-out 1.95s both;
 }
+
+/* === Login Transition === */
+@keyframes login-flash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  60% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+@keyframes login-zoom {
+  0% { transform: scale(1); filter: brightness(1); }
+  60% { transform: scale(1.6); filter: brightness(1.15); }
+  100% { transform: scale(3.2); filter: brightness(1.4); }
+}
+@keyframes login-fade-out {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes login-vignette {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+.login-transition { animation: login-fade-out 2.4s ease-in forwards; }
+.login-zoom { animation: login-zoom 2.4s cubic-bezier(0.5, 0, 0.75, 0) forwards; transform-origin: 50% 42%; }
+.login-flash { animation: login-flash 0.7s ease-out forwards; }
