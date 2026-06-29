@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -47,6 +48,11 @@ const TrustRoute = TrustRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavedRoute = SavedRouteImport.update({
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
+  '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
+  '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
+  '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/safety'
     | '/saved'
+    | '/search'
     | '/signup'
     | '/trust'
     | '/upgrade'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/safety'
     | '/saved'
+    | '/search'
     | '/signup'
     | '/trust'
     | '/upgrade'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/safety'
     | '/saved'
+    | '/search'
     | '/signup'
     | '/trust'
     | '/upgrade'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
+  SearchRoute: typeof SearchRoute
   SignupRoute: typeof SignupRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/saved': {
@@ -537,6 +557,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
+  SearchRoute: SearchRoute,
   SignupRoute: SignupRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
