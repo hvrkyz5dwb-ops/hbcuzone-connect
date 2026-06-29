@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy } from "lucide-react";
+import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
+import { getStudent } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
@@ -33,6 +35,11 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
 ];
 
 function Profile() {
+  const student = typeof window !== "undefined" ? getStudent() : null;
+  const displayName = student?.name ?? "Kingpin";
+  const subline = student
+    ? `${student.school} · ${student.year} · ${student.major}`
+    : "Talladega College · Junior · Business";
   return (
     <AppShell title="PROFILE">
       {/* Cover photo */}
@@ -47,12 +54,16 @@ function Profile() {
           <img src={pluguLogo} alt="Kingpin avatar" className="h-16 w-16 object-contain" />
         </div>
         <h1 className="mt-3 text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
-          Kingpin <Crown className="h-5 w-5 text-accent" />
+          {displayName} <Crown className="h-5 w-5 text-accent" />
+          <VerifiedStudentBadge size="xs" iconOnly />
         </h1>
-        <p className="text-sm text-muted-foreground">Talladega College · Junior · Business</p>
-        <span className="mt-2 inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border border-accent/40 text-accent">
-          <BadgeCheck className="h-3.5 w-3.5" /> Kingpin Verified
-        </span>
+        <p className="text-sm text-muted-foreground">{subline}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+          <VerifiedStudentBadge size="sm" />
+          <span className="inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border border-accent/40 text-accent">
+            <BadgeCheck className="h-3.5 w-3.5" /> Kingpin
+          </span>
+        </div>
         <p className="mt-3 text-sm text-muted-foreground max-w-xs mx-auto">
           Plug for the culture. Vendor connect, event promoter, and student of the game.
         </p>
