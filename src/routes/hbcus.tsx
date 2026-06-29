@@ -33,6 +33,7 @@ import {
   Flame,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { AiNewsFeed } from "@/components/AiNewsFeed";
 import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
@@ -794,13 +795,6 @@ function RankingsPanel() {
 function NewsPanel({ activeSchool }: { activeSchool: string }) {
   const [filter, setFilter] = useState<(typeof hbcuNewsFilters)[number]>("All HBCUs");
 
-  const items = useMemo(() => {
-    if (filter === "My School") return hbcuLiveNews.filter((n) => n.school === activeSchool);
-    if (filter === "Nearby") return hbcuLiveNews.slice(0, 6);
-    if (filter === "All HBCUs") return hbcuLiveNews;
-    return hbcuLiveNews.filter((n) => n.category === filter);
-  }, [filter, activeSchool]);
-
   return (
     <div className="space-y-4">
       <SectionHeader icon={Radio} title="Live HBCU News" subtitle="Real-time across the Yard" live />
@@ -809,48 +803,15 @@ function NewsPanel({ activeSchool }: { activeSchool: string }) {
         active={filter}
         onChange={(v) => setFilter(v as typeof filter)}
       />
-
-      {/* Featured */}
-      {items[0] && (
-        <article className="relative overflow-hidden rounded-3xl border border-border bg-card slide-up">
-          <div className="h-40 bg-[image:var(--gradient-bronze)] relative">
-            <div className="absolute inset-0 bg-black/30" />
-            <span className="absolute top-3 left-3 text-[10px] tracking-widest uppercase bg-background/80 backdrop-blur px-2 py-1 rounded-full text-accent">
-              {items[0].tag}
-            </span>
-          </div>
-          <div className="p-4">
-            <p className="text-[10px] tracking-widest uppercase text-primary">{items[0].school} · {items[0].time}</p>
-            <h3 className="mt-1 text-lg font-bold leading-tight">{items[0].title}</h3>
-            <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2">{items[0].summary}</p>
-            <ArticleActions />
-          </div>
-        </article>
-      )}
-
-      <ul className="space-y-2">
-        {items.slice(1).map((n, i) => (
-          <li
-            key={n.id}
-            className="p-3.5 rounded-2xl bg-card border border-border tap slide-up"
-            style={{ animationDelay: `${i * 30}ms` }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] tracking-widest uppercase" style={{ color: n.accent === "purple" ? "var(--plugu-purple)" : "var(--plugu-gold)" }}>
-                {n.tag}
-              </span>
-              <span className="text-[10px] text-muted-foreground">· {n.school} · {n.time}</span>
-            </div>
-            <p className="font-semibold mt-1 leading-snug">{n.title}</p>
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{n.summary}</p>
-          </li>
-        ))}
-        {items.length === 0 && (
-          <li className="p-6 rounded-2xl bg-card border border-border text-center text-sm text-muted-foreground">
-            No stories for this filter yet.
-          </li>
-        )}
-      </ul>
+      <AiNewsFeed
+        category={`HBCU News — ${filter}`}
+        school={filter === "My School" ? activeSchool : undefined}
+        count={10}
+        fallback={hbcuLiveNews.map((n) => ({
+          id: n.id, headline: n.title, summary: n.summary,
+          source: n.school, time: n.time, tag: n.tag, emoji: "📰",
+        }))}
+      />
     </div>
   );
 }
@@ -1333,22 +1294,14 @@ function DailyPanel() {
   return (
     <div className="space-y-4">
       <SectionHeader icon={Sparkles} title="PlugU Daily" subtitle="Curated for college minds, 18–24" />
-      <ul className="space-y-2">
-        {pluguDailyTopics.map((t, i) => (
-          <li key={t.title} className="p-4 rounded-2xl bg-card border border-border flex items-start gap-3 slide-up" style={{ animationDelay: `${i * 30}ms` }}>
-            <div className="h-10 w-10 rounded-xl grid place-items-center border border-border" style={{ background: "color-mix(in oklab, var(--plugu-purple) 14%, transparent)" }}>
-              <TrendingUp className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>
-                {t.tag} · {t.time}
-              </p>
-              <p className="font-semibold leading-snug mt-0.5">{t.title}</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground self-center shrink-0" />
-          </li>
-        ))}
-      </ul>
+      <AiNewsFeed
+        category="PlugU Daily — top stories Black college students should know today"
+        count={10}
+        fallback={pluguDailyTopics.map((t, i) => ({
+          id: `pd${i}`, headline: t.title, summary: "",
+          source: "PlugU", time: t.time, tag: t.tag, emoji: "🔌",
+        }))}
+      />
     </div>
   );
 }

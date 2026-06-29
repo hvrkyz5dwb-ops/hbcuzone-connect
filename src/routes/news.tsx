@@ -6,6 +6,7 @@ import {
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
+import { AiNewsFeed } from "@/components/AiNewsFeed";
 import {
   articles, newsTabs, newsFilters,
   type NewsTab, type NewsFilter,
@@ -154,6 +155,23 @@ function NewsCenter() {
 
       {/* Articles */}
       <section className="mt-4 mb-4">
+        {/* Live AI news for the active tab */}
+        <div className="px-5 mb-4">
+          <AiNewsFeed
+            category={`${tab} news for Black college students${
+              filters.size ? ` (focus: ${[...filters].join(", ")})` : ""
+            }`}
+            count={8}
+            fallback={articles
+              .filter((a) => a.tab === tab)
+              .slice(0, 6)
+              .map((a) => ({
+                id: a.id, headline: a.headline, summary: a.summary,
+                source: a.source, time: a.time, tag: a.tab, emoji: a.thumb,
+              }))}
+          />
+        </div>
+
         {list.length === 0 ? (
           <EmptyState
             icon={Search}
