@@ -268,7 +268,7 @@ function VerificationWall({
               HBC<span style={{ color: "var(--plugu-gold)" }}>"US"</span>
             </h1>
             <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-              The exclusive digital home of Historically Black Colleges and Universities. Verify your HBCU status to unlock the full experience.
+              HBC"US" is an exclusive experience for verified HBCU students. Verify your status below to unlock the full network.
             </p>
           </div>
         </div>
