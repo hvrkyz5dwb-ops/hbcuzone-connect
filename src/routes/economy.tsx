@@ -407,12 +407,32 @@ function Awards() {
       <SectionHeader title="Categories" />
       <ul className="space-y-2">
         {awardCategories.map((a) => (
-          <li key={a} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
-            <Crown className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-            <span className="text-sm font-medium">{a}</span>
+          <li key={a.name} className="flex items-start gap-3 p-3 rounded-2xl bg-card border border-border">
+            <div
+              className="h-10 w-10 shrink-0 rounded-xl grid place-items-center border border-border text-lg"
+              style={{ background: "color-mix(in oklab, var(--plugu-gold) 12%, transparent)" }}
+              aria-hidden
+            >
+              {a.emoji}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Crown className="h-3.5 w-3.5" style={{ color: "var(--plugu-gold)" }} />
+                <span className="text-sm font-semibold">{a.name}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{a.blurb}</p>
+            </div>
           </li>
         ))}
       </ul>
+      <div className="mt-3 rounded-2xl border border-border bg-card p-3.5">
+        <p className="text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--plugu-gold)" }}>
+          Grant & Scholarship Eligibility
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Winning students and their schools become eligible for PlugU grants and scholarships announced at the end of each academic year.
+        </p>
+      </div>
       <SectionHeader title="What winners receive" />
       <div className="grid grid-cols-2 gap-2">
         {rewards.map((r) => (
