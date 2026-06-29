@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { categories, listings } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
+import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
