@@ -75,6 +75,13 @@ import {
   rankingCategories,
   hbcusRankings,
   type RankingCategory,
+  studentSpotlights,
+  studyAbroadPrograms,
+  financialTips,
+  marketTickers,
+  marketHeadlines,
+  mustReadNews,
+  careerOpportunities,
 } from "@/lib/hbcus-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
 
