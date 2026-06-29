@@ -165,7 +165,7 @@ function BusinessesTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Store} title="Student-owned businesses" subtitle={`${list.length} active on ${school}`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {list.map((b) => (
           <Card key={b.id}>
             <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ function EventsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Calendar} title={`What's happening at ${school}`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {items.slice(0, 8).map((e: any) => (
           <Card key={e.id ?? e.title}>
             <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--plugu-gold)" }}>
@@ -219,7 +219,7 @@ function OrganizationsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Megaphone} title={`${school} student organizations`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {orgs.map((o) => (
           <Card key={o.name}>
             <div className="flex items-center justify-between">
@@ -245,7 +245,7 @@ function SportsTab({ school }: { school: string }) {
       <SectionTitle icon={Trophy} title={`${school} athletics`} />
       <div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Live & upcoming</p>
-        <ul className="space-y-2">
+        <ul className="space-y-2 hbcus-stagger">
           {[...live, ...upc].slice(0, 4).map((g: any, i) => (
             <Card key={i}>
               <p className="text-sm font-semibold">{g.home} vs {g.away}</p>
@@ -259,7 +259,7 @@ function SportsTab({ school }: { school: string }) {
       </div>
       <div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Top performers</p>
-        <ul className="space-y-2">
+        <ul className="space-y-2 hbcus-stagger">
           {topPerformers.filter((p) => p.school === school || p.school === school.split(" ")[0]).slice(0, 4).map((p, i) => (
             <Card key={i}>
               <p className="font-semibold text-sm">{p.name} · {p.sport}</p>
@@ -287,7 +287,7 @@ function MapsTab({ school }: { school: any }) {
           </Link>
         </div>
       </div>
-      <ul className="mt-3 grid grid-cols-2 gap-2 text-xs">
+      <ul className="mt-3 grid grid-cols-2 gap-2 text-xs hbcus-stagger">
         {["Library", "Student Union", "Stadium", "Health Center", "Quad", "Bookstore"].map((p) => (
           <li key={p} className="rounded-xl border border-border bg-card px-3 py-2.5 flex items-center gap-2">
             <MapPin className="h-3.5 w-3.5 text-accent" /> {p}
@@ -310,7 +310,7 @@ function DiningTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Utensils} title={`Dining at ${school}`} subtitle="Halls, food courts and student plugs" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {places.map((p) => (
           <Card key={p.name}>
             <p className="font-semibold text-sm">{p.name}</p>
@@ -333,7 +333,7 @@ function HousingTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={HomeIcon} title={`${school} housing`} subtitle="Dorms, apartments & student sublets" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {dorms.map((d) => (
           <Card key={d.name}>
             <div className="flex items-center justify-between">
@@ -356,7 +356,7 @@ function JobsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Briefcase} title={`Jobs & internships for ${school}`} subtitle="On-campus, work-study and partner roles" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {list.map((j) => (
           <Card key={j.id}>
             <div className="flex items-start justify-between gap-3">
@@ -395,7 +395,7 @@ function LostFoundTab({ school }: { school: string }) {
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
       </div>
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {items.map((i) => (
           <Card key={i.id}>
             <div className="flex items-center justify-between">
@@ -436,7 +436,7 @@ function EmergencyTab({ school }: { school: any }) {
   return (
     <div>
       <SectionTitle icon={ShieldAlert} title={`${school.name} emergency contacts`} subtitle="Tap to call — works on mobile" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {contacts.map((c) => (
           <Card key={c.label}>
             <div className="flex items-center justify-between gap-3">
@@ -473,7 +473,7 @@ function ResourcesTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={BookOpen} title={`${school} campus resources`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {links.map((l) => (
           <li key={l.label}>
             <Link to={l.to} className="block rounded-2xl bg-card border border-border p-3.5 tap">
