@@ -516,6 +516,104 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         </ul>
       </DashRow>
 
+      {/* Student Spotlights */}
+      <DashRow title="Student Spotlights" onMore={() => onJump("Excellence")}>
+        <div className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {studentSpotlights.map((s) => (
+            <div key={s.id} className="shrink-0 w-60 rounded-2xl bg-card border border-border p-4">
+              <p className="text-2xl">{s.emoji}</p>
+              <p className="mt-1 font-semibold text-sm">{s.name}</p>
+              <p className="text-[11px] text-accent">{s.title}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{s.school}</p>
+              <p className="text-xs text-muted-foreground mt-2">{s.note}</p>
+            </div>
+          ))}
+        </div>
+      </DashRow>
+
+      {/* Career Opportunities */}
+      <DashRow title="Career Opportunities" onMore={() => onJump("Internships")}>
+        <ul className="space-y-2">
+          {careerOpportunities.map((c) => (
+            <li key={c.id} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-3">
+              <span className="text-xl">{c.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{c.role}</p>
+                <p className="text-[11px] text-muted-foreground">{c.company} · {c.type}</p>
+              </div>
+              <span className="text-[10px] uppercase tracking-widest text-rose-300">Due {c.deadline}</span>
+            </li>
+          ))}
+        </ul>
+      </DashRow>
+
+      {/* Study Abroad */}
+      <DashRow title="Study Abroad">
+        <div className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {studyAbroadPrograms.map((p) => (
+            <div key={p.id} className="shrink-0 w-56 rounded-2xl bg-card border border-border p-4">
+              <p className="text-2xl">{p.emoji}</p>
+              <p className="text-[10px] uppercase tracking-widest text-primary mt-1">{p.country}</p>
+              <p className="mt-1 text-sm font-semibold leading-tight">{p.program}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">{p.school} · {p.term}</p>
+              <p className="text-[11px] text-accent mt-1">{p.cost}</p>
+            </div>
+          ))}
+        </div>
+      </DashRow>
+
+      {/* Financial Literacy */}
+      <DashRow title="Financial Literacy">
+        <ul className="grid grid-cols-1 gap-2">
+          {financialTips.map((t) => (
+            <li key={t.id} className="p-3.5 rounded-2xl bg-card border border-border">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">{t.title}</p>
+                <span className="text-[10px] uppercase tracking-widest text-accent">{t.tag}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{t.body}</p>
+            </li>
+          ))}
+        </ul>
+      </DashRow>
+
+      {/* Stocks & Market */}
+      <DashRow title="Stocks & Market News">
+        <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
+          {marketTickers.map((t) => (
+            <div key={t.symbol} className="shrink-0 px-3 py-2 rounded-xl bg-card border border-border min-w-[120px]">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.symbol}</p>
+              <p className="text-sm font-semibold">{t.price}</p>
+              <p className={`text-[11px] font-semibold ${t.up ? "text-emerald-400" : "text-rose-400"}`}>{t.change}</p>
+            </div>
+          ))}
+        </div>
+        <ul className="space-y-2">
+          {marketHeadlines.map((m) => (
+            <li key={m.id} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span className="text-sm flex-1">{m.title}</span>
+              <span className="text-[10px] text-muted-foreground">{m.time}</span>
+            </li>
+          ))}
+        </ul>
+      </DashRow>
+
+      {/* News Black college students should know */}
+      <DashRow title="News You Should Know" onMore={() => onJump("News")}>
+        <ul className="space-y-2">
+          {mustReadNews.map((n) => (
+            <li key={n.id} className="p-3.5 rounded-2xl bg-card border border-border">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-primary">{n.tag}</span>
+                <span className="text-[10px] text-muted-foreground">· {n.source} · {n.time}</span>
+              </div>
+              <p className="text-sm font-semibold mt-1">{n.title}</p>
+            </li>
+          ))}
+        </ul>
+      </DashRow>
+
       {/* Motivation */}
       <div className="rounded-3xl border border-border p-5 bg-[image:var(--gradient-bronze)] text-primary-foreground">
         <Quote className="h-5 w-5 opacity-70" />
