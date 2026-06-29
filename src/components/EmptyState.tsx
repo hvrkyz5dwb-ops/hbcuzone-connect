@@ -74,3 +74,29 @@ export function LoadingGrid({ rows = 4 }: { rows?: number }) {
     </div>
   );
 }
+
+export function LoadingFeed({ rows = 2 }: { rows?: number }) {
+  return (
+    <div className="space-y-7 view-enter" aria-busy="true" aria-label="Loading feed">
+      {Array.from({ length: rows }).map((_, i) => (
+        <article
+          key={i}
+          className="mx-3 rounded-[28px] border border-border bg-card overflow-hidden"
+        >
+          <div className="flex items-center gap-3 px-4 pt-3.5 pb-3">
+            <div className="h-11 w-11 rounded-full feed-shimmer" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-1/3 rounded feed-shimmer" />
+              <div className="h-2.5 w-1/4 rounded feed-shimmer" />
+            </div>
+          </div>
+          <div className="aspect-[4/5] w-full feed-shimmer" />
+          <div className="px-4 py-4 space-y-2">
+            <div className="h-3 w-1/4 rounded feed-shimmer" />
+            <div className="h-3 w-3/4 rounded feed-shimmer" />
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
