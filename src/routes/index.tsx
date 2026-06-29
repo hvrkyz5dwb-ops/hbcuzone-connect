@@ -8,6 +8,7 @@ import campusMap from "@/assets/campus-map.jpg";
 import { PluguDaily } from "@/components/PluguDaily";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CampusPulse } from "@/components/CampusPulse";
+import { DailyCard } from "@/components/DailyCard";
 import { SmartSearch } from "@/components/SmartSearch";
 import { OpportunityRail } from "@/components/OpportunityRail";
 import { toast } from "sonner";
@@ -32,6 +33,9 @@ function Home() {
   return (
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
+      {/* PlugU Daily — top-of-home card, rotates daily */}
+      <DailyCard />
+
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
 
