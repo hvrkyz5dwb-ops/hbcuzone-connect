@@ -322,6 +322,55 @@ export const dailyMotivation = [
   "Lift as you climb.",
 ];
 
+/* === New dashboard data === */
+export const studentSpotlights = [
+  { id: "sp1", name: "Jada Wallace", school: "Howard '26", title: "Founder, Bison Beauty Co.", note: "Raised $25K pre-seed at 19.", emoji: "👑" },
+  { id: "sp2", name: "Malik Thompson", school: "Morehouse '25", title: "NASA JPL Intern", note: "Building Mars rover firmware this summer.", emoji: "🚀" },
+  { id: "sp3", name: "Imani Carter", school: "Spelman '24", title: "Rhodes Scholar Finalist", note: "Heading to Oxford for Public Policy.", emoji: "🎓" },
+];
+
+export const studyAbroadPrograms = [
+  { id: "sa1", country: "Ghana", program: "Accra Cultural Immersion", school: "Howard", term: "Summer 2026", cost: "$3,200", emoji: "🇬🇭" },
+  { id: "sa2", country: "South Africa", program: "Johannesburg Tech Exchange", school: "FAMU", term: "Fall 2026", cost: "$4,800", emoji: "🇿🇦" },
+  { id: "sa3", country: "Brazil", program: "Salvador Black Diaspora Studies", school: "Spelman", term: "Spring 2027", cost: "$3,900", emoji: "🇧🇷" },
+  { id: "sa4", country: "Senegal", program: "Dakar Entrepreneurship Lab", school: "Morehouse", term: "Summer 2026", cost: "$3,500", emoji: "🇸🇳" },
+];
+
+export const financialTips = [
+  { id: "ft1", title: "Build credit before you graduate", body: "Open a secured card, keep utilization under 30%, autopay the full balance.", tag: "Credit" },
+  { id: "ft2", title: "The 50/30/20 student rule", body: "50% needs, 30% wants, 20% savings — works on a $1,200/mo budget.", tag: "Budgeting" },
+  { id: "ft3", title: "Roth IRA at 19 = generational wealth", body: "$100/mo invested from age 19 hits ~$500K by 65.", tag: "Investing" },
+  { id: "ft4", title: "FAFSA hacks most students miss", body: "Re-file every January 1 — late filers lose ~$2K in aid on average.", tag: "Aid" },
+];
+
+export const marketTickers = [
+  { symbol: "S&P 500", price: "5,847.21", change: "+0.84%", up: true },
+  { symbol: "NASDAQ", price: "18,932.10", change: "+1.12%", up: true },
+  { symbol: "DOW", price: "42,114.40", change: "-0.21%", up: false },
+  { symbol: "BTC", price: "$71,420", change: "+3.40%", up: true },
+  { symbol: "NVDA", price: "$142.18", change: "+2.05%", up: true },
+  { symbol: "TSLA", price: "$248.50", change: "-1.10%", up: false },
+];
+export const marketHeadlines = [
+  { id: "mh1", title: "Black-owned ETF $NACP outperforms S&P this quarter", time: "2h", tag: "Equity" },
+  { id: "mh2", title: "Fed signals rate cut — what student borrowers should know", time: "5h", tag: "Rates" },
+  { id: "mh3", title: "HBCU endowments grow 11% YoY, led by Howard & Spelman", time: "1d", tag: "Endowments" },
+];
+
+export const mustReadNews = [
+  { id: "mr1", title: "Supreme Court ruling impacts Pell Grant access for 2026", source: "AP", time: "3h", tag: "Policy" },
+  { id: "mr2", title: "Biden-era HBCU funding extended through 2030", source: "NYT", time: "6h", tag: "Federal" },
+  { id: "mr3", title: "First Black woman CEO of Fortune 50 takes the helm at Citi", source: "Bloomberg", time: "1d", tag: "Business" },
+  { id: "mr4", title: "Why HBCU enrollment hit a 50-year high", source: "The Atlantic", time: "2d", tag: "Education" },
+];
+
+export const careerOpportunities = [
+  { id: "co1", company: "Goldman Sachs", role: "Black Analyst Pipeline", deadline: "Jan 15", type: "Full-Time", emoji: "🏦" },
+  { id: "co2", company: "Google", role: "BOLD Internship", deadline: "Feb 1", type: "Summer", emoji: "🔍" },
+  { id: "co3", company: "Meta", role: "University Recruiting — HBCU Track", deadline: "Dec 20", type: "New Grad", emoji: "📘" },
+  { id: "co4", company: "McKinsey", role: "Sophomore Diversity Forum", deadline: "Jan 5", type: "Forum", emoji: "📊" },
+];
+
 /* === School Communities === */
 export type CommunityFeedItem = { id: string; user: string; tag: string; post: string; likes: number; time: string };
 export const communityFeedSample: CommunityFeedItem[] = [
