@@ -272,7 +272,9 @@ function VerificationWall({
 
   return (
     <AppShell title='HBC"US"'>
-      <section className="px-5 pt-5">
+      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
+        <div className="hbcus-theme-bg" aria-hidden="true" />
+        <section className="px-5 pt-5 hbcus-rise">
         <div className="relative overflow-hidden rounded-3xl border border-border">
           <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
@@ -280,10 +282,12 @@ function VerificationWall({
             <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/40 text-primary bg-primary/10">
               <Lock className="h-3 w-3" /> Members Only
             </span>
-            <h1 className="mt-3 text-3xl font-black tracking-tight">
-              HBC<span style={{ color: "var(--plugu-gold)" }}>"US"</span>
+            <h1 className="mt-3 text-[2.6rem] leading-none tracking-tight">
+              <span className="hbcus-wordmark">HBC</span>
+              <span className="hbcus-wordmark italic">"US"</span>
             </h1>
-            <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+            <div className="hbcus-rule my-3 max-w-[10rem]" />
+            <p className="text-sm mt-2 max-w-sm" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 78%, transparent)" }}>
               HBC"US" is an exclusive experience for verified HBCU students. Verify your status below to unlock the full network.
             </p>
           </div>
@@ -397,6 +401,7 @@ function VerificationWall({
           </div>
         </div>
       </section>
+      </div>
     </AppShell>
   );
 }
