@@ -77,7 +77,15 @@ function SearchPage() {
   const [sort, setSort] = useState(SORTS[0]);
 
   useEffect(() => {
-    navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, q: query || undefined, tab }), replace: true });
+    const nextQ = query || undefined;
+    if (sp.q === nextQ && sp.tab === tab) return;
+    const t = setTimeout(() => {
+      navigate({
+        search: (prev: Record<string, unknown>) => ({ ...prev, q: nextQ, tab }),
+        replace: true,
+      });
+    }, 120);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, query]);
 
