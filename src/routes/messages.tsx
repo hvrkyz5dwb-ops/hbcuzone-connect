@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { messagesList } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingList, EmptyState } from "@/components/EmptyState";
+import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
