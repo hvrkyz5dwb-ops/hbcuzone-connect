@@ -57,22 +57,25 @@ function SchoolCommunity() {
 
   return (
     <AppShell title={school.name}>
-      {/* Header */}
-      <section className="px-5 pt-5">
-        <Link to="/hbcus" className="inline-flex items-center gap-1 text-[11px] text-muted-foreground tap">
+      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
+        <div className="hbcus-theme-bg" aria-hidden="true" />
+        {/* Header */}
+        <section className="px-5 pt-5 hbcus-rise">
+        <Link to="/hbcus" className="inline-flex items-center gap-1 text-[11px] tap" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 65%, transparent)" }}>
           <ArrowLeft className="h-3.5 w-3.5" /> HBCUS Directory
         </Link>
-        <div className={`mt-3 relative overflow-hidden rounded-3xl border border-border h-36 bg-gradient-to-br ${school.color}`}>
-          <div className="absolute inset-0 bg-black/35" />
-          <div className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
+        <div className={`mt-3 relative overflow-hidden hbcus-card h-40 bg-gradient-to-br ${school.color}`}>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, color-mix(in oklab, var(--hbcu-night) 25%, transparent) 0%, color-mix(in oklab, var(--hbcu-night) 85%, transparent) 100%)" }} />
+          <div className="absolute top-3 right-3 hbcus-chip">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" /> Live
           </div>
           <div className="absolute bottom-3 left-4 right-4">
-            <p className="text-white font-bold text-lg leading-tight">{school.name}</p>
-            <p className="text-white/80 text-xs mt-0.5 inline-flex items-center gap-1">
+            <p className="hbcus-wordmark text-2xl leading-tight">{school.name}</p>
+            <div className="hbcus-rule my-2 max-w-[8rem]" />
+            <p className="text-xs inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 80%, transparent)" }}>
               <MapPin className="h-3 w-3" /> {school.city} · Est. {school.founded}
             </p>
-            <p className="text-white/90 text-[11px] mt-1.5 inline-flex items-center gap-1">
+            <p className="text-[11px] mt-1 inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 85%, transparent)" }}>
               <Users className="h-3 w-3" /> {school.pluguStudents.toLocaleString()} on PlugU · {school.liveActivity}
             </p>
           </div>
@@ -81,25 +84,19 @@ function SchoolCommunity() {
 
       {/* Tabs */}
       <div className="mt-4 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TABS.map((t) => {
-          const active = t === tab;
-          return (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-colors border ${
-                active
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary text-muted-foreground border-border hover:text-foreground"
-              }`}
-            >
-              {t}
-            </button>
-          );
-        })}
+        {TABS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            data-active={t === tab}
+            className="hbcus-tab shrink-0 tap"
+          >
+            {t}
+          </button>
+        ))}
       </div>
 
-      <section className="mt-4 px-5 pb-6 slide-up">
+      <section className="mt-4 px-5 pb-6 hbcus-rise" key={tab}>
         {tab === "Feed" && <FeedTab school={school.name} />}
         {tab === "Businesses" && <BusinessesTab school={school.name} />}
         {tab === "Events" && <EventsTab school={school.name} />}
@@ -116,20 +113,21 @@ function SchoolCommunity() {
 
       {/* Cross-links to other HBCUs */}
       <section className="px-5 pb-10">
-        <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Jump to another HBCU</p>
+        <p className="text-[10px] tracking-[0.3em] uppercase mb-2" style={{ color: "color-mix(in oklab, var(--hbcu-gold) 70%, transparent)" }}>Jump to another HBCU</p>
         <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {schoolProfiles.filter((s) => s.name !== school.name).map((s) => (
             <Link
               key={s.name}
               to="/hbcus/school/$slug"
               params={{ slug: schoolSlug(s.name) }}
-              className="shrink-0 rounded-full px-3 py-1.5 text-[11px] bg-secondary border border-border tap"
+              className="shrink-0 hbcus-tab tap"
             >
               {s.name}
             </Link>
           ))}
         </div>
       </section>
+      </div>
     </AppShell>
   );
 }
@@ -148,7 +146,7 @@ function SectionTitle({ icon: Icon, title, subtitle }: { icon: any; title: strin
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <li className="rounded-2xl bg-card border border-border p-3.5">{children}</li>;
+  return <li className="hbcus-card p-3.5">{children}</li>;
 }
 
 /* ----------------- Tabs ----------------- */
@@ -167,7 +165,7 @@ function BusinessesTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Store} title="Student-owned businesses" subtitle={`${list.length} active on ${school}`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {list.map((b) => (
           <Card key={b.id}>
             <div className="flex items-center justify-between">
@@ -190,7 +188,7 @@ function EventsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Calendar} title={`What's happening at ${school}`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {items.slice(0, 8).map((e: any) => (
           <Card key={e.id ?? e.title}>
             <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--plugu-gold)" }}>
@@ -221,7 +219,7 @@ function OrganizationsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Megaphone} title={`${school} student organizations`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {orgs.map((o) => (
           <Card key={o.name}>
             <div className="flex items-center justify-between">
@@ -247,7 +245,7 @@ function SportsTab({ school }: { school: string }) {
       <SectionTitle icon={Trophy} title={`${school} athletics`} />
       <div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Live & upcoming</p>
-        <ul className="space-y-2">
+        <ul className="space-y-2 hbcus-stagger">
           {[...live, ...upc].slice(0, 4).map((g: any, i) => (
             <Card key={i}>
               <p className="text-sm font-semibold">{g.home} vs {g.away}</p>
@@ -261,7 +259,7 @@ function SportsTab({ school }: { school: string }) {
       </div>
       <div>
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Top performers</p>
-        <ul className="space-y-2">
+        <ul className="space-y-2 hbcus-stagger">
           {topPerformers.filter((p) => p.school === school || p.school === school.split(" ")[0]).slice(0, 4).map((p, i) => (
             <Card key={i}>
               <p className="font-semibold text-sm">{p.name} · {p.sport}</p>
@@ -289,7 +287,7 @@ function MapsTab({ school }: { school: any }) {
           </Link>
         </div>
       </div>
-      <ul className="mt-3 grid grid-cols-2 gap-2 text-xs">
+      <ul className="mt-3 grid grid-cols-2 gap-2 text-xs hbcus-stagger">
         {["Library", "Student Union", "Stadium", "Health Center", "Quad", "Bookstore"].map((p) => (
           <li key={p} className="rounded-xl border border-border bg-card px-3 py-2.5 flex items-center gap-2">
             <MapPin className="h-3.5 w-3.5 text-accent" /> {p}
@@ -312,7 +310,7 @@ function DiningTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Utensils} title={`Dining at ${school}`} subtitle="Halls, food courts and student plugs" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {places.map((p) => (
           <Card key={p.name}>
             <p className="font-semibold text-sm">{p.name}</p>
@@ -335,7 +333,7 @@ function HousingTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={HomeIcon} title={`${school} housing`} subtitle="Dorms, apartments & student sublets" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {dorms.map((d) => (
           <Card key={d.name}>
             <div className="flex items-center justify-between">
@@ -358,7 +356,7 @@ function JobsTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={Briefcase} title={`Jobs & internships for ${school}`} subtitle="On-campus, work-study and partner roles" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {list.map((j) => (
           <Card key={j.id}>
             <div className="flex items-start justify-between gap-3">
@@ -397,7 +395,7 @@ function LostFoundTab({ school }: { school: string }) {
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
       </div>
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {items.map((i) => (
           <Card key={i.id}>
             <div className="flex items-center justify-between">
@@ -438,7 +436,7 @@ function EmergencyTab({ school }: { school: any }) {
   return (
     <div>
       <SectionTitle icon={ShieldAlert} title={`${school.name} emergency contacts`} subtitle="Tap to call — works on mobile" />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {contacts.map((c) => (
           <Card key={c.label}>
             <div className="flex items-center justify-between gap-3">
@@ -475,7 +473,7 @@ function ResourcesTab({ school }: { school: string }) {
   return (
     <div>
       <SectionTitle icon={BookOpen} title={`${school} campus resources`} />
-      <ul className="space-y-2">
+      <ul className="space-y-2 hbcus-stagger">
         {links.map((l) => (
           <li key={l.label}>
             <Link to={l.to} className="block rounded-2xl bg-card border border-border p-3.5 tap">
