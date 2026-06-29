@@ -139,6 +139,14 @@ export const schoolProfiles: SchoolProfile[] = [
   { name: "NCCU", city: "Durham, NC", enrollment: "8,100", founded: 1909, acceptance: "44%", tuition: "$21K", website: "nccu.edu", color: "from-emerald-900 to-teal-700", mascot: "Eagles", conference: "MEAC", pluguStudents: 980, liveActivity: "1.1K active now", topMajors: ["Law", "Pharmacy", "Mass Comm"] },
 ];
 
+export function schoolSlug(name: string): string {
+  return name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+export function findSchoolBySlug(slug: string): SchoolProfile | undefined {
+  return schoolProfiles.find((s) => schoolSlug(s.name) === slug);
+}
+
 export type Internship = {
   id: string;
   role: string;
