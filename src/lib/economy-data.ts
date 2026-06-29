@@ -88,37 +88,58 @@ export const rankingFilters: RankingFilter[] = ["National", "State", "Conference
 export type RankingCategory =
   | "Highest Revenue" | "Most Active Marketplace" | "Most Student Businesses"
   | "Most Transactions" | "Fastest Growing Campus" | "Highest User Activity"
-  | "Best Rated Businesses" | "Most Services Completed" | "Most Verified Businesses";
+  | "Best Rated Businesses" | "Most Services Completed" | "Most Verified Businesses"
+  | "Top Selling School" | "Most Active School" | "Most Businesses"
+  | "Most Student Creators" | "Most Marketplace Sales" | "Top Ambassador School";
 
 export const rankingCategories: RankingCategory[] = [
+  "Top Selling School", "Most Active School", "Most Businesses",
+  "Most Student Creators", "Most Marketplace Sales", "Most Verified Businesses",
+  "Top Ambassador School",
   "Highest Revenue", "Most Active Marketplace", "Most Student Businesses",
   "Most Transactions", "Fastest Growing Campus", "Highest User Activity",
-  "Best Rated Businesses", "Most Services Completed", "Most Verified Businesses",
+  "Best Rated Businesses", "Most Services Completed",
 ];
 
 export function rankBy(cat: RankingCategory, list: CampusEconomy[]): CampusEconomy[] {
   const get = (c: CampusEconomy) => {
     switch (cat) {
       case "Highest Revenue": return c.stats.totalRevenue;
+      case "Top Selling School": return c.stats.totalRevenue;
       case "Most Active Marketplace": return c.stats.marketSales;
+      case "Most Marketplace Sales": return c.stats.marketSales;
       case "Most Student Businesses": return c.stats.businesses;
+      case "Most Businesses": return c.stats.businesses;
       case "Most Transactions": return c.stats.transactions;
       case "Fastest Growing Campus": return c.stats.growthPct;
       case "Highest User Activity": return c.stats.activeUsers;
+      case "Most Active School": return c.stats.activeUsers + c.stats.transactions;
       case "Best Rated Businesses": return c.stats.avgRating;
       case "Most Services Completed": return c.stats.servicesBooked;
       case "Most Verified Businesses": return c.stats.activeBusinesses;
+      case "Most Student Creators": return Math.round(c.stats.activeUsers * 0.18);
+      case "Top Ambassador School": return Math.round(c.stats.activeBusinesses * 0.22 + c.stats.growthPct);
     }
   };
   return [...list].sort((a, b) => get(b) - get(a));
 }
 
-export const awardCategories = [
-  "Plug of the Year", "Student Entrepreneur of the Year", "Business of the Year",
-  "Clothing Brand of the Year", "Barber of the Year", "Hairstylist of the Year",
-  "Nail Technician of the Year", "Photographer of the Year", "Artist of the Year",
-  "Music Creator of the Year", "Restaurant of the Year", "Organization of the Year",
-  "Community Impact Award", "Campus of the Year",
+export type AwardCategory = {
+  name: string;
+  blurb: string;
+  emoji: string;
+};
+
+export const awardCategories: AwardCategory[] = [
+  { name: "Plug of the Year",       blurb: "The #1 student hustler on PlugU.",         emoji: "👑" },
+  { name: "Student Entrepreneur",   blurb: "Founder building real revenue.",           emoji: "🚀" },
+  { name: "Best Creator",           blurb: "Top content creator on campus.",           emoji: "🎬" },
+  { name: "Top Business",           blurb: "Highest-performing student business.",     emoji: "🏆" },
+  { name: "Best Photographer",      blurb: "Premier campus lens.",                     emoji: "📸" },
+  { name: "Best Barber",            blurb: "Sharpest cuts on the yard.",               emoji: "💈" },
+  { name: "Best Beauty Business",   blurb: "Hair, lashes, nails, brows — top tier.",   emoji: "💅" },
+  { name: "Most Helpful Student",   blurb: "Always plugs the community in.",           emoji: "🤝" },
+  { name: "Top Organization",       blurb: "Student org with the biggest impact.",     emoji: "🎓" },
 ];
 
 export const scholarshipCategories = [
