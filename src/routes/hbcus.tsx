@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
@@ -83,6 +83,7 @@ import {
   marketHeadlines,
   mustReadNews,
   careerOpportunities,
+  schoolSlug,
 } from "@/lib/hbcus-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
 
@@ -994,27 +995,36 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
 
       <div className="grid grid-cols-2 gap-3">
         {filtered.map((s) => (
-          <button
-            key={s.name}
-            onClick={() => setPicked(s)}
-            className="relative aspect-[3/4] rounded-2xl overflow-hidden text-left border border-border tap"
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${s.color}`} />
-            <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" />
-              Live
-            </div>
-            <div className="absolute inset-x-0 bottom-0 p-3">
-              <p className="text-white font-bold text-sm leading-tight">{s.name}</p>
-              <p className="text-white/70 text-[11px] mt-0.5 flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {s.city}
-              </p>
-              <p className="text-white/90 text-[11px] mt-2 flex items-center gap-1">
-                <Users className="h-3 w-3" /> {s.pluguStudents} on PlugU
-              </p>
-            </div>
-          </button>
+          <div key={s.name} className="relative">
+            <Link
+              to="/hbcus/school/$slug"
+              params={{ slug: schoolSlug(s.name) }}
+              className="block relative aspect-[3/4] rounded-2xl overflow-hidden text-left border border-border tap"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${s.color}`} />
+              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" />
+                Live
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-3">
+                <p className="text-white font-bold text-sm leading-tight">{s.name}</p>
+                <p className="text-white/70 text-[11px] mt-0.5 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {s.city}
+                </p>
+                <p className="text-white/90 text-[11px] mt-2 flex items-center gap-1">
+                  <Users className="h-3 w-3" /> {s.pluguStudents} on PlugU
+                </p>
+              </div>
+            </Link>
+            <button
+              onClick={() => setPicked(s)}
+              className="absolute top-2 left-2 text-[10px] px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent tap"
+              aria-label="Quick preview"
+            >
+              Preview
+            </button>
+          </div>
         ))}
       </div>
 

@@ -34,6 +34,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 
 const UpgradeRoute = UpgradeRouteImport.update({
   id: '/upgrade',
@@ -160,6 +161,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
+  id: '/school/$slug',
+  path: '/school/$slug',
+  getParentRoute: () => HbcusRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -168,7 +174,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRoute
+  '/hbcus': typeof HbcusRouteWithChildren
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -195,7 +202,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRoute
+  '/hbcus': typeof HbcusRouteWithChildren
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,7 +231,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRoute
+  '/hbcus': typeof HbcusRouteWithChildren
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/hbcus/school/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/hbcus/school/$slug'
   id:
     | '__root__'
     | '/'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/hbcus/school/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,7 +346,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
-  HbcusRoute: typeof HbcusRoute
+  HbcusRoute: typeof HbcusRouteWithChildren
   HubRoute: typeof HubRoute
   LoginRoute: typeof LoginRoute
   ManagePlanRoute: typeof ManagePlanRoute
@@ -532,8 +544,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hbcus/school/$slug': {
+      id: '/hbcus/school/$slug'
+      path: '/school/$slug'
+      fullPath: '/hbcus/school/$slug'
+      preLoaderRoute: typeof HbcusSchoolSlugRouteImport
+      parentRoute: typeof HbcusRoute
+    }
   }
 }
+
+interface HbcusRouteChildren {
+  HbcusSchoolSlugRoute: typeof HbcusSchoolSlugRoute
+}
+
+const HbcusRouteChildren: HbcusRouteChildren = {
+  HbcusSchoolSlugRoute: HbcusSchoolSlugRoute,
+}
+
+const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -542,7 +571,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
-  HbcusRoute: HbcusRoute,
+  HbcusRoute: HbcusRouteWithChildren,
   HubRoute: HubRoute,
   LoginRoute: LoginRoute,
   ManagePlanRoute: ManagePlanRoute,
