@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Heart, MessageCircle, Send, Bookmark, MoreHorizontal, BadgeCheck,
@@ -12,6 +12,7 @@ import {
   type FeedFilter, type FeedPost,
 } from "@/lib/feed-data";
 import { toast } from "sonner";
+import { LoadingFeed } from "@/components/EmptyState";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
@@ -32,6 +33,11 @@ export function CampusFeed() {
   const [liked, setLiked] = useState<Set<string>>(() => readSet(LIKED_KEY));
   const [saved, setSaved] = useState<Set<string>>(() => readSet(SAVED_KEY));
   const [follows, setFollows] = useState<Set<string>>(() => readSet(FOLLOW_KEY));
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 280);
+    return () => clearTimeout(t);
+  }, []);
 
   const posts = useMemo(() => filterPosts(feedPosts, filter), [filter]);
 
@@ -225,7 +231,8 @@ export function CampusFeed() {
 
       {/* Feed */}
       <div className="space-y-7">
-        {posts.map((p, i) => (
+        {!ready && <LoadingFeed rows={2} />}
+        {ready && posts.map((p, i) => (
           <PostCard
             key={p.id}
             post={p}
@@ -238,7 +245,7 @@ export function CampusFeed() {
             index={i}
           />
         ))}
-        {posts.length === 0 && (
+        {ready && posts.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-10 px-5">
             Nothing here yet. Try another filter or post something fresh.
           </p>

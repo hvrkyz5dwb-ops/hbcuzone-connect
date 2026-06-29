@@ -194,6 +194,38 @@
 }
 @utility slide-up { animation: plugu-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* Feed polish — momentum scrolling, smooth taps, glass surfaces */
+html { scroll-behavior: smooth; }
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+img, video { content-visibility: auto; }
+
+@utility glass-card {
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+}
+
+@keyframes plugu-shimmer-feed {
+  0%   { background-position: -480px 0; }
+  100% { background-position: 480px 0; }
+}
+@utility feed-shimmer {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--card) 90%, transparent) 0%,
+    color-mix(in oklab, var(--secondary) 80%, transparent) 50%,
+    color-mix(in oklab, var(--card) 90%, transparent) 100%
+  );
+  background-size: 960px 100%;
+  animation: plugu-shimmer-feed 1.6s linear infinite;
+}
+
 @keyframes plugu-pop-in {
   0% { opacity: 0; transform: scale(0.92); }
   60% { opacity: 1; transform: scale(1.02); }
