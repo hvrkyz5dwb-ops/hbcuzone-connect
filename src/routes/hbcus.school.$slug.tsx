@@ -146,7 +146,7 @@ function SectionTitle({ icon: Icon, title, subtitle }: { icon: any; title: strin
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <li className="rounded-2xl bg-card border border-border p-3.5">{children}</li>;
+  return <li className="hbcus-card p-3.5">{children}</li>;
 }
 
 /* ----------------- Tabs ----------------- */
