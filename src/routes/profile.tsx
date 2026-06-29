@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, Star, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy } from "lucide-react";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { getStudent } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { SellerReputation } from "@/components/SellerReputation";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
@@ -28,7 +29,7 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
   { label: "Payment History", icon: Receipt, to: "/payment-history" },
   { label: "My Listings", icon: ListOrdered, to: "/market" },
   { label: "Saved", icon: Heart, to: "/saved" },
-  { label: "Reviews", icon: Star, to: "/profile" },
+  { label: "Trust Center", icon: Scale, to: "/trust" },
   { label: "Safety & Tools", icon: ShieldAlert, to: "/safety" },
   { label: "Admin", icon: ShieldCheck, to: "/admin" },
   { label: "Settings", icon: Settings, to: "/profile" },
@@ -112,6 +113,8 @@ function Profile() {
           })}
         </ul>
       </section>
+
+      <SellerReputation />
 
       <section className="mt-6 px-5 pb-4">
         <h2 className="text-sm font-semibold tracking-tight mb-3">My Listings</h2>
