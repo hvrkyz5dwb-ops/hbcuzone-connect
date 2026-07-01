@@ -89,11 +89,11 @@ function Login() {
 
         <div className="max-w-sm mx-auto text-center cine-card">
           <img src={pluguLogo} alt="" className="h-14 w-14 mx-auto drop-shadow-[0_0_24px_var(--plugu-gold)] pop-in" />
-          <h1 className="mt-4 text-3xl font-bold plugu-wordmark tracking-tight">
+          <h1 className="mt-4 text-3xl font-bold plugu-antique-wordmark tracking-tight">
             Welcome to PlugU
           </h1>
           <p className="mt-2 text-sm text-white/70 inline-flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5" style={{ color: "var(--plugu-gold)" }} />
+            <ShieldCheck className="h-3.5 w-3.5" style={{ color: "var(--plugu-antique-gold)" }} />
             Built exclusively for verified college students.
           </p>
         </div>
@@ -127,7 +127,15 @@ function Login() {
                   />
                 </div>
                 {detectedSchool && (
-                  <span className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--plugu-gold)" }}>
+                  <span
+                    className="mt-1 inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1 text-[11px] font-semibold"
+                    style={{
+                      color: "var(--plugu-antique-gold-hi)",
+                      background: "linear-gradient(180deg, rgba(184,135,58,0.14), rgba(122,88,32,0.10))",
+                      border: "1px solid color-mix(in oklab, var(--plugu-antique-gold) 55%, transparent)",
+                      boxShadow: "0 0 24px -8px color-mix(in oklab, var(--plugu-antique-gold) 60%, transparent), inset 0 1px 0 rgba(255,255,255,0.06)",
+                    }}
+                  >
                     <ShieldCheck className="h-3.5 w-3.5" /> Recognized as {detectedSchool}
                   </span>
                 )}

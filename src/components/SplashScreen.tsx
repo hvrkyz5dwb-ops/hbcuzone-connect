@@ -81,6 +81,34 @@ export function SplashScreen() {
         background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.85))",
       }} />
 
+      {/* Cinematic light sheen (skipped for reduced-motion) */}
+      {!reduced && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="cine-hero-sheen absolute -inset-y-10 w-[35%] -left-1/3"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(232,199,122,0.14) 45%, rgba(255,240,194,0.28) 50%, rgba(232,199,122,0.14) 55%, transparent 100%)",
+              mixBlendMode: "screen",
+            }}
+          />
+        </div>
+      )}
+
+      {/* Cinematic letterbox reveal (skipped for reduced-motion) */}
+      {!reduced && (
+        <>
+          <div
+            className="cine-letterbox-top absolute inset-x-0 top-0 h-[14vh] pointer-events-none"
+            style={{ background: "linear-gradient(180deg, #000 65%, transparent)" }}
+          />
+          <div
+            className="cine-letterbox-bottom absolute inset-x-0 bottom-0 h-[14vh] pointer-events-none"
+            style={{ background: "linear-gradient(0deg, #000 65%, transparent)" }}
+          />
+        </>
+      )}
+
       {/* Drifting gold dust — skipped entirely for reduced-motion */}
       {full && !reduced && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
