@@ -214,6 +214,7 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
         {section === "News" && <NewsPanel activeSchool={active} />}
         {section === "Sports" && <SportsPanel />}
         {section === "Schools" && <SchoolsPanel onPick={setActive} />}
+        {section === "Greek Life" && <GreekLifePanel />}
         {section === "Communities" && <CommunitiesPanel activeSchool={active} />}
         {section === "Internships" && <InternshipsPanel />}
         {section === "Scholarships" && <ScholarshipsPanel />}
