@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
-  Zap, Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy,
+  Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy, Rocket,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -27,7 +27,7 @@ const quickActions: { to: string; label: string; icon: LucideIcon; hint: string 
   { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
   { to: "/economy", label: "Campus Economy", icon: Trophy, hint: "Live rankings, grant & wealth index" },
   { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
-  { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Zap, hint: "Launch pricing — campus to nationwide" },
+  { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Rocket, hint: "Launch pricing — campus to nationwide" },
   { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
   { to: "/map", label: "Live Campus Map", icon: Map, hint: "What's near you, right now" },
   { to: "/safety", label: "Safety & Tools", icon: ShieldAlert, hint: "SOS, rides, lost & found" },
@@ -100,7 +100,16 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         <main key={pathname} className="flex-1 view-enter">{children}</main>
 
         <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
-          <div className="mx-3 mb-3 rounded-3xl border border-border/60 bg-card/85 backdrop-blur-xl shadow-[var(--shadow-elegant)]">
+          <div
+            className="mx-3 mb-4 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
+            style={{
+              background: "linear-gradient(180deg, rgba(23,23,23,0.72), rgba(10,10,10,0.82))",
+              backdropFilter: "blur(28px) saturate(160%)",
+              WebkitBackdropFilter: "blur(28px) saturate(160%)",
+              boxShadow:
+                "0 1px 0 rgba(255,255,255,0.06) inset, 0 24px 60px -24px rgba(0,0,0,0.85), 0 0 40px -20px rgba(244,201,106,0.25)",
+            }}
+          >
             <ul className="grid grid-cols-5 items-end px-2 py-2 relative">
               {tabs.map((t, idx) => {
                 const Icon = t.icon;
@@ -111,31 +120,33 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                     <li key="plug-center" className="flex justify-center">
                       <button
                         onClick={() => setPlugOpen(true)}
-                        className="tap -mt-7 grid place-items-center w-14 h-14 rounded-full relative overflow-hidden"
+                        className="tap -mt-8 grid place-items-center w-16 h-16 rounded-full relative overflow-hidden"
                         style={{
-                          background: "radial-gradient(circle at 30% 25%, #2a2a2a 0%, #0a0a0a 55%, #000 100%)",
-                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 55%, transparent)",
+                          background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
+                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
                           boxShadow:
-                            "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -6px 12px rgba(0,0,0,0.6), 0 8px 24px rgba(0,0,0,0.55), 0 0 22px color-mix(in oklab, var(--plugu-gold) 35%, transparent)",
+                            "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -8px 16px rgba(0,0,0,0.65), 0 12px 32px rgba(0,0,0,0.6), 0 0 28px rgba(244,201,106,0.45)",
                         }}
                         aria-label="Open Plug quick actions"
                       >
                         <span
                           aria-hidden="true"
-                          className="absolute inset-[3px] rounded-full pointer-events-none"
+                          className="absolute inset-[2px] rounded-full pointer-events-none"
                           style={{
                             background:
-                              "conic-gradient(from 210deg, transparent 0deg, color-mix(in oklab, var(--plugu-gold) 45%, transparent) 60deg, transparent 120deg, transparent 360deg)",
-                            filter: "blur(6px)",
-                            opacity: 0.55,
+                              "conic-gradient(from 210deg, transparent 0deg, rgba(244,201,106,0.55) 60deg, transparent 140deg, transparent 360deg)",
+                            filter: "blur(7px)",
+                            opacity: 0.7,
                           }}
                         />
-                        <Zap
-                          className="relative h-6 w-6"
-                          strokeWidth={2.25}
+                        <img
+                          src={pluguLogo}
+                          alt=""
+                          aria-hidden="true"
+                          className="relative h-8 w-8 object-contain"
                           style={{
-                            color: "var(--plugu-gold)",
-                            filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--plugu-gold) 70%, transparent))",
+                            filter:
+                              "drop-shadow(0 0 10px rgba(244,201,106,0.75)) drop-shadow(0 0 2px rgba(244,201,106,0.9))",
                           }}
                         />
                       </button>
@@ -204,14 +215,21 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                     <Link
                       to={a.to}
                       onClick={() => setPlugOpen(false)}
-                      className="tap flex items-center gap-3 p-3 rounded-2xl border border-border bg-background/60 hover:border-primary/40 transition-colors"
+                      className="tap lift-card flex items-center gap-3 p-3.5 rounded-2xl border border-white/10 bg-background/60"
                     >
-                      <div className="h-10 w-10 grid place-items-center rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground">
-                        <Icon className="h-5 w-5" />
+                      <div
+                        className="h-11 w-11 grid place-items-center rounded-xl"
+                        style={{
+                          background: "linear-gradient(160deg, #1c1c1c, #0f0f0f)",
+                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 40%, transparent)",
+                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px -8px rgba(244,201,106,0.55)",
+                        }}
+                      >
+                        <Icon className="h-5 w-5" strokeWidth={1.75} style={{ color: "var(--plugu-gold)" }} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{a.label}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{a.hint}</p>
+                        <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">{a.hint}</p>
                       </div>
                     </Link>
                   </li>

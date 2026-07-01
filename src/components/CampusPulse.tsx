@@ -122,7 +122,7 @@ export function CampusPulse() {
 
       {/* Quick actions */}
       <section className="mt-4 px-5">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-3">
           {[
             { to: "/business", label: "Sell", icon: Store },
             { to: "/market",   label: "Book", icon: Plug },
@@ -134,12 +134,23 @@ export function CampusPulse() {
               <Link
                 key={a.to}
                 to={a.to as "/market"}
-                className="tap flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card py-3"
+                className="tap lift-card flex flex-col items-center gap-2 rounded-2xl border border-white/10 py-4"
+                style={{
+                  background: "linear-gradient(180deg, rgba(23,23,23,0.85), rgba(10,10,10,0.85))",
+                  backdropFilter: "blur(14px) saturate(140%)",
+                }}
               >
-                <div className="h-9 w-9 grid place-items-center rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground">
-                  <Icon className="h-4 w-4" />
+                <div
+                  className="h-10 w-10 grid place-items-center rounded-xl"
+                  style={{
+                    background: "linear-gradient(160deg, #1c1c1c, #0f0f0f)",
+                    border: "1px solid color-mix(in oklab, var(--plugu-gold) 45%, transparent)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 20px -8px rgba(244,201,106,0.55)",
+                  }}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={1.75} style={{ color: "var(--plugu-gold)" }} />
                 </div>
-                <span className="text-[11px]">{a.label}</span>
+                <span className="text-[11px] font-medium tracking-wide">{a.label}</span>
               </Link>
             );
           })}
