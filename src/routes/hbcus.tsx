@@ -1282,6 +1282,144 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 /* ============================================================
+   GREEK LIFE — Divine Nine across every HBCU
+============================================================ */
+function GreekLifePanel() {
+  const [query, setQuery] = useState("");
+  const [org, setOrg] = useState<string>("All");
+
+  const allOrgs = useMemo(() => {
+    const set = new Set<string>();
+    schoolProfiles.forEach((s) => {
+      const d = getSchoolDetail(s.name);
+      d?.greek.fraternities.forEach((f) => set.add(f));
+      d?.greek.sororities.forEach((f) => set.add(f));
+    });
+    return ["All", ...Array.from(set)];
+  }, []);
+
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return schoolProfiles
+      .map((s) => ({ school: s, detail: getSchoolDetail(s.name) }))
+      .filter(({ school, detail }) => {
+        if (!detail) return false;
+        if (org !== "All") {
+          const has = detail.greek.fraternities.includes(org) || detail.greek.sororities.includes(org);
+          if (!has) return false;
+        }
+        if (!q) return true;
+        return (
+          school.name.toLowerCase().includes(q) ||
+          school.city.toLowerCase().includes(q) ||
+          detail.greek.tradition.toLowerCase().includes(q) ||
+          detail.greek.fraternities.some((f) => f.toLowerCase().includes(q)) ||
+          detail.greek.sororities.some((f) => f.toLowerCase().includes(q))
+        );
+      });
+  }, [query, org]);
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader icon={Crown} title="Greek Life" subtitle="The Divine Nine across the Yard" />
+
+      <div className="rounded-3xl border border-border bg-card p-4">
+        <p className="text-[10px] tracking-widest uppercase text-muted-foreground">The Divine Nine (NPHC)</p>
+        <div className="mt-2 grid grid-cols-2 gap-1.5">
+          {[
+            "Alpha Phi Alpha", "Alpha Kappa Alpha",
+            "Kappa Alpha Psi", "Delta Sigma Theta",
+            "Omega Psi Phi", "Zeta Phi Beta",
+            "Phi Beta Sigma", "Sigma Gamma Rho",
+            "Iota Phi Theta",
+          ].map((o) => (
+            <span key={o} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border text-center">{o}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search Greek life by school or chapter…"
+          className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
+        />
+      </div>
+      <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {allOrgs.map((o) => (
+          <button
+            key={o}
+            onClick={() => setOrg(o)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium tap border ${
+              org === o
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-secondary text-muted-foreground border-border"
+            }`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+
+      {rows.length === 0 && (
+        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
+          No chapters match those filters.
+        </div>
+      )}
+
+      <ul className="space-y-3">
+        {rows.map(({ school, detail }) => (
+          <li key={school.name} className="rounded-3xl border border-border bg-card overflow-hidden">
+            <div className={`h-14 bg-gradient-to-br ${school.color} relative`}>
+              <div className="absolute inset-0 bg-black/30" />
+              <div className="absolute inset-0 px-4 flex items-center justify-between">
+                <div>
+                  <p className="text-white text-sm font-bold leading-tight">{school.name}</p>
+                  <p className="text-white/70 text-[10px]">{school.city} · {detail!.colors}</p>
+                </div>
+                <Link
+                  to="/hbcus/school/$slug"
+                  params={{ slug: schoolSlug(school.name) }}
+                  className="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/15 backdrop-blur text-white tap"
+                >
+                  Open →
+                </Link>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              {detail!.greek.fraternities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Fraternities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail!.greek.fraternities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {detail!.greek.sororities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Sororities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail!.greek.sororities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-muted-foreground italic">{detail!.greek.tradition}</p>
+              <p className="text-[10px] text-accent">{detail!.greek.houses}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ============================================================
    INTERNSHIPS
 ============================================================ */
 function InternshipsPanel() {
