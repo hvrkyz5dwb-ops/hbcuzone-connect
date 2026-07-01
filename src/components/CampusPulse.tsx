@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Crown, Bell, ArrowRight, Calendar, Users, Sparkles, BadgeCheck, GraduationCap, Plug as PlugIcon, Star,
+  Crown, Bell, ArrowRight, Calendar, Users, Sparkles, BadgeCheck, GraduationCap, Plug as PlugIcon, Gem,
   TrendingUp, Megaphone, Store, Map as MapIcon, MessageSquare, Plug, Radio,
 } from "lucide-react";
 import { SectionHeader } from "@/components/AppShell";
@@ -19,13 +19,25 @@ function Countdown({ when }: { when: string }) {
 }
 
 function BadgeIcon({ badge }: { badge: string }) {
+  // Bronze → Silver → Gold → Diamond progression as plugs upgrade.
   switch (badge) {
-    case "Student":       return <GraduationCap className="h-6 w-6 text-muted-foreground shrink-0" />;
-    case "Plug":          return <PlugIcon className="h-6 w-6 text-primary shrink-0" />;
-    case "Verified Plug": return <BadgeCheck className="h-6 w-6 text-primary shrink-0" />;
-    case "Gold Plug":     return <Star className="h-6 w-6 shrink-0" style={{ color: "var(--plugu-gold)" }} />;
+    case "Student":       return <GraduationCap className="h-7 w-7 shrink-0 tier-silver" />;
+    case "Plug":          return <PlugIcon className="h-7 w-7 shrink-0 tier-bronze" />;
+    case "Verified Plug": return <BadgeCheck className="h-7 w-7 shrink-0 tier-silver" />;
+    case "Gold Plug":     return <PlugIcon className="h-7 w-7 shrink-0 tier-gold" />;
     case "Kingpin":
-    default:              return <Crown className="h-6 w-6 text-accent shrink-0" />;
+    default:              return <Gem className="h-7 w-7 shrink-0 tier-diamond" />;
+  }
+}
+
+function badgeWordmarkClass(badge: string): string {
+  switch (badge) {
+    case "Student":       return "silver-wordmark";
+    case "Plug":          return "tier-bronze";
+    case "Verified Plug": return "silver-wordmark";
+    case "Gold Plug":     return "plugu-wordmark";
+    case "Kingpin":
+    default:              return "diamond-wordmark";
   }
 }
 
@@ -48,8 +60,10 @@ export function CampusPulse() {
         <div className="flex items-start justify-between">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">{greeting},</p>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2 truncate">
-              Hello {persona.badge} <BadgeIcon badge={persona.badge} />
+            <h1 className="text-3xl font-black tracking-tight flex items-center gap-2 truncate">
+              <span>Hello </span>
+              <span className={badgeWordmarkClass(persona.badge)}>{persona.badge}</span>
+              <BadgeIcon badge={persona.badge} />
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1 truncate">
               {persona.campus} · {persona.year} · {persona.major}
