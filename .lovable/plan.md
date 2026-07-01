@@ -1,24 +1,34 @@
-## Goal
-Replace the stormy splash sequence with the uploaded PlugU poster as the hero image — statue in courtyard, glowing P, banners, feature chips, "Welcome to PlugU" wordmark — and layer subtle cinematic motion over it so it feels alive, not static.
+## Goals
 
-## Assets
-- Upload the poster via `lovable-assets` → `src/assets/plugu-hero-splash.jpg.asset.json`.
-- Remove the storm/rain/lightning/HUD-rings/crowd layers from splash. Keep the giant statue asset unused here (it's still referenced by `LoginTransition.tsx` and `profile.tsx` cover — leave those alone).
+1. Respect `prefers-reduced-motion` on the splash: skip Ken Burns, glow pulse, and gold dust; show the courtyard poster as a static hero with just a quick fade.
+2. Replace the center bottom-nav "P" icon with a new **"P + Charger Plug"** mark.
+3. Replace the top-left statue/logo with a matching **"P wrapped by a charger cable"** that visually connects into the "plugU" wordmark.
 
-## SplashScreen.tsx rewrite
-Full-bleed poster with a slow Ken Burns push and gentle gold-glow breathing on the P:
-- **Layer 1**: `<img>` of the new poster, `object-cover object-center`, applied a 6s→3.5s subtle scale (1.00 → 1.05) + drift for cinematic "camera push."
-- **Layer 2**: Soft warm vignette + a pulsing gold radial glow centered on the statue's P (breathe animation, reuses existing `plugu-breathe` timing).
-- **Layer 3**: A few floating gold dust particles (reuse existing `.cine-dust`) drifting up — keeps the "alive" feel without competing with the poster.
-- **Layer 4**: Bottom fade to black so the eventual wordmark/handoff to Home reads cleanly.
-- **Timing**: First visit 4.5s, return visit 2.5s (shorter — poster tells the story instantly, no need for a 6s build). Cross-fade out at the end.
-- **Reduced motion**: Static poster + fade only.
+## Changes
 
-## LoginTransition.tsx
-Swap its background from `plugu-statue.jpg` to the new poster so the login → home bridge stays visually continuous. Keep the warm-clear + giant-P push behavior.
+### 1. Reduced-motion splash fallback (`src/components/SplashScreen.tsx` + `src/styles.css`)
+- Detect `window.matchMedia('(prefers-reduced-motion: reduce)')` once on mount.
+- When reduced:
+  - Render only the hero poster + a soft vignette (no Ken Burns transform, no breathing glow layer, no dust particles).
+  - Shorten duration to ~1.2s with a simple opacity fade-out.
+  - Skip `LoginTransition` parallax; use a plain cross-fade.
+- When not reduced: current cinematic behavior unchanged.
+- Add a `.splash-static` utility in `styles.css` (no `will-change`, no transforms).
 
-## Styles
-Add one new keyframe `plugu-hero-push` (slow scale + tiny translate). Everything else reuses existing utilities. No token changes.
+### 2. New "P + Charger" logo asset
+- Generate one premium PNG via `imagegen` (standard tier, transparent background): matte-black serif "P" with a champagne-gold coiled charger cable wrapping the stem, plug-tip peeking out at the bottom-right. Consistent with existing luxury palette (matte black, satin titanium, champagne gold).
+- Save to `src/assets/plugu-charger-mark.png` via the assets CLI → `.asset.json` pointer.
+- Reuse the same asset in two places at different sizes:
+  - **Center bottom-nav** in `src/components/AppShell.tsx`: swap the current `Zap`/`P` glyph inside the gold-rimmed circle for `<img>` of the charger mark (kept inside the existing black sleek circle + gold rim-light — no layout change).
+  - **Top-left header** in `src/components/AppShell.tsx`: replace the current statue-silhouette `plugu-logo.png` with the charger mark, sized ~28px, sitting immediately left of the "plugU" wordmark. The plug tip of the cable visually points into the "p" of "plugU" so it reads as one connected lockup.
+
+### 3. Wordmark connection
+- Wrap the header logo + wordmark in a single flex row with `-space-x-1` so the charger tip overlaps the leading "p" of `plugU`, selling the "plugged in" effect. Preserve the existing shiny chrome gradient on the wordmark text.
 
 ## Out of scope
-Login form, Home feed, HBCUS animation, and other statue usages (profile cover) stay as-is.
+- No changes to routes, auth, data, or animations elsewhere.
+- Existing `plugu-logo.png` and `plugu-hero-splash.png` assets stay in the repo; only references in `AppShell.tsx` change. (I'll delete `plugu-logo.png` via `lovable-assets delete` only if nothing else references it after the swap.)
+
+## Technical notes
+- Image gen prompt tuned for transparent PNG, centered composition, no text, generous padding so the mark scales cleanly from 28px to 56px.
+- Reduced-motion check runs client-side inside `useEffect` to avoid SSR hydration drift; SSR renders the non-animated safe markup by default and upgrades to cinematic after mount when motion is allowed.
