@@ -166,6 +166,30 @@
   color: var(--hbcu-cream);
 }
 
+/* HBCUS — restore contrast for the animated wordmark & tabs in light mode.
+   The dark-mode wordmark uses a bright cream/gold shimmer; in light mode we
+   swap to a deep-obsidian shimmer so it stays luxurious AND readable. */
+.light .hbcus-theme .hbcus-wordmark {
+  background: linear-gradient(110deg,
+    #1a1a1a 0%, #4a4a4a 25%, #0a0a0a 50%, #4a4a4a 75%, #1a1a1a 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.light .hbcus-theme .hbcus-tab {
+  color: oklch(0.28 0.01 60);
+  background: #ffffff;
+  border-color: oklch(0.14 0.01 60 / 0.18);
+}
+.light .hbcus-theme .hbcus-tab:hover { color: oklch(0.08 0.01 60); }
+.light .hbcus-theme .hbcus-tab[data-active="true"] {
+  color: #ffffff;
+  border-color: oklch(0.14 0.01 60);
+}
+.light .hbcus-theme .hbcus-chip { color: #ffffff; }
+.light .hbcus-theme-bg::after { opacity: 0; }
+
 @layer base {
   * {
     border-color: var(--color-border);
