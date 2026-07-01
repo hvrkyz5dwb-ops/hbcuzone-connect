@@ -1708,6 +1708,37 @@ function FilterChips({
   );
 }
 
+function EmptyFilters({
+  title,
+  hint,
+  chips,
+}: {
+  title: string;
+  hint: string;
+  chips: { label: string; onClick: () => void }[];
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center">
+      <div className="mx-auto h-11 w-11 rounded-2xl grid place-items-center bg-[image:var(--gradient-bronze)] text-primary-foreground">
+        <Search className="h-5 w-5" />
+      </div>
+      <p className="mt-3 text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+        {chips.map((c) => (
+          <button
+            key={c.label}
+            onClick={c.onClick}
+            className="text-[11px] px-3 py-1.5 rounded-full border border-accent/40 text-accent bg-secondary tap"
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
