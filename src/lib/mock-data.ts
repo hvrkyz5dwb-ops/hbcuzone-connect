@@ -259,57 +259,132 @@ export type PricingTier = {
   highlight?: boolean;
 };
 
-export const pricingTiers: PricingTier[] = [
+/* -------- Promotion / Boost Packages -------- */
+
+export type BoostDuration = {
+  key: string; // unique tier key used by checkout
+  label: string; // e.g. "3 Days"
+  days: number;
+  price: number;
+  badge?: string; // "Save 20%", "Best Value"
+};
+
+export type BoostPackage = {
+  key: string;
+  name: string;
+  tagline: string;
+  reach: string; // one-liner: who sees it
+  features: string[];
+  tier: "bronze" | "silver" | "gold" | "platinum" | "diamond";
+  highlight?: boolean;
+  durations: BoostDuration[];
+};
+
+export const boostPackages: BoostPackage[] = [
   {
     key: "local-boost",
     name: "Local Boost",
-    price: 4,
-    duration: "24 hours",
-    tagline: "Boost one listing on your campus for 24 hours.",
-    features: ["24h boosted placement", "Single campus reach", "Listing highlight"],
+    tagline: "Get seen on your campus.",
+    reach: "Single campus",
+    tier: "bronze",
+    features: [
+      "Priority placement on your campus",
+      "Highlighted listing",
+      "Higher in search",
+      "Increased feed visibility",
+    ],
+    durations: [
+      { key: "local-boost-3d", label: "3 Days", days: 3, price: 4.99 },
+      { key: "local-boost-7d", label: "7 Days", days: 7, price: 7.99, badge: "Save 20%" },
+      { key: "local-boost-30d", label: "30 Days", days: 30, price: 19.99, badge: "Best Value" },
+    ],
   },
   {
     key: "campus-featured",
     name: "Campus Featured",
-    price: 8,
-    duration: "7 days",
-    tagline: "Feature a vendor or service on the campus homepage.",
-    features: ["Featured on home feed", "Vendor spotlight", "7 day run"],
-  },
-  {
-    key: "kingpin-basic",
-    name: "KingPin Basic",
-    price: 16,
-    duration: "14 days",
-    tagline: "Get verified, trusted, and seen first.",
-    features: ["KingPin verified badge", "Better profile placement", "Trust status", "14 day run"],
+    tagline: "Own the campus spotlight.",
+    reach: "Single campus · Featured slot",
+    tier: "silver",
     highlight: true,
+    features: [
+      "Featured on Home Feed",
+      "Vendor Spotlight placement",
+      "Featured badge on your listing",
+      "Priority search ranking",
+    ],
+    durations: [
+      { key: "campus-featured-3d", label: "3 Days", days: 3, price: 9.99 },
+      { key: "campus-featured-7d", label: "7 Days", days: 7, price: 14.99, badge: "Save 15%" },
+      { key: "campus-featured-30d", label: "30 Days", days: 30, price: 34.99, badge: "Save 35%" },
+    ],
   },
   {
-    key: "kingpin-pro",
-    name: "KingPin Pro",
-    price: 32,
-    duration: "21 days",
-    tagline: "Full creator/vendor toolkit.",
-    features: ["KingPin badge", "Featured profile", "Boosted listings", "Priority search", "Vendor analytics", "21 day run"],
+    key: "local-network",
+    name: "Local Network",
+    tagline: "Reach nearby colleges in your region.",
+    reach: "Nearby colleges",
+    tier: "gold",
+    features: [
+      "Shown to nearby colleges",
+      "Regional feed placement",
+      "Cross-campus discovery",
+      "Priority search across region",
+    ],
+    durations: [
+      { key: "local-network-3d", label: "3 Days", days: 3, price: 19.99 },
+      { key: "local-network-7d", label: "7 Days", days: 7, price: 29.99 },
+      { key: "local-network-30d", label: "30 Days", days: 30, price: 69.99, badge: "Best Value" },
+    ],
   },
   {
-    key: "campus-takeover",
-    name: "Campus Takeover",
-    price: 64,
-    duration: "1 month",
-    tagline: "Premium promo placement across one campus.",
-    features: ["Top of every tab", "Event / brand / vendor", "Single campus", "Full 1 month run"],
+    key: "statewide",
+    name: "Statewide",
+    tagline: "Every PlugU campus in your state.",
+    reach: "Statewide network",
+    tier: "platinum",
+    features: [
+      "Visible across every PlugU campus in your state",
+      "Statewide feed placement",
+      "Statewide trending eligibility",
+      "Priority state-level search",
+    ],
+    durations: [
+      { key: "statewide-3d", label: "3 Days", days: 3, price: 39.99 },
+      { key: "statewide-7d", label: "7 Days", days: 7, price: 54.99 },
+      { key: "statewide-30d", label: "30 Days", days: 30, price: 119.99, badge: "Best Value" },
+    ],
   },
   {
-    key: "hbcu-network-boost",
-    name: "HBCU Network Boost",
-    price: 128,
-    duration: "2 months",
-    tagline: "Promote across HBCUs nationwide — multi-campus reach.",
-    features: ["National HBCU exposure", "Multi-campus campaign", "HBCUS tab placement", "Targeted by region", "Performance report", "Full 2 month run"],
+    key: "ultimate",
+    name: "Ultimate",
+    tagline: "Nationwide reach across nearly every PlugU feed.",
+    reach: "National",
+    tier: "diamond",
+    features: [
+      "Highest search priority",
+      "Featured placement nationwide",
+      "Trending section eligibility",
+      "Ultimate badge on your listing",
+    ],
+    durations: [
+      { key: "ultimate-7d", label: "7 Days", days: 7, price: 99.99 },
+      { key: "ultimate-30d", label: "30 Days", days: 30, price: 249.99, badge: "Best Value" },
+    ],
   },
 ];
+
+// Flattened list of every purchasable boost SKU — used by checkout.
+export const pricingTiers: PricingTier[] = boostPackages.flatMap((pkg) =>
+  pkg.durations.map((d) => ({
+    key: d.key,
+    name: `${pkg.name} · ${d.label}`,
+    price: d.price,
+    duration: d.label,
+    tagline: pkg.tagline,
+    features: pkg.features,
+    highlight: pkg.highlight && d.badge === "Best Value",
+  })),
+);
 
 /* -------- Safety / Need-based -------- */
 
