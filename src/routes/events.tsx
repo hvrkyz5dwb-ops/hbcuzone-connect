@@ -19,6 +19,7 @@ type Filter = (typeof FILTERS)[number];
 
 function EventsPage() {
   const [rsvped, setRsvped] = useState<Record<string, boolean>>({});
+  const [bumped, setBumped] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("All");
 
   const all = [
@@ -56,6 +57,7 @@ function EventsPage() {
             const id = `${e.title}-${i}`;
             const isRsvp = !!rsvped[id];
             const going = 80 + e.title.length * 7;
+            const liveGoing = going + (isRsvp ? 1 : 0);
             return (
               <li key={id} className="rounded-2xl border border-border bg-card p-4 slide-up">
                 <div className="flex items-center gap-2 text-[11px] text-primary">
@@ -67,8 +69,8 @@ function EventsPage() {
                 </p>
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Users className="h-3 w-3" /> {going} going
+                    <span className={`inline-flex items-center gap-1 ${bumped === id ? "text-accent plugu-pulse" : ""}`}>
+                      <Users className="h-3 w-3" /> {liveGoing} going
                     </span>
                     {e.ticket && (
                       <span className="inline-flex items-center gap-1">
@@ -77,7 +79,11 @@ function EventsPage() {
                     )}
                   </div>
                   <button
-                    onClick={() => setRsvped((s) => ({ ...s, [id]: !s[id] }))}
+                    onClick={() => {
+                      setRsvped((s) => ({ ...s, [id]: !s[id] }));
+                      setBumped(id);
+                      setTimeout(() => setBumped((v) => (v === id ? null : v)), 700);
+                    }}
                     className={`tap text-[11px] font-semibold rounded-full px-3 py-1.5 border transition-colors ${
                       isRsvp
                         ? "bg-primary text-primary-foreground border-primary"
