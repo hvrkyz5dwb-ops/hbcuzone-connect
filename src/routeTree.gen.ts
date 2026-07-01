@@ -36,6 +36,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
@@ -176,6 +177,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerPlansRoute = SellerPlansRouteImport.update({
+  id: '/seller/plans',
+  path: '/seller/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   fileRoutesByTo: FileRoutesByTo
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   id:
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   fileRoutesById: FileRoutesById
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
+  SellerPlansRoute: typeof SellerPlansRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -620,6 +633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/plans': {
+      id: '/seller/plans'
+      path: '/seller/plans'
+      fullPath: '/seller/plans'
+      preLoaderRoute: typeof SellerPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/$id'
@@ -724,6 +744,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
+  SellerPlansRoute: SellerPlansRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
