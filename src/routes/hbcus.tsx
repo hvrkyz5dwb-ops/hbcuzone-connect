@@ -214,6 +214,7 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
         {section === "News" && <NewsPanel activeSchool={active} />}
         {section === "Sports" && <SportsPanel />}
         {section === "Schools" && <SchoolsPanel onPick={setActive} />}
+        {section === "Greek Life" && <GreekLifePanel />}
         {section === "Communities" && <CommunitiesPanel activeSchool={active} />}
         {section === "Internships" && <InternshipsPanel />}
         {section === "Scholarships" && <ScholarshipsPanel />}
@@ -1023,10 +1024,32 @@ function ScoreSide({ name, score, right }: { name: string; score: number; right?
 function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<SchoolProfile | null>(null);
+  const [stateFilter, setStateFilter] = useState<string>("All");
+  const [typeFilter, setTypeFilter] = useState<"All" | "Public" | "Private">("All");
+
+  const states = useMemo(
+    () => ["All", ...Array.from(new Set(schoolProfiles.map((s) => s.state))).sort()],
+    [],
+  );
 
   const filtered = useMemo(
-    () => schoolProfiles.filter((s) => s.name.toLowerCase().includes(query.toLowerCase())),
-    [query],
+    () => {
+      const q = query.trim().toLowerCase();
+      return schoolProfiles.filter((s) => {
+        if (stateFilter !== "All" && s.state !== stateFilter) return false;
+        if (typeFilter !== "All" && s.type !== typeFilter) return false;
+        if (!q) return true;
+        return (
+          s.name.toLowerCase().includes(q) ||
+          s.city.toLowerCase().includes(q) ||
+          s.state.toLowerCase().includes(q) ||
+          s.mascot.toLowerCase().includes(q) ||
+          s.conference.toLowerCase().includes(q) ||
+          s.topMajors.some((m) => m.toLowerCase().includes(q))
+        );
+      });
+    },
+    [query, stateFilter, typeFilter],
   );
 
   return (
@@ -1038,10 +1061,56 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search HBCUs"
+          placeholder="Search by school, city, mascot, major…"
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="text-[10px] uppercase tracking-widest text-muted-foreground tap"
+          >
+            Clear
+          </button>
+        )}
       </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-full bg-secondary border border-border">
+          <MapPin className="h-3 w-3 text-accent" />
+          <select
+            value={stateFilter}
+            onChange={(e) => setStateFilter(e.target.value)}
+            className="bg-transparent outline-none text-[11px] pr-1"
+            aria-label="Filter by state"
+          >
+            {states.map((st) => (
+              <option key={st} value={st}>{st === "All" ? "All States" : st}</option>
+            ))}
+          </select>
+        </label>
+        <div className="inline-flex rounded-full bg-secondary border border-border p-0.5">
+          {(["All", "Public", "Private"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`text-[11px] px-2.5 py-1 rounded-full tap ${
+                typeFilter === t ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <span className="ml-auto text-[10px] uppercase tracking-widest text-muted-foreground">
+          {filtered.length} school{filtered.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
+          No schools match those filters.
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         {filtered.map((s) => (
@@ -1208,6 +1277,144 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="p-2.5 rounded-xl bg-secondary border border-border">
       <dt className="text-[10px] tracking-widest uppercase text-muted-foreground">{label}</dt>
       <dd className="font-semibold mt-0.5">{value}</dd>
+    </div>
+  );
+}
+
+/* ============================================================
+   GREEK LIFE — Divine Nine across every HBCU
+============================================================ */
+function GreekLifePanel() {
+  const [query, setQuery] = useState("");
+  const [org, setOrg] = useState<string>("All");
+
+  const allOrgs = useMemo(() => {
+    const set = new Set<string>();
+    schoolProfiles.forEach((s) => {
+      const d = getSchoolDetail(s.name);
+      d?.greek.fraternities.forEach((f) => set.add(f));
+      d?.greek.sororities.forEach((f) => set.add(f));
+    });
+    return ["All", ...Array.from(set)];
+  }, []);
+
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return schoolProfiles
+      .map((s) => ({ school: s, detail: getSchoolDetail(s.name) }))
+      .filter(({ school, detail }) => {
+        if (!detail) return false;
+        if (org !== "All") {
+          const has = detail.greek.fraternities.includes(org) || detail.greek.sororities.includes(org);
+          if (!has) return false;
+        }
+        if (!q) return true;
+        return (
+          school.name.toLowerCase().includes(q) ||
+          school.city.toLowerCase().includes(q) ||
+          detail.greek.tradition.toLowerCase().includes(q) ||
+          detail.greek.fraternities.some((f) => f.toLowerCase().includes(q)) ||
+          detail.greek.sororities.some((f) => f.toLowerCase().includes(q))
+        );
+      });
+  }, [query, org]);
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader icon={Crown} title="Greek Life" subtitle="The Divine Nine across the Yard" />
+
+      <div className="rounded-3xl border border-border bg-card p-4">
+        <p className="text-[10px] tracking-widest uppercase text-muted-foreground">The Divine Nine (NPHC)</p>
+        <div className="mt-2 grid grid-cols-2 gap-1.5">
+          {[
+            "Alpha Phi Alpha", "Alpha Kappa Alpha",
+            "Kappa Alpha Psi", "Delta Sigma Theta",
+            "Omega Psi Phi", "Zeta Phi Beta",
+            "Phi Beta Sigma", "Sigma Gamma Rho",
+            "Iota Phi Theta",
+          ].map((o) => (
+            <span key={o} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border text-center">{o}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search Greek life by school or chapter…"
+          className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
+        />
+      </div>
+      <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {allOrgs.map((o) => (
+          <button
+            key={o}
+            onClick={() => setOrg(o)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium tap border ${
+              org === o
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-secondary text-muted-foreground border-border"
+            }`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+
+      {rows.length === 0 && (
+        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
+          No chapters match those filters.
+        </div>
+      )}
+
+      <ul className="space-y-3">
+        {rows.map(({ school, detail }) => (
+          <li key={school.name} className="rounded-3xl border border-border bg-card overflow-hidden">
+            <div className={`h-14 bg-gradient-to-br ${school.color} relative`}>
+              <div className="absolute inset-0 bg-black/30" />
+              <div className="absolute inset-0 px-4 flex items-center justify-between">
+                <div>
+                  <p className="text-white text-sm font-bold leading-tight">{school.name}</p>
+                  <p className="text-white/70 text-[10px]">{school.city} · {detail!.colors}</p>
+                </div>
+                <Link
+                  to="/hbcus/school/$slug"
+                  params={{ slug: schoolSlug(school.name) }}
+                  className="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/15 backdrop-blur text-white tap"
+                >
+                  Open →
+                </Link>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              {detail!.greek.fraternities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Fraternities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail!.greek.fraternities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {detail!.greek.sororities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Sororities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail!.greek.sororities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-muted-foreground italic">{detail!.greek.tradition}</p>
+              <p className="text-[10px] text-accent">{detail!.greek.houses}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

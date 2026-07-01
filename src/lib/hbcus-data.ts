@@ -115,6 +115,8 @@ export const sportLeagues = ["Football", "Basketball", "Baseball", "Softball", "
 export type SchoolProfile = {
   name: string;
   city: string;
+  state: string;
+  type: "Public" | "Private";
   enrollment: string;
   founded: number;
   acceptance: string;
@@ -129,14 +131,14 @@ export type SchoolProfile = {
 };
 
 export const schoolProfiles: SchoolProfile[] = [
-  { name: "Howard University", city: "Washington, DC", enrollment: "12,065", founded: 1867, acceptance: "32%", tuition: "$32K", website: "howard.edu", color: "from-blue-900 to-indigo-800", mascot: "Bison", conference: "MEAC", pluguStudents: 1842, liveActivity: "2.1K active now", topMajors: ["Political Science", "Biology", "Business"] },
-  { name: "Spelman College", city: "Atlanta, GA", enrollment: "2,100", founded: 1881, acceptance: "43%", tuition: "$30K", website: "spelman.edu", color: "from-blue-900 to-violet-800", mascot: "Jaguars", conference: "SIAC", pluguStudents: 612, liveActivity: "780 active now", topMajors: ["Psychology", "Pre-Med", "Economics"] },
-  { name: "Morehouse College", city: "Atlanta, GA", enrollment: "2,200", founded: 1867, acceptance: "58%", tuition: "$31K", website: "morehouse.edu", color: "from-amber-900 to-orange-700", mascot: "Maroon Tigers", conference: "SIAC", pluguStudents: 588, liveActivity: "640 active now", topMajors: ["Business", "Engineering", "Film"] },
-  { name: "Hampton University", city: "Hampton, VA", enrollment: "3,600", founded: 1868, acceptance: "36%", tuition: "$29K", website: "hamptonu.edu", color: "from-sky-900 to-blue-700", mascot: "Pirates", conference: "CAA", pluguStudents: 720, liveActivity: "910 active now", topMajors: ["Nursing", "Marine Sci", "Journalism"] },
-  { name: "FAMU", city: "Tallahassee, FL", enrollment: "9,700", founded: 1887, acceptance: "36%", tuition: "$18K", website: "famu.edu", color: "from-orange-900 to-amber-700", mascot: "Rattlers", conference: "SWAC", pluguStudents: 1320, liveActivity: "1.6K active now", topMajors: ["Pharmacy", "Business", "Music"] },
-  { name: "Talladega College", city: "Talladega, AL", enrollment: "1,200", founded: 1867, acceptance: "29%", tuition: "$14K", website: "talladega.edu", color: "from-rose-900 to-red-700", mascot: "Tornadoes", conference: "GCAC", pluguStudents: 410, liveActivity: "330 active now", topMajors: ["Bio", "Computer Sci", "Edu"] },
-  { name: "Tuskegee University", city: "Tuskegee, AL", enrollment: "2,800", founded: 1881, acceptance: "33%", tuition: "$22K", website: "tuskegee.edu", color: "from-red-900 to-rose-800", mascot: "Golden Tigers", conference: "SIAC", pluguStudents: 502, liveActivity: "440 active now", topMajors: ["Vet Med", "Engineering", "Architecture"] },
-  { name: "NCCU", city: "Durham, NC", enrollment: "8,100", founded: 1909, acceptance: "44%", tuition: "$21K", website: "nccu.edu", color: "from-emerald-900 to-teal-700", mascot: "Eagles", conference: "MEAC", pluguStudents: 980, liveActivity: "1.1K active now", topMajors: ["Law", "Pharmacy", "Mass Comm"] },
+  { name: "Howard University", city: "Washington, DC", state: "DC", type: "Private", enrollment: "12,065", founded: 1867, acceptance: "32%", tuition: "$32K", website: "howard.edu", color: "from-blue-900 to-indigo-800", mascot: "Bison", conference: "MEAC", pluguStudents: 1842, liveActivity: "2.1K active now", topMajors: ["Political Science", "Biology", "Business"] },
+  { name: "Spelman College", city: "Atlanta, GA", state: "GA", type: "Private", enrollment: "2,100", founded: 1881, acceptance: "43%", tuition: "$30K", website: "spelman.edu", color: "from-blue-900 to-violet-800", mascot: "Jaguars", conference: "SIAC", pluguStudents: 612, liveActivity: "780 active now", topMajors: ["Psychology", "Pre-Med", "Economics"] },
+  { name: "Morehouse College", city: "Atlanta, GA", state: "GA", type: "Private", enrollment: "2,200", founded: 1867, acceptance: "58%", tuition: "$31K", website: "morehouse.edu", color: "from-amber-900 to-orange-700", mascot: "Maroon Tigers", conference: "SIAC", pluguStudents: 588, liveActivity: "640 active now", topMajors: ["Business", "Engineering", "Film"] },
+  { name: "Hampton University", city: "Hampton, VA", state: "VA", type: "Private", enrollment: "3,600", founded: 1868, acceptance: "36%", tuition: "$29K", website: "hamptonu.edu", color: "from-sky-900 to-blue-700", mascot: "Pirates", conference: "CAA", pluguStudents: 720, liveActivity: "910 active now", topMajors: ["Nursing", "Marine Sci", "Journalism"] },
+  { name: "FAMU", city: "Tallahassee, FL", state: "FL", type: "Public", enrollment: "9,700", founded: 1887, acceptance: "36%", tuition: "$18K", website: "famu.edu", color: "from-orange-900 to-amber-700", mascot: "Rattlers", conference: "SWAC", pluguStudents: 1320, liveActivity: "1.6K active now", topMajors: ["Pharmacy", "Business", "Music"] },
+  { name: "Talladega College", city: "Talladega, AL", state: "AL", type: "Private", enrollment: "1,200", founded: 1867, acceptance: "29%", tuition: "$14K", website: "talladega.edu", color: "from-rose-900 to-red-700", mascot: "Tornadoes", conference: "GCAC", pluguStudents: 410, liveActivity: "330 active now", topMajors: ["Bio", "Computer Sci", "Edu"] },
+  { name: "Tuskegee University", city: "Tuskegee, AL", state: "AL", type: "Private", enrollment: "2,800", founded: 1881, acceptance: "33%", tuition: "$22K", website: "tuskegee.edu", color: "from-red-900 to-rose-800", mascot: "Golden Tigers", conference: "SIAC", pluguStudents: 502, liveActivity: "440 active now", topMajors: ["Vet Med", "Engineering", "Architecture"] },
+  { name: "NCCU", city: "Durham, NC", state: "NC", type: "Public", enrollment: "8,100", founded: 1909, acceptance: "44%", tuition: "$21K", website: "nccu.edu", color: "from-emerald-900 to-teal-700", mascot: "Eagles", conference: "MEAC", pluguStudents: 980, liveActivity: "1.1K active now", topMajors: ["Law", "Pharmacy", "Mass Comm"] },
 ];
 
 export function schoolSlug(name: string): string {
@@ -287,7 +289,7 @@ export const aiSuggestedPrompts = [
 ============================================================ */
 
 export const hbcusHomeSections = [
-  "Home", "News", "Sports", "Schools", "Communities", "Marketplace",
+  "Home", "News", "Sports", "Schools", "Greek Life", "Communities", "Marketplace",
   "Events", "Scholarships", "Internships", "Alumni", "Excellence",
   "Rankings", "Networking", "PlugU Daily",
 ] as const;
