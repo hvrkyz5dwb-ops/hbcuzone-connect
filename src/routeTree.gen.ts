@@ -37,6 +37,7 @@ import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
+import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
@@ -182,6 +183,11 @@ const SellerPlansRoute = SellerPlansRouteImport.update({
   path: '/seller/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
+  id: '/seller/analytics',
+  path: '/seller/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -302,6 +310,7 @@ export interface FileRoutesById {
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -372,6 +382,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/checkout/$listingId'
     | '/orders/$id'
+    | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -439,6 +451,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
+  SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerPlansRoute: typeof SellerPlansRoute
 }
 
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerPlansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/analytics': {
+      id: '/seller/analytics'
+      path: '/seller/analytics'
+      fullPath: '/seller/analytics'
+      preLoaderRoute: typeof SellerAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/$id'
@@ -744,6 +764,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
+  SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerPlansRoute: SellerPlansRoute,
 }
 export const routeTree = rootRouteImport
