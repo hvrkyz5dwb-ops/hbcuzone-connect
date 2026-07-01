@@ -922,7 +922,7 @@ img, video { content-visibility: auto; }
   50%     { opacity: 0.85; transform: translate(-50%,-50%) scale(1.06); }
 }
 .cine-hero-push { animation: plugu-hero-push 5s cubic-bezier(0.22,1,0.36,1) both; will-change: transform; }
-.cine-hero-glow { animation: plugu-hero-glow 3.2s ease-in-out infinite; will-change: opacity, transform; }
+.cine-hero-glow { animation: plugu-hero-glow 3.2s ease-in-out infinite; will-change: opacity, transform; transform: translateZ(0); }
 @media (prefers-reduced-motion: reduce) {
   .cine-hero-push, .cine-hero-glow { animation: none !important; }
 }
