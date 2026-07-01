@@ -4,6 +4,13 @@ import hero from "@/assets/plugu-hero-splash.png.asset.json";
 /**
  * PlugU Splash — hero poster with gentle Ken Burns push, gold glow breathe,
  * and drifting gold dust. First visit 4.5s, return visit 2.5s.
+ *
+ * Perf notes (targets 60fps on mid-range mobile):
+ *  - Only opacity + transform animate (compositor-only, no repaint).
+ *  - No `filter: blur()` on animating layers; no mix-blend-mode.
+ *  - `contain: strict` isolates paint from the app tree behind it.
+ *  - Hero image is preloaded from __root.tsx and decoded async.
+ *  - Dust particle count kept low (8), no per-particle filters.
  */
 const SEEN_KEY = "plugu.splash.seen";
 
@@ -32,32 +39,33 @@ export function SplashScreen() {
   return (
     <div
       className={`fixed inset-0 z-[100] overflow-hidden bg-black transition-opacity duration-500 ease-out ${fading ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      style={{ contain: "strict", willChange: "opacity" }}
       aria-hidden="true"
     >
-      {/* Hero poster with slow Ken Burns push */}
+      {/* Hero poster with slow Ken Burns push (transform only) */}
       <div className="absolute inset-0 cine-hero-push">
         <img
           src={hero.url}
           alt=""
           className="h-full w-full object-cover object-center"
+          decoding="async"
+          fetchPriority="high"
           draggable={false}
         />
       </div>
 
-      {/* Warm gold glow pulsing behind the statue's P */}
+      {/* Warm gold glow pulsing behind the statue's P — no blur / no blend-mode */}
       <div
         className="absolute left-1/2 top-[38%] cine-hero-glow pointer-events-none"
         style={{
           width: "min(70vmin, 620px)",
           height: "min(70vmin, 620px)",
           background:
-            "radial-gradient(circle, rgba(246,210,122,0.45) 0%, rgba(246,210,122,0.18) 35%, transparent 65%)",
-          mixBlendMode: "screen",
-          filter: "blur(4px)",
+            "radial-gradient(circle, rgba(246,210,122,0.5) 0%, rgba(246,210,122,0.15) 40%, transparent 70%)",
         }}
       />
 
-      {/* Vignette + bottom fade */}
+      {/* Vignette + bottom fade — static, cheap */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background:
           "radial-gradient(120% 90% at 50% 45%, transparent 0%, transparent 55%, rgba(0,0,0,0.7) 100%)",
@@ -66,20 +74,19 @@ export function SplashScreen() {
         background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.85))",
       }} />
 
-      {/* Drifting gold dust */}
+      {/* Drifting gold dust — 8 particles, no filters */}
       {full && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: 12 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <span
               key={i}
               className="cine-dust absolute rounded-full"
               style={{
-                left: `${(i * 8 + 7) % 100}%`,
+                left: `${(i * 13 + 7) % 100}%`,
                 bottom: `-${(i * 5) % 40}px`,
-                width: 2 + (i % 3),
-                height: 2 + (i % 3),
+                width: 3,
+                height: 3,
                 background: "radial-gradient(circle, rgba(246,210,122,0.95), rgba(246,210,122,0) 70%)",
-                filter: "blur(0.6px)",
                 animationDelay: `${(i * 0.6) % 4}s`,
                 animationDuration: `${6 + (i % 4)}s`,
               }}
