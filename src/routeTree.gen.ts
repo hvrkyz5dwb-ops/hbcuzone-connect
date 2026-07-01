@@ -24,6 +24,7 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
@@ -119,6 +120,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MilestonesRoute = MilestonesRouteImport.update({
+  id: '/milestones',
+  path: '/milestones',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
+  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/milestones'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -397,6 +407,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/milestones'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -435,6 +446,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/messages'
+    | '/milestones'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -474,6 +486,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
+  MilestonesRoute: typeof MilestonesRoute
   NewsRoute: typeof NewsRoute
   OnboardingRoute: typeof OnboardingRoute
   OrdersRoute: typeof OrdersRouteWithChildren
@@ -598,6 +611,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/milestones': {
+      id: '/milestones'
+      path: '/milestones'
+      fullPath: '/milestones'
+      preLoaderRoute: typeof MilestonesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -822,6 +842,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
+  MilestonesRoute: MilestonesRoute,
   NewsRoute: NewsRoute,
   OnboardingRoute: OnboardingRoute,
   OrdersRoute: OrdersRouteWithChildren,
