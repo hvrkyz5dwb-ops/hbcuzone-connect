@@ -1591,6 +1591,8 @@ function MarketplacePanel() {
 ============================================================ */
 function NetworkingPanel() {
   const [filter, setFilter] = useState<string>("All");
+  const navigate = useNavigate();
+  const [connected, setConnected] = useState<Set<string>>(new Set());
   const items = useMemo(
     () => (filter === "All" ? networkingProfiles : networkingProfiles.filter((p) => p.tag === filter)),
     [filter],
@@ -1614,8 +1616,15 @@ function NetworkingPanel() {
                 <p className="text-xs text-muted-foreground truncate">{p.role} @ {p.company}</p>
                 <p className="text-[11px] text-muted-foreground">{p.school}</p>
               </div>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-secondary border border-border tap">
-                Connect
+              <button
+                onClick={() => {
+                  setConnected((s) => new Set(s).add(p.id));
+                  toast.success(`Message sent to ${p.name}`);
+                  setTimeout(() => navigate({ to: "/messages" }), 400);
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full tap ${connected.has(p.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-secondary border border-border"}`}
+              >
+                {connected.has(p.id) ? "Requested" : "Connect"}
               </button>
             </div>
             <p className="mt-2.5 text-sm text-muted-foreground italic">"{p.bio}"</p>
