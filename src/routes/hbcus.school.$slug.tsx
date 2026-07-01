@@ -4,6 +4,7 @@ import {
   ArrowLeft, MapPin, Users, Calendar, Briefcase, Home as HomeIcon,
   Utensils, ShieldAlert, BookOpen, Search as SearchIcon, Trophy,
   Store, Megaphone, Phone, Map as MapIcon, Sparkles,
+  Info, Award, Crown,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
@@ -13,6 +14,7 @@ import {
   findSchoolBySlug, schoolSlug, schoolProfiles,
   blackBusinesses, liveEvents, liveScores, upcomingGames,
   conferenceStandings, topPerformers, internships,
+  getSchoolDetail,
 } from "@/lib/hbcus-data";
 
 export const Route = createFileRoute("/hbcus/school/$slug")({
@@ -43,11 +45,13 @@ export const Route = createFileRoute("/hbcus/school/$slug")({
 });
 
 type TabKey =
+  | "About" | "Alumni" | "Greek Life"
   | "Feed" | "Businesses" | "Events" | "Organizations" | "Sports"
   | "Maps" | "Dining" | "Housing" | "Jobs" | "Lost & Found"
   | "Emergency" | "Resources";
 
 const TABS: TabKey[] = [
+  "About", "Alumni", "Greek Life",
   "Feed", "Businesses", "Events", "Organizations", "Sports",
   "Maps", "Dining", "Housing", "Jobs", "Lost & Found",
   "Emergency", "Resources",
@@ -55,7 +59,7 @@ const TABS: TabKey[] = [
 
 function SchoolCommunity() {
   const { school } = Route.useLoaderData();
-  const [tab, setTab] = useState<TabKey>("Feed");
+  const [tab, setTab] = useState<TabKey>("About");
 
   return (
     <AppShell title={school.name}>
@@ -99,6 +103,9 @@ function SchoolCommunity() {
       </div>
 
       <section className="mt-4 px-5 pb-6 hbcus-rise" key={tab}>
+        {tab === "About" && <AboutTab school={school} />}
+        {tab === "Alumni" && <AlumniTab school={school} />}
+        {tab === "Greek Life" && <GreekTab school={school} />}
         {tab === "Feed" && <FeedTab school={school.name} />}
         {tab === "Businesses" && <BusinessesTab school={school.name} />}
         {tab === "Events" && <EventsTab school={school.name} />}
