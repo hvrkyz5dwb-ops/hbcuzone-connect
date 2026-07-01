@@ -486,3 +486,113 @@ function ResourcesTab({ school }: { school: string }) {
     </div>
   );
 }
+
+/* ----------------- New: About / Alumni / Greek ----------------- */
+function AboutTab({ school }: { school: any }) {
+  const d = getSchoolDetail(school.name);
+  return (
+    <div className="space-y-3">
+      <SectionTitle icon={Info} title={`About ${school.name}`} subtitle={d?.motto ?? `${school.city} · Est. ${school.founded}`} />
+      <div className="hbcus-card p-4">
+        <p className="text-sm leading-relaxed" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 90%, transparent)" }}>
+          {d?.about ?? `${school.name} is a proud HBCU in ${school.city}, founded in ${school.founded}.`}
+        </p>
+        {d?.legacy && (
+          <p className="mt-3 text-[12px] italic" style={{ color: "color-mix(in oklab, var(--hbcu-gold) 85%, transparent)" }}>
+            “{d.legacy}”
+          </p>
+        )}
+      </div>
+      <ul className="grid grid-cols-2 gap-2">
+        <MiniStat label="Founded" value={String(school.founded)} />
+        <MiniStat label="Enrollment" value={school.enrollment} />
+        <MiniStat label="Acceptance" value={school.acceptance} />
+        <MiniStat label="Tuition" value={school.tuition} />
+        <MiniStat label="Mascot" value={school.mascot} />
+        <MiniStat label="Conference" value={school.conference} />
+        <MiniStat label="Colors" value={d?.colors ?? "—"} />
+        <MiniStat label="On PlugU" value={`${school.pluguStudents.toLocaleString()}`} />
+      </ul>
+      <div className="flex flex-wrap gap-1.5 pt-1">
+        {school.topMajors.map((m: string) => (
+          <span key={m} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{m}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <li className="p-2.5 rounded-xl bg-secondary border border-border">
+      <p className="text-[10px] tracking-widest uppercase text-muted-foreground">{label}</p>
+      <p className="text-sm font-semibold mt-0.5">{value}</p>
+    </li>
+  );
+}
+
+function AlumniTab({ school }: { school: any }) {
+  const d = getSchoolDetail(school.name);
+  const alumni = d?.alumni ?? [];
+  return (
+    <div>
+      <SectionTitle icon={Award} title={`Notable ${school.mascot ? "" : ""}Alumni`} subtitle={`${alumni.length} legends repping ${school.name}`} />
+      {alumni.length === 0 && <p className="text-[11px] text-muted-foreground">No alumni indexed yet.</p>}
+      <ul className="space-y-2 hbcus-stagger">
+        {alumni.map((a) => (
+          <Card key={a.name}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{a.name}</p>
+                <p className="text-[11px] text-muted-foreground">{a.note}</p>
+              </div>
+              {a.era && (
+                <span className="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full border" style={{ borderColor: "color-mix(in oklab, var(--plugu-gold) 45%, transparent)", color: "var(--plugu-gold)" }}>
+                  {a.era}
+                </span>
+              )}
+            </div>
+          </Card>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function GreekTab({ school }: { school: any }) {
+  const d = getSchoolDetail(school.name);
+  const g = d?.greek;
+  return (
+    <div className="space-y-3">
+      <SectionTitle icon={Crown} title="Greek Life on the Yard" subtitle={g?.houses ?? "NPHC · Divine Nine"} />
+      {g && (
+        <>
+          {g.fraternities.length > 0 && (
+            <div className="hbcus-card p-3.5">
+              <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: "var(--plugu-gold)" }}>Fraternities</p>
+              <div className="flex flex-wrap gap-1.5">
+                {g.fraternities.map((f) => (
+                  <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {g.sororities.length > 0 && (
+            <div className="hbcus-card p-3.5">
+              <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: "var(--plugu-gold)" }}>Sororities</p>
+              <div className="flex flex-wrap gap-1.5">
+                {g.sororities.map((f) => (
+                  <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="hbcus-card p-3.5">
+            <p className="text-[10px] tracking-widest uppercase mb-1" style={{ color: "var(--plugu-gold)" }}>Signature tradition</p>
+            <p className="text-sm leading-relaxed">{g.tradition}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
