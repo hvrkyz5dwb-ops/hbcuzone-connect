@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
+import { toast } from "sonner";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import {
@@ -416,7 +417,10 @@ function LostFoundTab({ school }: { school: string }) {
           </Card>
         ))}
       </ul>
-      <button className="mt-3 w-full py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold tap">
+      <button
+        onClick={() => toast.success("Report submitted", { description: "Campus L&F will follow up shortly." })}
+        className="mt-3 w-full py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold tap"
+      >
         Report a lost or found item
       </button>
     </div>

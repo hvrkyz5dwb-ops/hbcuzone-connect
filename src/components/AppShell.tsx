@@ -244,11 +244,27 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   );
 }
 
-export function SectionHeader({ title, action }: { title: string; action?: string }) {
+export function SectionHeader({
+  title,
+  action,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   return (
     <div className="flex items-end justify-between mb-3 px-5">
       <h2 className="text-base font-semibold tracking-tight">{title}</h2>
-      {action && <button className="tap text-xs text-primary">{action}</button>}
+      {action && (
+        <button
+          onClick={onAction}
+          disabled={!onAction}
+          className="tap text-xs text-primary disabled:opacity-60 disabled:cursor-default"
+        >
+          {action}
+        </button>
+      )}
     </div>
   );
 }

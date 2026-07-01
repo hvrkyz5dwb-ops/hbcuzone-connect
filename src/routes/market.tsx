@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { categories, listings } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -132,10 +133,17 @@ function Market() {
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <button className="tap flex-1 flex items-center justify-center gap-1 py-2 text-xs rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium">
+                <button
+                  onClick={() => { toast.success(`Message opened · ${l.seller}`); navigate({ to: "/messages" }); }}
+                  className="tap flex-1 flex items-center justify-center gap-1 py-2 text-xs rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium"
+                >
                   <MessageSquare className="h-3.5 w-3.5" /> Message
                 </button>
-                <button aria-label="Report" className="tap h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border">
+                <button
+                  aria-label="Report"
+                  onClick={() => toast.success("Report received", { description: "Trust & Safety will review this listing." })}
+                  className="tap h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border"
+                >
                   <Flag className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               </div>

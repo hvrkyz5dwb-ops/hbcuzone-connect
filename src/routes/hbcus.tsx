@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Search,
   Users,
@@ -742,6 +743,8 @@ function CommunitiesPanel({ activeSchool }: { activeSchool: string }) {
 function AlumniPanel() {
   const [industry, setIndustry] = useState<string>("All");
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const [connected, setConnected] = useState<Set<string>>(new Set());
   const items = useMemo(() => {
     return alumniNetwork.filter((a) => {
       const matchInd = industry === "All" || a.industry === industry;
@@ -768,7 +771,16 @@ function AlumniPanel() {
                 <p className="text-xs text-muted-foreground truncate">{a.role} @ {a.company}</p>
                 <p className="text-[11px] text-muted-foreground">{a.school} '{a.year.slice(2)} · {a.location}</p>
               </div>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">Connect</button>
+              <button
+                onClick={() => {
+                  setConnected((s) => new Set(s).add(a.id));
+                  toast.success(`Request sent to ${a.name}`, { description: "We'll ping you when they accept." });
+                  setTimeout(() => navigate({ to: "/messages" }), 400);
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${connected.has(a.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
+              >
+                {connected.has(a.id) ? "Requested" : "Connect"}
+              </button>
             </div>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {a.offers.map((o) => (
@@ -881,7 +893,17 @@ function ArticleActions() {
         <Bookmark className={`h-4 w-4 ${saved ? "fill-current text-accent" : ""}`} />
         {saved ? "Saved" : "Save"}
       </button>
-      <button className="inline-flex items-center gap-1 tap ml-auto">
+      <button
+        onClick={() => {
+          if (typeof navigator !== "undefined" && navigator.share) {
+            navigator.share({ title: "PlugU", url: typeof location !== "undefined" ? location.href : "" }).catch(() => {});
+          } else {
+            toast.success("Link copied", { description: "Share it with the plug." });
+            if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(location.href).catch(() => {});
+          }
+        }}
+        className="inline-flex items-center gap-1 tap ml-auto"
+      >
         <Send className="h-4 w-4" /> Share
       </button>
     </div>
@@ -894,6 +916,7 @@ function ArticleActions() {
 function SportsPanel() {
   const [tab, setTab] = useState<(typeof sportsTabs)[number]>("Live");
   const [league, setLeague] = useState<(typeof sportLeagues)[number] | "All">("All");
+  const [notify, setNotify] = useState<Set<string>>(new Set());
 
   return (
     <div className="space-y-4">
@@ -942,8 +965,14 @@ function SportsPanel() {
                   <p className="font-semibold mt-1">{g.away} @ {g.home}</p>
                   <p className="text-xs text-muted-foreground">{g.date}</p>
                 </div>
-                <button className="text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border border-accent/40 text-accent">
-                  Notify
+                <button
+                  onClick={() => {
+                    setNotify((s) => { const n = new Set(s); n.has(g.id) ? n.delete(g.id) : n.add(g.id); return n; });
+                    toast.success(notify.has(g.id) ? "Notification off" : `We'll ping you at ${g.date}`);
+                  }}
+                  className={`text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border tap ${notify.has(g.id) ? "border-emerald-500/40 text-emerald-300" : "border-accent/40 text-accent"}`}
+                >
+                  {notify.has(g.id) ? "Notifying" : "Notify"}
                 </button>
               </li>
             ))}
@@ -1107,9 +1136,18 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
-          No schools match those filters.
-        </div>
+        <EmptyFilters
+          title="No schools match those filters"
+          hint="Try another state, clear filters, or search a mascot."
+          chips={[
+            { label: "Clear filters", onClick: () => { setQuery(""); setStateFilter("All"); setTypeFilter("All"); } },
+            { label: "Georgia", onClick: () => setStateFilter("GA") },
+            { label: "Alabama", onClick: () => setStateFilter("AL") },
+            { label: "North Carolina", onClick: () => setStateFilter("NC") },
+            { label: "Aggies", onClick: () => setQuery("Aggies") },
+            { label: "Bison", onClick: () => setQuery("Bison") },
+          ]}
+        />
       )}
 
       <div className="grid grid-cols-2 gap-3">
@@ -1364,9 +1402,16 @@ function GreekLifePanel() {
       </div>
 
       {rows.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
-          No chapters match those filters.
-        </div>
+        <EmptyFilters
+          title="No chapters match those filters"
+          hint="Try a different org or search a school name."
+          chips={[
+            { label: "Clear filters", onClick: () => { setQuery(""); setOrg("All"); } },
+            { label: "Alpha Phi Alpha", onClick: () => setOrg("Alpha Phi Alpha") },
+            { label: "Delta Sigma Theta", onClick: () => setOrg("Delta Sigma Theta") },
+            { label: "Alpha Kappa Alpha", onClick: () => setOrg("Alpha Kappa Alpha") },
+          ]}
+        />
       )}
 
       <ul className="space-y-3">
@@ -1424,6 +1469,7 @@ function GreekLifePanel() {
 ============================================================ */
 function InternshipsPanel() {
   const [filter, setFilter] = useState<string>("All");
+  const [applied, setApplied] = useState<Set<string>>(new Set());
   const items = useMemo(() => {
     if (filter === "All") return internships;
     if (filter === "Remote") return internships.filter((i) => i.type === "Remote");
@@ -1447,8 +1493,14 @@ function InternshipsPanel() {
             </div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground">Deadline: {it.deadline}</span>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">
-                Apply
+              <button
+                onClick={() => {
+                  setApplied((s) => new Set(s).add(it.id));
+                  toast.success(`Application started · ${it.company}`, { description: "We'll save your progress." });
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${applied.has(it.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
+              >
+                {applied.has(it.id) ? "Applied" : "Apply"}
               </button>
             </div>
           </li>
@@ -1539,6 +1591,8 @@ function MarketplacePanel() {
 ============================================================ */
 function NetworkingPanel() {
   const [filter, setFilter] = useState<string>("All");
+  const navigate = useNavigate();
+  const [connected, setConnected] = useState<Set<string>>(new Set());
   const items = useMemo(
     () => (filter === "All" ? networkingProfiles : networkingProfiles.filter((p) => p.tag === filter)),
     [filter],
@@ -1562,8 +1616,15 @@ function NetworkingPanel() {
                 <p className="text-xs text-muted-foreground truncate">{p.role} @ {p.company}</p>
                 <p className="text-[11px] text-muted-foreground">{p.school}</p>
               </div>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-secondary border border-border tap">
-                Connect
+              <button
+                onClick={() => {
+                  setConnected((s) => new Set(s).add(p.id));
+                  toast.success(`Message sent to ${p.name}`);
+                  setTimeout(() => navigate({ to: "/messages" }), 400);
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full tap ${connected.has(p.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-secondary border border-border"}`}
+              >
+                {connected.has(p.id) ? "Requested" : "Connect"}
               </button>
             </div>
             <p className="mt-2.5 text-sm text-muted-foreground italic">"{p.bio}"</p>
@@ -1579,12 +1640,15 @@ function NetworkingPanel() {
 ============================================================ */
 function EventsPanel() {
   const [rsvped, setRsvped] = useState<Set<string>>(new Set());
+  const [bumped, setBumped] = useState<string | null>(null);
   const toggle = (id: string) => {
     setRsvped((prev) => {
       const n = new Set(prev);
       if (n.has(id)) n.delete(id); else n.add(id);
       return n;
     });
+    setBumped(id);
+    setTimeout(() => setBumped((v) => (v === id ? null : v)), 700);
   };
 
   return (
@@ -1601,8 +1665,8 @@ function EventsPanel() {
                 <Calendar className="h-3 w-3" /> {e.when} · {e.where}
               </p>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {e.rsvp.toLocaleString()} going
+                <span className={`text-[11px] inline-flex items-center gap-1 ${bumped === e.id ? "text-accent plugu-pulse" : "text-muted-foreground"}`}>
+                  <Users className="h-3 w-3" /> {(e.rsvp + (yes ? 1 : 0)).toLocaleString()} going
                 </span>
                 <button
                   onClick={() => toggle(e.id)}
@@ -1691,6 +1755,37 @@ function FilterChips({
   );
 }
 
+function EmptyFilters({
+  title,
+  hint,
+  chips,
+}: {
+  title: string;
+  hint: string;
+  chips: { label: string; onClick: () => void }[];
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center">
+      <div className="mx-auto h-11 w-11 rounded-2xl grid place-items-center bg-[image:var(--gradient-bronze)] text-primary-foreground">
+        <Search className="h-5 w-5" />
+      </div>
+      <p className="mt-3 text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+        {chips.map((c) => (
+          <button
+            key={c.label}
+            onClick={c.onClick}
+            className="text-[11px] px-3 py-1.5 rounded-full border border-accent/40 text-accent bg-secondary tap"
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
@@ -1746,6 +1841,12 @@ function SwitchSheet({
 
 function AISheet({ onClose }: { onClose: () => void }) {
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const ask = () => {
+    if (!q.trim()) { toast.error("Type a question first"); return; }
+    onClose();
+    navigate({ to: "/search", search: { q, tab: "ai" } });
+  };
   return (
     <BottomSheet onClose={onClose}>
       <div className="flex items-center gap-2">
@@ -1765,7 +1866,10 @@ function AISheet({ onClose }: { onClose: () => void }) {
           placeholder="Ask: 'Find internships near me…'"
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
-        <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">
+        <button
+          onClick={ask}
+          className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
+        >
           Ask
         </button>
       </div>

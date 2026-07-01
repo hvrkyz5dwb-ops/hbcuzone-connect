@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Heart, MessageCircle, Send, Bookmark, MoreHorizontal, BadgeCheck,
   Crown, ImagePlus, Video, Tag, Plus, ChevronLeft, ChevronRight, X,
@@ -28,6 +28,7 @@ function writeSet(key: string, set: Set<string>) {
 }
 
 export function CampusFeed() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<FeedFilter>("For You");
   const [composerOpen, setComposerOpen] = useState(false);
   const [storyOpen, setStoryOpen] = useState<string | null>(null);
@@ -191,7 +192,12 @@ export function CampusFeed() {
             <Sparkles className="h-3.5 w-3.5" style={{ color: "var(--plugu-gold)" }} />
             <h3 className="text-sm font-bold">Featured Creators</h3>
           </div>
-          <button className="text-[11px] text-muted-foreground tap">See all</button>
+          <button
+            onClick={() => navigate({ to: "/hbcus" })}
+            className="text-[11px] text-muted-foreground tap hover:text-accent"
+          >
+            See all
+          </button>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {featuredCreators.map((c) => (
