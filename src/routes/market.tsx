@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -134,10 +134,17 @@ function Market() {
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <button
-                  onClick={() => { toast.success(`Message opened · ${l.seller}`); navigate({ to: "/messages" }); }}
+                  onClick={() => navigate({ to: "/checkout/$listingId", params: { listingId: l.id } })}
                   className="tap flex-1 flex items-center justify-center gap-1 py-2 text-xs rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium"
                 >
-                  <MessageSquare className="h-3.5 w-3.5" /> Message
+                  <ShoppingBag className="h-3.5 w-3.5" /> Buy
+                </button>
+                <button
+                  onClick={() => { toast.success(`Message opened · ${l.seller}`); navigate({ to: "/messages" }); }}
+                  className="tap h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border"
+                  aria-label="Message"
+                >
+                  <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
                 <button
                   aria-label="Report"
