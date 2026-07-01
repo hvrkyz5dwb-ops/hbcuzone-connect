@@ -743,6 +743,8 @@ function CommunitiesPanel({ activeSchool }: { activeSchool: string }) {
 function AlumniPanel() {
   const [industry, setIndustry] = useState<string>("All");
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const [connected, setConnected] = useState<Set<string>>(new Set());
   const items = useMemo(() => {
     return alumniNetwork.filter((a) => {
       const matchInd = industry === "All" || a.industry === industry;
@@ -769,7 +771,16 @@ function AlumniPanel() {
                 <p className="text-xs text-muted-foreground truncate">{a.role} @ {a.company}</p>
                 <p className="text-[11px] text-muted-foreground">{a.school} '{a.year.slice(2)} · {a.location}</p>
               </div>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">Connect</button>
+              <button
+                onClick={() => {
+                  setConnected((s) => new Set(s).add(a.id));
+                  toast.success(`Request sent to ${a.name}`, { description: "We'll ping you when they accept." });
+                  setTimeout(() => navigate({ to: "/messages" }), 400);
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${connected.has(a.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
+              >
+                {connected.has(a.id) ? "Requested" : "Connect"}
+              </button>
             </div>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {a.offers.map((o) => (
