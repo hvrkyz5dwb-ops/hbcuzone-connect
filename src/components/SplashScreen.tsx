@@ -19,6 +19,7 @@ export function SplashScreen() {
   const [gone, setGone] = useState(false);
   const [fading, setFading] = useState(false);
   const [full, setFull] = useState(true);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     let firstVisit = true;
@@ -26,9 +27,13 @@ export function SplashScreen() {
       firstVisit = !window.localStorage.getItem(SEEN_KEY);
       window.localStorage.setItem(SEEN_KEY, String(Date.now()));
     } catch {}
+    const prefersReduced =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReduced(prefersReduced);
     setFull(firstVisit);
     setMounted(true);
-    const duration = firstVisit ? 4500 : 2500;
+    const duration = prefersReduced ? 1200 : firstVisit ? 4500 : 2500;
     const t1 = setTimeout(() => setFading(true), duration - 500);
     const t2 = setTimeout(() => setGone(true), duration);
     return () => { clearTimeout(t1); clearTimeout(t2); };
@@ -42,8 +47,8 @@ export function SplashScreen() {
       style={{ contain: "strict", willChange: "opacity" }}
       aria-hidden="true"
     >
-      {/* Hero poster with slow Ken Burns push (transform only) */}
-      <div className="absolute inset-0 cine-hero-push">
+      {/* Hero poster — Ken Burns push skipped for reduced-motion users */}
+      <div className={`absolute inset-0 ${reduced ? "" : "cine-hero-push"}`}>
         <img
           src={hero.url}
           alt=""
@@ -54,14 +59,16 @@ export function SplashScreen() {
         />
       </div>
 
-      {/* Warm gold glow pulsing behind the statue's P — no blur / no blend-mode */}
+      {/* Warm gold glow behind the statue's P — static for reduced-motion */}
       <div
-        className="absolute left-1/2 top-[38%] cine-hero-glow pointer-events-none"
+        className={`absolute left-1/2 top-[38%] pointer-events-none ${reduced ? "" : "cine-hero-glow"}`}
         style={{
           width: "min(70vmin, 620px)",
           height: "min(70vmin, 620px)",
+          transform: "translate(-50%, -50%)",
           background:
             "radial-gradient(circle, rgba(246,210,122,0.5) 0%, rgba(246,210,122,0.15) 40%, transparent 70%)",
+          opacity: reduced ? 0.55 : undefined,
         }}
       />
 
@@ -74,8 +81,8 @@ export function SplashScreen() {
         background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.85))",
       }} />
 
-      {/* Drifting gold dust — 8 particles, no filters */}
-      {full && (
+      {/* Drifting gold dust — skipped entirely for reduced-motion */}
+      {full && !reduced && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {Array.from({ length: 8 }).map((_, i) => (
             <span
