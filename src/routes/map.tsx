@@ -88,7 +88,10 @@ function MapPage() {
               Find vendors, events, buildings, rides, and student hotspots in real time.
             </p>
             <button
-              onClick={() => setNearMe(true)}
+              onClick={() => {
+                setNearMe(true);
+                document.getElementById("ai-campus-layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
               className="mt-3 self-start text-xs font-semibold px-3 py-2 rounded-xl text-black"
               style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
             >
