@@ -35,6 +35,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 
 const UpgradeRoute = UpgradeRouteImport.update({
@@ -167,6 +168,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
+  id: '/$listingId',
+  path: '/$listingId',
+  getParentRoute: () => CheckoutRoute,
+} as any)
 const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
   id: '/school/$slug',
   path: '/school/$slug',
@@ -177,7 +183,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
-  '/checkout': typeof CheckoutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -200,13 +206,14 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
-  '/checkout': typeof CheckoutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesById {
@@ -236,7 +244,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
-  '/checkout': typeof CheckoutRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRouteTypes {
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/checkout/$listingId'
     | '/hbcus/school/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/checkout/$listingId'
     | '/hbcus/school/$slug'
   id:
     | '__root__'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/checkout/$listingId'
     | '/hbcus/school/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -355,7 +367,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   BusinessRoute: typeof BusinessRoute
-  CheckoutRoute: typeof CheckoutRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRouteWithChildren
@@ -564,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/$listingId': {
+      id: '/checkout/$listingId'
+      path: '/$listingId'
+      fullPath: '/checkout/$listingId'
+      preLoaderRoute: typeof CheckoutListingIdRouteImport
+      parentRoute: typeof CheckoutRoute
+    }
     '/hbcus/school/$slug': {
       id: '/hbcus/school/$slug'
       path: '/school/$slug'
@@ -573,6 +592,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CheckoutRouteChildren {
+  CheckoutListingIdRoute: typeof CheckoutListingIdRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutListingIdRoute: CheckoutListingIdRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
 
 interface HbcusRouteChildren {
   HbcusSchoolSlugRoute: typeof HbcusSchoolSlugRoute
@@ -588,7 +619,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BusinessRoute: BusinessRoute,
-  CheckoutRoute: CheckoutRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRouteWithChildren,
