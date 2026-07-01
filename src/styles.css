@@ -936,8 +936,28 @@ img, video { content-visibility: auto; }
 }
 .cine-hero-push { animation: plugu-hero-push 5s cubic-bezier(0.22,1,0.36,1) both; will-change: transform; }
 .cine-hero-glow { animation: plugu-hero-glow 3.2s ease-in-out infinite; will-change: opacity, transform; transform: translateZ(0); }
+
+/* Cinematic letterbox bars retract on entry */
+@keyframes plugu-letterbox-top    { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
+@keyframes plugu-letterbox-bottom { 0% { transform: translateY(0); } 100% { transform: translateY(100%);  } }
+.cine-letterbox-top    { animation: plugu-letterbox-top    1.6s cubic-bezier(0.22,1,0.36,1) 0.4s both; will-change: transform; }
+.cine-letterbox-bottom { animation: plugu-letterbox-bottom 1.6s cubic-bezier(0.22,1,0.36,1) 0.4s both; will-change: transform; }
+
+/* Slow diagonal light sheen across hero */
+@keyframes plugu-hero-sheen {
+  0%   { transform: translateX(-60%) skewX(-18deg); opacity: 0; }
+  15%  { opacity: 0.55; }
+  60%  { opacity: 0.55; }
+  100% { transform: translateX(160%) skewX(-18deg); opacity: 0; }
+}
+.cine-hero-sheen {
+  animation: plugu-hero-sheen 3.6s cubic-bezier(0.22,1,0.36,1) 1.2s both;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cine-hero-push, .cine-hero-glow { animation: none !important; }
+  .cine-hero-push, .cine-hero-glow, .cine-hero-sheen,
+  .cine-letterbox-top, .cine-letterbox-bottom { animation: none !important; }
 }
 
 /* ---- Crowd (living statue scene) ---- */
