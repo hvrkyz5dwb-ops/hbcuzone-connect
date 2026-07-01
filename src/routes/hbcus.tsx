@@ -88,6 +88,7 @@ import {
   careerOpportunities,
   schoolSlug,
 } from "@/lib/hbcus-data";
+import { launchStatusFor } from "@/lib/launch-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
 
 export const Route = createFileRoute("/hbcus")({
