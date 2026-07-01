@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Check, Crown, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { SELLER_TIERS, getSellerPlan, setSellerPlan, type SellerTier } from "@/lib/seller-plan";
+import { SELLER_TIERS, getSellerPlan, setSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
 
 export const Route = createFileRoute("/seller/plans")({
   head: () => ({ meta: [{ title: "Seller Plans — PlugU" }] }),
@@ -12,10 +12,15 @@ export const Route = createFileRoute("/seller/plans")({
 
 function SellerPlansPage() {
   const [tier, setTier] = useState<SellerTier>("free");
-  useEffect(() => { setTier(getSellerPlan().tier); }, []);
+  const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  useEffect(() => {
+    const p = getSellerPlan();
+    setTier(p.tier);
+    if (p.cycle) setCycle(p.cycle);
+  }, []);
 
   function choose(next: SellerTier) {
-    setSellerPlan(next);
+    setSellerPlan(next, cycle);
     setTier(next);
     toast.success(`Now on ${SELLER_TIERS.find((t) => t.key === next)?.name}`, {
       description: next === "free" ? "5% fee applies to sales." : next === "pro" ? "2% fee. Verified Pro badge active." : "0% fee. Gold KingPin unlocked.",
@@ -33,9 +38,27 @@ function SellerPlansPage() {
           </p>
         </div>
 
+        <div className="mt-5 mx-auto max-w-xs grid grid-cols-3 rounded-full border border-border p-1 bg-card text-[11px] font-semibold">
+          {(["monthly", "semester", "year"] as BillingCycle[]).map((c) => (
+            <button
+              key={c}
+              onClick={() => setCycle(c)}
+              className={`tap rounded-full py-1.5 uppercase tracking-wider transition-colors ${
+                cycle === c ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {c === "monthly" ? "Monthly" : c === "semester" ? "Semester" : "Yearly"}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-6 space-y-3">
           {SELLER_TIERS.map((t) => {
             const active = tier === t.key;
+            const cyclePrice =
+              cycle === "year" ? t.pricing.year : cycle === "semester" ? t.pricing.semester : t.pricing.monthly;
+            const cycleLabel = cycle === "year" ? "/yr" : cycle === "semester" ? "/sem" : "/mo";
+            const price = cyclePrice ?? t.pricing.monthly;
             return (
               <div
                 key={t.key}
@@ -73,9 +96,9 @@ function SellerPlansPage() {
 
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-3xl font-black tracking-tight">
-                    {t.price === 0 ? "Free" : `$${t.price}`}
+                    {price === 0 ? "Free" : `$${price}`}
                   </span>
-                  {t.price > 0 && <span className="text-xs text-muted-foreground">/mo</span>}
+                  {price > 0 && <span className="text-xs text-muted-foreground">{cycleLabel}</span>}
                   <span className="ml-auto text-[11px] font-semibold" style={{ color: t.accent }}>
                     {t.fee}% fee
                   </span>
