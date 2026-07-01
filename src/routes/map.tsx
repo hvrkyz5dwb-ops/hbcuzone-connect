@@ -17,6 +17,7 @@ import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
+import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
@@ -243,7 +244,7 @@ function MapPage() {
               </span>
             )}
           </div>
-          <CampusLayoutAI school={active} />
+          {verified ? <CampusWayfinder school={active} /> : <CampusLayoutAI school={active} />}
         </div>
       </section>
 
