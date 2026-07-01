@@ -1108,9 +1108,18 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
-          No schools match those filters.
-        </div>
+        <EmptyFilters
+          title="No schools match those filters"
+          hint="Try another state, clear filters, or search a mascot."
+          chips={[
+            { label: "Clear filters", onClick: () => { setQuery(""); setStateFilter("All"); setTypeFilter("All"); } },
+            { label: "Georgia", onClick: () => setStateFilter("GA") },
+            { label: "Alabama", onClick: () => setStateFilter("AL") },
+            { label: "North Carolina", onClick: () => setStateFilter("NC") },
+            { label: "Aggies", onClick: () => setQuery("Aggies") },
+            { label: "Bison", onClick: () => setQuery("Bison") },
+          ]}
+        />
       )}
 
       <div className="grid grid-cols-2 gap-3">
@@ -1365,9 +1374,16 @@ function GreekLifePanel() {
       </div>
 
       {rows.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
-          No chapters match those filters.
-        </div>
+        <EmptyFilters
+          title="No chapters match those filters"
+          hint="Try a different org or search a school name."
+          chips={[
+            { label: "Clear filters", onClick: () => { setQuery(""); setOrg("All"); } },
+            { label: "Alpha Phi Alpha", onClick: () => setOrg("Alpha Phi Alpha") },
+            { label: "Delta Sigma Theta", onClick: () => setOrg("Delta Sigma Theta") },
+            { label: "Alpha Kappa Alpha", onClick: () => setOrg("Alpha Kappa Alpha") },
+          ]}
+        />
       )}
 
       <ul className="space-y-3">
