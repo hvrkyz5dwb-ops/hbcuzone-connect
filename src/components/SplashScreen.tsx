@@ -9,8 +9,8 @@ export function SplashScreen() {
 
   useEffect(() => {
     setMounted(true);
-    const t1 = setTimeout(() => setFading(true), 2700);
-    const t2 = setTimeout(() => setGone(true), 3300);
+    const t1 = setTimeout(() => setFading(true), 2600);
+    const t2 = setTimeout(() => setGone(true), 3000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
