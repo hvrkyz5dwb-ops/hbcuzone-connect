@@ -318,7 +318,7 @@ function Wealth() {
 /* ============ TRENDING ============ */
 function Trending() {
   const boards: { title: string; items: { n: string; v: string }[] }[] = [
-    { title: "Top Plugs Today",    items: trendingBoards.topEarners.map(x => ({ n: x.n, v: "🔥 Top" })) },
+    { title: "Top Plugs Today",    items: trendingBoards.topEarners },
     { title: "Most Booked",        items: trendingBoards.mostBooked },
     { title: "Most Viewed",        items: trendingBoards.mostViewed },
     { title: "Fastest Growing",    items: trendingBoards.fastestGrow },
@@ -331,9 +331,14 @@ function Trending() {
       {boards.map((b) => (
         <div key={b.title} className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>{b.title}</p>
+          {b.title === "Top Plugs Today" && (
+            <p className="mt-1 text-[10px] text-muted-foreground leading-snug">
+              Identities stay private. #1 is auto-crowned <span style={{ color: "var(--plugu-gold)" }}>KingPin</span> and gets paid — paid tier or not.
+            </p>
+          )}
           <ul className="mt-2 space-y-1.5">
             {b.items.map((x, i) => (
-              <li key={x.n} className="flex items-center justify-between text-sm">
+              <li key={`${b.title}-${i}`} className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
                   <span className="text-[10px] text-muted-foreground w-4">{i + 1}</span>
                   {x.n}
