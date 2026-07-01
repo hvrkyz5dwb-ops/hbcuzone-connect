@@ -1022,7 +1022,14 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
               className="block relative aspect-[3/4] rounded-2xl overflow-hidden text-left border border-border tap"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${s.color}`} />
-              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute inset-0 opacity-70">
+                <MiniCampusLayout school={s.name} city={s.city} mascot={s.mascot} />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.35)" }}
+              />
               <div className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" />
                 Live
