@@ -9,7 +9,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   campusEconomies, rankingCategories, rankingFilters, rankBy, awardCategories,
   scholarshipCategories, monthlyChallenges, trendingBoards, verificationLevels,
-  platformInsights, grantCountdown, formatMoney,
+  platformInsights, grantCountdown,
   type RankingCategory, type RankingFilter, type CampusEconomy,
 } from "@/lib/economy-data";
 
