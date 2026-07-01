@@ -119,7 +119,11 @@ function MapPage() {
               </button>
             )}
           </div>
-          <button className="h-11 w-11 grid place-items-center rounded-2xl bg-card border border-border" aria-label="Layers">
+          <button
+            onClick={() => setHeatmap((v) => !v)}
+            className={`h-11 w-11 grid place-items-center rounded-2xl border tap ${heatmap ? "bg-[image:var(--gradient-bronze)] border-primary text-primary-foreground" : "bg-card border-border"}`}
+            aria-label="Toggle heat map layer"
+          >
             <Layers className="h-4 w-4" />
           </button>
         </div>
@@ -206,7 +210,11 @@ function MapPage() {
           ))}
 
           {/* FAB recenter */}
-          <button className="absolute bottom-4 right-4 h-12 w-12 grid place-items-center rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]" aria-label="Recenter">
+          <button
+            onClick={() => toast.success("Centered on your location")}
+            className="absolute bottom-4 right-4 h-12 w-12 grid place-items-center rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)] tap"
+            aria-label="Recenter"
+          >
             <Compass className="h-5 w-5" />
           </button>
 
@@ -338,22 +346,34 @@ function MapPage() {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium">
+              <button
+                onClick={() => toast.success(`Directions to ${selected.name}`, { description: `${selected.distance} · walk it` })}
+                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium tap"
+              >
                 <RouteIcon className="h-4 w-4" /> Directions
               </button>
-              <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-secondary border border-border">
+              <button
+                onClick={() => toast.success(`Saved ${selected.name} to your spots`)}
+                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-secondary border border-border tap"
+              >
                 <Navigation className="h-4 w-4" /> Save spot
               </button>
             </div>
 
             {selected.category === "safety" && (
-              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium">
+              <button
+                onClick={() => toast("Connecting to campus safety…", { description: "This is a demo — no call placed." })}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium tap"
+              >
                 <Phone className="h-4 w-4" /> Call Campus Safety
               </button>
             )}
 
             {selected.category === "phone" && (
-              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium">
+              <button
+                onClick={() => toast("Emergency line ready", { description: "Demo mode — no call placed." })}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium tap"
+              >
                 <Phone className="h-4 w-4" /> One-press Emergency
               </button>
             )}
