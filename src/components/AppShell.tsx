@@ -2,6 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
   Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy, Rocket,
+  Package, BarChart3, Gift, Crown,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -25,6 +26,11 @@ const tabs: Tab[] = [
 
 const quickActions: { to: string; label: string; icon: LucideIcon; hint: string }[] = [
   { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
+  { to: "/seller/plans", label: "Seller Plans", icon: Crown, hint: "Free · Pro · KingPin — lower your fee" },
+  { to: "/seller/analytics", label: "Seller Analytics", icon: BarChart3, hint: "Views, conversions & growth" },
+  { to: "/orders", label: "Orders & Disputes", icon: Package, hint: "Escrow, delivery, refunds" },
+  { to: "/referrals", label: "Referral Program", icon: Gift, hint: "Your code, streak & achievements" },
+  { to: "/ambassadors", label: "Campus Ambassadors", icon: Crown, hint: "Rep PlugU — merch, scholarships, perks" },
   { to: "/economy", label: "Campus Economy", icon: Trophy, hint: "Live rankings, grant & wealth index" },
   { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
   { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Rocket, hint: "Launch pricing — campus to nationwide" },
