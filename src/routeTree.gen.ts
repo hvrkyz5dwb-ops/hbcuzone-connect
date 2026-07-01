@@ -36,6 +36,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 
@@ -174,6 +175,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdersIdRoute = OrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => OrdersRoute,
+} as any)
 const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
   id: '/$listingId',
   path: '/$listingId',
@@ -201,7 +207,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
-  '/orders': typeof OrdersRoute
+  '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesByTo {
@@ -232,7 +239,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
-  '/orders': typeof OrdersRoute
+  '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRoutesById {
@@ -264,7 +272,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
-  '/orders': typeof OrdersRoute
+  '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/orders/$id': typeof OrdersIdRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
 }
 export interface FileRouteTypes {
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/upgrade'
     | '/checkout/$listingId'
+    | '/orders/$id'
     | '/hbcus/school/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/upgrade'
     | '/checkout/$listingId'
+    | '/orders/$id'
     | '/hbcus/school/$slug'
   id:
     | '__root__'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/upgrade'
     | '/checkout/$listingId'
+    | '/orders/$id'
     | '/hbcus/school/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -391,7 +403,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   NewsRoute: typeof NewsRoute
   OnboardingRoute: typeof OnboardingRoute
-  OrdersRoute: typeof OrdersRoute
+  OrdersRoute: typeof OrdersRouteWithChildren
   PaymentFailedRoute: typeof PaymentFailedRoute
   PaymentHistoryRoute: typeof PaymentHistoryRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
@@ -596,6 +608,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders/$id': {
+      id: '/orders/$id'
+      path: '/$id'
+      fullPath: '/orders/$id'
+      preLoaderRoute: typeof OrdersIdRouteImport
+      parentRoute: typeof OrdersRoute
+    }
     '/checkout/$listingId': {
       id: '/checkout/$listingId'
       path: '/$listingId'
@@ -635,6 +654,17 @@ const HbcusRouteChildren: HbcusRouteChildren = {
 
 const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
+interface OrdersRouteChildren {
+  OrdersIdRoute: typeof OrdersIdRoute
+}
+
+const OrdersRouteChildren: OrdersRouteChildren = {
+  OrdersIdRoute: OrdersIdRoute,
+}
+
+const OrdersRouteWithChildren =
+  OrdersRoute._addFileChildren(OrdersRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -651,7 +681,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   NewsRoute: NewsRoute,
   OnboardingRoute: OnboardingRoute,
-  OrdersRoute: OrdersRoute,
+  OrdersRoute: OrdersRouteWithChildren,
   PaymentFailedRoute: PaymentFailedRoute,
   PaymentHistoryRoute: PaymentHistoryRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
