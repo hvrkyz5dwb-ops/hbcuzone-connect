@@ -38,6 +38,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
+import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 
 const UpgradeRoute = UpgradeRouteImport.update({
@@ -185,6 +186,11 @@ const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
   path: '/$listingId',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
+  id: '/dispute',
+  path: '/dispute',
+  getParentRoute: () => OrdersIdRoute,
+} as any)
 const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
   id: '/school/$slug',
   path: '/school/$slug',
@@ -220,8 +226,9 @@ export interface FileRoutesByFullPath {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
-  '/orders/$id': typeof OrdersIdRoute
+  '/orders/$id': typeof OrdersIdRouteWithChildren
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
+  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -252,8 +259,9 @@ export interface FileRoutesByTo {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
-  '/orders/$id': typeof OrdersIdRoute
+  '/orders/$id': typeof OrdersIdRouteWithChildren
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
+  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -285,8 +293,9 @@ export interface FileRoutesById {
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
-  '/orders/$id': typeof OrdersIdRoute
+  '/orders/$id': typeof OrdersIdRouteWithChildren
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
+  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -321,6 +330,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/hbcus/school/$slug'
+    | '/orders/$id/dispute'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/hbcus/school/$slug'
+    | '/orders/$id/dispute'
   id:
     | '__root__'
     | '/'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/hbcus/school/$slug'
+    | '/orders/$id/dispute'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -622,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutListingIdRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/orders/$id/dispute': {
+      id: '/orders/$id/dispute'
+      path: '/dispute'
+      fullPath: '/orders/$id/dispute'
+      preLoaderRoute: typeof OrdersIdDisputeRouteImport
+      parentRoute: typeof OrdersIdRoute
+    }
     '/hbcus/school/$slug': {
       id: '/hbcus/school/$slug'
       path: '/school/$slug'
@@ -654,12 +673,24 @@ const HbcusRouteChildren: HbcusRouteChildren = {
 
 const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
+interface OrdersIdRouteChildren {
+  OrdersIdDisputeRoute: typeof OrdersIdDisputeRoute
+}
+
+const OrdersIdRouteChildren: OrdersIdRouteChildren = {
+  OrdersIdDisputeRoute: OrdersIdDisputeRoute,
+}
+
+const OrdersIdRouteWithChildren = OrdersIdRoute._addFileChildren(
+  OrdersIdRouteChildren,
+)
+
 interface OrdersRouteChildren {
-  OrdersIdRoute: typeof OrdersIdRoute
+  OrdersIdRoute: typeof OrdersIdRouteWithChildren
 }
 
 const OrdersRouteChildren: OrdersRouteChildren = {
-  OrdersIdRoute: OrdersIdRoute,
+  OrdersIdRoute: OrdersIdRouteWithChildren,
 }
 
 const OrdersRouteWithChildren =
