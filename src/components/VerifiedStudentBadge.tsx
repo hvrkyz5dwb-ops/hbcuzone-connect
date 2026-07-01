@@ -33,7 +33,7 @@ export function VerifiedStudentBadge({
   return (
     <span
       aria-label="Verified Student"
-      className={`inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 text-primary font-medium tracking-wide uppercase ${s.text} ${s.pad} ${className}`}
+      className={`badge-sheen inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 text-primary font-medium tracking-wide uppercase ${s.text} ${s.pad} ${className}`}
     >
       <BadgeCheck className={s.icon} />
       Verified Student

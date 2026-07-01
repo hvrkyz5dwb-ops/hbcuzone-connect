@@ -5,6 +5,7 @@ import {
   TrendingUp, Megaphone, Store, Map as MapIcon, MessageSquare, Plug, Radio,
 } from "lucide-react";
 import { SectionHeader } from "@/components/AppShell";
+import { Reveal } from "@/components/Reveal";
 import { usePersona } from "@/hooks/use-persona";
 import { mockWeather, greetingFor } from "@/lib/weather-mock";
 import { liveActivity, businessSpotlight, aiRecommendations } from "@/lib/opportunities-data";
@@ -91,7 +92,7 @@ export function CampusPulse() {
       </section>
 
       {/* Campus Pulse summary card */}
-      <section className="mt-4 px-5">
+      <Reveal as="section" index={1} className="mt-4 px-5">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-4">
           <div
             className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full blur-3xl opacity-40"
@@ -118,10 +119,10 @@ export function CampusPulse() {
             </div>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Quick actions */}
-      <section className="mt-4 px-5">
+      <Reveal as="section" index={2} className="mt-4 px-5">
         <div className="grid grid-cols-4 gap-3">
           {[
             { to: "/business", label: "Sell", icon: Store },
@@ -155,10 +156,10 @@ export function CampusPulse() {
             );
           })}
         </div>
-      </section>
+      </Reveal>
 
       {/* Live activity ticker */}
-      <section className="mt-4 px-5">
+      <Reveal as="section" index={3} className="mt-4 px-5">
         <div className="flex items-center gap-2 rounded-2xl border border-border bg-background/60 px-3 py-2.5">
           <Radio className="h-3.5 w-3.5 text-primary plugu-pulse shrink-0" />
           <p key={tick} className="text-xs truncate slide-up">
@@ -168,10 +169,10 @@ export function CampusPulse() {
             <span className="text-muted-foreground">· {activity.when}</span>
           </p>
         </div>
-      </section>
+      </Reveal>
 
       {/* Trending businesses */}
-      <section className="mt-7">
+      <Reveal as="section" index={4} className="mt-7">
         <SectionHeader title="Trending businesses" action="See all" />
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {featuredKingpins.map((k) => (
@@ -199,10 +200,10 @@ export function CampusPulse() {
             </Link>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* Marketplace highlights */}
-      <section className="mt-7">
+      <Reveal as="section" index={5} className="mt-7">
         <SectionHeader title="Marketplace highlights" action="Open" />
         <div className="px-5 grid grid-cols-2 gap-3">
           {listings.slice(0, 4).map((l) => (
@@ -230,10 +231,10 @@ export function CampusPulse() {
             </Link>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* Upcoming events */}
-      <section className="mt-7">
+      <Reveal as="section" index={6} className="mt-7">
         <SectionHeader title="Tonight & this week" action="All events" />
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {events.map((e) => {
@@ -262,10 +263,10 @@ export function CampusPulse() {
             );
           })}
         </div>
-      </section>
+      </Reveal>
 
       {/* Business Spotlight */}
-      <section className="mt-7 px-5">
+      <Reveal as="section" index={7} className="mt-7 px-5">
         <SectionHeader title="Business Spotlight" />
         <Link
           to="/business"
@@ -291,10 +292,10 @@ export function CampusPulse() {
             </div>
           </div>
         </Link>
-      </section>
+      </Reveal>
 
       {/* Announcements */}
-      <section className="mt-7">
+      <Reveal as="section" index={8} className="mt-7">
         <SectionHeader title="Campus announcements" />
         <ul className="px-5 space-y-2">
           {announcements.map((a) => (
@@ -309,10 +310,10 @@ export function CampusPulse() {
             </li>
           ))}
         </ul>
-      </section>
+      </Reveal>
 
       {/* AI Recommendations */}
-      <section className="mt-7 px-5">
+      <Reveal as="section" index={9} className="mt-7 px-5">
         <SectionHeader title="Smart picks for you" />
         <ul className="space-y-2">
           {aiRecommendations.map((r) => (
@@ -336,7 +337,7 @@ export function CampusPulse() {
             </li>
           ))}
         </ul>
-      </section>
+      </Reveal>
     </>
   );
 }
