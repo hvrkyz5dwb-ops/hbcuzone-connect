@@ -18,6 +18,7 @@ import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 
