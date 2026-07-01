@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
   Building2, MessageSquare, ArrowRight, Star, Trophy, TrendingUp,
+  Newspaper, Flame, Crown,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import campusMap from "@/assets/campus-map.jpg";
@@ -16,6 +17,8 @@ import {
   categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
 import { campusEconomies, platformInsights, formatMoney } from "@/lib/economy-data";
+import { currentSeason } from "@/lib/seasons";
+import { yourRank } from "@/lib/nationals";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +41,11 @@ function Home() {
 
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
+
+      {/* Phase 6 — daily hits & competition */}
+      <section className="mt-6 px-5">
+        <PhaseSixRow />
+      </section>
 
       {/* Smart universal search */}
       <section className="px-5">
