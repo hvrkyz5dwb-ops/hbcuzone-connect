@@ -72,3 +72,24 @@ export const NATIONAL_LEADERBOARD = [
   { name: "Kri$Havn", campus: "Talladega", recruits: 184 },
   { name: "Amir L.", campus: "Morehouse", recruits: 172 },
 ];
+
+export type LeaderRow = { name: string; campus: string; recruits?: number; points: number };
+
+export const MONTHLY_LEADERBOARD: LeaderRow[] = [
+  { name: "Kri$Havn", campus: "Talladega", points: 1280 },
+  { name: "Marcus J.", campus: "Talladega", points: 1104 },
+  { name: "Aaliyah T.", campus: "Spelman", points: 988 },
+  { name: "Ivy K.", campus: "FAMU", points: 902 },
+  { name: "Jordan P.", campus: "Howard", points: 811 },
+];
+
+import type { ReferralState } from "./referrals";
+
+export function ambassadorStats(ref: ReferralState) {
+  const recruits = ref.referrals.length;
+  const businesses = ref.referrals.filter((r) => r.business).length;
+  const growth = Math.min(240, 6 + recruits * 4);
+  const campusRank = Math.max(1, 64 - recruits * 3);
+  const nationalRank = Math.max(24, 8_400 - recruits * 220);
+  return { recruits, businesses, growth, campusRank, nationalRank };
+}
