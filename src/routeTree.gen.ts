@@ -24,6 +24,7 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
@@ -121,6 +122,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NationalsRoute = NationalsRouteImport.update({
+  id: '/nationals',
+  path: '/nationals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MilestonesRoute = MilestonesRouteImport.update({
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -337,6 +345,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -379,6 +388,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -500,6 +512,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
   MilestonesRoute: typeof MilestonesRoute
+  NationalsRoute: typeof NationalsRoute
   NewsRoute: typeof NewsRoute
   OnboardingRoute: typeof OnboardingRoute
   OrdersRoute: typeof OrdersRouteWithChildren
@@ -624,6 +637,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nationals': {
+      id: '/nationals'
+      path: '/nationals'
+      fullPath: '/nationals'
+      preLoaderRoute: typeof NationalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/milestones': {
@@ -864,6 +884,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
   MilestonesRoute: MilestonesRoute,
+  NationalsRoute: NationalsRoute,
   NewsRoute: NewsRoute,
   OnboardingRoute: OnboardingRoute,
   OrdersRoute: OrdersRouteWithChildren,
