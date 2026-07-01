@@ -20,6 +20,7 @@ import { Route as PlugReachRouteImport } from './routes/plug-reach'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -91,6 +92,11 @@ const PaymentHistoryRoute = PaymentHistoryRouteImport.update({
 const PaymentFailedRoute = PaymentFailedRouteImport.update({
   id: '/payment-failed',
   path: '/payment-failed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
+  '/orders': typeof OrdersRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
+  '/orders': typeof OrdersRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
+  '/orders': typeof OrdersRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/news'
     | '/onboarding'
+    | '/orders'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/news'
     | '/onboarding'
+    | '/orders'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/news'
     | '/onboarding'
+    | '/orders'
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
@@ -379,6 +391,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   NewsRoute: typeof NewsRoute
   OnboardingRoute: typeof OnboardingRoute
+  OrdersRoute: typeof OrdersRoute
   PaymentFailedRoute: typeof PaymentFailedRoute
   PaymentHistoryRoute: typeof PaymentHistoryRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
@@ -469,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/payment-failed'
       fullPath: '/payment-failed'
       preLoaderRoute: typeof PaymentFailedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -631,6 +651,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   NewsRoute: NewsRoute,
   OnboardingRoute: OnboardingRoute,
+  OrdersRoute: OrdersRoute,
   PaymentFailedRoute: PaymentFailedRoute,
   PaymentHistoryRoute: PaymentHistoryRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
