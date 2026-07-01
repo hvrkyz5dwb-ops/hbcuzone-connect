@@ -217,6 +217,27 @@ function MapPage() {
         </div>
       </section>
 
+      {/* AI Campus Layout — verified students see it live for their campus */}
+      <section id="ai-campus-layout" className="px-5 mt-6">
+        <div className="rounded-3xl border border-border bg-card p-4"
+             style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.18)" }}>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>
+                AI Campus Directory
+              </p>
+              <h3 className="text-base font-semibold">{active}</h3>
+            </div>
+            {!verified && (
+              <span className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground">
+                .edu unlocks live
+              </span>
+            )}
+          </div>
+          <CampusLayoutAI school={active} />
+        </div>
+      </section>
+
       {/* Filter chips */}
       <section className="mt-4">
         <div className="px-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
