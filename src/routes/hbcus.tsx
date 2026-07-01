@@ -1154,6 +1154,21 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
       <div className="grid grid-cols-2 gap-3">
         {filtered.map((s) => (
           <div key={s.name} className="relative">
+            {(() => {
+              const status = launchStatusFor(schoolSlug(s.name));
+              if (status === "coming-soon") {
+                return (
+                  <Link
+                    to="/launch/$slug"
+                    params={{ slug: schoolSlug(s.name) }}
+                    className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-1 rounded-full bg-background/85 backdrop-blur border border-primary/50 text-primary tap"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary plugu-pulse" /> Coming Soon
+                  </Link>
+                );
+              }
+              return null;
+            })()}
             <Link
               to="/hbcus/school/$slug"
               params={{ slug: schoolSlug(s.name) }}
