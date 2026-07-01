@@ -42,6 +42,7 @@ import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
+import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 
@@ -210,6 +211,11 @@ const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
   path: '/$listingId',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const AmbassadorsDashboardRoute = AmbassadorsDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AmbassadorsRoute,
+} as any)
 const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
@@ -224,7 +230,7 @@ const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ambassadors': typeof AmbassadorsRoute
+  '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -261,7 +268,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ambassadors': typeof AmbassadorsRoute
+  '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
@@ -288,6 +295,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -299,7 +307,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/ambassadors': typeof AmbassadorsRoute
+  '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/economy': typeof EconomyRoute
@@ -326,6 +334,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -365,6 +374,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/seller/analytics'
@@ -402,6 +412,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/seller/analytics'
@@ -439,6 +450,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trust'
     | '/upgrade'
+    | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/orders/$id'
     | '/seller/analytics'
@@ -450,7 +462,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  AmbassadorsRoute: typeof AmbassadorsRoute
+  AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
   EconomyRoute: typeof EconomyRoute
@@ -714,6 +726,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutListingIdRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/ambassadors/dashboard': {
+      id: '/ambassadors/dashboard'
+      path: '/dashboard'
+      fullPath: '/ambassadors/dashboard'
+      preLoaderRoute: typeof AmbassadorsDashboardRouteImport
+      parentRoute: typeof AmbassadorsRoute
+    }
     '/orders/$id/dispute': {
       id: '/orders/$id/dispute'
       path: '/dispute'
@@ -730,6 +749,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AmbassadorsRouteChildren {
+  AmbassadorsDashboardRoute: typeof AmbassadorsDashboardRoute
+}
+
+const AmbassadorsRouteChildren: AmbassadorsRouteChildren = {
+  AmbassadorsDashboardRoute: AmbassadorsDashboardRoute,
+}
+
+const AmbassadorsRouteWithChildren = AmbassadorsRoute._addFileChildren(
+  AmbassadorsRouteChildren,
+)
 
 interface CheckoutRouteChildren {
   CheckoutListingIdRoute: typeof CheckoutListingIdRoute
@@ -779,7 +810,7 @@ const OrdersRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  AmbassadorsRoute: AmbassadorsRoute,
+  AmbassadorsRoute: AmbassadorsRouteWithChildren,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
   EconomyRoute: EconomyRoute,
