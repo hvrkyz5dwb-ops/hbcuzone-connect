@@ -38,6 +38,7 @@ import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
+import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -194,6 +195,11 @@ const BusinessRoute = BusinessRouteImport.update({
   path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AwardsRoute = AwardsRouteImport.update({
+  id: '/awards',
+  path: '/awards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AmbassadorsRoute = AmbassadorsRouteImport.update({
   id: '/ambassadors',
   path: '/ambassadors',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/daily': typeof DailyRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/daily': typeof DailyRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/daily': typeof DailyRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
     | '/daily'
@@ -416,6 +426,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
     | '/daily'
@@ -457,6 +468,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
     | '/daily'
@@ -499,6 +511,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
+  AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
   DailyRoute: typeof DailyRoute
@@ -737,6 +750,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/awards': {
+      id: '/awards'
+      path: '/awards'
+      fullPath: '/awards'
+      preLoaderRoute: typeof AwardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ambassadors': {
       id: '/ambassadors'
       path: '/ambassadors'
@@ -871,6 +891,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
+  AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
   DailyRoute: DailyRoute,
