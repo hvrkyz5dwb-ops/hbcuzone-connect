@@ -20,13 +20,19 @@ function Countdown({ when }: { when: string }) {
 
 function BadgeIcon({ badge }: { badge: string }) {
   // Bronze → Silver → Gold → Diamond progression as plugs upgrade.
+  const common = "h-7 w-7 shrink-0";
   switch (badge) {
-    case "Student":       return <GraduationCap className="h-7 w-7 shrink-0 tier-silver" />;
-    case "Plug":          return <PlugIcon className="h-7 w-7 shrink-0 tier-bronze" />;
-    case "Verified Plug": return <BadgeCheck className="h-7 w-7 shrink-0 tier-silver" />;
-    case "Gold Plug":     return <PlugIcon className="h-7 w-7 shrink-0 tier-gold" />;
+    case "Student":
+      return <GraduationCap className={common} style={{ color: "#cfd6dd", filter: "drop-shadow(0 0 6px rgba(210,220,235,0.6))" }} />;
+    case "Plug":
+      return <PlugIcon className={common} style={{ color: "#d19a5a", filter: "drop-shadow(0 0 6px rgba(200,140,80,0.55))" }} />;
+    case "Verified Plug":
+      return <BadgeCheck className={common} style={{ color: "#e5eaf1", filter: "drop-shadow(0 0 6px rgba(220,230,245,0.6))" }} />;
+    case "Gold Plug":
+      return <PlugIcon className={common} style={{ color: "var(--plugu-gold)", filter: "drop-shadow(0 0 8px rgba(240,200,120,0.7))" }} />;
     case "Kingpin":
-    default:              return <Gem className="h-7 w-7 shrink-0 tier-diamond" />;
+    default:
+      return <Gem className={common} style={{ color: "#a5f3fc", filter: "drop-shadow(0 0 10px rgba(160,230,255,0.9))" }} />;
   }
 }
 
