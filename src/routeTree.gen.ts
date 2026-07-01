@@ -44,6 +44,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
+import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
@@ -226,6 +227,11 @@ const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   path: '/seller/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SeasonSlugRoute = SeasonSlugRouteImport.update({
+  id: '/season/$slug',
+  path: '/season/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -554,6 +566,7 @@ export interface RootRouteChildren {
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
+  SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerPlansRoute: typeof SellerPlansRoute
 }
@@ -805,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/season/$slug': {
+      id: '/season/$slug'
+      path: '/season/$slug'
+      fullPath: '/season/$slug'
+      preLoaderRoute: typeof SeasonSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/$id'
@@ -942,6 +962,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
   LaunchSlugRoute: LaunchSlugRoute,
+  SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerPlansRoute: SellerPlansRoute,
 }
