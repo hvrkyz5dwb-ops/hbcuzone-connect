@@ -33,7 +33,6 @@ const pkgIcon: Record<BoostPackage["key"], typeof Rocket> = {
 
 function Upgrade() {
   return (
-  return (
     <AppShell title="UPGRADE">
       <section className="px-5 pt-5 text-center">
         <span className="inline-flex items-center gap-1 text-[10px] tracking-[0.24em] uppercase px-3 py-1 rounded-full border border-accent/40 text-accent">
