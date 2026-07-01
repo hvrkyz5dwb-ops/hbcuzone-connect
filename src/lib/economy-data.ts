@@ -162,7 +162,13 @@ export const monthlyChallenges = [
 ];
 
 export const trendingBoards = {
-  topEarners:   [{ n: "Crown Roots", v: "$2,140 today" }, { n: "Fade God", v: "$1,820 today" }, { n: "Lux Lash", v: "$1,610 today" }],
+  // Top seller identity is intentionally hidden. #1 is auto-promoted to KingPin
+  // (with payout) regardless of paid membership tier.
+  topEarners:   [
+    { n: "Anonymous Plug", v: "👑 KingPin" },
+    { n: "Anonymous Plug", v: "👑 KingPin" },
+    { n: "Anonymous Plug", v: "👑 KingPin" },
+  ],
   mostBooked:   [{ n: "Fade God", v: "48 bookings" }, { n: "Lux Lash", v: "39 bookings" }, { n: "Bison Bites", v: "31 bookings" }],
   mostViewed:   [{ n: "Rattler Threads", v: "4.2K views" }, { n: "Crown Roots", v: "3.8K views" }, { n: "House Cuts", v: "3.1K views" }],
   fastestGrow:  [{ n: "Crown Roots", v: "+312% MoM" }, { n: "Lux Lash", v: "+248% MoM" }, { n: "Bison Bites", v: "+201% MoM" }],
