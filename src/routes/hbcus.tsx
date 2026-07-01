@@ -1099,6 +1099,8 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
 function SchoolSheet({
   school, onClose, onPick,
 }: { school: SchoolProfile; onClose: () => void; onPick: () => void }) {
+  const detail = getSchoolDetail(school.name);
+  const [view, setView] = useState<"About" | "Alumni" | "Greek">("About");
   return (
     <BottomSheet onClose={onClose}>
       <div className={`h-32 rounded-2xl bg-gradient-to-br ${school.color} mb-4 relative overflow-hidden`}>
@@ -1116,24 +1118,84 @@ function SchoolSheet({
         <Stat label="Conference" value={school.conference} />
         <Stat label="On PlugU" value={`${school.pluguStudents}`} />
       </dl>
-      <div className="mt-4">
-        <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Top majors</p>
-        <div className="flex flex-wrap gap-1.5">
-          {school.topMajors.map((m) => (
-            <span key={m} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{m}</span>
-          ))}
+
+      {detail && (
+        <div className="mt-4">
+          <div className="flex gap-1.5 mb-3">
+            {(["About", "Alumni", "Greek"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className="text-[11px] px-3 py-1.5 rounded-full border tap"
+                style={{
+                  background: view === v ? "var(--gradient-bronze)" : "transparent",
+                  borderColor: view === v ? "transparent" : "var(--border)",
+                  color: view === v ? "var(--primary-foreground)" : "var(--foreground)",
+                }}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          {view === "About" && (
+            <div>
+              <p className="text-xs leading-relaxed text-muted-foreground">{detail.about}</p>
+              <p className="mt-2 text-[11px] italic text-accent">{detail.legacy}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {school.topMajors.map((m) => (
+                  <span key={m} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{m}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {view === "Alumni" && (
+            <ul className="space-y-1.5">
+              {detail.alumni.slice(0, 5).map((a) => (
+                <li key={a.name} className="p-2.5 rounded-xl bg-secondary border border-border">
+                  <p className="text-xs font-semibold">{a.name}{a.era ? <span className="text-accent"> · {a.era}</span> : null}</p>
+                  <p className="text-[11px] text-muted-foreground">{a.note}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+          {view === "Greek" && (
+            <div className="space-y-2">
+              {detail.greek.fraternities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Fraternities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail.greek.fraternities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {detail.greek.sororities.length > 0 && (
+                <div>
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Sororities</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detail.greek.sororities.map((f) => (
+                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-muted-foreground pt-1">{detail.greek.tradition}</p>
+            </div>
+          )}
         </div>
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-        {["Live Feed", "Marketplace", "Students", "Sports", "Events", "Admissions"].map((q) => (
-          <button key={q} className="px-3 py-2.5 rounded-xl bg-secondary border border-border tap text-left">
-            {q}
-          </button>
-        ))}
-      </div>
+      )}
+
+      <Link
+        to="/hbcus/school/$slug"
+        params={{ slug: schoolSlug(school.name) }}
+        className="mt-4 block w-full text-center py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold tap"
+      >
+        Open full {school.name} page →
+      </Link>
       <button
         onClick={onPick}
-        className="mt-4 w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
+        className="mt-2 w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
       >
         Switch to {school.name}
       </button>
