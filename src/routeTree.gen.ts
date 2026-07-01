@@ -16,6 +16,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PlugReachRouteImport } from './routes/plug-reach'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
@@ -69,6 +70,11 @@ const SafetyRoute = SafetyRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlugReachRoute = PlugReachRouteImport.update({
+  id: '/plug-reach',
+  path: '/plug-reach',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
+    | '/plug-reach'
     | '/profile'
     | '/safety'
     | '/saved'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
+    | '/plug-reach'
     | '/profile'
     | '/safety'
     | '/saved'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/payment-failed'
     | '/payment-history'
     | '/payment-success'
+    | '/plug-reach'
     | '/profile'
     | '/safety'
     | '/saved'
@@ -358,6 +370,7 @@ export interface RootRouteChildren {
   PaymentFailedRoute: typeof PaymentFailedRoute
   PaymentHistoryRoute: typeof PaymentHistoryRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
+  PlugReachRoute: typeof PlugReachRoute
   ProfileRoute: typeof ProfileRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plug-reach': {
+      id: '/plug-reach'
+      path: '/plug-reach'
+      fullPath: '/plug-reach'
+      preLoaderRoute: typeof PlugReachRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment-success': {
@@ -583,6 +603,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentFailedRoute: PaymentFailedRoute,
   PaymentHistoryRoute: PaymentHistoryRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
+  PlugReachRoute: PlugReachRoute,
   ProfileRoute: ProfileRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,

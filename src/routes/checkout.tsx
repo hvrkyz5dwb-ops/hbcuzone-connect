@@ -4,7 +4,8 @@ import { CreditCard, Lock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { pricingTiers } from "@/lib/mock-data";
-import { saveSelectedPlan } from "@/lib/plan-storage";
+import { getSelectedPlan, saveSelectedPlan } from "@/lib/plan-storage";
+import { useEffect } from "react";
 
 const search = z.object({ plan: z.string().optional() });
 
@@ -17,7 +18,16 @@ export const Route = createFileRoute("/checkout")({
 function Checkout() {
   const { plan } = Route.useSearch();
   const navigate = useNavigate();
-  const tier = pricingTiers.find((t) => t.key === plan) ?? pricingTiers[0];
+  const [dynamicTier, setDynamicTier] = useState<{ key: string; name: string; price: number; tagline?: string; duration?: string } | null>(null);
+  useEffect(() => {
+    if (plan && plan.startsWith("reach-")) {
+      const saved = getSelectedPlan();
+      if (saved && saved.key === plan) {
+        setDynamicTier({ key: saved.key, name: saved.name, price: saved.price, tagline: "Plug Reach™ promotion.", duration: "" });
+      }
+    }
+  }, [plan]);
+  const tier = dynamicTier ?? pricingTiers.find((t) => t.key === plan) ?? pricingTiers[0];
   const [loading, setLoading] = useState(false);
 
   function placeholderCheckout() {
