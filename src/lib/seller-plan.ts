@@ -1,7 +1,10 @@
 export type SellerTier = "free" | "pro" | "kingpin";
 
+export type BillingCycle = "monthly" | "semester" | "year";
+
 export type SellerPlan = {
   tier: SellerTier;
+  cycle?: BillingCycle;
   since: string;
 };
 
@@ -11,7 +14,8 @@ export const SELLER_TIERS: {
   key: SellerTier;
   name: string;
   fee: number; // percent
-  price: number; // /mo
+  price: number; // /mo (base monthly price)
+  pricing: { monthly: number; semester?: number; year?: number };
   tagline: string;
   perks: string[];
   badge: string;
@@ -22,47 +26,54 @@ export const SELLER_TIERS: {
     name: "Free Seller",
     fee: 5,
     price: 0,
+    pricing: { monthly: 0 },
     tagline: "Get started. Sell anything on your campus.",
     badge: "Starter",
     accent: "#9aa0a6",
     perks: [
+      "5% transaction fee",
+      "Basic analytics",
+      "Standard visibility",
       "Unlimited listings",
-      "In-app messaging tied to orders",
       "Protected by PlugU checkout",
-      "5% platform fee",
     ],
   },
   {
     key: "pro",
     name: "Pro Seller",
     fee: 2,
-    price: 9,
+    price: 9.99,
+    pricing: { monthly: 9.99, semester: 49.99, year: 79.99 },
     tagline: "For hustlers who ship every week.",
     badge: "Verified Pro",
     accent: "#c9c9c9",
     perks: [
+      "2% transaction fee",
       "Verified Pro badge",
-      "Priority feed + search placement",
+      "Better placement in feed & search",
       "Advanced seller analytics",
       "Promotional discount tools",
-      "Only 2% platform fee",
+      "Priority support",
     ],
   },
   {
     key: "kingpin",
     name: "KingPin Seller",
     fee: 0,
-    price: 29,
+    price: 19.99,
+    pricing: { monthly: 19.99, semester: 99.99, year: 149.99 },
     tagline: "You run the campus. Keep 100%.",
     badge: "KingPin",
     accent: "#f4c96a",
     perks: [
+      "0% PlugU transaction fee",
       "Gold KingPin badge",
-      "0% PlugU fee — keep everything",
-      "Featured on campus pages",
-      "Featured inside PlugU Daily",
-      "Exclusive KingPin opportunities",
-      "Priority dispute handling",
+      "Highest search placement",
+      "Featured recommendations",
+      "Exclusive promotions",
+      "Early access to new features",
+      "Priority support",
+      "KingPin community access",
     ],
   },
 ];
@@ -78,8 +89,8 @@ export function getSellerPlan(): SellerPlan {
   return initial;
 }
 
-export function setSellerPlan(tier: SellerTier): SellerPlan {
-  const plan: SellerPlan = { tier, since: new Date().toISOString() };
+export function setSellerPlan(tier: SellerTier, cycle: BillingCycle = "monthly"): SellerPlan {
+  const plan: SellerPlan = { tier, cycle, since: new Date().toISOString() };
   if (typeof window !== "undefined") window.localStorage.setItem(KEY, JSON.stringify(plan));
   return plan;
 }
