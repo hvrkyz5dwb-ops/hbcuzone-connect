@@ -1841,6 +1841,12 @@ function SwitchSheet({
 
 function AISheet({ onClose }: { onClose: () => void }) {
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const ask = () => {
+    if (!q.trim()) { toast.error("Type a question first"); return; }
+    onClose();
+    navigate({ to: "/search", search: { q, tab: "ai" } });
+  };
   return (
     <BottomSheet onClose={onClose}>
       <div className="flex items-center gap-2">
@@ -1860,7 +1866,10 @@ function AISheet({ onClose }: { onClose: () => void }) {
           placeholder="Ask: 'Find internships near me…'"
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
-        <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">
+        <button
+          onClick={ask}
+          className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
+        >
           Ask
         </button>
       </div>
