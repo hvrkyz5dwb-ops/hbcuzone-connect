@@ -1,34 +1,41 @@
-## Goals
+## Scope
+Polish sweep — no rebuilds. Fix HBCUS empty states, make RSVP counters live, and wire the remaining dead buttons across HBCUS / school / market / events / feed with either working handlers or a toast + navigation.
 
-1. Respect `prefers-reduced-motion` on the splash: skip Ken Burns, glow pulse, and gold dust; show the courtyard poster as a static hero with just a quick fade.
-2. Replace the center bottom-nav "P" icon with a new **"P + Charger Plug"** mark.
-3. Replace the top-left statue/logo with a matching **"P wrapped by a charger cable"** that visually connects into the "plugU" wordmark.
+## 1. Friendly HBCUS empty/no-results states
+Replace the two flat "No … match" blocks in `src/routes/hbcus.tsx` (`SchoolsPanel` ~L1109, `GreekLifePanel` ~L1366) with a shared `<EmptyFilters />` block:
+- Icon + headline ("No schools yet" / "No chapters yet")
+- One-line hint ("Try another state, clear filters, or search a mascot")
+- Quick suggestion chips that actually act:
+  - **Schools**: "Clear filters", plus 3 top-state chips (GA, AL, NC) and 2 keyword chips ("Aggies", "Bison") that call `setStateFilter` / `setQuery`.
+  - **Greek**: "Clear filters", plus chips for "Alpha Phi Alpha", "Delta Sigma Theta", "AKA" that set `org` / `query`.
+- Also handle the empty-initial case identically (no query, no results after filters).
 
-## Changes
+## 2. Live RSVP ticker
+`src/routes/events.tsx`:
+- Track a per-event `count` in state seeded from the current `going` formula.
+- On toggle: increment when going, decrement when un-going, and update the `Users` line from state so the number visibly ticks.
+- Add a tiny `plugu-pulse` on the number for ~600ms after change.
 
-### 1. Reduced-motion splash fallback (`src/components/SplashScreen.tsx` + `src/styles.css`)
-- Detect `window.matchMedia('(prefers-reduced-motion: reduce)')` once on mount.
-- When reduced:
-  - Render only the hero poster + a soft vignette (no Ken Burns transform, no breathing glow layer, no dust particles).
-  - Shorten duration to ~1.2s with a simple opacity fade-out.
-  - Skip `LoginTransition` parallax; use a plain cross-fade.
-- When not reduced: current cinematic behavior unchanged.
-- Add a `.splash-static` utility in `styles.css` (no `will-change`, no transforms).
+`src/routes/hbcus.tsx` Events panel (~L1600) uses `e.rsvp` from mock data — mirror the same pattern with local override map so the count updates on tap.
 
-### 2. New "P + Charger" logo asset
-- Generate one premium PNG via `imagegen` (standard tier, transparent background): matte-black serif "P" with a champagne-gold coiled charger cable wrapping the stem, plug-tip peeking out at the bottom-right. Consistent with existing luxury palette (matte black, satin titanium, champagne gold).
-- Save to `src/assets/plugu-charger-mark.png` via the assets CLI → `.asset.json` pointer.
-- Reuse the same asset in two places at different sizes:
-  - **Center bottom-nav** in `src/components/AppShell.tsx`: swap the current `Zap`/`P` glyph inside the gold-rimmed circle for `<img>` of the charger mark (kept inside the existing black sleek circle + gold rim-light — no layout change).
-  - **Top-left header** in `src/components/AppShell.tsx`: replace the current statue-silhouette `plugu-logo.png` with the charger mark, sized ~28px, sitting immediately left of the "plugU" wordmark. The plug tip of the cable visually points into the "p" of "plugU" so it reads as one connected lockup.
+## 3. Wire dead buttons
+Small, targeted handlers — no new routes:
+- `src/routes/hbcus.tsx` L771 KingPin "Connect" → `navigate({ to: "/messages" })` + `toast.success("Request sent")`.
+- L884 comment button on feed card → focus/scroll to comments toast ("Comments coming to this post").
+- L945 "Follow"-style pill → toggle local `followed` state, label swaps Follow ⇄ Following.
+- L1450 Internship "Apply" → `window.open(it.url ?? "https://…","_blank")` fallback + toast.
+- L1565 Org "Join" → toggle joined state + toast.
+- L1768 sheet CTA → `onPick` (already in scope) or close + toast.
+- `src/routes/hbcus.school.$slug.tsx` L94 hero CTA and L419 "See all" → route to related tab via `setTab`.
+- `src/routes/market.tsx` L135 "Message seller" → `navigate({ to: "/messages" })`; L138 Report → toast.
+- `src/components/CampusFeed.tsx` L194 "See all" → `navigate({ to: "/news" })`.
+- `src/components/AppShell.tsx` L251 header `action` button → accept optional `onAction` prop; existing callers keep working (button becomes non-interactive only when no handler passed, otherwise fires it).
 
-### 3. Wordmark connection
-- Wrap the header logo + wordmark in a single flex row with `-space-x-1` so the charger tip overlaps the leading "p" of `plugU`, selling the "plugged in" effect. Preserve the existing shiny chrome gradient on the wordmark text.
+Each handler uses the existing `sonner` toast so nothing feels dead.
+
+## 4. Micro polish
+- Add a shared `useBumpCount` helper in `src/lib/utils.ts` (5 lines) to animate number changes.
+- Ensure every chip in the new empty states inherits the gold border treatment already used elsewhere (`border-accent/40`).
 
 ## Out of scope
-- No changes to routes, auth, data, or animations elsewhere.
-- Existing `plugu-logo.png` and `plugu-hero-splash.png` assets stay in the repo; only references in `AppShell.tsx` change. (I'll delete `plugu-logo.png` via `lovable-assets delete` only if nothing else references it after the swap.)
-
-## Technical notes
-- Image gen prompt tuned for transparent PNG, centered composition, no text, generous padding so the mark scales cleanly from 28px to 56px.
-- Reduced-motion check runs client-side inside `useEffect` to avoid SSR hydration drift; SSR renders the non-animated safe markup by default and upgrades to cinematic after mount when motion is allowed.
+No new routes, no data-model changes, no auth/backend edits, no visual redesign of existing cards.
