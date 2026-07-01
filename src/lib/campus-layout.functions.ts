@@ -170,7 +170,7 @@ export const generateCampusLayout = createServerFn({ method: "POST" })
               y: clamp(pt?.y, 0, 100, 50),
             }))
           : [],
-      })).filter((p) => p.points.length >= 2);
+      })).filter((p: CampusPath) => p.points.length >= 2);
 
       return {
         school: data.school,
