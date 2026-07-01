@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Users, Building2, TrendingUp, Trophy, Calendar } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { getAmbassador, MONTHLY_LEADERBOARD, ambassadorStats } from "@/lib/ambassadors";
+import { getAmbassador, MONTHLY_LEADERBOARD, ambassadorStats, type LeaderRow } from "@/lib/ambassadors";
 import { getReferralState } from "@/lib/referrals";
 
 export const Route = createFileRoute("/ambassadors/dashboard")({
@@ -82,7 +82,7 @@ function AmbassadorDashboard() {
             <p className="text-xs font-semibold">Monthly leaderboard</p>
           </div>
           <ul className="mt-2 divide-y divide-border/60">
-            {MONTHLY_LEADERBOARD.map((r, i) => (
+            {MONTHLY_LEADERBOARD.map((r: LeaderRow, i: number) => (
               <li key={r.name} className="py-2 flex items-center gap-3">
                 <span className="w-5 text-[11px] font-bold text-muted-foreground">#{i + 1}</span>
                 <div className="flex-1 min-w-0">
