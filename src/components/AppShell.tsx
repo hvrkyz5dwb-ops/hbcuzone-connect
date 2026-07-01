@@ -5,7 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import pluguLogo from "@/assets/plugu-logo.png";
+import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -67,15 +67,15 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-28 pb-safe">
         <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-background/75 backdrop-blur-xl border-b border-border/50">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center -space-x-1">
             <img
               src={pluguLogo}
               alt="PlugU"
-              className="h-7 w-7 object-contain drop-shadow-[0_0_12px_var(--plugu-gold)]"
-              width={28}
-              height={28}
+              className="h-8 w-8 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)] relative z-10"
+              width={32}
+              height={32}
             />
-            <span className="font-bold tracking-[0.2em] text-sm plugu-wordmark">
+            <span className="font-bold tracking-[0.2em] text-sm plugu-wordmark pl-1">
               {title ?? "PLUGU"}
             </span>
           </div>
