@@ -1,87 +1,89 @@
+## Phase 6 — Community & Competition
 
-# PlugU Phase 4 & 5 — Launch-Ready Marketplace, Trust, and Growth
+### 1. PlugU Daily (`/daily`)
+Rebuild the existing `news.tsx` into a true daily magazine home.
+- New route `src/routes/daily.tsx` — 8 sections in one scroll: Trending Businesses, Student Success Stories, Campus Events, Scholarships, Internships, Entrepreneurship News, Business Tips, Financial Literacy, HBCU News, Live College News.
+- New `src/lib/daily-feed.ts` — deterministic day-seeded mock feed + AI top-up (uses existing `ai-news.functions.ts` / Gemini Flash for "Live college news" and "HBCU News" refresh).
+- "Today on PlugU" hero card with date, streak counter (localStorage), and a "Daily Read Streak" badge that rewards opening the app.
+- Add a Home tab card ("Today's Plug — 8 new") linking to `/daily`.
+- Add `/daily` to the Plug quick-actions sheet.
 
-Ship two connected phases: a polished protected marketplace with real checkout UX and seller tiers (Phase 4), then a growth engine that turns every verified student into a recruiter (Phase 5). All flows stay frontend-first with local persistence so the app feels real end‑to‑end; payment rails are wired as UI + stubbed handlers so we can swap in Stripe/Paddle later without redesign.
+### 2. Campus Heat Map upgrade (`/map`)
+Extend the existing map without a rebuild.
+- Add layer toggles: Popular Businesses · Food · Events · Hot Spots · Pop-ups · Pickup Points · Student Activity.
+- Anonymous activity heat: aggregate orders + listing views from `orders-storage.ts` into privacy-safe blobs (min 5 signals per cell, else hide). No user pins.
+- Privacy banner + settings switch (`plugu.heatmap.optOut` in localStorage) — user can hide their own signals.
+- Pop-up shop pins with time windows (auto-expire).
+- Store data in new `src/lib/heatmap-data.ts`.
 
-## Phase 4 — Marketplace, Payments & Trust
+### 3. Seasonal Campus Campaigns
+- New `src/lib/seasons.ts` — season detector by date returning one of: Move-In, Welcome Week, Homecoming, Black History Month, Entrepreneurship Month, Finals Week, Spring Break, Graduation. Fallback = "Everyday".
+- New route `src/routes/season.$slug.tsx` — featured page per campaign with themed hero, promos, badges, and a challenge (e.g., "Refer 3 students during Move-In → Move-In Plug badge").
+- `AppShell` header shows a subtle season chip (e.g., "🏈 Homecoming Week") that links to the season page.
+- Home/Daily surfaces a "Season Spotlight" card.
+- Season badges plug into existing `milestones.ts` (adds seasonal keys).
 
-### 1. Protected Checkout Flow
-New route `/checkout/$listingId` replacing the current placeholder:
-- Order summary card (item, seller, campus, price, PlugU fee, total)
-- Payment method selector: **Apple Pay**, **Cash App Pay**, **Debit/Credit Card** (styled tiles, Apple‑grade)
-- "Protected by PlugU" trust panel (verified seller, buyer protection, refund window, secure transfer)
-- Delivery / meetup details (campus pin, time window, notes)
-- Confirmation screen with order ID, receipt, "Message seller" CTA
-- Persist via `src/lib/orders-storage.ts` (localStorage: orders, statuses, disputes, payouts)
+### 4. School Launch Countdown
+- New `src/lib/launch-data.ts` — per-campus launch status: `{ waitlist, businessesSigned, unlockPct, goal, launchDate }`.
+- New route `src/routes/launch.$slug.tsx` — countdown timer, 4 live stats, progress ring, "Join waitlist" and "Reserve business handle" CTAs (localStorage).
+- When `unlockPct >= 100` or countdown hits zero → `CampusUnlockAnimation` component: gold shockwave over the campus name, confetti of Ps, "🔓 [Campus] is LIVE" moment; sets a persisted flag so it only fires once.
+- HBCUS directory shows a "Coming Soon — 62% unlocked" chip on campuses not yet live and routes to the launch page instead of `/hbcus/school/$slug`.
 
-### 2. Order & Dispute Center
-New route `/orders` (buyer + seller tabs):
-- Order history with status chips (Paid, In Progress, Delivered, Disputed, Refunded)
-- Order detail drawer: timeline, receipt, "Open dispute", "Confirm delivery", "Leave review" (gated to delivered)
-- `/orders/$id/dispute` — reason picker, evidence upload (image stub), resolution tracker
-- Refund center integrated into existing `/trust` route
+---
 
-### 3. Seller Plans
-New route `/seller/plans` (Apple/Stripe pricing card style):
-- **Free Seller** — 5% fee
-- **Pro Seller** — 2% fee, Verified Pro badge, priority feed, promo discounts, analytics
-- **KingPin Seller** — 0% PlugU fee, Gold KingPin badge, featured on campus + Daily, exclusive opportunities
-- Persist current tier in `src/lib/seller-plan.ts`; badge appears next to seller name across Market, Feed, Profile, Messages
-- Wire "Upgrade" CTAs from Profile, Listing, and Analytics screens
+## Phase 7 — PlugU National Ecosystem
 
-### 4. Trust System
-- Verified Purchase Reviews: only orders with `status === "delivered"` unlock the review form (enforced in `orders-storage`)
-- Seller trust panel on profile: response time, completion rate, repeat customer %, total sales, favorites, refund history, Community Trust Score (0–100 composite)
-- Business Verification Levels: Bronze → Silver → Gold → Diamond, derived from activity thresholds (sales, reviews, refund rate, tenure). Reuse the existing tier badge system.
-- New `src/lib/trust-score.ts` computes score + level from local order/review data
+### 5. National Campus Competition (`/nationals`)
+- New route `src/routes/nationals.tsx` — live national leaderboard across all HBCUs.
+- New `src/lib/nationals.ts` — computes per-campus score from:
+  - verified students, businesses launched, marketplace sales count, total activity (revenue count, not $), review count, referrals, engagement (daily opens).
+  - Real user contributions come from local storage (`orders-storage`, `referrals`, `daily-feed` streak); other campuses use deterministic mock scores that update daily so the board feels alive.
+- Sections: Top 25 leaderboard, "Your Campus Rank" hero, per-metric mini-boards, weekly movers.
+- "Contribute to your school" CTA links to actions that raise the score (refer, buy, review, open daily).
 
-### 5. Seller Analytics
-New route `/seller/analytics`:
-- KPI tiles: profile views, listing clicks, conversion rate, repeat customers, monthly earnings, yearly earnings, sales growth (%)
-- Reuses existing `graph-draw` SVG treatment for the growth chart
-- Data sourced from `orders-storage` + a lightweight `views-storage` counter incremented on listing open
+### 6. Year-End Awards
+- New route `src/routes/awards.tsx` — four awards, each with rules, live standings, and past winners (mocked history):
+  - 🏆 PlugU Grant — top campus
+  - 🏆 Plug of the Year Scholarship — top student entrepreneur
+  - 🏆 Ambassador of the Year
+  - 🏆 Top Business Awards (category winners)
+- New `src/lib/awards.ts` — deterministic leaderboards derived from `nationals.ts` + local user profile.
+- Countdown to school-year end (May 15). "Nominate" button (queues locally, admin approves).
+- Awards accessible from Nationals, Ambassadors dashboard, and Plug quick-actions.
 
-## Phase 5 — Growth Engine & Referral Network
+### 7. Wiring & polish
+- Add `/daily`, `/nationals`, `/awards`, `/launch/$slug`, `/season/$slug` to `AppShell` quick-actions sheet.
+- Add cards on Home for: Today's Plug, Season Spotlight, National Rank.
+- Update `hbcus.tsx` directory row to surface launch status.
+- All new pages use existing dark/gold + light theme tokens, `slide-up` reveal, `lift-card`, `plugu-antique-wordmark`.
 
-### 6. Referral Program
-- Auto‑generate a referral code + link on signup (`plugu.app/join/<code>`), stored in `src/lib/referrals.ts`
-- New route `/referrals` with:
-  - Personal code + shareable link (copy, Web Share API)
-  - Dashboard: total referrals, verified students, businesses referred, referral streak, campus rank, national rank
-  - Achievement wall (not cash‑centric): Campus Builder, Plug Pioneer, Top Recruiter, School Ambassador, KingPin Recruiter
-- Signup flow accepts `?ref=<code>` and credits the referrer locally
+### Files created
+```text
+src/routes/daily.tsx
+src/routes/nationals.tsx
+src/routes/awards.tsx
+src/routes/launch.$slug.tsx
+src/routes/season.$slug.tsx
+src/lib/daily-feed.ts
+src/lib/heatmap-data.ts
+src/lib/seasons.ts
+src/lib/launch-data.ts
+src/lib/nationals.ts
+src/lib/awards.ts
+src/components/CampusUnlockAnimation.tsx
+src/components/SeasonChip.tsx
+```
 
-### 7. Campus Ambassador Program
-New route `/ambassadors`:
-- Marketing landing with benefits list (badge, free premium, early access, merch, scholarships, monthly rewards, networking)
-- "Apply to be an Ambassador" form (name, campus, why, socials) → stored locally + toast
-- Ambassador leaderboard (campus + national)
-- `/ambassadors/dashboard` (visible once "approved" locally): recruited students, businesses created, campus growth chart, school rank, national rank, monthly leaderboard
+### Files edited (minimal)
+```text
+src/routes/map.tsx           # heat layers + privacy toggle
+src/routes/hbcus.tsx         # launch chips on directory rows
+src/routes/index.tsx         # Today's Plug, Season Spotlight, National Rank cards
+src/components/AppShell.tsx  # new quick actions + season chip in header
+src/lib/milestones.ts        # add seasonal + streak milestone keys
+```
 
-### 8. Business Milestones
-New `src/lib/milestones.ts` + `<MilestoneToast />`:
-- Auto‑detect and celebrate: First Sale, First $100, First $1,000, 100 Sales, Top Rated, Campus Favorite, KingPin Status, Business Anniversary
-- Shareable achievement card (rendered to PNG via canvas for Web Share / download)
-- Achievements surface on Profile "Trophy Case" section
-
-## Cross‑cutting polish
-- Add Orders, Seller, Referrals, Ambassador entries to the Plug quick‑actions sheet in `AppShell`
-- All new routes get luxury dark/gold treatment consistent with recent Phase 3 polish
-- Every button leads somewhere — Message, Dispute, Upgrade, Share, Apply all wired with real handlers + toasts
-- Add lightweight empty states matching the shared `EmptyFilters` pattern
-
-## Technical Notes
-- No backend yet — all persistence via typed localStorage modules under `src/lib/*-storage.ts`; APIs shaped so a future `createServerFn` swap is drop‑in
-- Payment tiles are UI‑only handlers that call `orders-storage.createOrder({ method })`; real Stripe/Paddle wiring is a follow‑up phase (would use Lovable's built‑in Stripe payments)
-- Trust score, tier, and milestones are pure functions of local order/review/referral state so they update live
-- New routes:
-  - `/checkout/$listingId`, `/orders`, `/orders/$id`, `/orders/$id/dispute`
-  - `/seller/plans`, `/seller/analytics`
-  - `/referrals`, `/ambassadors`, `/ambassadors/dashboard`
-- New libs: `orders-storage.ts`, `seller-plan.ts`, `trust-score.ts`, `views-storage.ts`, `referrals.ts`, `ambassadors.ts`, `milestones.ts`
-- New components: `ProtectedCheckoutPanel`, `PaymentMethodTiles`, `OrderTimeline`, `DisputeForm`, `TrustScorePanel`, `TierBadge` (extend existing), `AnalyticsKpiGrid`, `ReferralDashboard`, `AmbassadorLeaderboard`, `MilestoneToast`, `AchievementCard`
-
-## Out of Scope (call out for later)
-- Real Stripe/Apple Pay/Cash App integration (needs Lovable Cloud + Stripe enable)
-- Real payouts / KYC
-- Server‑side referral fraud checks
+### Notes
+- All persistence stays local-first (localStorage). No backend enabled.
+- AI-refreshed sections in Daily reuse the existing Gemini Flash server functions; static mock is served instantly and AI hydrates on demand.
+- Heat map aggregation enforces a 5-signal minimum per cell so no individual is identifiable; opt-out is one tap.
