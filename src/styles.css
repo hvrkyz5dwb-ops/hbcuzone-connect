@@ -911,3 +911,52 @@ img, video { content-visibility: auto; }
 .cine-warm     { animation: plugu-warm-clear 1.4s ease-out both; }
 .cine-push-p   { animation: plugu-push-p-fade 1.6s cubic-bezier(0.65,0,0.35,1) both; will-change: transform, opacity; }
 .cine-card     { animation: plugu-card-materialize 0.9s cubic-bezier(0.22,1,0.36,1) 0.6s both; }
+
+/* ---- Crowd (living statue scene) ---- */
+@keyframes plugu-crowd-walk-r {
+  0%   { transform: translateX(-8vw); }
+  55%  { transform: translateX(38vw); }
+  70%  { transform: translateX(38vw); }
+  100% { transform: translateX(108vw); }
+}
+@keyframes plugu-crowd-walk-l {
+  0%   { transform: translateX(108vw); }
+  55%  { transform: translateX(58vw); }
+  70%  { transform: translateX(58vw); }
+  100% { transform: translateX(-8vw); }
+}
+@keyframes plugu-crowd-bob {
+  0%,100% { transform: translateY(0)   rotate(0deg); }
+  50%     { transform: translateY(-2px) rotate(0.6deg); }
+}
+@keyframes plugu-crowd-legs {
+  0%,100% { transform: rotate(14deg); }
+  50%     { transform: rotate(-14deg); }
+}
+@keyframes plugu-crowd-legs-alt {
+  0%,100% { transform: rotate(-14deg); }
+  50%     { transform: rotate(14deg); }
+}
+@keyframes plugu-crowd-arm-raise {
+  0%,55%   { transform: rotate(0deg); }
+  62%,88%  { transform: rotate(-115deg); }
+  95%,100% { transform: rotate(0deg); }
+}
+@keyframes plugu-crowd-flash {
+  0%,60%   { opacity: 0; }
+  63%      { opacity: 1; }
+  70%      { opacity: 0.2; }
+  74%      { opacity: 0.9; }
+  82%      { opacity: 0; }
+  100%     { opacity: 0; }
+}
+.cine-crowd-layer { animation: plugu-warm-clear 1.2s ease-out 0.6s both; }
+.cine-crowd-fig   { position: absolute; bottom: 8%; will-change: transform; }
+.cine-crowd-bob   { animation: plugu-crowd-bob 0.55s ease-in-out infinite; transform-origin: 50% 100%; }
+.cine-crowd-leg-a { transform-origin: 50% 0%; animation: plugu-crowd-legs 0.55s ease-in-out infinite; }
+.cine-crowd-leg-b { transform-origin: 50% 0%; animation: plugu-crowd-legs-alt 0.55s ease-in-out infinite; }
+.cine-crowd-arm   { transform-origin: 50% 12%; }
+@media (prefers-reduced-motion: reduce) {
+  .cine-crowd-fig, .cine-crowd-bob, .cine-crowd-leg-a, .cine-crowd-leg-b,
+  .cine-crowd-arm, .cine-crowd-flash { animation: none !important; }
+}
