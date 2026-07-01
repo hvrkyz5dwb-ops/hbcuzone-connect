@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import pluguLogo from "@/assets/plugu-logo.png";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
+import { CrowdLayer } from "./SplashCrowd";
 
 /**
  * PlugU Cinematic Splash v2
@@ -106,6 +107,9 @@ export function SplashScreen() {
             <div className="text-[10px] tracking-[0.55em]" style={{ color: "rgba(246,210,122,0.9)", textShadow: "0 0 12px rgba(246,210,122,0.6)" }}>PLUGU</div>
           </div>
         </div>
+
+        {/* z-6.5 living crowd — silhouettes walking + raising phones */}
+        <CrowdLayer dense={full} />
 
         {/* z-7 rain streaks (subtle) */}
         {full && (
