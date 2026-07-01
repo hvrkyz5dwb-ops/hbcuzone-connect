@@ -1024,10 +1024,32 @@ function ScoreSide({ name, score, right }: { name: string; score: number; right?
 function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<SchoolProfile | null>(null);
+  const [stateFilter, setStateFilter] = useState<string>("All");
+  const [typeFilter, setTypeFilter] = useState<"All" | "Public" | "Private">("All");
+
+  const states = useMemo(
+    () => ["All", ...Array.from(new Set(schoolProfiles.map((s) => s.state))).sort()],
+    [],
+  );
 
   const filtered = useMemo(
-    () => schoolProfiles.filter((s) => s.name.toLowerCase().includes(query.toLowerCase())),
-    [query],
+    () => {
+      const q = query.trim().toLowerCase();
+      return schoolProfiles.filter((s) => {
+        if (stateFilter !== "All" && s.state !== stateFilter) return false;
+        if (typeFilter !== "All" && s.type !== typeFilter) return false;
+        if (!q) return true;
+        return (
+          s.name.toLowerCase().includes(q) ||
+          s.city.toLowerCase().includes(q) ||
+          s.state.toLowerCase().includes(q) ||
+          s.mascot.toLowerCase().includes(q) ||
+          s.conference.toLowerCase().includes(q) ||
+          s.topMajors.some((m) => m.toLowerCase().includes(q))
+        );
+      });
+    },
+    [query, stateFilter, typeFilter],
   );
 
   return (
@@ -1039,10 +1061,56 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search HBCUs"
+          placeholder="Search by school, city, mascot, major…"
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="text-[10px] uppercase tracking-widest text-muted-foreground tap"
+          >
+            Clear
+          </button>
+        )}
       </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-full bg-secondary border border-border">
+          <MapPin className="h-3 w-3 text-accent" />
+          <select
+            value={stateFilter}
+            onChange={(e) => setStateFilter(e.target.value)}
+            className="bg-transparent outline-none text-[11px] pr-1"
+            aria-label="Filter by state"
+          >
+            {states.map((st) => (
+              <option key={st} value={st}>{st === "All" ? "All States" : st}</option>
+            ))}
+          </select>
+        </label>
+        <div className="inline-flex rounded-full bg-secondary border border-border p-0.5">
+          {(["All", "Public", "Private"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`text-[11px] px-2.5 py-1 rounded-full tap ${
+                typeFilter === t ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <span className="ml-auto text-[10px] uppercase tracking-widest text-muted-foreground">
+          {filtered.length} school{filtered.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center text-xs text-muted-foreground py-8 rounded-2xl border border-dashed border-border">
+          No schools match those filters.
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         {filtered.map((s) => (
