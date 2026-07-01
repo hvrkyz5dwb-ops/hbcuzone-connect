@@ -8,6 +8,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
+import { CampusWayfinder } from "@/components/CampusWayfinder";
 import {
   findSchoolBySlug, schoolSlug, schoolProfiles,
   blackBusinesses, liveEvents, liveScores, upcomingGames,
@@ -280,7 +281,7 @@ function MapsTab({ school }: { school: any }) {
   return (
     <div>
       <SectionTitle icon={MapIcon} title={`${school.name} campus map`} subtitle="Pins, dorms, dining, safety & events" />
-      <CampusLayoutAI school={school.name} city={school.city} mascot={school.mascot} />
+      <CampusWayfinder school={school.name} city={school.city} mascot={school.mascot} />
       <div className="mt-3">
         <Link to="/map" className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full border border-border bg-card tap">
           <MapIcon className="h-3.5 w-3.5 text-accent" /> Open live campus map

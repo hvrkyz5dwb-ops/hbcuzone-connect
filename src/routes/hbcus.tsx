@@ -434,6 +434,35 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         </ul>
       </div>
 
+      {/* Live AI feeds (real-world) */}
+      <div className="rounded-3xl border border-border bg-card/60 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Bot className="h-4 w-4 text-accent" />
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Live · Powered by PlugU AI</p>
+          </div>
+          <button onClick={() => onJump("News")} className="text-[11px] text-accent tap">See all →</button>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5 text-yellow-300" /> HBCU Sports & Scores</p>
+            <AiNewsFeed category="HBCU sports scores rankings" school={activeSchool} count={4} compact />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-accent" /> Black Excellence & Alumni Wins</p>
+            <AiNewsFeed category="Black excellence alumni wins culture" school={activeSchool} count={4} compact />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-emerald-300" /> Scholarships & Internships</p>
+            <AiNewsFeed category="Scholarships internships for Black college students with deadlines" school={activeSchool} count={4} compact />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-pink-300" /> Events on the Yard & Nationally</p>
+            <AiNewsFeed category="HBCU campus events homecomings career fairs conferences" school={activeSchool} count={4} compact />
+          </div>
+        </div>
+      </div>
+
       {/* Quick tiles row */}
       <div className="grid grid-cols-2 gap-3">
         <button onClick={() => onJump("Sports")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
