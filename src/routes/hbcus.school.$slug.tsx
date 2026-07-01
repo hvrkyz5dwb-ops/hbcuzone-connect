@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
+import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import {
   findSchoolBySlug, schoolSlug, schoolProfiles,
   blackBusinesses, liveEvents, liveScores, upcomingGames,
@@ -279,21 +280,12 @@ function MapsTab({ school }: { school: any }) {
   return (
     <div>
       <SectionTitle icon={MapIcon} title={`${school.name} campus map`} subtitle="Pins, dorms, dining, safety & events" />
-      <div className={`relative h-44 rounded-2xl overflow-hidden border border-border bg-gradient-to-br ${school.color}`}>
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 grid place-items-center">
-          <Link to="/map" className="px-4 py-2 rounded-full bg-background/85 backdrop-blur text-xs font-semibold tap">
-            Open live campus map
-          </Link>
-        </div>
+      <CampusLayoutAI school={school.name} city={school.city} mascot={school.mascot} />
+      <div className="mt-3">
+        <Link to="/map" className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full border border-border bg-card tap">
+          <MapIcon className="h-3.5 w-3.5 text-accent" /> Open live campus map
+        </Link>
       </div>
-      <ul className="mt-3 grid grid-cols-2 gap-2 text-xs hbcus-stagger">
-        {["Library", "Student Union", "Stadium", "Health Center", "Quad", "Bookstore"].map((p) => (
-          <li key={p} className="rounded-xl border border-border bg-card px-3 py-2.5 flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-accent" /> {p}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
