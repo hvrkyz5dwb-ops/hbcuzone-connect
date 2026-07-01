@@ -52,6 +52,7 @@ const pinColor: Record<PinCategory, string> = {
 
 function MapPage() {
   const { active } = useHomeCampus();
+  const { verified } = useHbcusVerification();
   const [filter, setFilter] = useState<PinCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PinType | null>(null);
