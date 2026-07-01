@@ -49,6 +49,7 @@ import {
   sportsTabs,
   sportLeagues,
   schoolProfiles,
+  getSchoolDetail,
   internships,
   internshipFilters,
   scholarshipsList,
