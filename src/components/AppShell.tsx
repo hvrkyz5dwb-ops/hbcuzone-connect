@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
   Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy, Rocket,
-  Package, BarChart3, Gift, Crown,
+  Package, BarChart3, Gift, Crown, Flame, CalendarHeart, Newspaper,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -25,6 +25,10 @@ const tabs: Tab[] = [
 ];
 
 const quickActions: { to: string; label: string; icon: LucideIcon; hint: string }[] = [
+  { to: "/daily", label: "PlugU Daily", icon: Newspaper, hint: "News, wins & culture — refreshed daily" },
+  { to: "/nationals", label: "National Competition", icon: Trophy, hint: "Live campus leaderboard & rankings" },
+  { to: "/awards", label: "Year-End Awards", icon: Crown, hint: "Grants, scholarships & top businesses" },
+  { to: "/heatmap", label: "Campus Heat Map", icon: Flame, hint: "Where the yard is going off" },
   { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
   { to: "/seller/plans", label: "Seller Plans", icon: Crown, hint: "Free · Pro · KingPin — lower your fee" },
   { to: "/seller/analytics", label: "Seller Analytics", icon: BarChart3, hint: "Views, conversions & growth" },
@@ -37,6 +41,7 @@ const quickActions: { to: string; label: string; icon: LucideIcon; hint: string 
   { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Rocket, hint: "Launch pricing — campus to nationwide" },
   { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
   { to: "/map", label: "Live Campus Map", icon: Map, hint: "What's near you, right now" },
+  { to: "/season/homecoming", label: "Seasonal Campaign", icon: CalendarHeart, hint: "Auto-changes with the season" },
   { to: "/safety", label: "Safety & Tools", icon: ShieldAlert, hint: "SOS, rides, lost & found" },
 ];
 

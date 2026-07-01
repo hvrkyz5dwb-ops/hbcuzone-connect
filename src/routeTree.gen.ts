@@ -32,6 +32,7 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HubRouteImport } from './routes/hub'
+import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
@@ -167,6 +168,11 @@ const HubRoute = HubRouteImport.update({
   path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HeatmapRoute = HeatmapRouteImport.update({
+  id: '/heatmap',
+  path: '/heatmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HbcusRoute = HbcusRouteImport.update({
   id: '/hbcus',
   path: '/hbcus',
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -497,6 +508,7 @@ export interface FileRouteTypes {
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -542,6 +554,7 @@ export interface RootRouteChildren {
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRouteWithChildren
+  HeatmapRoute: typeof HeatmapRoute
   HubRoute: typeof HubRoute
   LoginRoute: typeof LoginRoute
   ManagePlanRoute: typeof ManagePlanRoute
@@ -732,6 +745,13 @@ declare module '@tanstack/react-router' {
       path: '/hub'
       fullPath: '/hub'
       preLoaderRoute: typeof HubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heatmap': {
+      id: '/heatmap'
+      path: '/heatmap'
+      fullPath: '/heatmap'
+      preLoaderRoute: typeof HeatmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hbcus': {
@@ -938,6 +958,7 @@ const rootRouteChildren: RootRouteChildren = {
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRouteWithChildren,
+  HeatmapRoute: HeatmapRoute,
   HubRoute: HubRoute,
   LoginRoute: LoginRoute,
   ManagePlanRoute: ManagePlanRoute,
