@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Calendar, GraduationCap, Flame, UtensilsCrossed, Star, Briefcase, CloudSun, Newspaper } from "lucide-react";
 
@@ -30,9 +31,16 @@ function dayOfYear(d = new Date()) {
 }
 
 export function DailyCard() {
-  const t = TOPICS[dayOfYear() % TOPICS.length];
+  // Deterministic first render (SSR + first client paint use index 0),
+  // then rotate to today's topic after mount to avoid hydration mismatch.
+  const [idx, setIdx] = useState(0);
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setIdx(dayOfYear() % TOPICS.length);
+    setToday(new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }));
+  }, []);
+  const t = TOPICS[idx];
   const Icon = t.icon;
-  const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 
   return (
     <section className="px-5 pt-5">
