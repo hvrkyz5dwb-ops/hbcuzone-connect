@@ -38,9 +38,9 @@ export function SplashScreen() {
   if (!mounted || gone) return null;
 
   const orbitTracks = [
-    { className: "plugu-orbit-slow", radius: 46, items: FEATURES.filter((_, i) => i % 3 === 0) },
-    { className: "plugu-orbit-med",  radius: 34, items: FEATURES.filter((_, i) => i % 3 === 1) },
-    { className: "plugu-orbit-fast", radius: 22, items: FEATURES.filter((_, i) => i % 3 === 2) },
+    { className: "plugu-orbit-slow", counter: "plugu-orbit-counter 42s linear infinite", radius: 46, items: FEATURES.filter((_, i) => i % 3 === 0) },
+    { className: "plugu-orbit-med",  counter: "plugu-orbit-spin 32s linear infinite",    radius: 34, items: FEATURES.filter((_, i) => i % 3 === 1) },
+    { className: "plugu-orbit-fast", counter: "plugu-orbit-counter 24s linear infinite", radius: 22, items: FEATURES.filter((_, i) => i % 3 === 2) },
   ];
 
   return (
@@ -178,7 +178,7 @@ export function SplashScreen() {
                     >
                       <div
                         className="plugu-glass-chip -translate-x-1/2 -translate-y-1/2 relative"
-                        style={{ animation: ti % 2 ? "plugu-orbit-counter 32s linear infinite" : "plugu-orbit-spin 32s linear infinite" }}
+                        style={{ animation: track.counter }}
                       >
                         {label}
                       </div>
