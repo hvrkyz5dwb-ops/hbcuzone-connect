@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import statue from "@/assets/plugu-statue.jpg.asset.json";
+import hero from "@/assets/plugu-hero-splash.png.asset.json";
 
 /**
  * Login → Home bridge. Storm dissolves into warm sunrise, camera pushes into
@@ -15,13 +15,13 @@ export function LoginTransition({ onComplete, duration = 2400 }: { onComplete: (
     <div className="fixed inset-0 z-[100] bg-black overflow-hidden" aria-hidden>
       {/* Storm fading out */}
       <div className="absolute inset-0" style={{ animation: "plugu-warm-clear 1.4s ease-in reverse both" }}>
-        <img src={statue.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(0.55) contrast(1.1)" }} />
+        <img src={hero.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(0.55) contrast(1.1)" }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,12,18,0.55), rgba(0,0,0,0.85))" }} />
       </div>
 
       {/* Warm sunrise clearing in */}
       <div className="absolute inset-0 cine-warm">
-        <img src={statue.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(1.05) contrast(1.05) saturate(1.05)" }} />
+        <img src={hero.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(1.05) contrast(1.05) saturate(1.05)" }} />
         <div className="absolute inset-0" style={{
           background:
             "radial-gradient(70% 55% at 50% 22%, rgba(255,215,150,0.55), transparent 60%)," +

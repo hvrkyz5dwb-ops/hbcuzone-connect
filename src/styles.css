@@ -912,6 +912,21 @@ img, video { content-visibility: auto; }
 .cine-push-p   { animation: plugu-push-p-fade 1.6s cubic-bezier(0.65,0,0.35,1) both; will-change: transform, opacity; }
 .cine-card     { animation: plugu-card-materialize 0.9s cubic-bezier(0.22,1,0.36,1) 0.6s both; }
 
+/* ---- Hero splash (poster) ---- */
+@keyframes plugu-hero-push {
+  0%   { transform: scale(1.005) translate3d(0,0,0); }
+  100% { transform: scale(1.06)  translate3d(0,-1.2%,0); }
+}
+@keyframes plugu-hero-glow {
+  0%,100% { opacity: 0.55; transform: translate(-50%,-50%) scale(1);    }
+  50%     { opacity: 0.85; transform: translate(-50%,-50%) scale(1.06); }
+}
+.cine-hero-push { animation: plugu-hero-push 5s cubic-bezier(0.22,1,0.36,1) both; will-change: transform; }
+.cine-hero-glow { animation: plugu-hero-glow 3.2s ease-in-out infinite; will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) {
+  .cine-hero-push, .cine-hero-glow { animation: none !important; }
+}
+
 /* ---- Crowd (living statue scene) ---- */
 @keyframes plugu-crowd-walk-r {
   0%   { transform: translateX(-8vw); }
