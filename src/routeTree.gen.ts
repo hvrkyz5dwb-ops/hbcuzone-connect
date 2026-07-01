@@ -24,6 +24,7 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketRouteImport } from './routes/market'
@@ -31,17 +32,22 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HubRouteImport } from './routes/hub'
+import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
+import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
+import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
+import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
@@ -122,6 +128,11 @@ const NewsRoute = NewsRouteImport.update({
   path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NationalsRoute = NationalsRouteImport.update({
+  id: '/nationals',
+  path: '/nationals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MilestonesRoute = MilestonesRouteImport.update({
   id: '/milestones',
   path: '/milestones',
@@ -157,6 +168,11 @@ const HubRoute = HubRouteImport.update({
   path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HeatmapRoute = HeatmapRouteImport.update({
+  id: '/heatmap',
+  path: '/heatmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HbcusRoute = HbcusRouteImport.update({
   id: '/hbcus',
   path: '/hbcus',
@@ -172,6 +188,11 @@ const EconomyRoute = EconomyRouteImport.update({
   path: '/economy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DailyRoute = DailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -180,6 +201,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const BusinessRoute = BusinessRouteImport.update({
   id: '/business',
   path: '/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AwardsRoute = AwardsRouteImport.update({
+  id: '/awards',
+  path: '/awards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AmbassadorsRoute = AmbassadorsRouteImport.update({
@@ -207,10 +233,20 @@ const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   path: '/seller/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SeasonSlugRoute = SeasonSlugRouteImport.update({
+  id: '/season/$slug',
+  path: '/season/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => OrdersRoute,
+} as any)
+const LaunchSlugRoute = LaunchSlugRouteImport.update({
+  id: '/launch/$slug',
+  path: '/launch/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
   id: '/$listingId',
@@ -237,11 +273,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -249,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -266,7 +306,9 @@ export interface FileRoutesByFullPath {
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -276,11 +318,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -288,6 +333,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -305,7 +351,9 @@ export interface FileRoutesByTo {
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -316,11 +364,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
+  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -328,6 +379,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
+  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -345,7 +397,9 @@ export interface FileRoutesById {
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/launch/$slug': typeof LaunchSlugRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -357,11 +411,14 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
+    | '/daily'
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -369,6 +426,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -386,7 +444,9 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -396,11 +456,14 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
+    | '/daily'
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -408,6 +471,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -425,7 +489,9 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -435,11 +501,14 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/awards'
     | '/business'
     | '/checkout'
+    | '/daily'
     | '/economy'
     | '/events'
     | '/hbcus'
+    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -447,6 +516,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/messages'
     | '/milestones'
+    | '/nationals'
     | '/news'
     | '/onboarding'
     | '/orders'
@@ -464,7 +534,9 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/launch/$slug'
     | '/orders/$id'
+    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
     | '/hbcus/school/$slug'
@@ -475,11 +547,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
+  AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  DailyRoute: typeof DailyRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRouteWithChildren
+  HeatmapRoute: typeof HeatmapRoute
   HubRoute: typeof HubRoute
   LoginRoute: typeof LoginRoute
   ManagePlanRoute: typeof ManagePlanRoute
@@ -487,6 +562,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   MessagesRoute: typeof MessagesRoute
   MilestonesRoute: typeof MilestonesRoute
+  NationalsRoute: typeof NationalsRoute
   NewsRoute: typeof NewsRoute
   OnboardingRoute: typeof OnboardingRoute
   OrdersRoute: typeof OrdersRouteWithChildren
@@ -502,6 +578,8 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
+  LaunchSlugRoute: typeof LaunchSlugRoute
+  SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerPlansRoute: typeof SellerPlansRoute
 }
@@ -613,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nationals': {
+      id: '/nationals'
+      path: '/nationals'
+      fullPath: '/nationals'
+      preLoaderRoute: typeof NationalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/milestones': {
       id: '/milestones'
       path: '/milestones'
@@ -662,6 +747,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/heatmap': {
+      id: '/heatmap'
+      path: '/heatmap'
+      fullPath: '/heatmap'
+      preLoaderRoute: typeof HeatmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hbcus': {
       id: '/hbcus'
       path: '/hbcus'
@@ -683,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EconomyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/daily': {
+      id: '/daily'
+      path: '/daily'
+      fullPath: '/daily'
+      preLoaderRoute: typeof DailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -695,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/business'
       fullPath: '/business'
       preLoaderRoute: typeof BusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/awards': {
+      id: '/awards'
+      path: '/awards'
+      fullPath: '/awards'
+      preLoaderRoute: typeof AwardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ambassadors': {
@@ -732,12 +838,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/season/$slug': {
+      id: '/season/$slug'
+      path: '/season/$slug'
+      fullPath: '/season/$slug'
+      preLoaderRoute: typeof SeasonSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id': {
       id: '/orders/$id'
       path: '/$id'
       fullPath: '/orders/$id'
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof OrdersRoute
+    }
+    '/launch/$slug': {
+      id: '/launch/$slug'
+      path: '/launch/$slug'
+      fullPath: '/launch/$slug'
+      preLoaderRoute: typeof LaunchSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/checkout/$listingId': {
       id: '/checkout/$listingId'
@@ -831,11 +951,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
+  AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
+  DailyRoute: DailyRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRouteWithChildren,
+  HeatmapRoute: HeatmapRoute,
   HubRoute: HubRoute,
   LoginRoute: LoginRoute,
   ManagePlanRoute: ManagePlanRoute,
@@ -843,6 +966,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   MessagesRoute: MessagesRoute,
   MilestonesRoute: MilestonesRoute,
+  NationalsRoute: NationalsRoute,
   NewsRoute: NewsRoute,
   OnboardingRoute: OnboardingRoute,
   OrdersRoute: OrdersRouteWithChildren,
@@ -858,6 +982,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
+  LaunchSlugRoute: LaunchSlugRoute,
+  SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerPlansRoute: SellerPlansRoute,
 }

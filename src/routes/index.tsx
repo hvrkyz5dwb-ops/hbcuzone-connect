@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
   Building2, MessageSquare, ArrowRight, Star, Trophy, TrendingUp,
+  Newspaper, Flame, Crown,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import campusMap from "@/assets/campus-map.jpg";
@@ -16,6 +17,8 @@ import {
   categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
 import { campusEconomies, platformInsights, formatMoney } from "@/lib/economy-data";
+import { currentSeason } from "@/lib/seasons";
+import { yourRank } from "@/lib/nationals";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +41,11 @@ function Home() {
 
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
+
+      {/* Phase 6 — daily hits & competition */}
+      <section className="mt-6 px-5">
+        <PhaseSixRow />
+      </section>
 
       {/* Smart universal search */}
       <section className="px-5">
@@ -280,5 +288,73 @@ function Home() {
       </section>
       </PullToRefresh>
     </AppShell>
+  );
+}
+
+function PhaseSixRow() {
+  const season = currentSeason();
+  const rank = typeof window !== "undefined" ? yourRank() : null;
+  const tiles = [
+    {
+      to: "/daily" as const,
+      icon: Newspaper,
+      title: "PlugU Daily",
+      hint: "Today's drops",
+      accent: "#f4c96a",
+    },
+    {
+      to: "/nationals" as const,
+      icon: Trophy,
+      title: rank ? `Rank #${rank.rank}` : "Nationals",
+      hint: rank ? rank.campus : "Live leaderboard",
+      accent: "#c68a52",
+    },
+    {
+      to: "/heatmap" as const,
+      icon: Flame,
+      title: "Heat Map",
+      hint: "Where the yard is",
+      accent: "#ef4444",
+    },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-2.5">
+      {tiles.map((t) => {
+        const Icon = t.icon;
+        return (
+          <Link key={t.to} to={t.to}
+            className="tap lift-card rounded-2xl border border-border bg-card p-3"
+            style={{ boxShadow: `0 0 22px -16px ${t.accent}` }}
+          >
+            <div className="h-9 w-9 grid place-items-center rounded-xl"
+              style={{
+                background: `radial-gradient(circle at 30% 25%, color-mix(in oklab, ${t.accent} 40%, transparent), transparent)`,
+                border: `1px solid color-mix(in oklab, ${t.accent} 45%, transparent)`,
+              }}
+            >
+              <Icon className="h-4 w-4" style={{ color: t.accent }} />
+            </div>
+            <p className="mt-2 text-[12px] font-semibold leading-tight">{t.title}</p>
+            <p className="text-[10px] text-muted-foreground leading-tight">{t.hint}</p>
+          </Link>
+        );
+      })}
+      {season && (
+        <Link to="/season/$slug" params={{ slug: season.key }}
+          className="tap col-span-3 mt-1 rounded-2xl border border-primary/40 p-3 flex items-center gap-3 lift-card"
+          style={{ background: season.gradient }}
+        >
+          <div className="h-9 w-9 grid place-items-center rounded-xl bg-black/40 border border-white/20 shrink-0">
+            <Crown className="h-4 w-4 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] tracking-[0.24em] uppercase text-white/70">Season · {season.window}</p>
+            <p className="text-sm font-semibold text-white truncate">{season.emoji} {season.label}</p>
+            <p className="text-[11px] text-white/80 truncate">{season.tagline}</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-white/80" />
+        </Link>
+      )}
+    </div>
   );
 }
