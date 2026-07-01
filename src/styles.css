@@ -62,35 +62,40 @@
 }
 
 :root {
-  /* PlugU — premium dark, metallic bronze accents, gold "Kingpin" */
+  /* PlugU — matte black, graphite surfaces, champagne gold accents.
+     Cleaner luxury palette (Apple / Tesla / Arc / Nothing OS inspired).
+     Avoid muddy bronze / orange tones. */
   --radius: 1rem;
-  --background: oklch(0.13 0.005 60);
-  --foreground: oklch(0.96 0.01 80);
-  --card: oklch(0.17 0.008 60);
-  --card-foreground: oklch(0.96 0.01 80);
-  --popover: oklch(0.17 0.008 60);
-  --popover-foreground: oklch(0.96 0.01 80);
-  --primary: oklch(0.62 0.11 55); /* bronze */
-  --primary-foreground: oklch(0.13 0.005 60);
-  --secondary: oklch(0.22 0.01 60);
-  --secondary-foreground: oklch(0.96 0.01 80);
-  --muted: oklch(0.2 0.008 60);
-  --muted-foreground: oklch(0.68 0.02 70);
-  --accent: oklch(0.78 0.14 80); /* gold for kingpin */
-  --accent-foreground: oklch(0.13 0.005 60);
+  --background: oklch(0.09 0.002 270);       /* #0A0A0A matte black */
+  --foreground: oklch(0.97 0.005 90);
+  --card: oklch(0.15 0.003 270);             /* #171717 graphite */
+  --card-foreground: oklch(0.97 0.005 90);
+  --popover: oklch(0.15 0.003 270);
+  --popover-foreground: oklch(0.97 0.005 90);
+  --primary: oklch(0.86 0.11 88);            /* champagne gold #F4C96A */
+  --primary-foreground: oklch(0.10 0.002 270);
+  --secondary: oklch(0.20 0.004 270);        /* satin titanium */
+  --secondary-foreground: oklch(0.97 0.005 90);
+  --muted: oklch(0.18 0.003 270);
+  --muted-foreground: oklch(0.70 0.01 90);
+  --accent: oklch(0.86 0.11 88);
+  --accent-foreground: oklch(0.10 0.002 270);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.98 0.005 80);
-  --border: oklch(0.27 0.01 60);
-  --input: oklch(0.22 0.01 60);
-  --ring: oklch(0.62 0.11 55);
-  --gradient-bronze: linear-gradient(135deg, oklch(0.45 0.08 50), oklch(0.75 0.12 70));
-  --gradient-surface: linear-gradient(180deg, oklch(0.17 0.008 60), oklch(0.13 0.005 60));
-  --shadow-elegant: 0 20px 50px -20px oklch(0 0 0 / 0.7);
-  --shadow-glow: 0 0 40px oklch(0.62 0.11 55 / 0.25);
+  --border: oklch(0.26 0.004 270);
+  --input: oklch(0.20 0.004 270);
+  --ring: oklch(0.86 0.11 88);
+  /* Kept the name --gradient-bronze so existing components keep working, but
+     re-tuned to matte-graphite + champagne gold rim (no muddy bronze). */
+  --gradient-bronze: linear-gradient(135deg, #1a1a1a 0%, #262626 55%, #F4C96A 140%);
+  --gradient-champagne: linear-gradient(135deg, #F4C96A 0%, #FFF0C2 50%, #C9A24A 100%);
+  --gradient-surface: linear-gradient(180deg, oklch(0.16 0.003 270), oklch(0.10 0.002 270));
+  --shadow-elegant: 0 24px 60px -24px rgba(0,0,0,0.85);
+  --shadow-glow: 0 0 40px rgba(244, 201, 106, 0.22);
   --plugu-purple: oklch(0.62 0.22 295);
-  --plugu-gold: oklch(0.82 0.16 85);
+  --plugu-gold: #F4C96A;
   --shadow-purple: 0 0 60px oklch(0.62 0.22 295 / 0.35);
-  --shadow-gold: 0 0 50px oklch(0.82 0.16 85 / 0.3);
+  --shadow-gold: 0 0 50px rgba(244, 201, 106, 0.3);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
