@@ -1469,6 +1469,7 @@ function GreekLifePanel() {
 ============================================================ */
 function InternshipsPanel() {
   const [filter, setFilter] = useState<string>("All");
+  const [applied, setApplied] = useState<Set<string>>(new Set());
   const items = useMemo(() => {
     if (filter === "All") return internships;
     if (filter === "Remote") return internships.filter((i) => i.type === "Remote");
@@ -1492,8 +1493,14 @@ function InternshipsPanel() {
             </div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground">Deadline: {it.deadline}</span>
-              <button className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap">
-                Apply
+              <button
+                onClick={() => {
+                  setApplied((s) => new Set(s).add(it.id));
+                  toast.success(`Application started · ${it.company}`, { description: "We'll save your progress." });
+                }}
+                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${applied.has(it.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
+              >
+                {applied.has(it.id) ? "Applied" : "Apply"}
               </button>
             </div>
           </li>
