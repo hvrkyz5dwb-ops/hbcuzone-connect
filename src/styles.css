@@ -253,6 +253,79 @@ img, video { content-visibility: auto; }
 @utility pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 @utility mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
 
+/* === Shiny chrome / silver / gold / diamond wordmarks === */
+@keyframes plugu-chrome-sweep {
+  0%   { background-position: -200% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@utility plugu-wordmark {
+  background: linear-gradient(110deg,
+    #f7e9c2 0%, #ffffff 22%, #d9b56b 42%, #ffffff 62%, #f2d894 82%, #b48a3c 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: plugu-chrome-sweep 7s linear infinite;
+  text-shadow: 0 0 24px color-mix(in oklab, var(--plugu-gold) 25%, transparent);
+}
+@utility plugu-us-silver {
+  background: linear-gradient(110deg,
+    #e9ecef 0%, #ffffff 20%, #b8c0c8 45%, #ffffff 65%, #cfd6dd 85%, #8a94a0 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: plugu-chrome-sweep 5s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(210,220,235,0.55));
+  font-style: italic;
+  font-weight: 800;
+}
+@utility silver-wordmark {
+  background: linear-gradient(110deg,
+    #d9dde3 0%, #ffffff 22%, #a8b2bd 45%, #ffffff 65%, #cbd2da 85%, #7a838f 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: plugu-chrome-sweep 6s linear infinite;
+}
+@utility diamond-wordmark {
+  background: linear-gradient(110deg,
+    #bfeaff 0%, #ffffff 18%, #7dd3fc 38%, #ffffff 55%, #a5f3fc 72%, #ffffff 88%, #67e8f9 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: plugu-chrome-sweep 4s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(160, 230, 255, 0.7));
+}
+@utility tier-bronze {
+  color: transparent;
+  background: linear-gradient(135deg, #b87333, #f4c187, #8a5a2b);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 4px rgba(200,140,80,0.4));
+}
+@utility tier-silver {
+  color: transparent;
+  background: linear-gradient(135deg, #c0c6cf, #ffffff, #8a94a0);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 4px rgba(200,210,225,0.6));
+}
+@utility tier-gold {
+  color: transparent;
+  background: linear-gradient(135deg, #f6d27a, #fff2c2, #b48a3c);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(240,200,120,0.6));
+}
+@utility tier-diamond {
+  color: transparent;
+  background: linear-gradient(135deg, #bfeaff, #ffffff, #7dd3fc, #ffffff, #a5f3fc);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  animation: plugu-chrome-sweep 3.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(180,230,255,0.85));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

@@ -9,6 +9,7 @@ import pluguLogo from "@/assets/plugu-logo.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
+import { isVerifiedStudent } from "@/lib/auth";
 
 let SPLASH_SHOWN = false;
 
@@ -26,6 +27,7 @@ const quickActions: { to: string; label: string; icon: LucideIcon; hint: string 
   { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
   { to: "/economy", label: "Campus Economy", icon: Trophy, hint: "Live rankings, grant & wealth index" },
   { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
+  { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Zap, hint: "Launch pricing — campus to nationwide" },
   { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
   { to: "/map", label: "Live Campus Map", icon: Map, hint: "What's near you, right now" },
   { to: "/safety", label: "Safety & Tools", icon: ShieldAlert, hint: "SOS, rides, lost & found" },
@@ -45,6 +47,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Student-only auth gate: unauthenticated visitors get bounced to /login.
+    const publicRoutes = ["/login", "/signup", "/onboarding"];
+    if (!publicRoutes.includes(pathname) && !isVerifiedStudent()) {
+      navigate({ to: "/login" });
+      return;
+    }
     if (pathname === "/onboarding") return;
     try {
       if (!window.localStorage.getItem("plugu.onboarded")) {
@@ -53,7 +61,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -67,14 +75,17 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               width={28}
               height={28}
             />
-            <span className="font-bold tracking-[0.2em] text-sm">{title ?? "PLUGU"}</span>
+            <span className="font-bold tracking-[0.2em] text-sm plugu-wordmark">
+              {title ?? "PLUGU"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Link
               to="/hbcus"
-              className="tap text-[10px] tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+              className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
             >
-              HBCUS
+              <span className="text-muted-foreground">HBC</span>
+              <span className="plugu-us-silver">US</span>
             </Link>
             <button
               onClick={toggle}
