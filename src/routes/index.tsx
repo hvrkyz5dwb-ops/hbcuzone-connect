@@ -255,6 +255,29 @@ function Home() {
           ))}
         </ul>
       </section>
+
+      {/* Home-only footer strip — "EXCLUSIVE · VERIFIED · REAL TIME · BUILT BY US" */}
+      <section className="px-5 pt-2 pb-6">
+        <div
+          className="grid grid-cols-4 gap-2 rounded-2xl border border-white/10 px-3 py-3 text-center"
+          style={{
+            background: "linear-gradient(180deg, rgba(23,23,23,0.7), rgba(10,10,10,0.85))",
+            backdropFilter: "blur(14px) saturate(140%)",
+          }}
+        >
+          {["Exclusive", "Verified", "Real Time", "Built By Us"].map((label) => (
+            <div key={label} className="flex flex-col items-center gap-1">
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{ background: "var(--plugu-gold)", boxShadow: "0 0 8px var(--plugu-gold)" }}
+              />
+              <span className="text-[9px] font-bold tracking-[0.22em] uppercase text-muted-foreground">
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
       </PullToRefresh>
     </AppShell>
   );

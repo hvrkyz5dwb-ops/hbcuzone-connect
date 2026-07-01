@@ -178,13 +178,19 @@ export function CampusPulse() {
             <Link
               key={k.handle}
               to="/business"
-              className="tap min-w-[160px] rounded-2xl border border-border bg-card p-4 text-center"
+              className="tap lift-card min-w-[168px] rounded-2xl border border-border bg-card p-4 text-center"
             >
-              <div className="mx-auto h-14 w-14 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-lg font-bold text-primary-foreground">
+              <div
+                className="mx-auto h-14 w-14 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-lg font-bold text-primary-foreground"
+                style={{
+                  boxShadow:
+                    "0 0 0 2px color-mix(in oklab, var(--plugu-gold) 70%, transparent), 0 0 22px -4px rgba(244,201,106,0.55)",
+                }}
+              >
                 {k.name[0]}
               </div>
               <p className="mt-2 font-semibold flex items-center justify-center gap-1">
-                {k.name} <Crown className="h-3.5 w-3.5 text-accent" />
+                {k.name} <BadgeCheck className="h-3.5 w-3.5" style={{ color: "var(--plugu-gold)" }} />
               </p>
               <p className="text-[11px] text-muted-foreground">{k.campus}</p>
               <p className="text-[11px] text-primary mt-1 flex items-center justify-center gap-1">
@@ -203,14 +209,23 @@ export function CampusPulse() {
             <Link
               key={l.id}
               to="/market"
-              className="tap rounded-2xl bg-card border border-border overflow-hidden flex flex-col"
+              className="tap lift-card rounded-2xl bg-card border border-border overflow-hidden flex flex-col"
             >
               <div className="aspect-[4/3] bg-secondary">
                 <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
               </div>
-              <div className="p-3">
-                <p className="text-xs font-medium line-clamp-1">{l.title}</p>
-                <p className="text-primary font-bold text-sm mt-0.5">{l.price}</p>
+              <div className="p-3 flex items-center justify-between gap-2">
+                <p className="text-xs font-medium line-clamp-1 flex-1">{l.title}</p>
+                <span
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(244,201,106,0.18), rgba(244,201,106,0.06))",
+                    border: "1px solid color-mix(in oklab, var(--plugu-gold) 45%, transparent)",
+                    color: "var(--plugu-gold)",
+                  }}
+                >
+                  {l.price}
+                </span>
               </div>
             </Link>
           ))}
