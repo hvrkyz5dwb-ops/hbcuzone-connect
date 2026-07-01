@@ -120,12 +120,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                     <li key="plug-center" className="flex justify-center">
                       <button
                         onClick={() => setPlugOpen(true)}
-                        className="tap -mt-8 grid place-items-center w-16 h-16 rounded-full relative overflow-hidden"
+                        className="tap plugu-breathe -mt-8 grid place-items-center w-16 h-16 rounded-full relative overflow-hidden"
                         style={{
                           background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
                           border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
-                          boxShadow:
-                            "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -8px 16px rgba(0,0,0,0.65), 0 12px 32px rgba(0,0,0,0.6), 0 0 28px rgba(244,201,106,0.45)",
                         }}
                         aria-label="Open Plug quick actions"
                       >
@@ -166,7 +164,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                       <span>{t.label}</span>
                       {active && (
                         <span
-                          className="absolute -bottom-0.5 h-1 w-1 rounded-full"
+                          className="plugu-underline absolute -bottom-1 h-[3px] w-6 rounded-full"
                           style={{ background: "var(--plugu-gold)" }}
                         />
                       )}

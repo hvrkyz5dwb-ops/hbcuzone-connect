@@ -271,6 +271,31 @@ img, video { content-visibility: auto; }
 }
 .lift-card:active { transform: translateY(0) scale(0.985); }
 
+/* Center "P" nav button — soft breathing pulse. */
+@keyframes plugu-breathe {
+  0%, 100% { transform: scale(1); box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      inset 0 -8px 16px rgba(0,0,0,0.65),
+      0 12px 32px rgba(0,0,0,0.6),
+      0 0 24px rgba(244,201,106,0.38); }
+  50%      { transform: scale(1.025); box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      inset 0 -8px 16px rgba(0,0,0,0.65),
+      0 14px 36px rgba(0,0,0,0.6),
+      0 0 34px rgba(244,201,106,0.55); }
+}
+@utility plugu-breathe { animation: plugu-breathe 2.6s ease-in-out infinite; }
+
+/* Bottom-nav active-tab morph — a small gold underline that slides in. */
+@keyframes plugu-underline-in {
+  from { transform: scaleX(0.2); opacity: 0; }
+  to   { transform: scaleX(1);   opacity: 1; }
+}
+@utility plugu-underline {
+  animation: plugu-underline-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center;
+}
+
 /* Safe area helpers for fixed bottom nav */
 @utility pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 @utility mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
