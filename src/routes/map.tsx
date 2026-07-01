@@ -16,6 +16,8 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
+import { CampusLayoutAI } from "@/components/CampusLayoutAI";
+import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 
