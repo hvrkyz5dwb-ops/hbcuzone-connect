@@ -755,3 +755,82 @@ img, video { content-visibility: auto; }
     0 0 18px -6px rgba(246,210,122,0.4);
   white-space: nowrap;
 }
+
+/* ============================================================
+   PlugU Cinematic v2 — layered storm, bolt strike, ignition
+   ============================================================ */
+@keyframes plugu-cloud-a { 0%{transform:translate3d(-6%,0,0)} 100%{transform:translate3d(6%,0,0)} }
+@keyframes plugu-cloud-b { 0%{transform:translate3d(8%,-1%,0)} 100%{transform:translate3d(-8%,1%,0)} }
+@keyframes plugu-cloud-c { 0%{transform:translate3d(-4%,2%,0)} 100%{transform:translate3d(4%,-2%,0)} }
+@keyframes plugu-fog-slow { 0%{transform:translateX(-4%)} 100%{transform:translateX(4%)} }
+@keyframes plugu-rain-fall {
+  0%   { background-position: 0 0, 40px -20px, -30px 10px; opacity: 0.55; }
+  100% { background-position: 0 400px, 40px 420px, -30px 410px; opacity: 0.55; }
+}
+@keyframes plugu-dust-rise {
+  0%   { transform: translate3d(0, 40px, 0); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translate3d(0, -160px, 0); opacity: 0; }
+}
+@keyframes plugu-hud-cw  { to { transform: rotate(360deg); } }
+@keyframes plugu-hud-ccw { to { transform: rotate(-360deg); } }
+@keyframes plugu-camera-push {
+  0%   { transform: scale(1) translateZ(0); }
+  100% { transform: scale(1.06) translateZ(0); }
+}
+@keyframes plugu-flash-white {
+  0%, 100% { opacity: 0; }
+  30%      { opacity: 0.95; }
+  60%      { opacity: 0.25; }
+}
+@keyframes plugu-distant-flash {
+  0%, 92%, 100% { opacity: 0; }
+  94%           { opacity: 0.55; }
+  96%           { opacity: 0.15; }
+  98%           { opacity: 0.4;  }
+}
+@keyframes plugu-bolt-strike {
+  0%   { opacity: 0; stroke-dashoffset: 480; filter: drop-shadow(0 0 8px rgba(200,225,255,0.9)); }
+  15%  { opacity: 1; }
+  60%  { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes plugu-ignite-p {
+  0%   { opacity: 0.15; filter: drop-shadow(0 0 0 rgba(246,210,122,0)); color: transparent; -webkit-text-stroke-color: rgba(246,210,122,0.15); }
+  100% { opacity: 1;    filter: drop-shadow(0 0 40px rgba(246,210,122,0.75)); -webkit-text-stroke-color: rgba(246,210,122,0.9); text-shadow: 0 0 40px rgba(246,210,122,0.55), 0 0 100px rgba(246,210,122,0.4); }
+}
+@keyframes plugu-breathe {
+  0%,100% { filter: brightness(1)    drop-shadow(0 0 24px rgba(246,210,122,0.55)); }
+  50%     { filter: brightness(1.08) drop-shadow(0 0 40px rgba(246,210,122,0.8));  }
+}
+@keyframes plugu-warm-clear {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes plugu-push-p-fade {
+  0%   { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+  70%  { transform: translate(-50%,-50%) scale(6);   opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(18);  opacity: 0; }
+}
+@keyframes plugu-card-materialize {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.96); filter: blur(14px); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);    }
+}
+
+.cine-cloud-a { animation: plugu-cloud-a 42s ease-in-out infinite alternate; will-change: transform; }
+.cine-cloud-b { animation: plugu-cloud-b 58s ease-in-out infinite alternate; will-change: transform; }
+.cine-cloud-c { animation: plugu-cloud-c 72s ease-in-out infinite alternate; will-change: transform; }
+.cine-fog     { animation: plugu-fog-slow 22s ease-in-out infinite alternate; will-change: transform; }
+.cine-rain    { animation: plugu-rain-fall 1.6s linear infinite; will-change: background-position; }
+.cine-dust    { animation: plugu-dust-rise 8s ease-out infinite; will-change: transform, opacity; }
+.cine-hud-cw  { animation: plugu-hud-cw 60s linear infinite; }
+.cine-hud-ccw { animation: plugu-hud-ccw 90s linear infinite; }
+.cine-push    { animation: plugu-camera-push 6s ease-out both; will-change: transform; }
+.cine-flash   { animation: plugu-flash-white 0.6s ease-out 2.5s both; }
+.cine-distant { animation: plugu-distant-flash 6s ease-in-out infinite; }
+.cine-bolt path { stroke-dasharray: 480; stroke-dashoffset: 480; animation: plugu-bolt-strike 0.7s cubic-bezier(0.2,0.9,0.3,1) 2.45s both; }
+.cine-ignite-p { animation: plugu-ignite-p 1.2s cubic-bezier(0.22,1,0.36,1) 2.55s both; }
+.cine-breathe  { animation: plugu-breathe 3.6s ease-in-out 3.2s infinite; }
+.cine-warm     { animation: plugu-warm-clear 1.4s ease-out both; }
+.cine-push-p   { animation: plugu-push-p-fade 1.6s cubic-bezier(0.65,0,0.35,1) both; will-change: transform, opacity; }
+.cine-card     { animation: plugu-card-materialize 0.9s cubic-bezier(0.22,1,0.36,1) 0.6s both; }

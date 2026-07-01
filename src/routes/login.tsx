@@ -73,7 +73,21 @@ function Login() {
           }} />
         </div>
 
-        <div className="max-w-sm mx-auto text-center pop-in">
+        {/* Ambient gold dust */}
+        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span key={i} className="cine-dust absolute rounded-full" style={{
+              left: `${(i * 9 + 7) % 100}%`,
+              bottom: `-${(i * 5) % 40}px`,
+              width: 2 + (i % 3), height: 2 + (i % 3),
+              background: "radial-gradient(circle, rgba(246,210,122,0.95), rgba(246,210,122,0) 70%)",
+              animationDelay: `${(i * 0.6) % 5}s`,
+              animationDuration: `${6 + (i % 4)}s`,
+            }} />
+          ))}
+        </div>
+
+        <div className="max-w-sm mx-auto text-center cine-card">
           <img src={pluguLogo} alt="" className="h-14 w-14 mx-auto drop-shadow-[0_0_24px_var(--plugu-gold)] pop-in" />
           <h1 className="mt-4 text-3xl font-bold plugu-wordmark tracking-tight">
             Welcome to PlugU
@@ -86,12 +100,13 @@ function Login() {
 
         {/* Glass auth panel */}
         <div
-          className="mt-8 max-w-sm mx-auto rounded-3xl p-5 pop-in"
+          className="mt-8 max-w-sm mx-auto rounded-3xl p-5 cine-card"
           style={{
             background: "linear-gradient(180deg, rgba(20,20,26,0.75), rgba(10,10,14,0.85))",
             border: "1px solid rgba(246,210,122,0.28)",
             boxShadow: "0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 80px -30px rgba(0,0,0,0.8), 0 0 40px -12px rgba(246,210,122,0.25)",
             backdropFilter: "blur(14px) saturate(140%)",
+            animationDelay: "0.8s",
           }}
         >
           {step === "email" ? (

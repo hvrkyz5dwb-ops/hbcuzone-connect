@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
-import pluguLogo from "@/assets/plugu-logo.png";
 
+/**
+ * Login → Home bridge. Storm dissolves into warm sunrise, camera pushes into
+ * the giant P until it fills the screen and the Home feed takes over.
+ */
 export function LoginTransition({ onComplete, duration = 2400 }: { onComplete: () => void; duration?: number }) {
   useEffect(() => {
     const t = setTimeout(onComplete, duration);
@@ -9,33 +12,62 @@ export function LoginTransition({ onComplete, duration = 2400 }: { onComplete: (
   }, [onComplete, duration]);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black overflow-hidden login-transition" aria-hidden>
-      <div className="absolute inset-0 login-zoom">
-        <img src={statue.url} alt="" className="h-full w-full object-cover" />
-        <div
-          className="absolute inset-0"
-          style={{ background: "radial-gradient(60% 50% at 50% 42%, transparent 0%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.95) 100%)" }}
-        />
-        {/* plug glow core */}
-        <div
-          className="absolute"
-          style={{
-            left: "50%", top: "42%", width: 140, height: 140,
-            transform: "translate(-50%, -50%)",
-            borderRadius: "9999px",
-            background: "radial-gradient(circle, rgba(180,220,255,0.95), rgba(120,170,255,0.35) 40%, transparent 70%)",
-            filter: "blur(2px)",
-            animation: "splash-plug-pulse 1.2s ease-in-out infinite",
-          }}
-        />
+    <div className="fixed inset-0 z-[100] bg-black overflow-hidden" aria-hidden>
+      {/* Storm fading out */}
+      <div className="absolute inset-0" style={{ animation: "plugu-warm-clear 1.4s ease-in reverse both" }}>
+        <img src={statue.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(0.55) contrast(1.1)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,12,18,0.55), rgba(0,0,0,0.85))" }} />
       </div>
-      {/* one bright flash */}
-      <div className="absolute inset-0 bg-white login-flash" />
-      {/* logo fades early */}
-      <div className="absolute inset-x-0 bottom-24 flex flex-col items-center splash-fade-up" style={{ animation: "splash-fade-up 0.8s ease-out both, fade-out 0.6s ease-in 1.2s both" }}>
-        <img src={pluguLogo} alt="" className="h-12 w-12 drop-shadow-[0_0_24px_var(--plugu-gold)]" />
-        <p className="mt-2 text-[11px] tracking-[0.3em] uppercase text-white/70">Welcome back</p>
+
+      {/* Warm sunrise clearing in */}
+      <div className="absolute inset-0 cine-warm">
+        <img src={statue.url} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(1.05) contrast(1.05) saturate(1.05)" }} />
+        <div className="absolute inset-0" style={{
+          background:
+            "radial-gradient(70% 55% at 50% 22%, rgba(255,215,150,0.55), transparent 60%)," +
+            "radial-gradient(60% 50% at 50% 45%, rgba(246,210,122,0.35), transparent 65%)," +
+            "linear-gradient(180deg, rgba(255,220,170,0.15), rgba(0,0,0,0.6) 75%)",
+        }} />
       </div>
+
+      {/* Giant P pushes forward */}
+      <div
+        className="absolute left-1/2 top-1/2 cine-push-p"
+        style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: "min(72vw, 520px)",
+          fontWeight: 700,
+          lineHeight: 1,
+          color: "transparent",
+          WebkitTextStroke: "2px rgba(246,210,122,0.95)",
+          textShadow: "0 0 40px rgba(246,210,122,0.6), 0 0 120px rgba(246,210,122,0.45)",
+          filter: "drop-shadow(0 0 50px rgba(246,210,122,0.7))",
+        }}
+      >
+        P
+      </div>
+
+      {/* Gold dust remains */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <span
+            key={i}
+            className="cine-dust absolute rounded-full"
+            style={{
+              left: `${(i * 11 + 9) % 100}%`,
+              bottom: `-${(i * 4) % 40}px`,
+              width: 2 + (i % 3),
+              height: 2 + (i % 3),
+              background: "radial-gradient(circle, rgba(246,210,122,0.95), rgba(246,210,122,0) 70%)",
+              animationDelay: `${(i * 0.5) % 4}s`,
+              animationDuration: `${5 + (i % 4)}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Final white-out at the end */}
+      <div className="absolute inset-0 bg-[#F4C96A]/0" style={{ animation: "plugu-warm-clear 0.5s ease-in 1.9s forwards" }} />
     </div>
   );
 }
