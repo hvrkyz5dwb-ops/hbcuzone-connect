@@ -1640,12 +1640,15 @@ function NetworkingPanel() {
 ============================================================ */
 function EventsPanel() {
   const [rsvped, setRsvped] = useState<Set<string>>(new Set());
+  const [bumped, setBumped] = useState<string | null>(null);
   const toggle = (id: string) => {
     setRsvped((prev) => {
       const n = new Set(prev);
       if (n.has(id)) n.delete(id); else n.add(id);
       return n;
     });
+    setBumped(id);
+    setTimeout(() => setBumped((v) => (v === id ? null : v)), 700);
   };
 
   return (
@@ -1662,8 +1665,8 @@ function EventsPanel() {
                 <Calendar className="h-3 w-3" /> {e.when} · {e.where}
               </p>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {e.rsvp.toLocaleString()} going
+                <span className={`text-[11px] inline-flex items-center gap-1 ${bumped === e.id ? "text-accent plugu-pulse" : "text-muted-foreground"}`}>
+                  <Users className="h-3 w-3" /> {(e.rsvp + (yes ? 1 : 0)).toLocaleString()} going
                 </span>
                 <button
                   onClick={() => toggle(e.id)}
