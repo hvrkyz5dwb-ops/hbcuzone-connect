@@ -15,6 +15,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlugReachRouteImport } from './routes/plug-reach'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
@@ -71,6 +72,11 @@ const SavedRoute = SavedRouteImport.update({
 const SafetyRoute = SafetyRouteImport.update({
   id: '/safety',
   path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -302,6 +310,7 @@ export interface FileRoutesById {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/profile': typeof ProfileRoute
+  '/referrals': typeof ReferralsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/plug-reach'
     | '/profile'
+    | '/referrals'
     | '/safety'
     | '/saved'
     | '/search'
@@ -374,6 +384,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/plug-reach'
     | '/profile'
+    | '/referrals'
     | '/safety'
     | '/saved'
     | '/search'
@@ -409,6 +420,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/plug-reach'
     | '/profile'
+    | '/referrals'
     | '/safety'
     | '/saved'
     | '/search'
@@ -445,6 +457,7 @@ export interface RootRouteChildren {
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PlugReachRoute: typeof PlugReachRoute
   ProfileRoute: typeof ProfileRoute
+  ReferralsRoute: typeof ReferralsRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
@@ -497,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/safety'
       fullPath: '/safety'
       preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -758,6 +778,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentSuccessRoute: PaymentSuccessRoute,
   PlugReachRoute: PlugReachRoute,
   ProfileRoute: ProfileRoute,
+  ReferralsRoute: ReferralsRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
