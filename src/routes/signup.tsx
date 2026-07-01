@@ -96,23 +96,29 @@ function SignUp() {
             <span className="text-[11px] uppercase tracking-wider text-white/60">School</span>
             <div className="relative">
               <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
-              <select
+              <input
                 required
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 appearance-none rounded-2xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-[var(--plugu-gold)]"
-              >
-                <option value="" disabled>Select your school</option>
+                list="plugu-schools"
+                placeholder="Type your school name"
+                className="w-full pl-9 pr-4 py-3 rounded-2xl bg-black/50 border border-white/15 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--plugu-gold)]"
+              />
+              <datalist id="plugu-schools">
                 {APPROVED_SCHOOLS.map((s) => (
-                  <option key={s.name} value={s.name} className="bg-black">{s.name}</option>
+                  <option key={s.name} value={s.name} />
                 ))}
-              </select>
+              </datalist>
             </div>
-            {selectedSchool && (
+            {selectedSchool ? (
               <span className="text-[11px] text-white/50">
                 Approved domains: {selectedSchool.domains.map((d) => `@${d}`).join(", ")}
               </span>
-            )}
+            ) : school ? (
+              <span className="text-[11px] text-white/50">
+                We'll verify with your .edu email below.
+              </span>
+            ) : null}
           </label>
 
           <label className="grid gap-1.5">

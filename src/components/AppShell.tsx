@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
-  Plug, Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy,
+  Zap, Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -100,15 +100,33 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                     <li key="plug-center" className="flex justify-center">
                       <button
                         onClick={() => setPlugOpen(true)}
-                        className="tap -mt-7 grid place-items-center w-14 h-14 rounded-full border border-primary/40 bg-[image:var(--gradient-bronze)] shadow-[var(--shadow-glow)] relative"
+                        className="tap -mt-7 grid place-items-center w-14 h-14 rounded-full relative overflow-hidden"
+                        style={{
+                          background: "radial-gradient(circle at 30% 25%, #2a2a2a 0%, #0a0a0a 55%, #000 100%)",
+                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 55%, transparent)",
+                          boxShadow:
+                            "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -6px 12px rgba(0,0,0,0.6), 0 8px 24px rgba(0,0,0,0.55), 0 0 22px color-mix(in oklab, var(--plugu-gold) 35%, transparent)",
+                        }}
                         aria-label="Open Plug quick actions"
                       >
                         <span
                           aria-hidden="true"
-                          className="absolute inset-0 rounded-full opacity-70"
-                          style={{ boxShadow: "0 0 30px var(--plugu-gold)" }}
+                          className="absolute inset-[3px] rounded-full pointer-events-none"
+                          style={{
+                            background:
+                              "conic-gradient(from 210deg, transparent 0deg, color-mix(in oklab, var(--plugu-gold) 45%, transparent) 60deg, transparent 120deg, transparent 360deg)",
+                            filter: "blur(6px)",
+                            opacity: 0.55,
+                          }}
                         />
-                        <Plug className="relative h-6 w-6 text-primary-foreground" />
+                        <Zap
+                          className="relative h-6 w-6"
+                          strokeWidth={2.25}
+                          style={{
+                            color: "var(--plugu-gold)",
+                            filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--plugu-gold) 70%, transparent))",
+                          }}
+                        />
                       </button>
                     </li>
                   );

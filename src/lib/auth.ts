@@ -57,16 +57,24 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
   }
   const domain = getDomain(trimmed)!;
   const school = findSchoolByDomain(domain);
-  if (!school) {
+  if (school) {
+    if (requestedSchool && requestedSchool.trim() && school.name !== requestedSchool.trim()) {
+      // Warn but don't block — user's typed name wins.
+    }
+    return { ok: true, school, domain };
+  }
+  // Open enrollment: allow any .edu (or approved institutional) address.
+  if (!/\.edu$/.test(domain)) {
     return {
       ok: false,
-      reason: "PlugU is students-only. Use your school email (.edu / approved institutional domain).",
+      reason: "PlugU is students-only. Use your .edu school email.",
     };
   }
-  if (requestedSchool && school.name !== requestedSchool) {
-    return { ok: false, reason: `That email belongs to ${school.name}. Switch your school selection to continue.` };
-  }
-  return { ok: true, school, domain };
+  const inferred: ApprovedSchool = {
+    name: (requestedSchool && requestedSchool.trim()) || domain.replace(/\.edu$/, "").replace(/[-_.]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    domains: [domain],
+  };
+  return { ok: true, school: inferred, domain };
 }
 
 export function getStudent(): StudentAccount | null {

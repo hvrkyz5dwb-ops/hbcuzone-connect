@@ -9,7 +9,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   campusEconomies, rankingCategories, rankingFilters, rankBy, awardCategories,
   scholarshipCategories, monthlyChallenges, trendingBoards, verificationLevels,
-  platformInsights, grantCountdown, formatMoney,
+  platformInsights, grantCountdown,
   type RankingCategory, type RankingFilter, type CampusEconomy,
 } from "@/lib/economy-data";
 
@@ -88,8 +88,8 @@ function Header() {
           The economic engine<br/>of college campuses.
         </h1>
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <Stat dark label="Money Today" value={formatMoney(insights.moneyToday)} />
-          <Stat dark label="All-Time" value={formatMoney(insights.totalRevenue)} />
+          <Stat dark label="Orders Today" value={insights.ordersToday.toLocaleString()} />
+          <Stat dark label="Businesses Open" value={insights.businessesOpen.toLocaleString()} />
         </div>
       </div>
     </section>
@@ -141,10 +141,10 @@ function Dashboard() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Stat label="Total Revenue" value={formatMoney(c.stats.totalRevenue)} />
-            <Stat label="Today" value={formatMoney(c.stats.today)} />
-            <Stat label="This Week" value={formatMoney(c.stats.week)} />
-            <Stat label="This Month" value={formatMoney(c.stats.month)} />
+            <Stat label="Active Users" value={c.stats.activeUsers.toLocaleString()} />
+            <Stat label="Businesses" value={c.stats.businesses.toLocaleString()} />
+            <Stat label="Orders Completed" value={c.stats.ordersCompleted.toLocaleString()} />
+            <Stat label="Avg Rating" value={c.stats.avgRating.toFixed(2) + " ★"} />
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -222,7 +222,7 @@ function Rankings() {
   const ranked = rankBy(cat, filtered);
   const valueFor = (c: CampusEconomy) => {
     switch (cat) {
-      case "Highest Revenue": return formatMoney(c.stats.totalRevenue);
+      case "Highest Revenue": return "Top Seller";
       case "Most Active Marketplace": return c.stats.marketSales.toLocaleString();
       case "Most Student Businesses": return c.stats.businesses.toString();
       case "Most Transactions": return c.stats.transactions.toLocaleString();
@@ -231,6 +231,13 @@ function Rankings() {
       case "Best Rated Businesses": return c.stats.avgRating.toFixed(2);
       case "Most Services Completed": return c.stats.servicesBooked.toLocaleString();
       case "Most Verified Businesses": return c.stats.activeBusinesses.toString();
+      case "Top Selling School": return "Top Seller";
+      case "Most Active School": return c.stats.activeUsers.toLocaleString();
+      case "Most Businesses": return c.stats.businesses.toString();
+      case "Most Student Creators": return Math.round(c.stats.activeUsers * 0.18).toLocaleString();
+      case "Most Marketplace Sales": return c.stats.marketSales.toLocaleString();
+      case "Top Ambassador School": return `+${c.stats.growthPct}%`;
+      default: return "—";
     }
   };
 
@@ -284,14 +291,14 @@ function Rankings() {
 function Wealth() {
   const c = campusEconomies[0];
   const items = [
-    { l: "Total Student Revenue", v: formatMoney(c.stats.totalRevenue) },
-    { l: "Marketplace Volume",    v: formatMoney(c.stats.marketSales * 38) },
+    { l: "Marketplace Activity",  v: c.stats.marketSales.toLocaleString() },
     { l: "Services Completed",    v: c.stats.servicesBooked.toLocaleString() },
     { l: "Businesses Created",    v: c.stats.businesses.toString() },
     { l: "Jobs Posted",           v: "142" },
     { l: "Scholarships Awarded",  v: "12" },
     { l: "Internships Posted",    v: "38" },
-    { l: "Money Circulating",     v: formatMoney(c.stats.month * 4) },
+    { l: "Active Users",          v: c.stats.activeUsers.toLocaleString() },
+    { l: "Growth This Month",     v: `+${c.stats.growthPct}%` },
   ];
   return (
     <section className="mt-5 px-5 slide-up">
@@ -311,7 +318,7 @@ function Wealth() {
 /* ============ TRENDING ============ */
 function Trending() {
   const boards: { title: string; items: { n: string; v: string }[] }[] = [
-    { title: "Top Earners Today",  items: trendingBoards.topEarners },
+    { title: "Top Plugs Today",    items: trendingBoards.topEarners.map(x => ({ n: x.n, v: "🔥 Top" })) },
     { title: "Most Booked",        items: trendingBoards.mostBooked },
     { title: "Most Viewed",        items: trendingBoards.mostViewed },
     { title: "Fastest Growing",    items: trendingBoards.fastestGrow },
@@ -501,14 +508,14 @@ function Challenges() {
 function Insights() {
   const i = platformInsights();
   const items = [
-    { l: "Money Generated Today", v: formatMoney(i.moneyToday), icon: Activity },
+    { l: "Activity Today",        v: i.ordersToday.toLocaleString(), icon: Activity },
     { l: "Businesses Open",       v: i.businessesOpen.toLocaleString(), icon: Globe2 },
     { l: "Orders Completed",      v: i.ordersToday.toLocaleString(), icon: TrendingUp },
     { l: "Students Hired",        v: i.studentsHired.toLocaleString(), icon: Sparkles },
     { l: "Scholarships Posted",   v: i.scholarshipsPosted.toString(), icon: GraduationCap },
     { l: "Internships Available", v: i.internshipsAvailable.toString(), icon: Crown },
     { l: "Marketplace Growth",    v: `+${i.marketplaceGrowthPct}%`, icon: BarChart3 },
-    { l: "Total Revenue",         v: formatMoney(i.totalRevenue), icon: Trophy },
+    { l: "Top Campus",            v: "Spelman", icon: Trophy },
   ];
   return (
     <section className="mt-5 px-5 slide-up">
