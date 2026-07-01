@@ -16,6 +16,9 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
+import { CampusLayoutAI } from "@/components/CampusLayoutAI";
+import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 
@@ -50,6 +53,7 @@ const pinColor: Record<PinCategory, string> = {
 
 function MapPage() {
   const { active } = useHomeCampus();
+  const { verified } = useHbcusVerification();
   const [filter, setFilter] = useState<PinCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PinType | null>(null);
@@ -85,7 +89,10 @@ function MapPage() {
               Find vendors, events, buildings, rides, and student hotspots in real time.
             </p>
             <button
-              onClick={() => setNearMe(true)}
+              onClick={() => {
+                setNearMe(true);
+                document.getElementById("ai-campus-layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
               className="mt-3 self-start text-xs font-semibold px-3 py-2 rounded-xl text-black"
               style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
             >
@@ -112,7 +119,11 @@ function MapPage() {
               </button>
             )}
           </div>
-          <button className="h-11 w-11 grid place-items-center rounded-2xl bg-card border border-border" aria-label="Layers">
+          <button
+            onClick={() => setHeatmap((v) => !v)}
+            className={`h-11 w-11 grid place-items-center rounded-2xl border tap ${heatmap ? "bg-[image:var(--gradient-bronze)] border-primary text-primary-foreground" : "bg-card border-border"}`}
+            aria-label="Toggle heat map layer"
+          >
             <Layers className="h-4 w-4" />
           </button>
         </div>
@@ -199,7 +210,11 @@ function MapPage() {
           ))}
 
           {/* FAB recenter */}
-          <button className="absolute bottom-4 right-4 h-12 w-12 grid place-items-center rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]" aria-label="Recenter">
+          <button
+            onClick={() => toast.success("Centered on your location")}
+            className="absolute bottom-4 right-4 h-12 w-12 grid place-items-center rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)] tap"
+            aria-label="Recenter"
+          >
             <Compass className="h-5 w-5" />
           </button>
 
@@ -208,6 +223,27 @@ function MapPage() {
             <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             Live · {filtered.length} pins
           </div>
+        </div>
+      </section>
+
+      {/* AI Campus Layout — verified students see it live for their campus */}
+      <section id="ai-campus-layout" className="px-5 mt-6">
+        <div className="rounded-3xl border border-border bg-card p-4"
+             style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.18)" }}>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>
+                AI Campus Directory
+              </p>
+              <h3 className="text-base font-semibold">{active}</h3>
+            </div>
+            {!verified && (
+              <span className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground">
+                .edu unlocks live
+              </span>
+            )}
+          </div>
+          <CampusLayoutAI school={active} />
         </div>
       </section>
 
@@ -310,22 +346,34 @@ function MapPage() {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium">
+              <button
+                onClick={() => toast.success(`Directions to ${selected.name}`, { description: `${selected.distance} · walk it` })}
+                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium tap"
+              >
                 <RouteIcon className="h-4 w-4" /> Directions
               </button>
-              <button className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-secondary border border-border">
+              <button
+                onClick={() => toast.success(`Saved ${selected.name} to your spots`)}
+                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-secondary border border-border tap"
+              >
                 <Navigation className="h-4 w-4" /> Save spot
               </button>
             </div>
 
             {selected.category === "safety" && (
-              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium">
+              <button
+                onClick={() => toast("Connecting to campus safety…", { description: "This is a demo — no call placed." })}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium tap"
+              >
                 <Phone className="h-4 w-4" /> Call Campus Safety
               </button>
             )}
 
             {selected.category === "phone" && (
-              <button className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium">
+              <button
+                onClick={() => toast("Emergency line ready", { description: "Demo mode — no call placed." })}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium tap"
+              >
                 <Phone className="h-4 w-4" /> One-press Emergency
               </button>
             )}

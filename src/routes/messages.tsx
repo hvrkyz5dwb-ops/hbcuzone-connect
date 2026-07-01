@@ -6,6 +6,7 @@ import { messagesList } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingList, EmptyState } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
@@ -57,7 +58,10 @@ function Messages() {
       <ul className="mt-4 px-2 slide-up">
         {filtered.map((m, i) => (
           <li key={m.id} style={{ animation: `plugu-fade-up 0.35s ease-out ${i * 40}ms both` }}>
-            <button className="tap w-full flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-card transition-colors text-left">
+            <button
+              onClick={() => toast(`Opening chat with ${m.name}`, { description: "Real-time DMs coming online — demo preview." })}
+              className="tap w-full flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-card transition-colors text-left"
+            >
               <div className="relative h-12 w-12 shrink-0">
                 <div className="h-12 w-12 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
                   {m.name[0]}
