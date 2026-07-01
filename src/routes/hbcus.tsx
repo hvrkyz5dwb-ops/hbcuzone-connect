@@ -893,7 +893,17 @@ function ArticleActions() {
         <Bookmark className={`h-4 w-4 ${saved ? "fill-current text-accent" : ""}`} />
         {saved ? "Saved" : "Save"}
       </button>
-      <button className="inline-flex items-center gap-1 tap ml-auto">
+      <button
+        onClick={() => {
+          if (typeof navigator !== "undefined" && navigator.share) {
+            navigator.share({ title: "PlugU", url: typeof location !== "undefined" ? location.href : "" }).catch(() => {});
+          } else {
+            toast.success("Link copied", { description: "Share it with the plug." });
+            if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(location.href).catch(() => {});
+          }
+        }}
+        className="inline-flex items-center gap-1 tap ml-auto"
+      >
         <Send className="h-4 w-4" /> Share
       </button>
     </div>
