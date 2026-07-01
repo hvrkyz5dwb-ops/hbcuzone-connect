@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
+import { toast } from "sonner";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import {
