@@ -127,23 +127,43 @@
   --card-foreground: oklch(0.18 0.01 60);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.01 60);
-  --primary: oklch(0.55 0.13 55);
-  --primary-foreground: oklch(0.98 0.005 80);
+  --primary: oklch(0.16 0.01 60);
+  --primary-foreground: oklch(0.99 0.005 80);
   --secondary: oklch(0.95 0.01 70);
   --secondary-foreground: oklch(0.18 0.01 60);
   --muted: oklch(0.95 0.01 70);
   --muted-foreground: oklch(0.45 0.02 60);
-  --accent: oklch(0.7 0.15 80);
-  --accent-foreground: oklch(0.18 0.01 60);
+  --accent: oklch(0.18 0.01 60);
+  --accent-foreground: oklch(0.99 0.005 80);
   --destructive: oklch(0.58 0.22 25);
   --destructive-foreground: oklch(0.98 0.005 80);
   --border: oklch(0.9 0.01 70);
   --input: oklch(0.94 0.01 70);
-  --ring: oklch(0.55 0.13 55);
-  --gradient-bronze: linear-gradient(135deg, oklch(0.55 0.1 50), oklch(0.78 0.13 75));
+  --ring: oklch(0.2 0.01 60);
+  --gradient-bronze: linear-gradient(135deg, oklch(0.14 0.01 60), oklch(0.28 0.01 60));
   --gradient-surface: linear-gradient(180deg, oklch(1 0 0), oklch(0.96 0.005 70));
-  --shadow-elegant: 0 20px 50px -20px oklch(0.4 0.05 60 / 0.18);
-  --shadow-glow: 0 0 40px oklch(0.55 0.13 55 / 0.2);
+  --shadow-elegant: 0 20px 50px -20px oklch(0.2 0.02 60 / 0.20);
+  --shadow-glow: 0 0 40px oklch(0.2 0.01 60 / 0.18);
+
+  /* Swap the gold palette to deep obsidian in light mode */
+  --plugu-gold: oklch(0.16 0.01 60);
+  --plugu-antique-gold: oklch(0.14 0.01 60);
+  --plugu-antique-gold-hi: oklch(0.28 0.01 60);
+  --plugu-antique-gold-lo: oklch(0.08 0.01 60);
+}
+
+/* HBCUS theme — light-mode reskin: black replaces gold, white replaces night */
+.light .hbcus-theme {
+  --hbcu-night: oklch(0.99 0.003 80);
+  --hbcu-deep: oklch(0.97 0.005 80);
+  --hbcu-royal: oklch(0.14 0.01 60);
+  --hbcu-plum: oklch(0.20 0.01 60);
+  --hbcu-gold: oklch(0.14 0.01 60);
+  --hbcu-gold-soft: oklch(0.22 0.01 60);
+  --hbcu-cream: oklch(0.14 0.01 60);
+  --hbcu-ember: oklch(0.30 0.02 60);
+  --hbcu-gold-grad: linear-gradient(135deg, oklch(0.10 0.01 60) 0%, oklch(0.22 0.01 60) 55%, oklch(0.34 0.01 60) 100%);
+  color: var(--hbcu-cream);
 }
 
 @layer base {
