@@ -916,6 +916,7 @@ function ArticleActions() {
 function SportsPanel() {
   const [tab, setTab] = useState<(typeof sportsTabs)[number]>("Live");
   const [league, setLeague] = useState<(typeof sportLeagues)[number] | "All">("All");
+  const [notify, setNotify] = useState<Set<string>>(new Set());
 
   return (
     <div className="space-y-4">
@@ -964,8 +965,14 @@ function SportsPanel() {
                   <p className="font-semibold mt-1">{g.away} @ {g.home}</p>
                   <p className="text-xs text-muted-foreground">{g.date}</p>
                 </div>
-                <button className="text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border border-accent/40 text-accent">
-                  Notify
+                <button
+                  onClick={() => {
+                    setNotify((s) => { const n = new Set(s); n.has(g.id) ? n.delete(g.id) : n.add(g.id); return n; });
+                    toast.success(notify.has(g.id) ? "Notification off" : `We'll ping you at ${g.date}`);
+                  }}
+                  className={`text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border tap ${notify.has(g.id) ? "border-emerald-500/40 text-emerald-300" : "border-accent/40 text-accent"}`}
+                >
+                  {notify.has(g.id) ? "Notifying" : "Notify"}
                 </button>
               </li>
             ))}
