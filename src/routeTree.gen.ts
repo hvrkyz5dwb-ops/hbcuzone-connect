@@ -23,6 +23,7 @@ import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
@@ -47,6 +48,7 @@ import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
@@ -121,6 +123,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -243,6 +250,11 @@ const OrdersIdRoute = OrdersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => OrdersRoute,
 } as any)
+const MessagesIdRoute = MessagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MessagesRoute,
+} as any)
 const LaunchSlugRoute = LaunchSlugRouteImport.update({
   id: '/launch/$slug',
   path: '/launch/$slug',
@@ -286,10 +298,11 @@ export interface FileRoutesByFullPath {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
@@ -307,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -331,10 +345,11 @@ export interface FileRoutesByTo {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
@@ -352,6 +367,7 @@ export interface FileRoutesByTo {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -377,10 +393,11 @@ export interface FileRoutesById {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/orders': typeof OrdersRouteWithChildren
   '/payment-failed': typeof PaymentFailedRoute
@@ -398,6 +415,7 @@ export interface FileRoutesById {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -428,6 +446,7 @@ export interface FileRouteTypes {
     | '/milestones'
     | '/nationals'
     | '/news'
+    | '/notifications'
     | '/onboarding'
     | '/orders'
     | '/payment-failed'
@@ -445,6 +464,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/messages/$id'
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
@@ -473,6 +493,7 @@ export interface FileRouteTypes {
     | '/milestones'
     | '/nationals'
     | '/news'
+    | '/notifications'
     | '/onboarding'
     | '/orders'
     | '/payment-failed'
@@ -490,6 +511,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/messages/$id'
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
@@ -518,6 +540,7 @@ export interface FileRouteTypes {
     | '/milestones'
     | '/nationals'
     | '/news'
+    | '/notifications'
     | '/onboarding'
     | '/orders'
     | '/payment-failed'
@@ -535,6 +558,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/messages/$id'
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
@@ -560,10 +584,11 @@ export interface RootRouteChildren {
   ManagePlanRoute: typeof ManagePlanRoute
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
-  MessagesRoute: typeof MessagesRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   MilestonesRoute: typeof MilestonesRoute
   NationalsRoute: typeof NationalsRoute
   NewsRoute: typeof NewsRoute
+  NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   OrdersRoute: typeof OrdersRouteWithChildren
   PaymentFailedRoute: typeof PaymentFailedRoute
@@ -682,6 +707,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -852,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof OrdersRoute
     }
+    '/messages/$id': {
+      id: '/messages/$id'
+      path: '/$id'
+      fullPath: '/messages/$id'
+      preLoaderRoute: typeof MessagesIdRouteImport
+      parentRoute: typeof MessagesRoute
+    }
     '/launch/$slug': {
       id: '/launch/$slug'
       path: '/launch/$slug'
@@ -924,6 +963,18 @@ const HbcusRouteChildren: HbcusRouteChildren = {
 
 const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
+interface MessagesRouteChildren {
+  MessagesIdRoute: typeof MessagesIdRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesIdRoute: MessagesIdRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
+
 interface OrdersIdRouteChildren {
   OrdersIdDisputeRoute: typeof OrdersIdDisputeRoute
 }
@@ -964,10 +1015,11 @@ const rootRouteChildren: RootRouteChildren = {
   ManagePlanRoute: ManagePlanRoute,
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
-  MessagesRoute: MessagesRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   MilestonesRoute: MilestonesRoute,
   NationalsRoute: NationalsRoute,
   NewsRoute: NewsRoute,
+  NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   OrdersRoute: OrdersRouteWithChildren,
   PaymentFailedRoute: PaymentFailedRoute,
