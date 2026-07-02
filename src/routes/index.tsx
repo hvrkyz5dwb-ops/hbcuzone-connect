@@ -224,7 +224,12 @@ function Home() {
         <SectionHeader title="Recent Messages" action="Inbox" />
         <ul className="px-5 space-y-2">
           {messagesList.slice(0, 3).map((m) => (
-            <li key={m.id} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
+            <li key={m.id}>
+            <Link
+              to="/messages/$id"
+              params={{ id: m.id }}
+              className="tap flex items-center gap-3 p-3 rounded-2xl bg-card border border-border"
+            >
               <div className="relative h-10 w-10 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
                 {m.name[0]}
                 {m.unread && <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card" style={{ background: "var(--plugu-gold)" }} />}
@@ -237,6 +242,7 @@ function Home() {
                 <p className="text-xs text-muted-foreground truncate">{m.preview}</p>
               </div>
               <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
+            </Link>
             </li>
           ))}
         </ul>
