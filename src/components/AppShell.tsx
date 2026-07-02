@@ -3,7 +3,7 @@ import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
   Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy, Rocket,
   Package, BarChart3, Gift, Crown, Flame, CalendarHeart, Newspaper,
-  type LucideIcon,
+  Bell, type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
 import { isVerifiedStudent } from "@/lib/auth";
+import { useNotifications } from "@/hooks/use-notifications";
 
 let SPLASH_SHOWN = false;
 
@@ -50,6 +51,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const [plugOpen, setPlugOpen] = useState(false);
+  const { unread } = useNotifications();
   const [showSplash] = useState(() => {
     if (typeof window === "undefined") return false;
     if (SPLASH_SHOWN) return false;
@@ -98,6 +100,21 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             >
               <span className="text-muted-foreground">HBC</span>
               <span className="plugu-us-silver">US</span>
+            </Link>
+            <Link
+              to="/notifications"
+              aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
+              className="tap relative grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Bell className="h-4 w-4" />
+              {unread > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold grid place-items-center text-black"
+                  style={{ background: "var(--plugu-gold)", boxShadow: "0 0 8px rgba(244,201,106,0.65)" }}
+                >
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
             </Link>
             <button
               onClick={toggle}
