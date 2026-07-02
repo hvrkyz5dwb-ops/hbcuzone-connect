@@ -27,6 +27,7 @@ const tabs: Tab[] = [
 
 const quickActions: { to: string; label: string; icon: LucideIcon; hint: string }[] = [
   { to: "/daily", label: "PlugU Daily", icon: Newspaper, hint: "News, wins & culture — refreshed daily" },
+  { to: "/notifications", label: "Notifications", icon: Bell, hint: "Likes, orders, rank changes & more" },
   { to: "/nationals", label: "National Competition", icon: Trophy, hint: "Live campus leaderboard & rankings" },
   { to: "/awards", label: "Year-End Awards", icon: Crown, hint: "Grants, scholarships & top businesses" },
   { to: "/heatmap", label: "Campus Heat Map", icon: Flame, hint: "Where the yard is going off" },
