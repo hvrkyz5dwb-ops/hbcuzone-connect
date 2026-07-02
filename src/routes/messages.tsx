@@ -1,12 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { messagesList } from "@/lib/mock-data";
+import { listThreads, subscribeThreads, type ChatThread } from "@/lib/messages-storage";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingList, EmptyState } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
@@ -23,11 +22,14 @@ export const Route = createFileRoute("/messages")({
 function Messages() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [threads, setThreads] = useState<ChatThread[]>([]);
   useEffect(() => {
+    setThreads(listThreads());
+    const off = subscribeThreads(() => setThreads(listThreads()));
     const t = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(t);
+    return () => { clearTimeout(t); off(); };
   }, []);
-  const filtered = messagesList.filter(
+  const filtered = threads.filter(
     (m) => !query || `${m.name} ${m.preview}`.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -58,8 +60,9 @@ function Messages() {
       <ul className="mt-4 px-2 slide-up">
         {filtered.map((m, i) => (
           <li key={m.id} style={{ animation: `plugu-fade-up 0.35s ease-out ${i * 40}ms both` }}>
-            <button
-              onClick={() => toast(`Opening chat with ${m.name}`, { description: "Real-time DMs coming online — demo preview." })}
+            <Link
+              to="/messages/$id"
+              params={{ id: m.id }}
               className="tap w-full flex items-center gap-3 px-3 py-3 rounded-2xl hover:bg-card transition-colors text-left"
             >
               <div className="relative h-12 w-12 shrink-0">
@@ -80,7 +83,7 @@ function Messages() {
                 </div>
                 <p className={`text-xs truncate ${m.unread ? "text-foreground" : "text-muted-foreground"}`}>{m.preview}</p>
               </div>
-            </button>
+            </Link>
           </li>
         ))}
       </ul>
