@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
   Building2, MessageSquare, ArrowRight, Star, Trophy, TrendingUp,
@@ -33,6 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const navigate = useNavigate();
   return (
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
@@ -82,7 +83,7 @@ function Home() {
 
       {/* Category shortcuts */}
       <section className="mt-7">
-        <SectionHeader title="Browse the Market" action="See all" />
+        <SectionHeader title="Browse the Market" action="See all" onAction={() => navigate({ to: "/market" })} />
         <div className="px-5 grid grid-cols-4 gap-3">
           {categories.slice(0, 8).map((c) => (
             <Link key={c.key} to="/market" className="tap flex flex-col items-center gap-2">
@@ -100,7 +101,7 @@ function Home() {
 
       {/* Scholarships & Grants */}
       <section className="mt-7">
-        <SectionHeader title="Scholarships & Grants" action="See all" />
+        <SectionHeader title="Scholarships & Grants" action="See all" onAction={() => navigate({ to: "/hub" })} />
         <ul className="px-5 space-y-2">
           {scholarships.slice(0, 3).map((s) => (
             <li key={s.name} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
@@ -162,7 +163,7 @@ function Home() {
 
       {/* Student Deals */}
       <section className="mt-7">
-        <SectionHeader title="Student Deals" action="See all" />
+        <SectionHeader title="Student Deals" action="See all" onAction={() => navigate({ to: "/hub" })} />
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {hbcuDiscounts.map((d) => (
             <div key={d.brand} className="min-w-[200px] rounded-2xl border border-border bg-card p-4">
@@ -202,7 +203,7 @@ function Home() {
 
       {/* Live Campus Map preview */}
       <section className="mt-7 px-5">
-        <SectionHeader title="Live Campus Map" action="Open" />
+        <SectionHeader title="Live Campus Map" action="Open" onAction={() => navigate({ to: "/map" })} />
         <Link to="/map" className="relative block overflow-hidden rounded-3xl border border-border h-40">
           <img src={campusMap} alt="" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
@@ -221,7 +222,7 @@ function Home() {
 
       {/* Recent Messages */}
       <section className="mt-7">
-        <SectionHeader title="Recent Messages" action="Inbox" />
+        <SectionHeader title="Recent Messages" action="Inbox" onAction={() => navigate({ to: "/messages" })} />
         <ul className="px-5 space-y-2">
           {messagesList.slice(0, 3).map((m) => (
             <li key={m.id}>
@@ -250,7 +251,7 @@ function Home() {
 
       {/* Recommended Services */}
       <section className="mt-7 mb-4">
-        <SectionHeader title="Recommended for you" action="See all" />
+        <SectionHeader title="Recommended for you" action="See all" onAction={() => navigate({ to: "/market" })} />
         <ul className="px-5 space-y-2">
           {nearbyServices.map((s) => (
             <li key={s.name} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
