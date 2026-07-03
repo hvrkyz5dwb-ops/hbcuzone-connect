@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles, ShoppingBag, Plus, Trash2, Pencil, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { categories } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -12,6 +13,14 @@ import { createListing, deleteListing, updateListing, type UserListing } from "@
 import { useSchool } from "@/hooks/use-school";
 import { toggleSave as toggleSaveStore, isSaved } from "@/lib/feed-storage";
 import { useFeedState } from "@/hooks/use-feed-state";
+
+const listingSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(80, "Title must be under 80 characters"),
+  price: z.number().positive("Price must be greater than $0").max(100000, "Price is too large"),
+  category: z.string().min(1, "Choose a category"),
+  description: z.string().trim().max(500, "Description must be under 500 characters").optional(),
+  image: z.string().min(1, "Add a photo"),
+});
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -220,16 +229,24 @@ function ListingComposer({
   }
 
   function submit() {
-    const trimmedTitle = title.trim();
-    const priceNum = parseFloat(price);
-    if (!trimmedTitle) { toast.error("Add a title"); return; }
-    if (!Number.isFinite(priceNum) || priceNum <= 0) { toast.error("Price must be greater than $0"); return; }
-    const payload = {
-      title: trimmedTitle,
-      price: `$${priceNum.toFixed(2).replace(/\.00$/, "")}`,
+    const parsed = listingSchema.safeParse({
+      title,
+      price: parseFloat(price),
       category,
-      description: description.trim(),
+      description,
       image: image || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600",
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
+      return;
+    }
+    const v = parsed.data;
+    const payload = {
+      title: v.title,
+      price: `$${v.price.toFixed(2).replace(/\.00$/, "")}`,
+      category: v.category,
+      description: v.description ?? "",
+      image: v.image,
       seller: "You",
       school: defaultCampus,
     };

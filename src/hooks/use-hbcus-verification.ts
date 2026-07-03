@@ -18,20 +18,29 @@ export function useHbcusVerification() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      if (raw) setState({ ...DEFAULT, ...JSON.parse(raw) });
-      else {
-        // Auto-verify when the signed-in student has an HBCU .edu
+    function sync() {
+      try {
         const s = getStudent();
+        // If student has a verified .edu that matches an HBCU profile, ensure verification reflects it.
         if (s?.verifiedStudent && s.school && schoolProfiles.some((p) => p.name === s.school)) {
           const merged: HbcusVerification = { verified: true, method: "edu", email: s.email, school: s.school };
           setState(merged);
-          window.localStorage.setItem(KEY, JSON.stringify(merged));
+          try { window.localStorage.setItem(KEY, JSON.stringify(merged)); } catch {}
+          return;
         }
-      }
-    } catch {}
+        const raw = window.localStorage.getItem(KEY);
+        if (raw) setState({ ...DEFAULT, ...JSON.parse(raw) });
+        else setState(DEFAULT);
+      } catch {}
+    }
+    sync();
     setHydrated(true);
+    window.addEventListener("plugu:student", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("plugu:student", sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
   function verify(next: Omit<HbcusVerification, "verified"> & { verified?: boolean }) {

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Navigation,
   MapPin,
@@ -21,6 +21,7 @@ import { schoolProfiles } from "@/lib/hbcus-data";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { LoadingList } from "@/components/EmptyState";
 import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
@@ -65,6 +66,20 @@ function MapPage() {
   const [nearMe, setNearMe] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Re-sync map when verified school changes (login/logout, .edu change).
+  useEffect(() => {
+    if (school.verified && school.name && school.name !== homeCampus) {
+      setHomeCampus(school.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [school.verified, school.name]);
 
   const filtered = useMemo(() => {
     return mapPins.filter((p) => {
@@ -80,6 +95,16 @@ function MapPage() {
 
   return (
     <AppShell title="CAMPUS MAP">
+      {loading ? (
+        <>
+          <section className="px-5 pt-5" aria-busy="true" aria-label="Loading map">
+            <div className="rounded-3xl h-40 shimmer border border-border" />
+            <div className="mt-4 h-11 rounded-2xl shimmer" />
+            <div className="mt-4 rounded-3xl aspect-[4/5] shimmer border border-border" />
+          </section>
+          <div className="mt-4"><LoadingList rows={4} /></div>
+        </>
+      ) : (<>
       {/* Brand hero */}
       <section className="px-5 pt-5">
         <div className="relative overflow-hidden rounded-3xl border border-border h-40">
@@ -181,6 +206,7 @@ function MapPage() {
             src={mapImg}
             alt="Live campus map"
             className="absolute inset-0 w-full h-full object-cover opacity-90"
+            onError={() => toast.error("Map tile failed to load", { description: "Check your connection and try again." })}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
 
@@ -422,6 +448,7 @@ function MapPage() {
           </div>
         </div>
       )}
+      </>)}
     </AppShell>
   );
 }
