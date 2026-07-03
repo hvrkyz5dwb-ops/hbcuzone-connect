@@ -220,11 +220,24 @@ function ListingComposer({
   const [image, setImage] = useState(initial?.image ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, setPending] = useState(false);
-  // Stable idempotency key for this composer session — prevents duplicate creates
-  // from double-submits, retries, or double-click races.
-  const [idempotencyKey] = useState(
-    () => `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`,
-  );
+  // Stable idempotency key for this composer session — persisted so it survives
+  // page reloads, hot reloads, and network retries. `createListing` dedupes on it.
+  const [idempotencyKey] = useState(() => {
+    if (initial) return `ilk_edit_${initial.id}`;
+    if (typeof window === "undefined") {
+      return `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+    const K = "plugu.listings.composer.ilk";
+    try {
+      const existing = window.sessionStorage.getItem(K);
+      if (existing) return existing;
+      const fresh = `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      window.sessionStorage.setItem(K, fresh);
+      return fresh;
+    } catch {
+      return `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+  });
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -272,6 +285,7 @@ function ListingComposer({
         toast.success("Listing updated");
       } else {
         createListing(payload, { idempotencyKey });
+        try { window.sessionStorage.removeItem("plugu.listings.composer.ilk"); } catch {}
         toast.success("Listing published");
       }
       onClose();
