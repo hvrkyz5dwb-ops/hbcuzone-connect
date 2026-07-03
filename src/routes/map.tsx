@@ -250,7 +250,9 @@ function MapPage() {
               </span>
             )}
           </div>
-          {verified ? <CampusWayfinder school={active} /> : <CampusLayoutAI school={active} />}
+          {verified
+            ? <CampusWayfinder school={active} />
+            : <CampusLayoutAI school={active} city={school.city} mascot={school.mascot} />}
         </div>
       </section>
 
