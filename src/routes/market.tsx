@@ -220,24 +220,31 @@ function ListingComposer({
   }
 
   function submit() {
-    if (!title.trim() || !price.trim()) { toast.error("Title and price required"); return; }
+    const trimmedTitle = title.trim();
+    const priceNum = parseFloat(price);
+    if (!trimmedTitle) { toast.error("Add a title"); return; }
+    if (!Number.isFinite(priceNum) || priceNum <= 0) { toast.error("Price must be greater than $0"); return; }
     const payload = {
-      title: title.trim(),
-      price: `$${parseFloat(price).toFixed(2).replace(/\.00$/, "")}`,
+      title: trimmedTitle,
+      price: `$${priceNum.toFixed(2).replace(/\.00$/, "")}`,
       category,
       description: description.trim(),
       image: image || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600",
       seller: "You",
       school: defaultCampus,
     };
-    if (initial) {
-      updateListing(initial.id, payload);
-      toast.success("Listing updated");
-    } else {
-      createListing(payload);
-      toast.success("Listing published");
+    try {
+      if (initial) {
+        updateListing(initial.id, payload);
+        toast.success("Listing updated");
+      } else {
+        createListing(payload);
+        toast.success("Listing published");
+      }
+      onClose();
+    } catch {
+      toast.error("Couldn't save listing — please try again");
     }
-    onClose();
   }
 
   return (
