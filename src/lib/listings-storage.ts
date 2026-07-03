@@ -29,7 +29,10 @@ function write(list: UserListing[]) {
   listeners.forEach((cb) => cb());
 }
 
-export function subscribeListings(cb: () => void) { listeners.add(cb); return () => listeners.delete(cb); }
+export function subscribeListings(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => { listeners.delete(cb); };
+}
 export function listMine(): UserListing[] { return read(); }
 
 // Combined view for Market grid — user listings appear first.
