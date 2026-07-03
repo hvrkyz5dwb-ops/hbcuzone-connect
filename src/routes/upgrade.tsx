@@ -37,6 +37,7 @@ function Upgrade() {
   const navigate = useNavigate();
   const [currentTier, setCurrentTier] = useState<SellerTier>("free");
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [pending, setPending] = useState<SellerTier | null>(null);
   useEffect(() => {
     const p = getSellerPlan();
     setCurrentTier(p.tier);
@@ -44,13 +45,20 @@ function Upgrade() {
   }, []);
 
   function activateMembership(tier: SellerTier) {
+    if (pending) return;
     const meta = SELLER_TIERS.find((t) => t.key === tier)!;
     const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
-    setSellerPlan(tier, cycle);
-    setCurrentTier(tier);
-    saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
-    toast.success(`${meta.name} activated`, { description: `${meta.fee}% fee · billed ${cycle}` });
-    navigate({ to: "/payment-success" });
+    setPending(tier);
+    try {
+      setSellerPlan(tier, cycle);
+      setCurrentTier(tier);
+      saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
+      toast.success(`${meta.name} activated`, { description: `${meta.fee}% fee · billed ${cycle}` });
+      navigate({ to: "/payment-success" });
+    } catch (e) {
+      toast.error("Couldn't activate plan", { description: "Please try again in a moment." });
+      setPending(null);
+    }
   }
 
   return (
@@ -149,11 +157,11 @@ function Upgrade() {
 
               <button
                 onClick={() => activateMembership(t.key)}
-                disabled={currentTier === t.key}
+                disabled={currentTier === t.key || pending !== null}
                 className="tap mt-3 w-full py-2.5 rounded-xl text-xs font-semibold text-primary-foreground disabled:opacity-60"
                 style={{ background: currentTier === t.key ? "linear-gradient(160deg,#333,#111)" : "var(--gradient-bronze)" }}
               >
-                {currentTier === t.key ? "Current plan" : t.key === "free" ? "Switch to Free" : `Activate ${t.name} — ${cycle}`}
+                {currentTier === t.key ? "Current plan" : pending === t.key ? "Activating…" : t.key === "free" ? "Switch to Free" : `Activate ${t.name} — ${cycle}`}
               </button>
             </div>
           ))}
@@ -174,6 +182,7 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
   const navigate = useNavigate();
   const defaultIdx = pkg.durations.findIndex((d) => d.badge === "Best Value");
   const [selected, setSelected] = useState(defaultIdx >= 0 ? defaultIdx : 0);
+  const [busy, setBusy] = useState(false);
   const Icon = pkgIcon[pkg.key as keyof typeof pkgIcon] ?? Rocket;
   const accent = tierAccent[pkg.tier];
   const chosen = pkg.durations[selected];
@@ -243,14 +252,23 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
 
       <button
         onClick={() => {
-          saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
-          toast.success(`${pkg.name} boost saved`);
-          navigate({ to: "/payment-success" });
+          if (busy) return;
+          if (!chosen || chosen.price < 0) { toast.error("Invalid boost — pick a duration"); return; }
+          setBusy(true);
+          try {
+            saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
+            toast.success(`${pkg.name} boost saved`);
+            navigate({ to: "/payment-success" });
+          } catch {
+            toast.error("Couldn't save boost — please retry");
+            setBusy(false);
+          }
         }}
-        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
+        disabled={busy}
+        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
         style={{ background: "var(--gradient-bronze)" }}
       >
-        Boost for ${chosen.price} · {chosen.label}
+        {busy ? "Saving…" : `Boost for $${chosen.price} · ${chosen.label}`}
       </button>
     </div>
   );

@@ -39,6 +39,7 @@ import { MiniCampusLayout } from "@/components/MiniCampusLayout";
 import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { useSchool } from "@/hooks/use-school";
 import {
   hbcuNewsFilters,
   hbcuLiveNews,
@@ -105,17 +106,22 @@ export const Route = createFileRoute("/hbcus")({
 
 function HbcusPage() {
   const verification = useHbcusVerification();
+  const school = useSchool();
 
   if (!verification.hydrated) {
     return <AppShell title='HBC"US"'><div className="px-5 pt-10 text-xs text-muted-foreground">Loading…</div></AppShell>;
   }
   if (!verification.verified) {
-    return <VerificationWall onVerified={verification.verify} />;
+    return <VerificationWall onVerified={verification.verify} previewSchool={school.verified ? school.name : undefined} />;
   }
-  return <HbcusApp verifiedSchool={verification.school} />;
+  // Fallback: verified but school not in profiles → preview mode with default HBCU.
+  const resolved = verification.school && schoolProfiles.some((s) => s.name === verification.school)
+    ? verification.school
+    : undefined;
+  return <HbcusApp verifiedSchool={resolved} fallbackReason={resolved ? undefined : verification.school ?? school.name} />;
 }
 
-function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
+function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string; fallbackReason?: string }) {
   const { home, active, setActive, setHomeCampus } = useHomeCampus();
   const [showSwitch, setShowSwitch] = useState(false);
   const [section, setSection] = useState<HbcusHomeSection>("Home");
@@ -212,6 +218,15 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
         </nav>
 
         <section className="px-5 pt-4 pb-6 view-enter hbcus-rise" key={section}>
+        {fallbackReason && (
+          <div className="mb-4 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-[11px]">
+            <p className="text-amber-200 font-semibold">Preview mode</p>
+            <p className="text-amber-100/80 mt-0.5">
+              We couldn't match <span className="text-foreground">{fallbackReason}</span> to an HBCU yet — showing national HBC"US" content sampled from {active}.
+              Pick a specific school from the Schools tab to personalize.
+            </p>
+          </div>
+        )}
         {section === "Home" && <HomePanel activeSchool={active} onJump={setSection} />}
         {section === "News" && <NewsPanel activeSchool={active} />}
         {section === "Sports" && <SportsPanel />}
@@ -249,8 +264,8 @@ function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
    VERIFICATION WALL — non-HBCU students see info; HBCU students verify
 ============================================================ */
 function VerificationWall({
-  onVerified,
-}: { onVerified: (v: { method: "edu" | "id" | "school"; email?: string; school?: string }) => void }) {
+  onVerified, previewSchool,
+}: { onVerified: (v: { method: "edu" | "id" | "school"; email?: string; school?: string }) => void; previewSchool?: string }) {
   const [tab, setTab] = useState<"edu" | "id" | "school">("edu");
   const [email, setEmail] = useState("");
   const [school, setSchool] = useState(schoolProfiles[0].name);
@@ -400,6 +415,14 @@ function VerificationWall({
             >
               Verify & Unlock HBC"US"
             </button>
+            {previewSchool && (
+              <button
+                onClick={() => { onVerified({ method: "school", school: schoolProfiles[0].name }); toast.success("Preview mode enabled"); }}
+                className="w-full py-2.5 rounded-2xl bg-card border border-border text-xs tap"
+              >
+                Browse HBC"US" in preview mode
+              </button>
+            )}
             <p className="text-[10px] text-muted-foreground text-center">
               Not at an HBCU? You'll keep all your PlugU features — HBC"US" stays exclusive to verified HBCU students.
             </p>

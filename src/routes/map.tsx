@@ -17,6 +17,7 @@ import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useSchool } from "@/hooks/use-school";
+import { schoolProfiles } from "@/lib/hbcus-data";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
@@ -63,6 +64,7 @@ function MapPage() {
   const [selected, setSelected] = useState<PinType | null>(null);
   const [nearMe, setNearMe] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return mapPins.filter((p) => {
@@ -136,10 +138,17 @@ function MapPage() {
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <button
+            onClick={() => { if (!school.verified) setSwitcherOpen(true); }}
+            className="tap inline-flex items-center gap-2 text-xs text-muted-foreground disabled:opacity-100"
+            disabled={school.verified}
+          >
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            {active}
-          </div>
+            <span className="text-foreground">{active}</span>
+            {school.verified
+              ? <span className="text-[9px] uppercase tracking-widest text-accent">Verified</span>
+              : <span className="text-[9px] uppercase tracking-widest">Change</span>}
+          </button>
           <button
             onClick={() => setNearMe((v) => !v)}
             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] tracking-wide border transition-colors ${
@@ -386,6 +395,30 @@ function MapPage() {
                 <Phone className="h-4 w-4" /> One-press Emergency
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {switcherOpen && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-end sm:place-items-center" onClick={() => setSwitcherOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full sm:max-w-sm bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 max-h-[80dvh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">Change campus</h2>
+              <button onClick={() => setSwitcherOpen(false)} aria-label="Close" className="tap h-8 w-8 grid place-items-center rounded-full bg-secondary"><X className="h-4 w-4" /></button>
+            </div>
+            <ul className="space-y-1">
+              {schoolProfiles.map((s) => (
+                <li key={s.name}>
+                  <button
+                    onClick={() => { setHomeCampus(s.name); setSwitcherOpen(false); toast.success(`Map switched to ${s.name}`); }}
+                    className="tap w-full text-left px-3 py-2.5 rounded-xl hover:bg-secondary flex items-center justify-between"
+                  >
+                    <span className="text-sm">{s.name}</span>
+                    {s.name === active && <span className="text-[10px] uppercase tracking-widest text-accent">Current</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
