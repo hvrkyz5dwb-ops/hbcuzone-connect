@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
-import { SELLER_TIERS } from "@/lib/seller-plan";
+import { SELLER_TIERS, setSellerPlan, getSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/upgrade")({
   head: () => ({
