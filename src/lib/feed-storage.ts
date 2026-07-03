@@ -44,7 +44,7 @@ export function getFeedState(): FeedState { return read(); }
 
 export function subscribeFeed(cb: () => void): () => void {
   listeners.add(cb);
-  return () => listeners.delete(cb);
+  return () => { listeners.delete(cb); };
 }
 
 function toggle(arr: string[], id: string): string[] {
