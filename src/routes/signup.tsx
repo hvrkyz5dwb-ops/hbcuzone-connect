@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ShieldCheck, GraduationCap, Mail, AlertCircle } from "lucide-react";
+import { ShieldCheck, GraduationCap, Mail, AlertCircle, Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { LoginTransition } from "@/components/LoginTransition";
 import pluguLogo from "@/assets/plugu-logo.png";
@@ -45,6 +45,19 @@ function SignUp() {
     if (!email) return null;
     return validateStudentEmail(email, school || undefined);
   }, [email, school]);
+
+  const checklist = useMemo(() => [
+    { key: "name", label: "Full name", done: !!name.trim() },
+    { key: "school", label: "School selected", done: !!school.trim() },
+    { key: "email", label: "Verified .edu email", done: !!(liveCheck && liveCheck.ok) },
+    { key: "terms", label: "Terms & Privacy", done: agreeTerms },
+    { key: "market", label: "Marketplace acknowledgement", done: agreeMarketplace },
+    { key: "school-auth", label: "School email authorization", done: agreeSchool },
+  ], [name, school, liveCheck, agreeTerms, agreeMarketplace, agreeSchool]);
+  const completed = checklist.filter((c) => c.done).length;
+  const total = checklist.length;
+  const pct = Math.round((completed / total) * 100);
+  const allDone = completed === total;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -186,6 +199,34 @@ function SignUp() {
               <span>{error}</span>
             </div>
           )}
+
+          <div className="mt-1 rounded-2xl border border-white/10 bg-black/40 p-3">
+            <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white/60">
+              <span>Signup checklist</span>
+              <span className={allDone ? "text-primary" : "text-white/70"}>{completed}/{total}</span>
+            </div>
+            <div className="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full transition-all"
+                style={{ width: `${pct}%`, background: "var(--plugu-gold)", boxShadow: allDone ? "var(--shadow-gold)" : undefined }}
+              />
+            </div>
+            <ul className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
+              {checklist.map((c) => (
+                <li key={c.key} className={`flex items-center gap-1.5 ${c.done ? "text-white/90" : "text-white/45"}`}>
+                  <span
+                    className={`h-3.5 w-3.5 rounded-full grid place-items-center shrink-0 border ${
+                      c.done ? "border-transparent" : "border-white/25"
+                    }`}
+                    style={c.done ? { background: "var(--plugu-gold)" } : undefined}
+                  >
+                    {c.done && <Check className="h-2.5 w-2.5 text-black" strokeWidth={3} />}
+                  </span>
+                  <span className="truncate">{c.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <div className="mt-2 grid gap-3 rounded-2xl border border-white/10 bg-black/40 p-3 text-[12px] leading-relaxed text-white/75">
             <Consent checked={agreeTerms} onChange={setAgreeTerms}>

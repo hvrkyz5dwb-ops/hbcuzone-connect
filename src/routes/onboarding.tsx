@@ -11,7 +11,7 @@ export const Route = createFileRoute("/onboarding")({
 });
 
 const STEPS = [
-  { title: "Welcome to PlugU", body: "The campus hub built for HBCU students. Buy, sell, book, and link up." },
+  { title: "Welcome to PlugU", body: "The Campus Hub built for Students. Buy, sell, book, and link up." },
   { title: "Find your plug", body: "Tap Market for haircuts, food, rides, tutoring and more — all on your campus." },
   { title: "Live Campus Map", body: "See what's open, what's poppin, and how to get there in real time." },
   { title: "What are you into?", body: "Pick a few — we'll personalize your Campus Pulse.", picker: true },
@@ -62,7 +62,7 @@ function Onboarding() {
         </div>
         <img src={pluguLogo} alt="" className="h-16 w-16 mx-auto drop-shadow-[0_0_30px_var(--plugu-gold)] pop-in" />
         <div key={i} className="slide-up">
-          <h1 className="mt-4 text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>{step.title}</h1>
+          <h1 className="mt-4 text-2xl font-bold plugu-wordmark">{step.title}</h1>
           <p className="mt-2 text-sm text-white/80 max-w-xs mx-auto">{step.body}</p>
           {step.picker && (
             <div className="mt-5 mx-auto max-w-xs grid grid-cols-2 gap-2">
