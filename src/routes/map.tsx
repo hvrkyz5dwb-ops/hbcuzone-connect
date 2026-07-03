@@ -398,6 +398,30 @@ function MapPage() {
           </div>
         </div>
       )}
+
+      {switcherOpen && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-end sm:place-items-center" onClick={() => setSwitcherOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full sm:max-w-sm bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 max-h-[80dvh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">Change campus</h2>
+              <button onClick={() => setSwitcherOpen(false)} aria-label="Close" className="tap h-8 w-8 grid place-items-center rounded-full bg-secondary"><X className="h-4 w-4" /></button>
+            </div>
+            <ul className="space-y-1">
+              {schoolProfiles.map((s) => (
+                <li key={s.name}>
+                  <button
+                    onClick={() => { setHomeCampus(s.name); setSwitcherOpen(false); toast.success(`Map switched to ${s.name}`); }}
+                    className="tap w-full text-left px-3 py-2.5 rounded-xl hover:bg-secondary flex items-center justify-between"
+                  >
+                    <span className="text-sm">{s.name}</span>
+                    {s.name === active && <span className="text-[10px] uppercase tracking-widest text-accent">Current</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
