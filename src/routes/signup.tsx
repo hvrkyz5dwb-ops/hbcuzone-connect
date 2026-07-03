@@ -231,3 +231,19 @@ function SignUp() {
     </AppShell>
   );
 }
+
+function Consent({
+  checked, onChange, children,
+}: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label className="flex items-start gap-2.5 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 h-4 w-4 rounded border-white/30 bg-black/40 accent-[var(--plugu-gold)] shrink-0"
+      />
+      <span>{children}</span>
+    </label>
+  );
+}
