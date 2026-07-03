@@ -218,6 +218,8 @@ function ListingComposer({
   const [category, setCategory] = useState(initial?.category ?? categories[0].label);
   const [description, setDescription] = useState(initial?.description ?? "");
   const [image, setImage] = useState(initial?.image ?? "");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pending, setPending] = useState(false);
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -229,6 +231,7 @@ function ListingComposer({
   }
 
   function submit() {
+    if (pending) return;
     const parsed = listingSchema.safeParse({
       title,
       price: parseFloat(price),
@@ -237,9 +240,17 @@ function ListingComposer({
       image: image || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600",
     });
     if (!parsed.success) {
+      const map: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = String(issue.path[0] ?? "form");
+        if (!map[key]) map[key] = issue.message;
+      }
+      setErrors(map);
       toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
       return;
     }
+    setErrors({});
+    setPending(true);
     const v = parsed.data;
     const payload = {
       title: v.title,
@@ -261,6 +272,7 @@ function ListingComposer({
       onClose();
     } catch {
       toast.error("Couldn't save listing — please try again");
+      setPending(false);
     }
   }
 
@@ -281,17 +293,20 @@ function ListingComposer({
             {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : <span className="text-xs text-muted-foreground">Tap to add photo</span>}
             <input type="file" accept="image/*" onChange={onFile} className="absolute inset-0 opacity-0 cursor-pointer" />
           </div>
+          {errors.image && <p className="mt-1 text-[11px] text-rose-400">{errors.image}</p>}
         </label>
 
         <label className="mt-3 block">
           <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Title</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Silk press · $45" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm" />
+          <input value={title} maxLength={80} onChange={(e) => setTitle(e.target.value)} placeholder="Silk press · $45" className={`mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border outline-none text-sm ${errors.title ? "border-rose-500/60" : "border-border"}`} />
+          {errors.title && <p className="mt-1 text-[11px] text-rose-400">{errors.title}</p>}
         </label>
 
         <div className="mt-3 grid grid-cols-2 gap-3">
           <label className="block">
             <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Price</span>
-            <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" placeholder="25" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm" />
+            <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" placeholder="25" className={`mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border outline-none text-sm ${errors.price ? "border-rose-500/60" : "border-border"}`} />
+            {errors.price && <p className="mt-1 text-[11px] text-rose-400">{errors.price}</p>}
           </label>
           <label className="block">
             <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Category</span>
@@ -303,17 +318,22 @@ function ListingComposer({
 
         <label className="mt-3 block">
           <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Description</span>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What are you offering?" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm resize-none" />
+          <textarea value={description} maxLength={500} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What are you offering?" className={`mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border outline-none text-sm resize-none ${errors.description ? "border-rose-500/60" : "border-border"}`} />
+          <div className="mt-1 flex items-center justify-between">
+            {errors.description ? <p className="text-[11px] text-rose-400">{errors.description}</p> : <span />}
+            <span className="text-[10px] text-muted-foreground">{description.length}/500</span>
+          </div>
         </label>
 
         <p className="mt-2 text-[10px] text-muted-foreground">Posting to <span className="text-foreground">{defaultCampus}</span></p>
 
         <button
           onClick={submit}
-          className="mt-4 w-full tap py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
+          disabled={pending}
+          className="mt-4 w-full tap py-3 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-bronze)" }}
         >
-          {initial ? "Save changes" : "Publish listing"}
+          {pending ? "Publishing…" : initial ? "Save changes" : "Publish listing"}
         </button>
       </div>
     </div>
