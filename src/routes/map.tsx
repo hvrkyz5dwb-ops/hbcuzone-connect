@@ -448,6 +448,7 @@ function MapPage() {
           </div>
         </div>
       )}
+      </>)}
     </AppShell>
   );
 }
