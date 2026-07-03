@@ -406,6 +406,14 @@ function VerificationWall({
             >
               Verify & Unlock HBC"US"
             </button>
+            {previewSchool && (
+              <button
+                onClick={() => { onVerified({ method: "school", school: schoolProfiles[0].name }); toast.success("Preview mode enabled"); }}
+                className="w-full py-2.5 rounded-2xl bg-card border border-border text-xs tap"
+              >
+                Browse HBC"US" in preview mode
+              </button>
+            )}
             <p className="text-[10px] text-muted-foreground text-center">
               Not at an HBCU? You'll keep all your PlugU features — HBC"US" stays exclusive to verified HBCU students.
             </p>
