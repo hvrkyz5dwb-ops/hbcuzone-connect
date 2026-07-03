@@ -255,8 +255,8 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
    VERIFICATION WALL — non-HBCU students see info; HBCU students verify
 ============================================================ */
 function VerificationWall({
-  onVerified,
-}: { onVerified: (v: { method: "edu" | "id" | "school"; email?: string; school?: string }) => void }) {
+  onVerified, previewSchool,
+}: { onVerified: (v: { method: "edu" | "id" | "school"; email?: string; school?: string }) => void; previewSchool?: string }) {
   const [tab, setTab] = useState<"edu" | "id" | "school">("edu");
   const [email, setEmail] = useState("");
   const [school, setSchool] = useState(schoolProfiles[0].name);
