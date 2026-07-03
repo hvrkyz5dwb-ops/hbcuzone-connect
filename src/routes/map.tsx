@@ -95,6 +95,16 @@ function MapPage() {
 
   return (
     <AppShell title="CAMPUS MAP">
+      {loading ? (
+        <>
+          <section className="px-5 pt-5" aria-busy="true" aria-label="Loading map">
+            <div className="rounded-3xl h-40 shimmer border border-border" />
+            <div className="mt-4 h-11 rounded-2xl shimmer" />
+            <div className="mt-4 rounded-3xl aspect-[4/5] shimmer border border-border" />
+          </section>
+          <div className="mt-4"><LoadingList rows={4} /></div>
+        </>
+      ) : (<>
       {/* Brand hero */}
       <section className="px-5 pt-5">
         <div className="relative overflow-hidden rounded-3xl border border-border h-40">
@@ -196,6 +206,7 @@ function MapPage() {
             src={mapImg}
             alt="Live campus map"
             className="absolute inset-0 w-full h-full object-cover opacity-90"
+            onError={() => toast.error("Map tile failed to load", { description: "Check your connection and try again." })}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
 
