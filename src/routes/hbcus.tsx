@@ -109,7 +109,23 @@ function HbcusPage() {
   const school = useSchool();
 
   if (!verification.hydrated) {
-    return <AppShell title='HBC"US"'><div className="px-5 pt-10 text-xs text-muted-foreground">Loading…</div></AppShell>;
+    return (
+      <AppShell title='HBC"US"'>
+        <section className="px-5 pt-5" aria-busy="true" aria-label="Loading HBCUS">
+          <div className="rounded-3xl h-44 shimmer border border-border" />
+          <div className="mt-4 flex gap-2 overflow-hidden">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-8 w-20 rounded-full shimmer shrink-0" />
+            ))}
+          </div>
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-2xl shimmer border border-border" />
+            ))}
+          </div>
+        </section>
+      </AppShell>
+    );
   }
   if (!verification.verified) {
     return <VerificationWall onVerified={verification.verify} previewSchool={school.verified ? school.name : undefined} />;
