@@ -40,6 +40,7 @@ import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as DailyRouteImport } from './routes/daily'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AwardsRouteImport } from './routes/awards'
@@ -212,6 +213,11 @@ const DailyRoute = DailyRouteImport.update({
   path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -300,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -598,6 +610,7 @@ export interface RootRouteChildren {
   AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  CommunityRoute: typeof CommunityRoute
   DailyRoute: typeof DailyRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
@@ -854,6 +867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -1045,6 +1065,7 @@ const rootRouteChildren: RootRouteChildren = {
   AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
+  CommunityRoute: CommunityRoute,
   DailyRoute: DailyRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
