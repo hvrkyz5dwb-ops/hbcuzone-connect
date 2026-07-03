@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { listings } from "@/lib/mock-data";
+import { findListing } from "@/lib/listings-storage";
 import { createOrder, paymentLabel, type PaymentMethod } from "@/lib/orders-storage";
 import { currentFeePercent, currentSellerTierMeta } from "@/lib/seller-plan";
 
@@ -24,7 +24,7 @@ const METHODS: { key: PaymentMethod; label: string; sub: string; Icon: typeof Cr
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
-  const listing = useMemo(() => listings.find((l) => l.id === listingId), [listingId]);
+  const listing = useMemo(() => findListing(listingId), [listingId]);
   const price = useMemo(() => {
     if (!listing) return 0;
     return parseFloat(listing.price.replace(/[^0-9.]/g, "")) || 0;
