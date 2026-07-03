@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { LoadingFeed } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
+import { addComment, commentsFor } from "@/lib/feed-storage";
 
 const SAVED_KEY = "plugu.feed.saved";
 const LIKED_KEY = "plugu.feed.liked";
@@ -444,16 +445,25 @@ function PostCard({
           {post.caption}
         </p>
         <button onClick={() => setCommentOpen((v) => !v)} className="mt-1.5 text-xs text-muted-foreground tap">
-          View all {post.comments} comments
+          View all {post.comments + commentsFor(post.id).length} comments
         </button>
+        {commentOpen && commentsFor(post.id).length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {commentsFor(post.id).slice(-3).map((c) => (
+              <li key={c.id} className="text-[13px]">
+                <span className="font-semibold mr-1.5">{c.author}</span>{c.text}
+              </li>
+            ))}
+          </ul>
+        )}
         {commentOpen && (
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (!commentText.trim()) return;
+              addComment(post.id, commentText.trim());
               toast.success("Comment posted");
               setCommentText("");
-              setCommentOpen(false);
             }}
             className="mt-2.5 flex items-center gap-2"
           >
