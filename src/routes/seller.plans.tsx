@@ -4,6 +4,7 @@ import { Check, Crown, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { SELLER_TIERS, getSellerPlan, setSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/seller/plans")({
   head: () => ({ meta: [{ title: "Seller Plans — PlugU" }] }),
@@ -22,6 +23,9 @@ function SellerPlansPage() {
   function choose(next: SellerTier) {
     setSellerPlan(next, cycle);
     setTier(next);
+    const meta = SELLER_TIERS.find((t) => t.key === next)!;
+    const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
+    saveSelectedPlan({ key: `seller_${next}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
     toast.success(`Now on ${SELLER_TIERS.find((t) => t.key === next)?.name}`, {
       description: next === "free" ? "5% fee applies to sales." : next === "pro" ? "2% fee. Verified Pro badge active." : "0% fee. Gold KingPin unlocked.",
     });
