@@ -57,6 +57,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     if (typeof window === "undefined") return false;
     if (SPLASH_SHOWN) return false;
     SPLASH_SHOWN = true;
+    // Skip the splash if the login/signup bridge just played — avoids a
+    // duplicate statue reveal right after verification.
+    try {
+      if (window.sessionStorage.getItem("plugu.splash.skipNext")) {
+        window.sessionStorage.removeItem("plugu.splash.skipNext");
+        return false;
+      }
+    } catch {}
     return true;
   });
 
