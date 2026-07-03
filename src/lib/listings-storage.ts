@@ -46,16 +46,25 @@ export function findListing(id: string) {
   return listAll().find((l: any) => l.id === id) as any;
 }
 
-export function createListing(input: Omit<UserListing, "id" | "createdAt" | "mine" | "rating"> & { rating?: number }): UserListing {
+export function createListing(
+  input: Omit<UserListing, "id" | "createdAt" | "mine" | "rating"> & { rating?: number },
+  opts?: { idempotencyKey?: string },
+): UserListing {
+  const list = read();
+  // Idempotency: if a listing with this key already exists, return it instead of creating a duplicate.
+  if (opts?.idempotencyKey) {
+    const existing = list.find((l) => (l as any).idempotencyKey === opts.idempotencyKey);
+    if (existing) return existing;
+  }
   const rec: UserListing = {
-    id: `u_${Date.now().toString(36)}`,
+    id: `u_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: Date.now(),
     rating: input.rating ?? 5.0,
     mine: true,
     ...input,
-  };
-  const list = [rec, ...read()];
-  write(list);
+    ...(opts?.idempotencyKey ? { idempotencyKey: opts.idempotencyKey } : {}),
+  } as UserListing;
+  write([rec, ...list]);
   return rec;
 }
 

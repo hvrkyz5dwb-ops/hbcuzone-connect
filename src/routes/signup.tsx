@@ -205,7 +205,16 @@ function SignUp() {
 
           <button
             type="submit"
-            disabled={submitting || !agreeTerms || !agreeMarketplace || !agreeSchool}
+            disabled={
+              submitting ||
+              !agreeTerms ||
+              !agreeMarketplace ||
+              !agreeSchool ||
+              !name.trim() ||
+              !school.trim() ||
+              !email.trim() ||
+              !(liveCheck && liveCheck.ok)
+            }
             className="tap mt-2 py-3 rounded-2xl text-sm font-semibold text-black disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
           >
