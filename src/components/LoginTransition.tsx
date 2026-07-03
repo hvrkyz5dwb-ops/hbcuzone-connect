@@ -7,6 +7,13 @@ import hero from "@/assets/plugu-hero-splash.png.asset.json";
  */
 export function LoginTransition({ onComplete, duration = 2400 }: { onComplete: () => void; duration?: number }) {
   useEffect(() => {
+    // Signal AppShell to skip its own splash on the next mount — the login
+    // bridge already showed the statue, we don't want it twice in a row.
+    try {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("plugu.splash.skipNext", "1");
+      }
+    } catch {}
     const t = setTimeout(onComplete, duration);
     return () => clearTimeout(t);
   }, [onComplete, duration]);

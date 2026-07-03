@@ -229,10 +229,14 @@ function ListingComposer({
     }
     const K = "plugu.listings.composer.ilk";
     try {
-      const existing = window.sessionStorage.getItem(K);
+      // Persist across browser sessions (localStorage) so reloads / crashes
+      // can't accidentally mint a new key and duplicate a listing. Cleared
+      // only after a successful publish below.
+      const existing = window.localStorage.getItem(K)
+        || window.sessionStorage.getItem(K); // migrate legacy session key
       if (existing) return existing;
       const fresh = `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
-      window.sessionStorage.setItem(K, fresh);
+      window.localStorage.setItem(K, fresh);
       return fresh;
     } catch {
       return `ilk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
@@ -285,7 +289,10 @@ function ListingComposer({
         toast.success("Listing updated");
       } else {
         createListing(payload, { idempotencyKey });
-        try { window.sessionStorage.removeItem("plugu.listings.composer.ilk"); } catch {}
+        try {
+          window.localStorage.removeItem("plugu.listings.composer.ilk");
+          window.sessionStorage.removeItem("plugu.listings.composer.ilk");
+        } catch {}
         toast.success("Listing published");
       }
       onClose();
