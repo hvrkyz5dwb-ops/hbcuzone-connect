@@ -16,6 +16,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
+import { useSchool } from "@/hooks/use-school";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
@@ -53,7 +54,9 @@ const pinColor: Record<PinCategory, string> = {
 };
 
 function MapPage() {
-  const { active } = useHomeCampus();
+  const school = useSchool();
+  const { active: homeCampus, setHomeCampus } = useHomeCampus();
+  const active = school.verified ? school.name : homeCampus;
   const { verified } = useHbcusVerification();
   const [filter, setFilter] = useState<PinCategory | "all">("all");
   const [query, setQuery] = useState("");
@@ -85,9 +88,12 @@ function MapPage() {
             style={{ background: "radial-gradient(60% 80% at 100% 0%, color-mix(in oklab, var(--plugu-purple) 35%, transparent), transparent 70%)" }}
           />
           <div className="relative h-full flex flex-col justify-end p-4">
-            <h2 className="text-lg font-bold" style={{ color: "var(--plugu-gold)" }}>Live Campus Map</h2>
-            <p className="text-[11px] text-white/80 mt-0.5 max-w-[240px]">
-              Find vendors, events, buildings, rides, and student hotspots in real time.
+            <h2 className="text-lg font-bold" style={{ color: "var(--plugu-gold)" }}>{active}</h2>
+            <p className="text-[10px] uppercase tracking-widest text-white/70">
+              {school.mascot ? `${school.mascot} · ` : ""}{school.city ?? "Live Campus Map"}{school.state ? `, ${school.state}` : ""}
+            </p>
+            <p className="text-[11px] text-white/80 mt-1 max-w-[240px]">
+              Find vendors, events, buildings, rides, and student hotspots — tuned to your school.
             </p>
             <button
               onClick={() => {
