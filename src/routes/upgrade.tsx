@@ -182,6 +182,7 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
   const navigate = useNavigate();
   const defaultIdx = pkg.durations.findIndex((d) => d.badge === "Best Value");
   const [selected, setSelected] = useState(defaultIdx >= 0 ? defaultIdx : 0);
+  const [busy, setBusy] = useState(false);
   const Icon = pkgIcon[pkg.key as keyof typeof pkgIcon] ?? Rocket;
   const accent = tierAccent[pkg.tier];
   const chosen = pkg.durations[selected];
@@ -251,14 +252,23 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
 
       <button
         onClick={() => {
-          saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
-          toast.success(`${pkg.name} boost saved`);
-          navigate({ to: "/payment-success" });
+          if (busy) return;
+          if (!chosen || chosen.price < 0) { toast.error("Invalid boost — pick a duration"); return; }
+          setBusy(true);
+          try {
+            saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
+            toast.success(`${pkg.name} boost saved`);
+            navigate({ to: "/payment-success" });
+          } catch {
+            toast.error("Couldn't save boost — please retry");
+            setBusy(false);
+          }
         }}
-        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
+        disabled={busy}
+        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
         style={{ background: "var(--gradient-bronze)" }}
       >
-        Boost for ${chosen.price} · {chosen.label}
+        {busy ? "Saving…" : `Boost for $${chosen.price} · ${chosen.label}`}
       </button>
     </div>
   );
