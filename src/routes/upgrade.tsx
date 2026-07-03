@@ -242,7 +242,11 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
       </div>
 
       <button
-        onClick={() => navigate({ to: "/checkout", search: { plan: chosen.key } })}
+        onClick={() => {
+          saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
+          toast.success(`${pkg.name} boost saved`);
+          navigate({ to: "/payment-success" });
+        }}
         className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
         style={{ background: "var(--gradient-bronze)" }}
       >
