@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
-import { SELLER_TIERS } from "@/lib/seller-plan";
+import { SELLER_TIERS, setSellerPlan, getSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/upgrade")({
   head: () => ({
@@ -32,6 +34,25 @@ const pkgIcon: Record<BoostPackage["key"], typeof Rocket> = {
 };
 
 function Upgrade() {
+  const navigate = useNavigate();
+  const [currentTier, setCurrentTier] = useState<SellerTier>("free");
+  const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  useEffect(() => {
+    const p = getSellerPlan();
+    setCurrentTier(p.tier);
+    if (p.cycle) setCycle(p.cycle);
+  }, []);
+
+  function activateMembership(tier: SellerTier) {
+    const meta = SELLER_TIERS.find((t) => t.key === tier)!;
+    const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
+    setSellerPlan(tier, cycle);
+    setCurrentTier(tier);
+    saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
+    toast.success(`${meta.name} activated`, { description: `${meta.fee}% fee · billed ${cycle}` });
+    navigate({ to: "/payment-success" });
+  }
+
   return (
     <AppShell title="UPGRADE">
       <section className="px-5 pt-5 text-center">
@@ -80,6 +101,20 @@ function Upgrade() {
           Lower your PlugU transaction fee and unlock long-term perks.
         </p>
 
+        <div className="mt-4 mx-auto grid grid-cols-3 rounded-full border border-border p-1 bg-card text-[11px] font-semibold">
+          {(["monthly", "semester", "year"] as BillingCycle[]).map((c) => (
+            <button
+              key={c}
+              onClick={() => setCycle(c)}
+              className={`tap rounded-full py-1.5 uppercase tracking-wider transition-colors ${
+                cycle === c ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {c === "monthly" ? "Monthly" : c === "semester" ? "Semester" : "Yearly"}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-4 grid gap-3">
           {SELLER_TIERS.map((t) => (
             <div
@@ -111,19 +146,23 @@ function Upgrade() {
                   <span className="rounded-md bg-secondary px-2 py-0.5">${t.pricing.year}/yr</span>
                 )}
               </div>
+
+              <button
+                onClick={() => activateMembership(t.key)}
+                disabled={currentTier === t.key}
+                className="tap mt-3 w-full py-2.5 rounded-xl text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                style={{ background: currentTier === t.key ? "linear-gradient(160deg,#333,#111)" : "var(--gradient-bronze)" }}
+              >
+                {currentTier === t.key ? "Current plan" : t.key === "free" ? "Switch to Free" : `Activate ${t.name} — ${cycle}`}
+              </button>
             </div>
           ))}
         </div>
 
-        <Link
-          to="/seller/plans"
-          className="mt-4 block rounded-2xl py-3 text-center text-sm font-semibold text-primary-foreground"
-          style={{ background: "var(--gradient-bronze)" }}
-        >
-          Compare & choose a membership →
+        <Link to="/seller/plans" className="mt-4 block text-center text-xs text-muted-foreground">
+          Detailed plan comparison →
         </Link>
-
-        <Link to="/manage-plan" className="mt-3 block text-center text-xs text-muted-foreground">
+        <Link to="/manage-plan" className="mt-2 block text-center text-xs text-muted-foreground">
           Manage current plan →
         </Link>
       </section>
@@ -203,7 +242,11 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
       </div>
 
       <button
-        onClick={() => navigate({ to: "/checkout", search: { plan: chosen.key } })}
+        onClick={() => {
+          saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
+          toast.success(`${pkg.name} boost saved`);
+          navigate({ to: "/payment-success" });
+        }}
         className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
         style={{ background: "var(--gradient-bronze)" }}
       >

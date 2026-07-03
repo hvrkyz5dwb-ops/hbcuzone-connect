@@ -1,12 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles, ShoppingBag } from "lucide-react";
+import { Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX, Sparkles, ShoppingBag, Plus, Trash2, Pencil, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { categories, listings } from "@/lib/mock-data";
+import { categories } from "@/lib/mock-data";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
+import { useListings } from "@/hooks/use-listings";
+import { createListing, deleteListing, updateListing, type UserListing } from "@/lib/listings-storage";
+import { useSchool } from "@/hooks/use-school";
+import { toggleSave as toggleSaveStore, isSaved } from "@/lib/feed-storage";
+import { useFeedState } from "@/hooks/use-feed-state";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -22,10 +27,13 @@ export const Route = createFileRoute("/market")({
 
 function Market() {
   const navigate = useNavigate();
+  const school = useSchool();
+  const { all: listings } = useListings();
+  const feed = useFeedState();
   const [active, setActive] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [composer, setComposer] = useState<{ open: boolean; editing?: UserListing } | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 550);
@@ -39,11 +47,8 @@ function Market() {
   });
 
   function toggleSave(id: string) {
-    setSaved((s) => {
-      const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    const on = toggleSaveStore(id);
+    toast(on ? "Saved to your collection" : "Removed from saved");
   }
 
   return (
@@ -112,12 +117,26 @@ function Market() {
               <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
               <button
                 onClick={() => toggleSave(l.id)}
-                aria-label={saved.has(l.id) ? "Unsave" : "Save"}
+                aria-label={feed.saved.includes(l.id) ? "Unsave" : "Save"}
                 className="tap absolute top-2 right-2 h-8 w-8 grid place-items-center rounded-full bg-background/70 backdrop-blur"
               >
-                <Heart className={`h-4 w-4 ${saved.has(l.id) ? "fill-accent text-accent" : ""}`} />
+                <Heart className={`h-4 w-4 ${feed.saved.includes(l.id) ? "fill-accent text-accent" : ""}`} />
               </button>
               <span className="absolute bottom-2 left-2 text-[10px] tracking-wider uppercase px-2 py-1 rounded-full bg-background/70 backdrop-blur">{l.category}</span>
+              {(l as any).mine && (
+                <div className="absolute top-2 left-2 flex gap-1">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setComposer({ open: true, editing: l as UserListing }); }}
+                    aria-label="Edit listing"
+                    className="tap h-7 w-7 grid place-items-center rounded-full bg-background/70 backdrop-blur"
+                  ><Pencil className="h-3 w-3" /></button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); if (confirm("Delete this listing?")) { deleteListing(l.id); toast.success("Listing deleted"); } }}
+                    aria-label="Delete listing"
+                    className="tap h-7 w-7 grid place-items-center rounded-full bg-background/70 backdrop-blur text-destructive"
+                  ><Trash2 className="h-3 w-3" /></button>
+                </div>
+              )}
             </div>
             <div className="p-3 flex-1 flex flex-col">
               <p className="text-sm font-medium line-clamp-2">{l.title}</p>
@@ -160,6 +179,119 @@ function Market() {
       </section>
       )}
       </PullToRefresh>
+
+      {/* Floating create button */}
+      <button
+        onClick={() => setComposer({ open: true })}
+        aria-label="Create listing"
+        className="tap fixed bottom-24 right-5 h-14 w-14 rounded-full grid place-items-center shadow-[var(--shadow-glow)] z-40"
+        style={{ background: "var(--gradient-bronze)", color: "var(--primary-foreground)" }}
+      >
+        <Plus className="h-6 w-6" />
+      </button>
+
+      {composer?.open && (
+        <ListingComposer
+          initial={composer.editing}
+          defaultCampus={school.name}
+          onClose={() => setComposer(null)}
+        />
+      )}
     </AppShell>
+  );
+}
+
+function ListingComposer({
+  initial, defaultCampus, onClose,
+}: { initial?: UserListing; defaultCampus: string; onClose: () => void }) {
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [price, setPrice] = useState(initial?.price?.replace(/[^0-9.]/g, "") ?? "");
+  const [category, setCategory] = useState(initial?.category ?? categories[0].label);
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [image, setImage] = useState(initial?.image ?? "");
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 3 * 1024 * 1024) { toast.error("Image too large — max 3 MB"); return; }
+    const r = new FileReader();
+    r.onload = () => setImage(String(r.result));
+    r.readAsDataURL(f);
+  }
+
+  function submit() {
+    if (!title.trim() || !price.trim()) { toast.error("Title and price required"); return; }
+    const payload = {
+      title: title.trim(),
+      price: `$${parseFloat(price).toFixed(2).replace(/\.00$/, "")}`,
+      category,
+      description: description.trim(),
+      image: image || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600",
+      seller: "You",
+      school: defaultCampus,
+    };
+    if (initial) {
+      updateListing(initial.id, payload);
+      toast.success("Listing updated");
+    } else {
+      createListing(payload);
+      toast.success("Listing published");
+    }
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-end sm:place-items-center" onClick={onClose}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full sm:max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 max-h-[92dvh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold">{initial ? "Edit listing" : "New listing"}</h2>
+          <button onClick={onClose} aria-label="Close" className="tap h-8 w-8 grid place-items-center rounded-full bg-secondary"><X className="h-4 w-4" /></button>
+        </div>
+
+        <label className="block">
+          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Photo</span>
+          <div className="mt-1 aspect-video rounded-2xl border border-dashed border-border grid place-items-center overflow-hidden bg-secondary relative">
+            {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : <span className="text-xs text-muted-foreground">Tap to add photo</span>}
+            <input type="file" accept="image/*" onChange={onFile} className="absolute inset-0 opacity-0 cursor-pointer" />
+          </div>
+        </label>
+
+        <label className="mt-3 block">
+          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Title</span>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Silk press · $45" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm" />
+        </label>
+
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Price</span>
+            <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" placeholder="25" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Category</span>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm">
+              {categories.map((c) => <option key={c.key} value={c.label}>{c.label}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <label className="mt-3 block">
+          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Description</span>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What are you offering?" className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm resize-none" />
+        </label>
+
+        <p className="mt-2 text-[10px] text-muted-foreground">Posting to <span className="text-foreground">{defaultCampus}</span></p>
+
+        <button
+          onClick={submit}
+          className="mt-4 w-full tap py-3 rounded-2xl text-sm font-semibold text-primary-foreground"
+          style={{ background: "var(--gradient-bronze)" }}
+        >
+          {initial ? "Save changes" : "Publish listing"}
+        </button>
+      </div>
+    </div>
   );
 }

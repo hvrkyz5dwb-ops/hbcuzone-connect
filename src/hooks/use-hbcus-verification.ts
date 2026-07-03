@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { getStudent } from "@/lib/auth";
+import { schoolProfiles } from "@/lib/hbcus-data";
 
 const KEY = "plugu.hbcus.verified";
 
@@ -19,6 +21,15 @@ export function useHbcusVerification() {
     try {
       const raw = window.localStorage.getItem(KEY);
       if (raw) setState({ ...DEFAULT, ...JSON.parse(raw) });
+      else {
+        // Auto-verify when the signed-in student has an HBCU .edu
+        const s = getStudent();
+        if (s?.verifiedStudent && s.school && schoolProfiles.some((p) => p.name === s.school)) {
+          const merged: HbcusVerification = { verified: true, method: "edu", email: s.email, school: s.school };
+          setState(merged);
+          window.localStorage.setItem(KEY, JSON.stringify(merged));
+        }
+      }
     } catch {}
     setHydrated(true);
   }, []);
