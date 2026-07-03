@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TrustRouteImport } from './routes/trust'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
@@ -63,6 +64,11 @@ const UpgradeRoute = UpgradeRouteImport.update({
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
   path: '/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -315,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -459,6 +468,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -506,6 +516,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -553,6 +564,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -601,6 +613,7 @@ export interface RootRouteChildren {
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
@@ -623,6 +636,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -1032,6 +1052,7 @@ const rootRouteChildren: RootRouteChildren = {
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
   LaunchSlugRoute: LaunchSlugRoute,
