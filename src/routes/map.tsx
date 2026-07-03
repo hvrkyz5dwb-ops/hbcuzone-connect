@@ -17,6 +17,7 @@ import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useSchool } from "@/hooks/use-school";
+import { schoolProfiles } from "@/lib/hbcus-data";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
@@ -63,6 +64,7 @@ function MapPage() {
   const [selected, setSelected] = useState<PinType | null>(null);
   const [nearMe, setNearMe] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return mapPins.filter((p) => {
@@ -136,10 +138,17 @@ function MapPage() {
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <button
+            onClick={() => { if (!school.verified) setSwitcherOpen(true); }}
+            className="tap inline-flex items-center gap-2 text-xs text-muted-foreground disabled:opacity-100"
+            disabled={school.verified}
+          >
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            {active}
-          </div>
+            <span className="text-foreground">{active}</span>
+            {school.verified
+              ? <span className="text-[9px] uppercase tracking-widest text-accent">Verified</span>
+              : <span className="text-[9px] uppercase tracking-widest">Change</span>}
+          </button>
           <button
             onClick={() => setNearMe((v) => !v)}
             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] tracking-wide border transition-colors ${
