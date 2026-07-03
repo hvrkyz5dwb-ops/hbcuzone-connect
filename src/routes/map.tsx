@@ -67,6 +67,7 @@ function MapPage() {
   const [heatmap, setHeatmap] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 450);
@@ -206,8 +207,23 @@ function MapPage() {
             src={mapImg}
             alt="Live campus map"
             className="absolute inset-0 w-full h-full object-cover opacity-90"
-            onError={() => toast.error("Map tile failed to load", { description: "Check your connection and try again." })}
+            onError={() => { setImgError(true); toast.error("Map tile failed to load"); }}
+            onLoad={() => setImgError(false)}
           />
+          {imgError && (
+            <div className="absolute inset-0 grid place-items-center bg-background/90">
+              <div className="text-center px-6">
+                <p className="text-sm text-muted-foreground mb-3">Map failed to load</p>
+                <button
+                  onClick={() => { setImgError(false); setLoading(true); setTimeout(() => setLoading(false), 300); }}
+                  className="tap px-4 py-2 rounded-xl text-xs font-semibold text-primary-foreground"
+                  style={{ background: "var(--gradient-bronze)" }}
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
 
           {/* Heat map overlay */}

@@ -11,12 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TrustRouteImport } from './routes/trust'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlugReachRouteImport } from './routes/plug-reach'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentHistoryRouteImport } from './routes/payment-history'
@@ -38,6 +41,7 @@ import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as DailyRouteImport } from './routes/daily'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AwardsRouteImport } from './routes/awards'
@@ -65,6 +69,11 @@ const TrustRoute = TrustRouteImport.update({
   path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -85,6 +94,11 @@ const SafetyRoute = SafetyRouteImport.update({
   path: '/safety',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RefundsRoute = RefundsRouteImport.update({
+  id: '/refunds',
+  path: '/refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
@@ -93,6 +107,11 @@ const ReferralsRoute = ReferralsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlugReachRoute = PlugReachRouteImport.update({
@@ -200,6 +219,11 @@ const DailyRoute = DailyRouteImport.update({
   path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -288,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -309,12 +334,15 @@ export interface FileRoutesByFullPath {
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
+  '/refunds': typeof RefundsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -335,6 +363,7 @@ export interface FileRoutesByTo {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -356,12 +385,15 @@ export interface FileRoutesByTo {
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
+  '/refunds': typeof RefundsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -383,6 +415,7 @@ export interface FileRoutesById {
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/community': typeof CommunityRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -404,12 +437,15 @@ export interface FileRoutesById {
   '/payment-history': typeof PaymentHistoryRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
+  '/refunds': typeof RefundsRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
@@ -432,6 +468,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -453,12 +490,15 @@ export interface FileRouteTypes {
     | '/payment-history'
     | '/payment-success'
     | '/plug-reach'
+    | '/privacy'
     | '/profile'
     | '/referrals'
+    | '/refunds'
     | '/safety'
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -479,6 +519,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -500,12 +541,15 @@ export interface FileRouteTypes {
     | '/payment-history'
     | '/payment-success'
     | '/plug-reach'
+    | '/privacy'
     | '/profile'
     | '/referrals'
+    | '/refunds'
     | '/safety'
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -526,6 +570,7 @@ export interface FileRouteTypes {
     | '/awards'
     | '/business'
     | '/checkout'
+    | '/community'
     | '/daily'
     | '/economy'
     | '/events'
@@ -547,12 +592,15 @@ export interface FileRouteTypes {
     | '/payment-history'
     | '/payment-success'
     | '/plug-reach'
+    | '/privacy'
     | '/profile'
     | '/referrals'
+    | '/refunds'
     | '/safety'
     | '/saved'
     | '/search'
     | '/signup'
+    | '/terms'
     | '/trust'
     | '/upgrade'
     | '/ambassadors/dashboard'
@@ -574,6 +622,7 @@ export interface RootRouteChildren {
   AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  CommunityRoute: typeof CommunityRoute
   DailyRoute: typeof DailyRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
@@ -595,12 +644,15 @@ export interface RootRouteChildren {
   PaymentHistoryRoute: typeof PaymentHistoryRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PlugReachRoute: typeof PlugReachRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ReferralsRoute: typeof ReferralsRoute
+  RefundsRoute: typeof RefundsRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
@@ -623,6 +675,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -653,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SafetyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/refunds': {
+      id: '/refunds'
+      path: '/refunds'
+      fullPath: '/refunds'
+      preLoaderRoute: typeof RefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/referrals': {
       id: '/referrals'
       path: '/referrals'
@@ -665,6 +731,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plug-reach': {
@@ -812,6 +885,13 @@ declare module '@tanstack/react-router' {
       path: '/daily'
       fullPath: '/daily'
       preLoaderRoute: typeof DailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -1005,6 +1085,7 @@ const rootRouteChildren: RootRouteChildren = {
   AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
+  CommunityRoute: CommunityRoute,
   DailyRoute: DailyRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
@@ -1026,12 +1107,15 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentHistoryRoute: PaymentHistoryRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PlugReachRoute: PlugReachRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ReferralsRoute: ReferralsRoute,
+  RefundsRoute: RefundsRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
   LaunchSlugRoute: LaunchSlugRoute,

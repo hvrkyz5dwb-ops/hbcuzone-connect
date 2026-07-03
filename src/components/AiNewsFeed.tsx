@@ -93,7 +93,16 @@ export function AiNewsFeed({ category, school, count = 8, refreshMs, compact, fa
       )}
 
       {error && (
-        <p className="text-[11px] text-rose-400">AI feed temporarily unavailable.</p>
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2">
+          <p className="text-[11px] text-rose-300">AI feed temporarily unavailable.</p>
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="tap inline-flex items-center gap-1 text-[11px] text-rose-100 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} /> Retry
+          </button>
+        </div>
       )}
     </div>
   );

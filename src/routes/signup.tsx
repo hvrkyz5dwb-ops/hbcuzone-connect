@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ShieldCheck, GraduationCap, Mail, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -31,6 +31,10 @@ function SignUp() {
   const [major, setMajor] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreeMarketplace, setAgreeMarketplace] = useState(false);
+  const [agreeSchool, setAgreeSchool] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const selectedSchool = useMemo(
     () => APPROVED_SCHOOLS.find((s) => s.name === school) ?? null,
@@ -45,9 +49,15 @@ function SignUp() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!agreeTerms) { setError("Please accept the Terms of Service and Privacy Policy."); return; }
+    if (!agreeMarketplace) { setError("Please accept the marketplace acknowledgement."); return; }
+    if (!agreeSchool) { setError("Please confirm your school email authorization."); return; }
+    if (submitting) return;
+    setSubmitting(true);
     const res = signUpStudent({ name, email, school, year, major });
     if (!res.ok) {
       setError(res.reason);
+      setSubmitting(false);
       return;
     }
     // Mirror into persona so existing UI surfaces show the new student.
@@ -177,12 +187,29 @@ function SignUp() {
             </div>
           )}
 
+          <div className="mt-2 grid gap-3 rounded-2xl border border-white/10 bg-black/40 p-3 text-[12px] leading-relaxed text-white/75">
+            <Consent checked={agreeTerms} onChange={setAgreeTerms}>
+              I have read and agree to the{" "}
+              <Link to="/terms" className="underline text-[var(--plugu-gold)]">Terms of Service</Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="underline text-[var(--plugu-gold)]">Privacy Policy</Link>.
+            </Consent>
+            <Consent checked={agreeMarketplace} onChange={setAgreeMarketplace}>
+              I understand PlugU is a marketplace connecting students, that transactions occur between buyers and sellers, and that PlugU is not responsible for disputes arising from individual transactions. See our{" "}
+              <Link to="/community" className="underline text-[var(--plugu-gold)]">Community Guidelines</Link>.
+            </Consent>
+            <Consent checked={agreeSchool} onChange={setAgreeSchool}>
+              By registering with my school email, I confirm I am authorized to use that account and that the information I provided is accurate. False verification or misuse of school credentials may result in permanent removal.
+            </Consent>
+          </div>
+
           <button
             type="submit"
-            className="tap mt-2 py-3 rounded-2xl text-sm font-semibold text-black"
+            disabled={submitting || !agreeTerms || !agreeMarketplace || !agreeSchool}
+            className="tap mt-2 py-3 rounded-2xl text-sm font-semibold text-black disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
           >
-            Create my student account
+            {submitting ? "Creating account…" : "Create my student account"}
           </button>
 
           <p className="text-[11px] text-white/50 text-center leading-relaxed">
@@ -202,5 +229,21 @@ function SignUp() {
 
       {transitioning && <LoginTransition onComplete={() => navigate({ to: "/" })} />}
     </AppShell>
+  );
+}
+
+function Consent({
+  checked, onChange, children,
+}: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label className="flex items-start gap-2.5 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 h-4 w-4 rounded border-white/30 bg-black/40 accent-[var(--plugu-gold)] shrink-0"
+      />
+      <span>{children}</span>
+    </label>
   );
 }
