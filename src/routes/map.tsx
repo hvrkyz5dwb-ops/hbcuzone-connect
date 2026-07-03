@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Navigation,
   MapPin,
@@ -21,6 +21,7 @@ import { schoolProfiles } from "@/lib/hbcus-data";
 import { CampusLayoutAI } from "@/components/CampusLayoutAI";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { LoadingList } from "@/components/EmptyState";
 import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
@@ -65,6 +66,20 @@ function MapPage() {
   const [nearMe, setNearMe] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Re-sync map when verified school changes (login/logout, .edu change).
+  useEffect(() => {
+    if (school.verified && school.name && school.name !== homeCampus) {
+      setHomeCampus(school.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [school.verified, school.name]);
 
   const filtered = useMemo(() => {
     return mapPins.filter((p) => {
