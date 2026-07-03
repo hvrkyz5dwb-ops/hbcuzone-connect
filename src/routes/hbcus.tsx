@@ -39,6 +39,7 @@ import { MiniCampusLayout } from "@/components/MiniCampusLayout";
 import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
+import { useSchool } from "@/hooks/use-school";
 import {
   hbcuNewsFilters,
   hbcuLiveNews,
@@ -105,17 +106,22 @@ export const Route = createFileRoute("/hbcus")({
 
 function HbcusPage() {
   const verification = useHbcusVerification();
+  const school = useSchool();
 
   if (!verification.hydrated) {
     return <AppShell title='HBC"US"'><div className="px-5 pt-10 text-xs text-muted-foreground">Loading…</div></AppShell>;
   }
   if (!verification.verified) {
-    return <VerificationWall onVerified={verification.verify} />;
+    return <VerificationWall onVerified={verification.verify} previewSchool={school.verified ? school.name : undefined} />;
   }
-  return <HbcusApp verifiedSchool={verification.school} />;
+  // Fallback: verified but school not in profiles → preview mode with default HBCU.
+  const resolved = verification.school && schoolProfiles.some((s) => s.name === verification.school)
+    ? verification.school
+    : undefined;
+  return <HbcusApp verifiedSchool={resolved} fallbackReason={resolved ? undefined : verification.school ?? school.name} />;
 }
 
-function HbcusApp({ verifiedSchool }: { verifiedSchool?: string }) {
+function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string; fallbackReason?: string }) {
   const { home, active, setActive, setHomeCampus } = useHomeCampus();
   const [showSwitch, setShowSwitch] = useState(false);
   const [section, setSection] = useState<HbcusHomeSection>("Home");
