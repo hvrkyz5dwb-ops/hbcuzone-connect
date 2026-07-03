@@ -218,6 +218,15 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
         </nav>
 
         <section className="px-5 pt-4 pb-6 view-enter hbcus-rise" key={section}>
+        {fallbackReason && (
+          <div className="mb-4 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-[11px]">
+            <p className="text-amber-200 font-semibold">Preview mode</p>
+            <p className="text-amber-100/80 mt-0.5">
+              We couldn't match <span className="text-foreground">{fallbackReason}</span> to an HBCU yet — showing national HBC"US" content sampled from {active}.
+              Pick a specific school from the Schools tab to personalize.
+            </p>
+          </div>
+        )}
         {section === "Home" && <HomePanel activeSchool={active} onJump={setSection} />}
         {section === "News" && <NewsPanel activeSchool={active} />}
         {section === "Sports" && <SportsPanel />}
