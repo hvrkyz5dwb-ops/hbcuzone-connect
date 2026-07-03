@@ -298,6 +298,7 @@ function PostCard({
   const [slide, setSlide] = useState(0);
   const [commentOpen, setCommentOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [, forceRerender] = useState(0);
   const total = post.media.length;
   const CtaIcon = post.vendor ? ctaIcon(post.vendor.cta) : null;
   const badge = typeBadge(post.type);
@@ -464,6 +465,7 @@ function PostCard({
               addComment(post.id, commentText.trim());
               toast.success("Comment posted");
               setCommentText("");
+              forceRerender((n) => n + 1);
             }}
             className="mt-2.5 flex items-center gap-2"
           >
