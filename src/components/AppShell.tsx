@@ -13,7 +13,48 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { isVerifiedStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
 
+// Module-scoped flag prevents any re-mount of AppShell (internal navigation,
+// layout swaps) from replaying the splash within the same JS runtime.
 let SPLASH_SHOWN = false;
+
+// Keys used to gate the splash across refreshes and tabs.
+// - `PLAYED_KEY` (sessionStorage): once the splash plays in a tab, refreshing
+//   that tab won't replay it. Cleared automatically when the tab closes.
+// - `RECENT_KEY` (localStorage):   timestamp of the most recent play in ANY
+//   tab. A second tab opened right after the first will see this and skip,
+//   preventing multi-tab duplicates.
+const PLAYED_KEY = "plugu.splash.playedThisSession";
+const RECENT_KEY = "plugu.splash.lastPlayedAt";
+const MULTI_TAB_WINDOW_MS = 15_000;
+
+function shouldPlaySplash(): boolean {
+  if (typeof window === "undefined") return false;
+  if (SPLASH_SHOWN) return false;
+  // Splash is a post-verification moment only. Unverified visitors get
+  // routed to /login by the gate below and never see the statue.
+  try {
+    if (!isVerifiedStudent()) return false;
+  } catch {
+    return false;
+  }
+  try {
+    // Refresh of the same tab: sessionStorage survives reload but not close.
+    if (window.sessionStorage.getItem(PLAYED_KEY)) return false;
+    // Multi-tab: another tab played the splash very recently — skip here.
+    const recent = Number(window.localStorage.getItem(RECENT_KEY) ?? 0);
+    if (recent && Date.now() - recent < MULTI_TAB_WINDOW_MS) return false;
+  } catch {}
+  return true;
+}
+
+function markSplashPlayed() {
+  if (typeof window === "undefined") return;
+  SPLASH_SHOWN = true;
+  try {
+    window.sessionStorage.setItem(PLAYED_KEY, "1");
+    window.localStorage.setItem(RECENT_KEY, String(Date.now()));
+  } catch {}
+}
 
 type Tab = { to: string; label: string; icon: LucideIcon };
 
@@ -54,19 +95,23 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const [plugOpen, setPlugOpen] = useState(false);
   const { unread } = useNotifications();
   const [showSplash] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (SPLASH_SHOWN) return false;
-    SPLASH_SHOWN = true;
-    // Skip the splash if the login/signup bridge just played — avoids a
-    // duplicate statue reveal right after verification.
-    try {
-      if (window.sessionStorage.getItem("plugu.splash.skipNext")) {
-        window.sessionStorage.removeItem("plugu.splash.skipNext");
-        return false;
-      }
-    } catch {}
-    return true;
+    const play = shouldPlaySplash();
+    if (play) markSplashPlayed();
+    return play;
   });
+
+  // If a sibling tab plays the splash while this tab is open, remember it
+  // so a later refresh here doesn't replay. (No re-render needed.)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === RECENT_KEY && e.newValue) {
+        try { window.sessionStorage.setItem(PLAYED_KEY, "1"); } catch {}
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

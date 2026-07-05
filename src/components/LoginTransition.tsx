@@ -7,11 +7,14 @@ import hero from "@/assets/plugu-hero-splash.png.asset.json";
  */
 export function LoginTransition({ onComplete, duration = 2400 }: { onComplete: () => void; duration?: number }) {
   useEffect(() => {
-    // Signal AppShell to skip its own splash on the next mount — the login
-    // bridge already showed the statue, we don't want it twice in a row.
+    // The login bridge IS the post-verification statue reveal, so mark the
+    // splash as already played for this tab. AppShell reads these same keys
+    // and will skip its own splash on the next mount, on refresh, and in
+    // other tabs opened shortly after.
     try {
       if (typeof window !== "undefined") {
-        window.sessionStorage.setItem("plugu.splash.skipNext", "1");
+        window.sessionStorage.setItem("plugu.splash.playedThisSession", "1");
+        window.localStorage.setItem("plugu.splash.lastPlayedAt", String(Date.now()));
       }
     } catch {}
     const t = setTimeout(onComplete, duration);
