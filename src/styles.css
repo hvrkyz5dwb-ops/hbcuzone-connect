@@ -1052,3 +1052,159 @@ img, video { content-visibility: auto; }
   .cine-crowd-fig, .cine-crowd-bob, .cine-crowd-leg-a, .cine-crowd-leg-b,
   .cine-crowd-arm, .cine-crowd-flash { animation: none !important; }
 }
+
+/* =========================================================
+ * PlugU First-Time Cinematic Intro
+ * ========================================================= */
+.plugu-intro { color-scheme: dark; }
+
+.intro-sky {
+  background:
+    radial-gradient(120% 80% at 50% 10%, #1a1d2a 0%, #0a0b10 55%, #05060a 100%);
+  animation: intro-sky-shift 10s ease-in-out both;
+}
+@keyframes intro-sky-shift {
+  0%   { filter: brightness(0.85) hue-rotate(-6deg); }
+  55%  { filter: brightness(0.6)  hue-rotate(0deg); }
+  62%  { filter: brightness(1.35) hue-rotate(4deg); }
+  100% { filter: brightness(0.95) hue-rotate(0deg); }
+}
+.intro-ground {
+  background: linear-gradient(180deg, #0a0b10 0%, #05060a 100%);
+  box-shadow: inset 0 30px 60px -30px rgba(244,201,106,0.15);
+}
+
+.intro-clouds { animation: intro-clouds-in 4s ease-out both; }
+@keyframes intro-clouds-in {
+  0%   { opacity: 0; transform: translateY(-12px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.intro-statue-wrap { animation: intro-statue-in 1.2s ease-out both; }
+@keyframes intro-statue-in {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.96); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.intro-glow {
+  background: radial-gradient(circle, rgba(244,201,106,0.22), transparent 65%);
+  opacity: 0.5; transition: opacity 0.5s ease;
+}
+.intro-glow.is-struck {
+  opacity: 1;
+  animation: intro-glow-pulse 1.6s ease-out 1;
+}
+@keyframes intro-glow-pulse {
+  0%   { transform: scale(0.6); opacity: 0.4; }
+  30%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+.intro-charge {
+  transform: translateY(100%);
+  transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0.85;
+}
+.intro-charge.is-struck { transform: translateY(0%); }
+
+.intro-edge { transition: stroke-opacity 0.4s ease; }
+
+.intro-bolt {
+  opacity: 0;
+  transform: translate(-50%, -20%) scaleY(0.6);
+}
+.intro-bolt.is-struck {
+  animation: intro-bolt-strike 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes intro-bolt-strike {
+  0%   { opacity: 0; transform: translate(-50%, -40%) scaleY(0.4); }
+  20%  { opacity: 1; transform: translate(-50%, 0%) scaleY(1.05); }
+  60%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(-50%, 0%) scaleY(1); }
+}
+
+.intro-flash { background: #fff6d6; opacity: 0; }
+.intro-flash.is-struck { animation: intro-flash-pop 0.5s ease-out 1; }
+@keyframes intro-flash-pop {
+  0% { opacity: 0; }
+  10% { opacity: 0.65; }
+  100% { opacity: 0; }
+}
+
+.intro-spark {
+  animation: intro-spark-burst 0.9s ease-out forwards;
+}
+@keyframes intro-spark-burst {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sx), var(--sy)) scale(0.2); opacity: 0; }
+}
+
+.intro-walker {
+  left: -20%;
+  transform: scale(var(--scale, 1));
+  animation: intro-walk var(--dur, 5s) linear var(--delay, 0s) both;
+  will-change: transform, left;
+}
+.intro-walker.from-r { left: 120%; animation-name: intro-walk-r; }
+.intro-walker.runs   { animation-timing-function: cubic-bezier(0.2, 0.6, 0.2, 1); }
+
+@keyframes intro-walk {
+  0%   { left: -20%; }
+  70%  { left: var(--target, 45%); }
+  100% { left: var(--target, 45%); }
+}
+@keyframes intro-walk-r {
+  0%   { left: 120%; }
+  70%  { left: var(--target, 55%); }
+  100% { left: var(--target, 55%); }
+}
+.intro-fig { animation: intro-fig-bob 0.5s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes intro-fig-bob {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-2px); }
+}
+
+.intro-camera-flash {
+  opacity: 0;
+  animation: intro-cam-flash 0.4s ease-out forwards;
+}
+@keyframes intro-cam-flash {
+  0%   { opacity: 0; transform: scale(0.6); }
+  15%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+.intro-dust {
+  animation: intro-dust-drift linear infinite;
+  will-change: transform, opacity;
+}
+@keyframes intro-dust-drift {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+
+/* Charging loader (reusable) */
+.charging-fill {
+  transform: translateY(100%);
+  animation: charging-rise 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+@keyframes charging-rise {
+  0%   { transform: translateY(100%); }
+  60%  { transform: translateY(0%); }
+  100% { transform: translateY(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-sky, .intro-clouds, .intro-statue-wrap,
+  .intro-glow, .intro-charge, .intro-bolt, .intro-flash,
+  .intro-spark, .intro-walker, .intro-fig, .intro-camera-flash,
+  .intro-dust, .charging-fill {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .intro-charge { transform: translateY(0) !important; }
+}
