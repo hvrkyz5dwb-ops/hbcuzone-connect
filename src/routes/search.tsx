@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Search, SlidersHorizontal, Sparkles, X, Star, MapPin, BadgeCheck, Clock, Flame,
-  Instagram, Youtube, Music2, Globe, Loader2, ArrowUpRight, Heart,
+  Instagram, Youtube, Music2, Globe, ArrowUpRight, Heart,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { listings } from "@/lib/mock-data";
