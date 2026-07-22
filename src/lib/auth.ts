@@ -166,18 +166,24 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
     }
     return { ok: true, school, domain };
   }
-  // Open enrollment: allow any .edu (or approved institutional) address.
+  // Subdomain match (e.g. bison.howard.edu → howard.edu).
+  const subMatch = APPROVED_SCHOOLS.find((s) =>
+    s.domains.some((x) => domain.endsWith("." + x)),
+  );
+  if (subMatch) {
+    const rootDomain = subMatch.domains.find((x) => domain.endsWith("." + x)) ?? domain;
+    return { ok: true, school: subMatch, domain: rootDomain };
+  }
   if (!/\.edu$/.test(domain)) {
     return {
       ok: false,
-      reason: "PlugU is students-only. Use your .edu school email.",
+      reason: `PlugU is students-only. "${domain}" isn't a recognized school email — use your official .edu address.`,
     };
   }
-  const inferred: ApprovedSchool = {
-    name: (requestedSchool && requestedSchool.trim()) || domain.replace(/\.edu$/, "").replace(/[-_.]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-    domains: [domain],
+  return {
+    ok: false,
+    reason: `"${domain}" isn't on PlugU's approved school list yet. Use your official school-issued .edu email, or contact support to add your campus.`,
   };
-  return { ok: true, school: inferred, domain };
 }
 
 export function getStudent(): StudentAccount | null {
