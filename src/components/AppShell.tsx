@@ -213,6 +213,8 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
         <main key={pathname} className="flex-1 view-enter">{children}</main>
 
+        <AchievementBurst />
+
         <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
           <div
             className="mx-3 mb-4 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
