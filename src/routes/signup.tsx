@@ -7,6 +7,7 @@ import pluguLogo from "@/assets/plugu-logo.png";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 import { APPROVED_SCHOOLS, signUpStudent, validateStudentEmail } from "@/lib/auth";
 import { usePersona } from "@/hooks/use-persona";
+import { fireAchievement } from "@/components/AchievementBurst";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -80,6 +81,10 @@ function SignUp() {
       year: res.student.year,
       major: res.student.major,
       badge: "Student",
+    });
+    fireAchievement({
+      title: "You're verified",
+      subtitle: `Welcome to PlugU, ${res.student.name.split(" ")[0]}. Your campus is live.`,
     });
     setTransitioning(true);
   }
