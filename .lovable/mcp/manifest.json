@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://xaxprkgubaqwhesigimc.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "plugu-mcp",
+      "version": "0.1.0",
+      "title": "PlugU"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Who am I",
+        "description": "Return the signed-in PlugU student's Supabase user id and email as verified by the OAuth token.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_hbcus",
+        "title": "List HBCUs",
+        "description": "List HBCUs in the PlugU directory. Optionally filter by state (two-letter code like 'GA') or by a case-insensitive keyword matched against school name, city, or mascot.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "state": {
+              "description": "Two-letter state code, e.g. 'GA'.",
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2
+            },
+            "keyword": {
+              "description": "Case-insensitive substring match on name/city/mascot.",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "description": "Max rows (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_school_info",
+        "title": "Get school info",
+        "description": "Return the full PlugU profile for one HBCU: directory row plus about/legacy, colors, notable alumni, and Greek life when available.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Full school name, e.g. 'Howard University'."
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_scholarships",
+        "title": "List scholarships",
+        "description": "List PlugU-tracked scholarship opportunities. Optionally filter by category (e.g. 'STEM', 'National', 'Merit-Based') or by a keyword matched against title/sponsor.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "category": {
+              "description": "Optional category. One of: All, National, School, Minority, Business, Engineering, Medical, Law, STEM, Arts, Athletics, Need-Based, Merit-Based",
+              "type": "string"
+            },
+            "keyword": {
+              "description": "Case-insensitive substring match on title/sponsor.",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "description": "Max rows (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
