@@ -46,6 +46,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AwardsRouteImport } from './routes/awards'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -249,6 +250,11 @@ const AwardsRoute = AwardsRouteImport.update({
   path: '/awards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AmbassadorsRoute = AmbassadorsRouteImport.update({
   id: '/ambassadors',
   path: '/ambassadors',
@@ -342,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -455,6 +463,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
+  '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -513,6 +522,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/auth'
     | '/awards'
     | '/business'
     | '/checkout'
@@ -569,6 +579,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/auth'
     | '/awards'
     | '/business'
     | '/checkout'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ambassadors'
+    | '/auth'
     | '/awards'
     | '/business'
     | '/checkout'
@@ -682,6 +694,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
+  AuthRoute: typeof AuthRoute
   AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
@@ -990,6 +1003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AwardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ambassadors': {
       id: '/ambassadors'
       path: '/ambassadors'
@@ -1185,6 +1205,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
+  AuthRoute: AuthRoute,
   AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
