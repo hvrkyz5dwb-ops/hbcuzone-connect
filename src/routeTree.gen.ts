@@ -31,6 +31,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
@@ -56,8 +57,11 @@ import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const UpgradeRoute = UpgradeRouteImport.update({
   id: '/upgrade',
@@ -167,6 +171,11 @@ const MilestonesRoute = MilestonesRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketRoute = MarketRouteImport.update({
@@ -294,6 +303,18 @@ const AmbassadorsDashboardRoute = AmbassadorsDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AmbassadorsRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
@@ -304,6 +325,12 @@ const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
   path: '/school/$slug',
   getParentRoute: () => HbcusRoute,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -323,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -345,6 +373,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
@@ -353,6 +383,7 @@ export interface FileRoutesByFullPath {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -374,6 +405,7 @@ export interface FileRoutesByTo {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -396,6 +428,8 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
@@ -404,6 +438,7 @@ export interface FileRoutesByTo {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -426,6 +461,7 @@ export interface FileRoutesById {
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -448,6 +484,8 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
@@ -456,6 +494,7 @@ export interface FileRoutesById {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
@@ -479,6 +518,7 @@ export interface FileRouteTypes {
     | '/manage-plan'
     | '/map'
     | '/market'
+    | '/mcp'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -501,6 +541,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust'
     | '/upgrade'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
@@ -509,6 +551,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   fileRoutesByTo: FileRoutesByTo
@@ -530,6 +573,7 @@ export interface FileRouteTypes {
     | '/manage-plan'
     | '/map'
     | '/market'
+    | '/mcp'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -552,6 +596,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust'
     | '/upgrade'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
@@ -560,6 +606,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   id:
@@ -581,6 +628,7 @@ export interface FileRouteTypes {
     | '/manage-plan'
     | '/map'
     | '/market'
+    | '/mcp'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -603,6 +651,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust'
     | '/upgrade'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
@@ -611,6 +661,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
   fileRoutesById: FileRoutesById
@@ -633,6 +684,7 @@ export interface RootRouteChildren {
   ManagePlanRoute: typeof ManagePlanRoute
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
+  McpRoute: typeof McpRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   MilestonesRoute: typeof MilestonesRoute
   NationalsRoute: typeof NationalsRoute
@@ -655,10 +707,13 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerPlansRoute: typeof SellerPlansRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -815,6 +870,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market': {
@@ -992,6 +1054,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AmbassadorsDashboardRouteImport
       parentRoute: typeof AmbassadorsRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id/dispute': {
       id: '/orders/$id/dispute'
       path: '/dispute'
@@ -1005,6 +1081,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hbcus/school/$slug'
       preLoaderRoute: typeof HbcusSchoolSlugRouteImport
       parentRoute: typeof HbcusRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -1096,6 +1179,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagePlanRoute: ManagePlanRoute,
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
+  McpRoute: McpRoute,
   MessagesRoute: MessagesRouteWithChildren,
   MilestonesRoute: MilestonesRoute,
   NationalsRoute: NationalsRoute,
@@ -1118,10 +1202,14 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LaunchSlugRoute: LaunchSlugRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerPlansRoute: SellerPlansRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
