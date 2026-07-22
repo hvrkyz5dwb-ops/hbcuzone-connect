@@ -10,7 +10,7 @@ import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
-import { isVerifiedStudent } from "@/lib/auth";
+import { isVerifiedStudent, isHbcuStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
 
 // Module-scoped flag prevents any re-mount of AppShell (internal navigation,
@@ -99,6 +99,20 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     if (play) markSplashPlayed();
     return play;
   });
+  // HBCUS link is exclusive to students whose verified .edu maps to an HBCU.
+  // Track it in state so the header updates when the student signs in/out.
+  const [hbcuStudent, setHbcuStudent] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sync = () => setHbcuStudent(isHbcuStudent());
+    sync();
+    window.addEventListener("plugu:student", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("plugu:student", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   // If a sibling tab plays the splash while this tab is open, remember it
   // so a later refresh here doesn't replay. (No re-render needed.)
@@ -148,13 +162,16 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/hbcus"
-              className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
-            >
-              <span className="text-muted-foreground">HBC</span>
-              <span className="plugu-us-silver">US</span>
-            </Link>
+            {hbcuStudent && (
+              <Link
+                to="/hbcus"
+                className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
+                aria-label="Open HBCUS — exclusive HBCU network"
+              >
+                <span className="text-muted-foreground">HBC</span>
+                <span className="plugu-us-silver">US</span>
+              </Link>
+            )}
             <Link
               to="/notifications"
               aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
