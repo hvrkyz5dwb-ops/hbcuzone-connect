@@ -35,6 +35,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
@@ -192,6 +193,11 @@ const MapRoute = MapRouteImport.update({
 const ManagePlanRoute = ManagePlanRouteImport.update({
   id: '/manage-plan',
   path: '/manage-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HubRoute = HubRouteImport.update({
@@ -353,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/hbcus': typeof HbcusRouteWithChildren
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
+  '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
@@ -409,6 +416,7 @@ export interface FileRoutesByTo {
   '/hbcus': typeof HbcusRouteWithChildren
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
+  '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
@@ -466,6 +474,7 @@ export interface FileRoutesById {
   '/hbcus': typeof HbcusRouteWithChildren
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
+  '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/hbcus'
     | '/heatmap'
     | '/hub'
+    | '/login'
     | '/manage-plan'
     | '/map'
     | '/market'
@@ -580,6 +590,7 @@ export interface FileRouteTypes {
     | '/hbcus'
     | '/heatmap'
     | '/hub'
+    | '/login'
     | '/manage-plan'
     | '/map'
     | '/market'
@@ -636,6 +647,7 @@ export interface FileRouteTypes {
     | '/hbcus'
     | '/heatmap'
     | '/hub'
+    | '/login'
     | '/manage-plan'
     | '/map'
     | '/market'
@@ -693,6 +705,7 @@ export interface RootRouteChildren {
   HbcusRoute: typeof HbcusRouteWithChildren
   HeatmapRoute: typeof HeatmapRoute
   HubRoute: typeof HubRoute
+  LoginRoute: typeof LoginRoute
   ManagePlanRoute: typeof ManagePlanRoute
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
@@ -911,6 +924,13 @@ declare module '@tanstack/react-router' {
       path: '/manage-plan'
       fullPath: '/manage-plan'
       preLoaderRoute: typeof ManagePlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hub': {
@@ -1196,6 +1216,7 @@ const rootRouteChildren: RootRouteChildren = {
   HbcusRoute: HbcusRouteWithChildren,
   HeatmapRoute: HeatmapRoute,
   HubRoute: HubRoute,
+  LoginRoute: LoginRoute,
   ManagePlanRoute: ManagePlanRoute,
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
