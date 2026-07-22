@@ -267,13 +267,10 @@ function SignUp() {
             only approved school domains can sign up — no public accounts.
           </p>
 
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/login" })}
-            className="tap text-xs text-white/60"
-          >
-            Already on PlugU? Log In
-          </button>
+          <p className="text-[11px] text-white/45 text-center leading-relaxed">
+            One entry to PlugU. Already have an account? Same email — this form
+            recognizes you and signs you back in.
+          </p>
         </form>
       </section>
 
