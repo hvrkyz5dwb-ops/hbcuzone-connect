@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { pricingTiers } from "@/lib/mock-data";
 import { getSelectedPlan, saveSelectedPlan } from "@/lib/plan-storage";
+import { fireAchievement } from "@/components/AchievementBurst";
 import { useEffect } from "react";
 
 const search = z.object({ plan: z.string().optional() });
@@ -33,6 +34,10 @@ function Checkout() {
   function placeholderCheckout() {
     setLoading(true);
     saveSelectedPlan({ key: tier.key, name: tier.name, price: tier.price });
+    fireAchievement({
+      title: `${tier.name} unlocked`,
+      subtitle: "Your plug just leveled up. Charging your account…",
+    });
     setTimeout(() => navigate({ to: "/payment-success" }), 600);
   }
 
