@@ -62,6 +62,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
 const UpgradeRoute = UpgradeRouteImport.update({
   id: '/upgrade',
@@ -331,6 +332,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -551,6 +560,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -661,6 +672,7 @@ export interface FileRouteTypes {
     | '/season/$slug'
     | '/seller/analytics'
     | '/seller/plans'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -713,6 +725,7 @@ export interface RootRouteChildren {
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerPlansRoute: typeof SellerPlansRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
@@ -1089,6 +1102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1209,6 +1229,7 @@ const rootRouteChildren: RootRouteChildren = {
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerPlansRoute: SellerPlansRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
