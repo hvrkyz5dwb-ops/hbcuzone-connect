@@ -3,9 +3,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Search, SlidersHorizontal, Sparkles, X, Star, MapPin, BadgeCheck, Clock, Flame,
-  Instagram, Youtube, Music2, Globe, Loader2, ArrowUpRight, Heart,
+  Instagram, Youtube, Music2, Globe, ArrowUpRight, Heart,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ChargingLoader } from "@/components/ChargingLoader";
 import { listings } from "@/lib/mock-data";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
@@ -368,7 +369,11 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
           disabled={loading || initialQuery.trim().length < 2}
           className="mt-3 w-full rounded-xl bg-[var(--plugu-purple)] text-white py-2.5 text-sm font-semibold tap disabled:opacity-40 inline-flex items-center justify-center gap-2"
         >
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Thinking…</> : <><Sparkles className="h-4 w-4" /> Ask PlugU AI</>}
+          {loading ? (
+            <><ChargingLoader size={18} /> Thinking…</>
+          ) : (
+            <><Sparkles className="h-4 w-4" /> Ask PlugU AI</>
+          )}
         </button>
       </div>
 

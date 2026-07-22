@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
 import { FirstTimeIntro, hasSeenIntro } from "@/components/FirstTimeIntro";
+import { AchievementBurst } from "@/components/AchievementBurst";
 import { isVerifiedStudent, isHbcuStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
 
@@ -211,6 +212,8 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         </header>
 
         <main key={pathname} className="flex-1 view-enter">{children}</main>
+
+        <AchievementBurst />
 
         <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
           <div
