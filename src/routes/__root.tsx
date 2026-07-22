@@ -100,6 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       // Preload the splash hero so first paint isn't blocked on the 2 MB image.
       { rel: "preload", as: "image", href: heroSplash.url, fetchpriority: "high" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
   }),
   shellComponent: RootShell,
