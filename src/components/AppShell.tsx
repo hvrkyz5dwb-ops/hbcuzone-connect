@@ -161,16 +161,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {hbcuStudent && (
-              <Link
-                to="/hbcus"
-                className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
-                aria-label="Open HBCUS — exclusive HBCU network"
-              >
-                <span className="text-muted-foreground">HBC</span>
-                <span className="plugu-us-silver">US</span>
-              </Link>
-            )}
+            <Link
+              to="/hbcus"
+              className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
+              aria-label={hbcuStudent ? "Open HBCUS — exclusive HBCU network" : "HBCUS — HBCU students only"}
+            >
+              <span className="text-muted-foreground">HBC</span>
+              <span className={hbcuStudent ? "plugu-us-silver" : "text-muted-foreground/70"}>US</span>
+            </Link>
             <Link
               to="/notifications"
               aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
