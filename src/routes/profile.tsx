@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale, LogOut } from "lucide-react";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
