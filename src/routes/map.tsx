@@ -12,6 +12,7 @@ import {
   Route as RouteIcon,
   Flame,
   Footprints,
+  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
