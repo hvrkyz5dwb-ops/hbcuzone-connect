@@ -14,6 +14,7 @@ import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
+import { isHbcuDomain, getDomain } from "@/lib/auth";
 
 // Module-scoped flag prevents any re-mount of AppShell (internal navigation,
 // layout swaps) from replaying the splash within the same JS runtime.
@@ -89,7 +90,15 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const { unread } = useNotifications();
   const { session, loading: sessionLoading } = useSession();
   const { profile } = useProfile();
-  const hbcuStudent = !!profile?.is_hbcu_student;
+  // AI-style HBCU detection: trust the stored flag, but always re-derive from
+  // the verified school domain / email so returning students who signed up
+  // before the flag existed still see HBCUS. Any @<hbcu>.edu qualifies.
+  const emailDomain =
+    profile?.school_domain?.toLowerCase() ||
+    (profile?.email ? getDomain(profile.email) : null) ||
+    (session?.user?.email ? getDomain(session.user.email) : null);
+  const hbcuStudent =
+    !!profile?.is_hbcu_student || (!!emailDomain && isHbcuDomain(emailDomain));
 
   // Splash plays after auth is known and only when a student is signed in.
   const [showSplash, setShowSplash] = useState(false);
