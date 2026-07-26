@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale, PlayCircle } from "lucide-react";
-import { replayPluguIntro } from "@/components/FirstTimeIntro";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { getStudent } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
@@ -116,17 +115,6 @@ function Profile() {
       </section>
 
       <SellerReputation />
-
-      <section className="mt-6 px-5">
-        <button
-          onClick={replayPluguIntro}
-          className="w-full flex items-center gap-3 px-4 py-4 text-sm rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors"
-        >
-          <PlayCircle className="h-4 w-4 text-primary" />
-          <span className="flex-1 text-left">Replay PlugU Intro</span>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </section>
 
       <section className="mt-6 px-5 pb-4">
         <h2 className="text-sm font-semibold tracking-tight mb-3">My Listings</h2>

@@ -10,7 +10,6 @@ import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
-import { FirstTimeIntro, hasSeenIntro } from "@/components/FirstTimeIntro";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { isVerifiedStudent, isHbcuStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -100,18 +99,6 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     const play = shouldPlaySplash();
     if (play) markSplashPlayed();
     return play;
-  });
-  // Cinematic first-time intro plays before login on brand-new devices,
-  // or when replayed via ?replayIntro=1 from Settings.
-  const [showIntro, setShowIntro] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const url = new URL(window.location.href);
-      if (url.searchParams.get("replayIntro") === "1") return true;
-    } catch {}
-    // Only pre-auth: if the visitor is already verified, no intro needed.
-    if (isVerifiedStudent()) return false;
-    return !hasSeenIntro();
   });
   // HBCUS link is exclusive to students whose verified .edu maps to an HBCU.
   // Track it in state so the header updates when the student signs in/out.
@@ -356,7 +343,6 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
       <Toaster position="top-center" />
       {showSplash && <SplashScreen />}
-      {showIntro && <FirstTimeIntro onDone={() => setShowIntro(false)} />}
     </div>
   );
 }
