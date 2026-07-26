@@ -10,7 +10,6 @@ import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
-import { FirstTimeIntro, hasSeenIntro } from "@/components/FirstTimeIntro";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { isVerifiedStudent, isHbcuStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
