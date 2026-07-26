@@ -12,6 +12,7 @@ import { CampusPulse } from "@/components/CampusPulse";
 import { DailyCard } from "@/components/DailyCard";
 import { SmartSearch } from "@/components/SmartSearch";
 import { OpportunityRail } from "@/components/OpportunityRail";
+import { CommunityBoard } from "@/components/CommunityBoard";
 import { toast } from "sonner";
 import {
   categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
@@ -75,6 +76,9 @@ function Home() {
 
       {/* Opportunity rail — jobs / internships / scholarships / research / leadership / volunteer */}
       <OpportunityRail />
+
+      {/* Community — student-posted campus updates */}
+      <CommunityBoard />
 
       {/* Category shortcuts */}
       <section className="mt-7">
