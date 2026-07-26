@@ -24,7 +24,6 @@ export const Route = createFileRoute("/profile")({
 
 const menu: { label: string; icon: typeof Heart; to: string }[] = [
   { label: "Plug Business Center", icon: Store, to: "/business" },
-  { label: "Campus Economy", icon: Trophy, to: "/economy" },
   { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
   { label: "Upgrade to KingPin", icon: Sparkles, to: "/upgrade" },
   { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
@@ -34,7 +33,7 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
   { label: "Trust Center", icon: Scale, to: "/trust" },
   { label: "Safety & Tools", icon: ShieldAlert, to: "/safety" },
   { label: "Admin", icon: ShieldCheck, to: "/admin" },
-  { label: "Settings", icon: Settings, to: "/profile" },
+  { label: "Settings", icon: Settings, to: "/settings" },
 ];
 
 function Profile() {
