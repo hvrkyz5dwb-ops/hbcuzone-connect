@@ -216,6 +216,53 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
           </div>
         </section>
 
+        {/* Eligibility panel — shows why HBCUS unlocked for this account */}
+        <section className="px-5 mt-4 hbcus-rise">
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: "color-mix(in oklab, var(--hbcu-deep) 78%, transparent)",
+              border: "1px solid color-mix(in oklab, var(--hbcu-gold) 28%, transparent)",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" style={{ color: "var(--hbcu-gold)" }} />
+              <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: "var(--hbcu-gold)" }}>
+                Why you see HBCUS
+              </p>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 text-[12px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 82%, transparent)" }}>
+              <Row label="Signed-in email" value={profile?.email ?? "—"} />
+              <Row label="Verified domain" value={emailDomain ?? "—"} />
+              <Row
+                label="HBCU match"
+                value={hbcuMatch ? (detected?.name ?? profile?.school_name ?? "Recognized HBCU") : "Not detected"}
+                good={hbcuMatch}
+              />
+              <Row
+                label="Active campus"
+                value={active}
+                good={!!verifiedSchool && active === verifiedSchool}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSwitch(true)}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tap"
+                style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)" }}
+              >
+                <Pencil className="h-3 w-3" /> Correct my campus
+              </button>
+              {fallbackReason && (
+                <span className="text-[10px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 60%, transparent)" }}>
+                  Preview mode · "{fallbackReason}" not in directory yet
+                </span>
+              )}
+            </div>
+          </div>
+        </section>
+
         {/* Sticky section nav */}
         <nav
           className="sticky top-0 z-30 mt-4 backdrop-blur-xl"
