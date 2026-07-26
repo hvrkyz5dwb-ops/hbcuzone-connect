@@ -19,6 +19,9 @@ import {
 import { campusEconomies, platformInsights, formatMoney } from "@/lib/economy-data";
 import { currentSeason } from "@/lib/seasons";
 import { yourRank } from "@/lib/nationals";
+import { useEffect } from "react";
+import { useSession } from "@/hooks/use-session";
+import { IntroCarousel, hasSeenIntro } from "@/components/IntroCarousel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +37,24 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const navigate = useNavigate();
+  const { session, loading } = useSession();
+
+  // Guests never see the app. They either watch the intro (first open)
+  // or get bounced to /auth (already saw it). Signed-in users fall through
+  // to the full dashboard below — the statue splash plays via AppShell.
+  useEffect(() => {
+    if (loading || session) return;
+    if (hasSeenIntro()) navigate({ to: "/auth", search: { next: "/", mode: "" } });
+  }, [loading, session, navigate]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+  }
+  if (!session) {
+    if (hasSeenIntro()) return <div className="min-h-screen bg-background" aria-hidden="true" />;
+    return <IntroCarousel />;
+  }
+
   return (
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
