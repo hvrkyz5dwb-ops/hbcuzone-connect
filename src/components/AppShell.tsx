@@ -343,7 +343,6 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
       <Toaster position="top-center" />
       {showSplash && <SplashScreen />}
-      {showIntro && <FirstTimeIntro onDone={() => setShowIntro(false)} />}
     </div>
   );
 }
