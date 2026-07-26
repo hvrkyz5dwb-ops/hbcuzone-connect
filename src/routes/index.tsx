@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
-  Building2, MessageSquare, ArrowRight, Star, Trophy, TrendingUp,
+  Building2, MessageSquare, ArrowRight, Star, Trophy,
   Newspaper, Flame, Crown,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import {
   categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
-import { campusEconomies, platformInsights, formatMoney } from "@/lib/economy-data";
 import { currentSeason } from "@/lib/seasons";
 import { yourRank } from "@/lib/nationals";
 import { useEffect } from "react";
