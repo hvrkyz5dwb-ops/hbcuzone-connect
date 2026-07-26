@@ -7,7 +7,11 @@ import {
 import { SectionHeader } from "@/components/AppShell";
 import { Reveal } from "@/components/Reveal";
 import { usePersona } from "@/hooks/use-persona";
-import { mockWeather, greetingFor } from "@/lib/weather-mock";
+import { greetingFor } from "@/lib/weather-mock";
+import { useSchool } from "@/hooks/use-school";
+import { useQuery } from "@tanstack/react-query";
+import { getCampusWeather } from "@/lib/campus-intel.functions";
+import { getSellerPlan } from "@/lib/seller-plan";
 import { liveActivity, businessSpotlight, aiRecommendations } from "@/lib/opportunities-data";
 import { announcements, events, featuredKingpins, listings } from "@/lib/mock-data";
 
@@ -50,6 +54,22 @@ function badgeWordmarkClass(badge: string): string {
 
 export function CampusPulse() {
   const [persona] = usePersona();
+  const school = useSchool();
+  const [upgraded, setUpgraded] = useState(false);
+  useEffect(() => {
+    try { setUpgraded(getSellerPlan().tier !== "free"); } catch {}
+  }, []);
+  // Show "Plug" (plain white) until the user upgrades their package.
+  const displayBadge = upgraded ? persona.badge : "Plug";
+  const isUpgraded = upgraded;
+  const displayCampus = school.name && school.name !== "Your Campus" ? school.name : persona.campus;
+  const weatherQ = useQuery({
+    queryKey: ["campus-weather", displayCampus, school.city, school.state],
+    queryFn: () => getCampusWeather({ data: { school: displayCampus, city: school.city, state: school.state } }),
+    staleTime: 15 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const weather = weatherQ.data;
   const [rsvped, setRsvped] = useState<Record<string, boolean>>({});
   const [tick, setTick] = useState(0);
   const [greeting, setGreeting] = useState("Welcome back");
@@ -69,19 +89,27 @@ export function CampusPulse() {
             <p className="text-xs text-muted-foreground">{greeting},</p>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-2 truncate">
               <span>Hello </span>
-              <span className={badgeWordmarkClass(persona.badge)}>{persona.badge}</span>
-              <BadgeIcon badge={persona.badge} />
+              {isUpgraded ? (
+                <>
+                  <span className={badgeWordmarkClass(displayBadge)}>{displayBadge}</span>
+                  <BadgeIcon badge={displayBadge} />
+                </>
+              ) : (
+                <span className="text-white">Plug</span>
+              )}
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1 truncate">
-              {persona.campus} · {persona.year} · {persona.major}
+              {displayCampus} · {persona.year} · {persona.major}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-right">
               <p className="text-sm font-bold flex items-center gap-1 justify-end">
-                <span>{mockWeather.emoji}</span> {mockWeather.tempF}°
+                <span>{weather?.emoji ?? "☀️"}</span> {weather ? `${weather.tempF}°` : "—"}
               </p>
-              <p className="text-[10px] text-muted-foreground">{mockWeather.blurb}</p>
+              <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">
+                {weather?.blurb ?? (weatherQ.isPending ? "Checking sky…" : "Campus weather")}
+              </p>
             </div>
             <button aria-label="Notifications" className="relative h-10 w-10 grid place-items-center rounded-full bg-secondary border border-border">
               <Bell className="h-4 w-4" />

@@ -40,6 +40,8 @@ import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import { useSchool } from "@/hooks/use-school";
+import { useQuery } from "@tanstack/react-query";
+import { getCampusWeather } from "@/lib/campus-intel.functions";
 import {
   hbcuNewsFilters,
   hbcuLiveNews,
@@ -457,6 +459,14 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
   const quote = useMemo(() => dailyMotivation[new Date().getDate() % dailyMotivation.length], []);
   const homecoming = homecomingCountdowns.find((h) => h.school === activeSchool) ?? homecomingCountdowns[0];
   const liveGame = liveScores[0];
+  const profile = schoolProfiles.find((s) => s.name === activeSchool);
+  const weatherQ = useQuery({
+    queryKey: ["hbcus-weather", activeSchool],
+    queryFn: () => getCampusWeather({ data: { school: activeSchool, city: profile?.city, state: profile?.state } }),
+    staleTime: 15 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const weather = weatherQ.data;
 
   return (
     <div className="space-y-5">
@@ -503,6 +513,15 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-pink-300" /> Events on the Yard & Nationally</p>
             <AiNewsFeed category="HBCU campus events homecomings career fairs conferences" school={activeSchool} count={4} compact />
           </div>
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Flame className="h-3.5 w-3.5 text-orange-300" /> Campus Buzz · Fizz · IG · TikTok</p>
+            <AiNewsFeed
+              category={`Trending posts, viral moments, memes, and student chatter from Fizz, Instagram Reels, TikTok, YouTube and Twitter about ${activeSchool} and its students right now — parties, professors, dorms, dining, greek life, sports, drama`}
+              school={activeSchool}
+              count={5}
+              compact
+            />
+          </div>
         </div>
       </div>
 
@@ -522,8 +541,15 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-widest text-primary">Campus Weather</p>
-          <p className="mt-2 text-2xl font-bold flex items-center gap-2"><Sun className="h-5 w-5 text-yellow-300" /> 72°</p>
-          <p className="text-[11px] text-muted-foreground">Sunny on the Yard</p>
+          <p className="mt-2 text-2xl font-bold flex items-center gap-2">
+            <span>{weather?.emoji ?? "☀️"}</span> {weather ? `${weather.tempF}°` : (weatherQ.isPending ? "…" : "72°")}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {weather ? `${weather.condition} · H${weather.high}° L${weather.low}°` : "Live campus forecast"}
+          </p>
+          {weather?.blurb && (
+            <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5">{weather.blurb}</p>
+          )}
         </div>
         <button onClick={() => onJump("Scholarships")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
           <p className="text-[10px] uppercase tracking-widest text-accent">Scholarship</p>
