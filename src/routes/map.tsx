@@ -70,6 +70,26 @@ function MapPage() {
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<RouteEstimate | null>(null);
+
+  async function runAiRoute(q: string) {
+    const query = q.trim();
+    if (query.length < 2) return;
+    setAiOpen(true);
+    setAiLoading(true);
+    setAiResult(null);
+    try {
+      const r = await getRouteEstimate({ data: { query, campus: active } });
+      setAiResult(r);
+      if (r.error) toast.error("AI is offline — try again in a moment.");
+    } catch {
+      toast.error("Couldn't reach PlugU AI");
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 450);
@@ -147,7 +167,8 @@ function MapPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search buildings, vendors, spots"
+              onKeyDown={(e) => { if (e.key === "Enter") runAiRoute(query); }}
+              placeholder='Ask PlugU AI: "dorms to the library?"'
               className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
             />
             {query && (
@@ -155,6 +176,15 @@ function MapPage() {
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
             )}
+            <button
+              onClick={() => runAiRoute(query)}
+              disabled={query.trim().length < 2}
+              className="text-[10px] font-bold px-2.5 py-1 rounded-lg text-black disabled:opacity-40"
+              style={{ background: "var(--plugu-gold)" }}
+              aria-label="Ask PlugU AI for directions"
+            >
+              Ask AI
+            </button>
           </div>
           <button
             onClick={() => setHeatmap((v) => !v)}
@@ -164,6 +194,63 @@ function MapPage() {
             <Layers className="h-4 w-4" />
           </button>
         </div>
+
+        {aiOpen && (
+          <div className="mt-3 rounded-2xl border border-primary/40 bg-card overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60">
+              <p className="text-[10px] uppercase tracking-widest text-primary flex items-center gap-1.5">
+                <Compass className="h-3 w-3" /> PlugU AI · Campus Directions
+              </p>
+              <button onClick={() => { setAiOpen(false); setAiResult(null); }} aria-label="Close AI directions">
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="p-4">
+              {aiLoading && (
+                <div className="py-6 flex flex-col items-center gap-3">
+                  <ChargingLoader />
+                  <p className="text-[11px] text-muted-foreground">Routing across {active}…</p>
+                </div>
+              )}
+              {!aiLoading && aiResult && (
+                <>
+                  <p className="text-sm font-semibold leading-snug">
+                    {aiResult.from} <span className="text-muted-foreground">→</span> {aiResult.to}
+                  </p>
+                  <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+                    {[
+                      { l: "Walk", v: `${aiResult.walkMin}m`, i: "🚶" },
+                      { l: "Bike", v: `${aiResult.bikeMin}m`, i: "🚲" },
+                      { l: "Drive", v: `${aiResult.driveMin}m`, i: "🚗" },
+                      { l: "Dist", v: `${aiResult.distanceMi.toFixed(2)}mi`, i: "📏" },
+                    ].map((s) => (
+                      <div key={s.l} className="rounded-xl border border-border bg-background/60 py-2">
+                        <p className="text-base">{s.i}</p>
+                        <p className="text-xs font-bold">{s.v}</p>
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{s.l}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {aiResult.directions.length > 0 && (
+                    <ol className="mt-3 space-y-1.5 text-xs">
+                      {aiResult.directions.map((d, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="h-4 w-4 shrink-0 rounded-full bg-primary/20 text-primary grid place-items-center text-[10px] font-bold">{i + 1}</span>
+                          <span className="flex-1">{d}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                  {aiResult.tip && (
+                    <p className="mt-3 text-[11px] text-accent flex items-start gap-1.5">
+                      <Sparkles className="h-3 w-3 mt-0.5 shrink-0" /> {aiResult.tip}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="mt-3 flex items-center justify-between">
           <button
