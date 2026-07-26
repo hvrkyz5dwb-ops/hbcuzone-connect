@@ -148,6 +148,11 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
   const [section, setSection] = useState<HbcusHomeSection>("Home");
   const [showAI, setShowAI] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const { profile } = useProfile();
+  const emailDomain =
+    (profile?.school_domain?.toLowerCase() || (profile?.email ? getDomain(profile.email) : null)) ?? null;
+  const detected = profile?.email ? detectHbcuSchool(profile.email) : null;
+  const hbcuMatch = !!emailDomain && isHbcuDomain(emailDomain);
 
   useEffect(() => {
     if (verifiedSchool) setActive(verifiedSchool);
