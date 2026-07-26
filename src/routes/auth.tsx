@@ -9,8 +9,8 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in or create account — PlugU" },
-      { name: "description", content: "PlugU is students-only. Sign in with your verified .edu email." },
+      { title: "Create your PlugU account" },
+      { name: "description", content: "PlugU is students-only. Create your account with a verified .edu email." },
     ],
   }),
   validateSearch: (s: Record<string, unknown>) => ({
@@ -41,7 +41,9 @@ type Mode = "sign-in" | "sign-up" | "forgot";
 function AuthPage() {
   const { next, mode: initialMode } = Route.useSearch();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>(initialMode === "sign-up" ? "sign-up" : "sign-in");
+  // Default to create-account. Sign in is only reachable via the small link
+  // for returning users on a new device.
+  const [mode, setMode] = useState<Mode>(initialMode === "sign-in" ? "sign-in" : "sign-up");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
