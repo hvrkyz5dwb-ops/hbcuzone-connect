@@ -460,10 +460,10 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
   const quote = useMemo(() => dailyMotivation[new Date().getDate() % dailyMotivation.length], []);
   const homecoming = homecomingCountdowns.find((h) => h.school === activeSchool) ?? homecomingCountdowns[0];
   const liveGame = liveScores[0];
-  const detail = schoolDetails[activeSchool];
+  const profile = schoolProfiles.find((s) => s.name === activeSchool);
   const weatherQ = useQuery({
     queryKey: ["hbcus-weather", activeSchool],
-    queryFn: () => getCampusWeather({ data: { school: activeSchool, city: detail?.city, state: detail?.state } }),
+    queryFn: () => getCampusWeather({ data: { school: activeSchool, city: profile?.city, state: profile?.state } }),
     staleTime: 15 * 60_000,
     refetchOnWindowFocus: false,
   });
