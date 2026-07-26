@@ -25,6 +25,8 @@ import { LoadingList } from "@/components/EmptyState";
 import { toast } from "sonner";
 import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
+import { getRouteEstimate, type RouteEstimate } from "@/lib/campus-intel.functions";
+import { ChargingLoader } from "@/components/ChargingLoader";
 
 export const Route = createFileRoute("/map")({
   head: () => ({
