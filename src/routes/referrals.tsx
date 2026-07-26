@@ -7,8 +7,7 @@ import {
   getReferralState, referralAchievements, referralRank, referralLink,
   addReferral, type ReferralState,
 } from "@/lib/referrals";
-// Legacy student data has moved to useProfile() — referrals page doesn't
-// currently need it, so nothing to import.
+import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/referrals")({
   head: () => ({ meta: [{ title: "Referrals — PlugU" }] }),
@@ -16,6 +15,7 @@ export const Route = createFileRoute("/referrals")({
 });
 
 function ReferralsPage() {
+  const { profile } = useProfile();
   const [state, setState] = useState<ReferralState | null>(null);
   useEffect(() => { setState(getReferralState()); }, []);
   if (!state) return null;
@@ -40,11 +40,10 @@ function ReferralsPage() {
     }
   }
   function simulate() {
-    const student = getStudent();
     const next = addReferral({
       code: state!.code,
       name: `Student · ${state!.referrals.length + 1}`,
-      campus: student?.school ?? "Talladega College",
+      campus: profile?.school_name ?? "Talladega College",
       verified: true,
       business: Math.random() > 0.7,
     });
