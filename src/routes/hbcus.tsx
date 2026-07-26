@@ -112,6 +112,10 @@ export const Route = createFileRoute("/hbcus")({
 function HbcusPage() {
   const verification = useHbcusVerification();
   const school = useSchool();
+  const { profile } = useProfile();
+  const domain =
+    (profile?.school_domain?.toLowerCase() || (profile?.email ? getDomain(profile.email) : null)) ?? null;
+  const isHbcu = !!profile?.is_hbcu_student || (!!domain && isHbcuDomain(domain));
 
   if (!verification.hydrated) {
     return (
@@ -132,6 +136,9 @@ function HbcusPage() {
       </AppShell>
     );
   }
+  if (profile && !isHbcu) {
+    return <NonHbcuGate school={school.name} domain={domain ?? undefined} />;
+  }
   if (!verification.verified) {
     return <VerificationWall onVerified={verification.verify} previewSchool={school.verified ? school.name : undefined} />;
   }
@@ -140,6 +147,57 @@ function HbcusPage() {
     ? verification.school
     : undefined;
   return <HbcusApp verifiedSchool={resolved} fallbackReason={resolved ? undefined : verification.school ?? school.name} />;
+}
+
+function NonHbcuGate({ school, domain }: { school: string; domain?: string }) {
+  return (
+    <AppShell title='HBC"US"'>
+      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
+        <div className="hbcus-theme-bg" aria-hidden="true" />
+        <section className="px-5 pt-8 hbcus-rise">
+          <div className="hbcus-card overflow-hidden">
+            <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.15] mix-blend-luminosity" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--hbcu-night) 92%, transparent) 80%)" }} />
+            <div className="relative p-6 text-center">
+              <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full border border-white/15 bg-black/40">
+                <Lock className="h-6 w-6" style={{ color: "var(--hbcu-gold)" }} />
+              </div>
+              <span className="hbcus-chip mx-auto"><Crown className="h-3 w-3 hbcus-crown" /> HBCU Students Only</span>
+              <h1 className="mt-3 text-2xl font-black tracking-tight">
+                <span className="text-muted-foreground">HBC</span>
+                <span className="plugu-us-silver">US</span>{" "}
+                is exclusive.
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This network is reserved for verified students of Historically Black Colleges & Universities.
+                Based on your <span className="font-semibold text-foreground">{domain ? `@${domain}` : school}</span>{" "}
+                email, {school} isn't recognized as an HBCU.
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground/80">
+                Good news — the rest of PlugU is fully free and available to you. If you actually attend an HBCU,
+                update your account with your school email to unlock this tab.
+              </p>
+              <div className="mt-5 flex flex-col gap-2">
+                <Link
+                  to="/profile"
+                  className="tap inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+                  style={{ background: "var(--hbcu-gold)", color: "#111" }}
+                >
+                  <Mail className="h-4 w-4" /> Update school email
+                </Link>
+                <Link
+                  to="/"
+                  className="tap inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold border border-white/15 text-foreground"
+                >
+                  Back to PlugU
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </AppShell>
+  );
 }
 
 function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string; fallbackReason?: string }) {
