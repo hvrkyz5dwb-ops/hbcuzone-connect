@@ -13,6 +13,7 @@ import {
   Flame,
   Footprints,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
@@ -255,15 +256,16 @@ function MapPage() {
 
         <div className="mt-3 flex items-center justify-between">
           <button
-            onClick={() => { if (!school.verified) setSwitcherOpen(true); }}
-            className="tap inline-flex items-center gap-2 text-xs text-muted-foreground disabled:opacity-100"
-            disabled={school.verified}
+            onClick={() => setSwitcherOpen(true)}
+            className="tap inline-flex items-center gap-2 text-xs text-muted-foreground"
+            aria-label="Campus settings"
           >
             <MapPin className="h-3.5 w-3.5 text-primary" />
             <span className="text-foreground">{active}</span>
             {school.verified
               ? <span className="text-[9px] uppercase tracking-widest text-accent">Verified</span>
               : <span className="text-[9px] uppercase tracking-widest">Change</span>}
+            <Settings className="h-3 w-3 ml-0.5" />
           </button>
           <button
             onClick={() => setNearMe((v) => !v)}
@@ -535,7 +537,14 @@ function MapPage() {
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-end sm:place-items-center" onClick={() => setSwitcherOpen(false)}>
           <div onClick={(e) => e.stopPropagation()} className="w-full sm:max-w-sm bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 max-h-[80dvh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">Change campus</h2>
+              <div>
+                <h2 className="text-lg font-bold">Campus settings</h2>
+                {school.verified && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Your .edu locked this to <span className="text-accent">{school.name}</span>. Preview another campus below.
+                  </p>
+                )}
+              </div>
               <button onClick={() => setSwitcherOpen(false)} aria-label="Close" className="tap h-8 w-8 grid place-items-center rounded-full bg-secondary"><X className="h-4 w-4" /></button>
             </div>
             <ul className="space-y-1">
