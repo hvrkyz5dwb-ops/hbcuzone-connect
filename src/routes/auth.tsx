@@ -113,15 +113,13 @@ function AuthPage() {
 
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
-      email: check.domain
-        ? email.trim().toLowerCase()
-        : email.trim().toLowerCase(),
+      email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/auth",
         data: {
           full_name: fullName.trim(),
-          school_name: check.school.name,
+          school_name: (school.trim() || check.school.name),
           school_domain: check.domain,
           year,
           major: major.trim() || "Undeclared",
@@ -245,7 +243,7 @@ function AuthPage() {
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
             </Labeled>
-            <Labeled label="School">
+            <Labeled label="School (any US college)">
               <div className="relative">
                 <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
@@ -253,7 +251,7 @@ function AuthPage() {
                   value={school}
                   onChange={(e) => setSchool(e.target.value)}
                   list="plugu-schools"
-                  placeholder="Type your school"
+                  placeholder="Type any college (e.g. UCLA, Howard, NYU)"
                   className="w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
                 />
                 <datalist id="plugu-schools">
