@@ -40,6 +40,9 @@ import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import { useSchool } from "@/hooks/use-school";
+import { useProfile } from "@/hooks/use-profile";
+import { detectHbcuSchool, isHbcuDomain, getDomain } from "@/lib/auth";
+import { ShieldCheck, Pencil } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getCampusWeather } from "@/lib/campus-intel.functions";
 import {
@@ -145,6 +148,27 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
   const [section, setSection] = useState<HbcusHomeSection>("Home");
   const [showAI, setShowAI] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const { profile } = useProfile();
+  const emailDomain =
+    (profile?.school_domain?.toLowerCase() || (profile?.email ? getDomain(profile.email) : null)) ?? null;
+  const detected = profile?.email ? detectHbcuSchool(profile.email) : null;
+  const hbcuMatch = !!emailDomain && isHbcuDomain(emailDomain);
+
+  function Row({ label, value, good }: { label: string; value: string; good?: boolean }) {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[10px] uppercase tracking-wider" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 55%, transparent)" }}>
+          {label}
+        </span>
+        <span
+          className="font-semibold truncate max-w-[60%] text-right"
+          style={{ color: good ? "var(--hbcu-gold)" : undefined }}
+        >
+          {value}
+        </span>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (verifiedSchool) setActive(verifiedSchool);
@@ -204,6 +228,53 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
                   <Bot className="h-3.5 w-3.5" /> Ask AI
                 </button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Eligibility panel — shows why HBCUS unlocked for this account */}
+        <section className="px-5 mt-4 hbcus-rise">
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: "color-mix(in oklab, var(--hbcu-deep) 78%, transparent)",
+              border: "1px solid color-mix(in oklab, var(--hbcu-gold) 28%, transparent)",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" style={{ color: "var(--hbcu-gold)" }} />
+              <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: "var(--hbcu-gold)" }}>
+                Why you see HBCUS
+              </p>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 text-[12px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 82%, transparent)" }}>
+              <Row label="Signed-in email" value={profile?.email ?? "—"} />
+              <Row label="Verified domain" value={emailDomain ?? "—"} />
+              <Row
+                label="HBCU match"
+                value={hbcuMatch ? (detected?.name ?? profile?.school_name ?? "Recognized HBCU") : "Not detected"}
+                good={hbcuMatch}
+              />
+              <Row
+                label="Active campus"
+                value={active}
+                good={!!verifiedSchool && active === verifiedSchool}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSwitch(true)}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tap"
+                style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)" }}
+              >
+                <Pencil className="h-3 w-3" /> Correct my campus
+              </button>
+              {fallbackReason && (
+                <span className="text-[10px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 60%, transparent)" }}>
+                  Preview mode · "{fallbackReason}" not in directory yet
+                </span>
+              )}
             </div>
           </div>
         </section>
