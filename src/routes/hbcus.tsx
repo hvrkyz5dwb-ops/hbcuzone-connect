@@ -532,8 +532,15 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-widest text-primary">Campus Weather</p>
-          <p className="mt-2 text-2xl font-bold flex items-center gap-2"><Sun className="h-5 w-5 text-yellow-300" /> 72°</p>
-          <p className="text-[11px] text-muted-foreground">Sunny on the Yard</p>
+          <p className="mt-2 text-2xl font-bold flex items-center gap-2">
+            <span>{weather?.emoji ?? "☀️"}</span> {weather ? `${weather.tempF}°` : (weatherQ.isPending ? "…" : "72°")}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {weather ? `${weather.condition} · H${weather.high}° L${weather.low}°` : "Live campus forecast"}
+          </p>
+          {weather?.blurb && (
+            <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5">{weather.blurb}</p>
+          )}
         </div>
         <button onClick={() => onJump("Scholarships")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
           <p className="text-[10px] uppercase tracking-widest text-accent">Scholarship</p>
