@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { useSchool } from "@/hooks/use-school";
 import {
   campusEconomies, rankingCategories, rankingFilters, rankBy, awardCategories,
   scholarshipCategories, monthlyChallenges, trendingBoards, verificationLevels,
@@ -107,7 +108,24 @@ function Stat({ label, value, dark = false }: { label: string; value: string | n
 
 /* ============ DASHBOARD ============ */
 function Dashboard() {
-  const [campusId, setCampusId] = useState(campusEconomies[0].id);
+  const school = useSchool();
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const matchByName = () => {
+    if (!school.name || school.name === "Your Campus") return null;
+    const k = norm(school.name);
+    return (
+      campusEconomies.find((c) => norm(c.campus) === k) ??
+      campusEconomies.find((c) => norm(c.campus).includes(k) || k.includes(norm(c.campus))) ??
+      null
+    );
+  };
+  const defaultId = matchByName()?.id ?? campusEconomies[0].id;
+  const [campusId, setCampusId] = useState(defaultId);
+  useEffect(() => {
+    const m = matchByName();
+    if (m && m.id !== campusId) setCampusId(m.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [school.name]);
   const c = campusEconomies.find((x) => x.id === campusId)!;
   return (
     <section className="mt-5 slide-up">
