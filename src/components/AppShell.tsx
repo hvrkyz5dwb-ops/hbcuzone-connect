@@ -73,7 +73,6 @@ const quickActions: { to: string; label: string; icon: LucideIcon; hint: string 
   { to: "/referrals", label: "Referral Program", icon: Gift, hint: "Your code, streak & achievements" },
   { to: "/ambassadors", label: "Campus Ambassadors", icon: Crown, hint: "Rep PlugU — merch, scholarships, perks" },
   { to: "/milestones", label: "Milestones", icon: Trophy, hint: "Shareable achievements as you grow" },
-  { to: "/economy", label: "Campus Economy", icon: Trophy, hint: "Live rankings, grant & wealth index" },
   { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
   { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Rocket, hint: "Launch pricing — campus to nationwide" },
   { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
