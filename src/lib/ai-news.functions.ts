@@ -19,10 +19,10 @@ export type AiNewsResult = {
 };
 
 const Input = z.object({
-  category: z.string().min(1).max(80),
-  school: z.string().max(80).optional(),
+  category: z.string().min(1).max(400),
+  school: z.string().max(200).optional(),
   count: z.number().int().min(1).max(12).optional(),
-  context: z.string().max(200).optional(),
+  context: z.string().max(1000).optional(),
 });
 
 const SYSTEM = `You are PlugU NewsAI, generating short, plausible, real-world style news briefs for Black college students at HBCUs and across America.
