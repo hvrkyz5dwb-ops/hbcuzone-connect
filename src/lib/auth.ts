@@ -168,9 +168,6 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
   const domain = getDomain(trimmed)!;
   const school = findSchoolByDomain(domain);
   if (school) {
-    if (requestedSchool && requestedSchool.trim() && school.name !== requestedSchool.trim()) {
-      // Warn but don't block — user's typed name wins.
-    }
     return { ok: true, school, domain };
   }
   // Subdomain match (e.g. bison.howard.edu → howard.edu).
@@ -181,15 +178,22 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
     const rootDomain = subMatch.domains.find((x) => domain.endsWith("." + x)) ?? domain;
     return { ok: true, school: subMatch, domain: rootDomain };
   }
-  if (!/\.edu$/.test(domain)) {
+  // Any other US college — must be a .edu domain. Use the typed school name,
+  // or derive one from the root domain when the user didn't provide it.
+  if (!/\.edu$/i.test(domain)) {
     return {
       ok: false,
-      reason: `PlugU is students-only. "${domain}" isn't a recognized school email — use your official .edu address.`,
+      reason: `PlugU is students-only. "${domain}" isn't a school email — use your official .edu address.`,
     };
   }
+  const rootDomain = domain.split(".").slice(-2).join(".");
+  const derivedName =
+    (requestedSchool && requestedSchool.trim()) ||
+    rootDomain.replace(/\.edu$/i, "").replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return {
-    ok: false,
-    reason: `"${domain}" isn't on PlugU's approved school list yet. Use your official school-issued .edu email, or contact support to add your campus.`,
+    ok: true,
+    school: { name: derivedName, domains: [rootDomain] },
+    domain: rootDomain,
   };
 }
 
