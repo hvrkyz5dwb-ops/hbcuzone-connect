@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getStudent } from "@/lib/auth";
+import { useProfile } from "./use-profile";
 import { schoolProfiles } from "@/lib/hbcus-data";
 
 const KEY = "plugu.hbcus.verified";
@@ -14,16 +14,25 @@ export type HbcusVerification = {
 const DEFAULT: HbcusVerification = { verified: false, method: null };
 
 export function useHbcusVerification() {
+  const { profile } = useProfile();
   const [state, setState] = useState<HbcusVerification>(DEFAULT);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     function sync() {
       try {
-        const s = getStudent();
-        // If student has a verified .edu that matches an HBCU profile, ensure verification reflects it.
-        if (s?.verifiedStudent && s.school && schoolProfiles.some((p) => p.name === s.school)) {
-          const merged: HbcusVerification = { verified: true, method: "edu", email: s.email, school: s.school };
+        // If the signed-in profile has a verified .edu matching an HBCU, reflect it.
+        if (
+          profile?.is_hbcu_student &&
+          profile.school_name &&
+          schoolProfiles.some((p) => p.name === profile.school_name)
+        ) {
+          const merged: HbcusVerification = {
+            verified: true,
+            method: "edu",
+            email: profile.email,
+            school: profile.school_name,
+          };
           setState(merged);
           try { window.localStorage.setItem(KEY, JSON.stringify(merged)); } catch {}
           return;
@@ -35,13 +44,11 @@ export function useHbcusVerification() {
     }
     sync();
     setHydrated(true);
-    window.addEventListener("plugu:student", sync);
     window.addEventListener("storage", sync);
     return () => {
-      window.removeEventListener("plugu:student", sync);
       window.removeEventListener("storage", sync);
     };
-  }, []);
+  }, [profile?.id, profile?.is_hbcu_student, profile?.school_name, profile?.email]);
 
   function verify(next: Omit<HbcusVerification, "verified"> & { verified?: boolean }) {
     const merged: HbcusVerification = { ...DEFAULT, ...next, verified: true };

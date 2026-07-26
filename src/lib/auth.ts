@@ -1,5 +1,13 @@
-// PlugU Student-Only Auth (client-side scaffold)
-// Backend (email verification codes) wired in a later phase.
+// PlugU school directory + email validation helpers.
+//
+// NOTE: Real authentication now lives in Supabase (see src/routes/auth.tsx,
+// src/hooks/use-session.ts, src/hooks/use-profile.ts). This module keeps the
+// pure helpers that many components still import — approved school list,
+// domain detection, and .edu validation used at signup time.
+//
+// The legacy localStorage "StudentAccount" API has been removed; the shim
+// functions below return null / false so existing consumers stay compilable
+// while they migrate to useProfile().
 
 export type ApprovedSchool = {
   name: string;
@@ -116,12 +124,14 @@ export function isHbcuDomain(domain: string): boolean {
   return false;
 }
 
+// Deprecated: HBCU status now lives on profiles.is_hbcu_student. Callers that
+// need the live value should read it from useProfile(). Kept as a no-op so
+// legacy imports don't crash during the migration.
 export function isHbcuStudent(): boolean {
-  const s = getStudent();
-  if (!s?.verifiedStudent || !s.domain) return false;
-  return isHbcuDomain(s.domain);
+  return false;
 }
 
+/** @deprecated Use useProfile() from '@/hooks/use-profile'. */
 export type StudentAccount = {
   id: string;
   name: string;
@@ -131,12 +141,9 @@ export type StudentAccount = {
   year: string;
   major: string;
   verifiedStudent: true;
-  // Reserved for future code-based verification step.
   emailVerified: boolean;
   createdAt: number;
 };
-
-const KEY = "plugu.student";
 
 export function getDomain(email: string): string | null {
   const at = email.lastIndexOf("@");
@@ -186,85 +193,12 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
   };
 }
 
+/** @deprecated Read the current profile via useProfile() instead. */
 export function getStudent(): StudentAccount | null {
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as StudentAccount) : null;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
+/** @deprecated Use useSession() from '@/hooks/use-session'. */
 export function isVerifiedStudent(): boolean {
-  return !!getStudent()?.verifiedStudent;
-}
-
-function persist(s: StudentAccount | null) {
-  try {
-    if (s) window.localStorage.setItem(KEY, JSON.stringify(s));
-    else window.localStorage.removeItem(KEY);
-    window.dispatchEvent(new Event("plugu:student"));
-  } catch {}
-}
-
-export type SignUpInput = {
-  name: string;
-  email: string;
-  school: string;
-  year: string;
-  major: string;
-};
-
-export type AuthResult =
-  | { ok: true; student: StudentAccount }
-  | { ok: false; reason: string };
-
-export function signUpStudent(input: SignUpInput): AuthResult {
-  if (!input.name.trim()) return { ok: false, reason: "Enter your full name." };
-  if (!input.school) return { ok: false, reason: "Select your school." };
-  const v = validateStudentEmail(input.email, input.school);
-  if (!v.ok) return { ok: false, reason: v.reason };
-  const student: StudentAccount = {
-    id: `stu_${Date.now().toString(36)}`,
-    name: input.name.trim(),
-    email: input.email.trim().toLowerCase(),
-    school: v.school.name,
-    domain: v.domain,
-    year: input.year || "Freshman",
-    major: input.major || "Undeclared",
-    verifiedStudent: true,
-    // TODO(server): set true only after one-time code verification.
-    emailVerified: false,
-    createdAt: Date.now(),
-  };
-  persist(student);
-  return { ok: true, student };
-}
-
-export function signInStudent(email: string): AuthResult {
-  const v = validateStudentEmail(email);
-  if (!v.ok) return { ok: false, reason: v.reason };
-  const existing = getStudent();
-  if (existing && existing.email === email.trim().toLowerCase()) {
-    return { ok: true, student: existing };
-  }
-  // Lightweight "find or create" for the placeholder login flow.
-  const student: StudentAccount = {
-    id: `stu_${Date.now().toString(36)}`,
-    name: existing?.name ?? email.split("@")[0],
-    email: email.trim().toLowerCase(),
-    school: v.school.name,
-    domain: v.domain,
-    year: existing?.year ?? "Freshman",
-    major: existing?.major ?? "Undeclared",
-    verifiedStudent: true,
-    emailVerified: false,
-    createdAt: existing?.createdAt ?? Date.now(),
-  };
-  persist(student);
-  return { ok: true, student };
-}
-
-export function signOutStudent() {
-  persist(null);
+  return false;
 }

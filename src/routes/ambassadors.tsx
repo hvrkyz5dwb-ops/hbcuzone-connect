@@ -7,7 +7,7 @@ import {
   AMBASSADOR_PERKS, CAMPUS_LEADERBOARD, NATIONAL_LEADERBOARD,
   applyAmbassador, autoApproveIfDue, getAmbassador, type AmbassadorApp,
 } from "@/lib/ambassadors";
-import { getStudent } from "@/lib/auth";
+import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/ambassadors")({
   head: () => ({ meta: [{ title: "Campus Ambassadors — PlugU" }] }),
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/ambassadors")({
 
 function AmbassadorsPage() {
   const navigate = useNavigate();
+  const { profile } = useProfile();
   const [app, setApp] = useState<AmbassadorApp>({ status: "none" });
   const [name, setName] = useState("");
   const [campus, setCampus] = useState("");
@@ -26,13 +27,12 @@ function AmbassadorsPage() {
     const current = autoApproveIfDue();
     setApp(current);
     if (current.status === "none") {
-      const s = getStudent();
-      setName(s?.name ?? "");
-      setCampus(s?.school ?? "");
+      setName(profile?.full_name ?? "");
+      setCampus(profile?.school_name ?? "");
     }
     const t = setInterval(() => setApp(autoApproveIfDue()), 2000);
     return () => clearInterval(t);
-  }, []);
+  }, [profile?.full_name, profile?.school_name]);
 
   function submit() {
     if (!name || !campus) {

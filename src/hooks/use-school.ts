@@ -1,7 +1,6 @@
 // PlugU school context — single source of truth derived from the verified .edu.
-// Falls back to persona campus for unverified/preview state.
-import { useEffect, useState } from "react";
-import { getStudent } from "@/lib/auth";
+// Reads from the current signed-in Supabase profile.
+import { useProfile } from "./use-profile";
 import { schoolDetails } from "@/lib/hbcus-data";
 
 export type SchoolContext = {
@@ -35,32 +34,14 @@ function fromDetails(name: string): Partial<SchoolContext> {
   return {};
 }
 
-function computeSchool(): SchoolContext {
-  if (typeof window === "undefined") {
-    return { slug: "plugu", name: "Your Campus", verified: false };
-  }
-  const s = getStudent();
-  const name = s?.school ?? "Your Campus";
+export function useSchool(): SchoolContext {
+  const { profile } = useProfile();
+  const name = profile?.school_name ?? "Your Campus";
   return {
     slug: slugify(name),
     name,
-    domain: s?.domain,
-    verified: !!s?.verifiedStudent,
+    domain: profile?.school_domain ?? undefined,
+    verified: !!profile?.school_domain,
     ...fromDetails(name),
   };
-}
-
-export function useSchool(): SchoolContext {
-  const [ctx, setCtx] = useState<SchoolContext>(computeSchool);
-  useEffect(() => {
-    setCtx(computeSchool());
-    const on = () => setCtx(computeSchool());
-    window.addEventListener("plugu:student", on);
-    window.addEventListener("storage", on);
-    return () => {
-      window.removeEventListener("plugu:student", on);
-      window.removeEventListener("storage", on);
-    };
-  }, []);
-  return ctx;
 }

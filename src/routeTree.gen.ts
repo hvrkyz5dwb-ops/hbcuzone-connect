@@ -16,6 +16,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -98,6 +99,11 @@ const SavedRoute = SavedRouteImport.update({
 const SafetyRoute = SafetyRouteImport.update({
   id: '/safety',
   path: '/safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundsRoute = RefundsRouteImport.update({
@@ -379,6 +385,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -436,6 +443,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
@@ -553,6 +562,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/refunds'
+    | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
@@ -610,6 +620,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/refunds'
+    | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
@@ -667,6 +678,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/refunds'
+    | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
@@ -725,6 +737,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
@@ -791,6 +804,13 @@ declare module '@tanstack/react-router' {
       path: '/safety'
       fullPath: '/safety'
       preLoaderRoute: typeof SafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refunds': {
@@ -1236,6 +1256,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
