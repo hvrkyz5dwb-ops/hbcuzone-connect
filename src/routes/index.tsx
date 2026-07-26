@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
-  Building2, MessageSquare, ArrowRight, Star, Trophy, TrendingUp,
+  Building2, MessageSquare, ArrowRight, Star, Trophy,
   Newspaper, Flame, Crown,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import {
   categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
-import { campusEconomies, platformInsights, formatMoney } from "@/lib/economy-data";
 import { currentSeason } from "@/lib/seasons";
 import { yourRank } from "@/lib/nationals";
 import { useEffect } from "react";
@@ -76,31 +75,6 @@ function Home() {
 
       {/* Opportunity rail — jobs / internships / scholarships / research / leadership / volunteer */}
       <OpportunityRail />
-
-      {/* Campus Economy entry — Phase 2 */}
-      <section className="mt-7 px-5">
-        <Link to="/economy" className="tap relative block overflow-hidden rounded-3xl border border-primary/30 p-5"
-          style={{ background: "var(--gradient-bronze)" }}>
-          <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full blur-3xl opacity-50"
-            style={{ background: "var(--plugu-purple)" }} />
-          <div className="relative flex items-start gap-3">
-            <div className="h-11 w-11 grid place-items-center rounded-2xl bg-black/30 border border-white/15">
-              <Trophy className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div className="flex-1 min-w-0 text-primary-foreground">
-              <p className="text-[10px] tracking-widest uppercase opacity-80">Campus Economy · Live</p>
-              <p className="text-sm font-bold mt-0.5">{campusEconomies[0].campus} · +{campusEconomies[0].stats.growthPct}% this month</p>
-              <p className="text-[11px] opacity-80 mt-1">
-                {formatMoney(platformInsights().moneyToday)} generated today · National rankings · PlugU Campus Grant
-              </p>
-              <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold">
-                Open Economy <ArrowRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-            <TrendingUp className="h-4 w-4 text-primary-foreground/80" />
-          </div>
-        </Link>
-      </section>
 
       {/* Category shortcuts */}
       <section className="mt-7">
