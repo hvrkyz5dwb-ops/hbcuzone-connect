@@ -154,6 +154,22 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
   const detected = profile?.email ? detectHbcuSchool(profile.email) : null;
   const hbcuMatch = !!emailDomain && isHbcuDomain(emailDomain);
 
+  function Row({ label, value, good }: { label: string; value: string; good?: boolean }) {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[10px] uppercase tracking-wider" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 55%, transparent)" }}>
+          {label}
+        </span>
+        <span
+          className="font-semibold truncate max-w-[60%] text-right"
+          style={{ color: good ? "var(--hbcu-gold)" : undefined }}
+        >
+          {value}
+        </span>
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (verifiedSchool) setActive(verifiedSchool);
     // eslint-disable-next-line react-hooks/exhaustive-deps
