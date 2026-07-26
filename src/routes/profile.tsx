@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale, PlayCircle } from "lucide-react";
-import { replayPluguIntro } from "@/components/FirstTimeIntro";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { getStudent } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
