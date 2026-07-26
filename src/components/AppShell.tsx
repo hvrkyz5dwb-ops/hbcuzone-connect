@@ -11,8 +11,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
 import { AchievementBurst } from "@/components/AchievementBurst";
-import { isVerifiedStudent, isHbcuStudent } from "@/lib/auth";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useSession } from "@/hooks/use-session";
+import { useProfile } from "@/hooks/use-profile";
 
 // Module-scoped flag prevents any re-mount of AppShell (internal navigation,
 // layout swaps) from replaying the splash within the same JS runtime.
@@ -31,17 +32,8 @@ const MULTI_TAB_WINDOW_MS = 15_000;
 function shouldPlaySplash(): boolean {
   if (typeof window === "undefined") return false;
   if (SPLASH_SHOWN) return false;
-  // Splash is a post-verification moment only. Unverified visitors get
-  // routed to /login by the gate below and never see the statue.
   try {
-    if (!isVerifiedStudent()) return false;
-  } catch {
-    return false;
-  }
-  try {
-    // Refresh of the same tab: sessionStorage survives reload but not close.
     if (window.sessionStorage.getItem(PLAYED_KEY)) return false;
-    // Multi-tab: another tab played the splash very recently — skip here.
     const recent = Number(window.localStorage.getItem(RECENT_KEY) ?? 0);
     if (recent && Date.now() - recent < MULTI_TAB_WINDOW_MS) return false;
   } catch {}
@@ -95,25 +87,18 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const { theme, toggle } = useTheme();
   const [plugOpen, setPlugOpen] = useState(false);
   const { unread } = useNotifications();
-  const [showSplash] = useState(() => {
-    const play = shouldPlaySplash();
-    if (play) markSplashPlayed();
-    return play;
-  });
-  // HBCUS link is exclusive to students whose verified .edu maps to an HBCU.
-  // Track it in state so the header updates when the student signs in/out.
-  const [hbcuStudent, setHbcuStudent] = useState(false);
+  const { session, loading: sessionLoading } = useSession();
+  const { profile } = useProfile();
+  const hbcuStudent = !!profile?.is_hbcu_student;
+
+  // Splash plays after auth is known and only when a student is signed in.
+  const [showSplash, setShowSplash] = useState(false);
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const sync = () => setHbcuStudent(isHbcuStudent());
-    sync();
-    window.addEventListener("plugu:student", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("plugu:student", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+    if (sessionLoading || !session) return;
+    if (!shouldPlaySplash()) return;
+    markSplashPlayed();
+    setShowSplash(true);
+  }, [sessionLoading, session]);
 
   // If a sibling tab plays the splash while this tab is open, remember it
   // so a later refresh here doesn't replay. (No re-render needed.)
@@ -130,21 +115,26 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // Student-only auth gate: unauthenticated visitors get bounced to /login.
-    const publicRoutes = ["/login", "/signup", "/onboarding"];
-    if (!publicRoutes.includes(pathname) && !isVerifiedStudent()) {
-      navigate({ to: "/login" });
+    if (sessionLoading) return;
+    // Public surfaces that anyone can see. Everything else requires a session.
+    const publicRoutes = ["/", "/auth", "/reset-password", "/onboarding", "/terms", "/privacy"];
+    const isPublic =
+      publicRoutes.includes(pathname) ||
+      pathname.startsWith("/api/") ||
+      pathname.startsWith("/.");
+    if (!session && !isPublic) {
+      navigate({ to: "/auth", search: { next: pathname, mode: "" } });
       return;
     }
-    if (pathname === "/onboarding") return;
-    try {
-      if (!window.localStorage.getItem("plugu.onboarded")) {
-        window.localStorage.setItem("plugu.onboarded", "1");
-        navigate({ to: "/onboarding" });
-      }
-    } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    if (session && pathname !== "/onboarding") {
+      try {
+        if (!window.localStorage.getItem("plugu.onboarded")) {
+          window.localStorage.setItem("plugu.onboarded", "1");
+          navigate({ to: "/onboarding" });
+        }
+      } catch {}
+    }
+  }, [pathname, session, sessionLoading, navigate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
