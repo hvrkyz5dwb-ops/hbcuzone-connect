@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import pluguLogo from "@/assets/plugu-logo.png";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 import { usePersona, interestOptions, type PersonaInterest } from "@/hooks/use-persona";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({ meta: [{ title: "Welcome — PlugU" }] }),
@@ -21,11 +22,22 @@ const STEPS = [
 
 function Onboarding() {
   const navigate = useNavigate();
+  const { session, loading } = useSession();
+
+  // Once an account exists, the welcome/KingPin slides never show again.
+  useEffect(() => {
+    if (!loading && session) navigate({ to: "/", replace: true });
+  }, [loading, session, navigate]);
+
   const [i, setI] = useState(0);
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
   const touchStartX = useRef<number | null>(null);
   const [persona, updatePersona] = usePersona();
+
+  if (loading || session) {
+    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+  }
 
   function toggleInterest(k: PersonaInterest) {
     const set = new Set(persona.interests);
