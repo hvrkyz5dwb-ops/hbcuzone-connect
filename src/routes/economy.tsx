@@ -170,12 +170,9 @@ function Dashboard() {
               { l: "Txns", v: c.stats.transactions.toLocaleString() },
               { l: "Market", v: c.stats.marketSales.toLocaleString() },
               { l: "Services", v: c.stats.servicesBooked.toLocaleString() },
-              { l: "Businesses", v: c.stats.businesses.toLocaleString() },
-              { l: "Active", v: c.stats.activeBusinesses.toLocaleString() },
-              { l: "Users", v: c.stats.activeUsers.toLocaleString() },
+              { l: "Verified", v: c.stats.activeBusinesses.toLocaleString() },
               { l: "Products Sold", v: c.stats.productsSold.toLocaleString() },
-              { l: "Orders", v: c.stats.ordersCompleted.toLocaleString() },
-              { l: "Avg Rating", v: c.stats.avgRating.toFixed(2) },
+              { l: "Growth", v: `+${c.stats.growthPct}%` },
             ].map((s) => (
               <div key={s.l} className="py-2 rounded-xl bg-background/50 border border-border/60">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{s.l}</p>
