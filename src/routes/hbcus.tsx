@@ -40,6 +40,9 @@ import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import { useSchool } from "@/hooks/use-school";
+import { useQuery } from "@tanstack/react-query";
+import { getCampusWeather } from "@/lib/campus-intel.functions";
+import { schoolDetails } from "@/lib/hbcus-data";
 import {
   hbcuNewsFilters,
   hbcuLiveNews,
