@@ -1,10 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-// PlugU has one entry point: /signup. The "checklist" signup handles both
-// new students and returning students (find-or-create). This route stays
-// only to redirect legacy links to the new flow.
+// PlugU has one auth surface — /auth. This legacy route routes returning
+// students straight into the sign-in tab.
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
-    throw redirect({ to: "/signup" });
+    throw redirect({ to: "/auth", search: { next: "", mode: "" } });
   },
 });

@@ -7,7 +7,8 @@ import {
   getReferralState, referralAchievements, referralRank, referralLink,
   addReferral, type ReferralState,
 } from "@/lib/referrals";
-import { getStudent } from "@/lib/auth";
+// Legacy student data has moved to useProfile() — referrals page doesn't
+// currently need it, so nothing to import.
 
 export const Route = createFileRoute("/referrals")({
   head: () => ({ meta: [{ title: "Referrals — PlugU" }] }),

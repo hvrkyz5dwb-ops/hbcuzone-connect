@@ -1,22 +1,12 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ShieldCheck, GraduationCap, Mail, AlertCircle, Check } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { LoginTransition } from "@/components/LoginTransition";
-import pluguLogo from "@/assets/plugu-logo.png";
-import statue from "@/assets/plugu-statue.jpg.asset.json";
-import { APPROVED_SCHOOLS, signUpStudent, validateStudentEmail } from "@/lib/auth";
-import { usePersona } from "@/hooks/use-persona";
-import { fireAchievement } from "@/components/AchievementBurst";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// PlugU has one auth surface — /auth. This legacy route now redirects into
+// the create-account tab so any old links (splash, marketing, referrals)
+// keep working without duplicating the form.
 export const Route = createFileRoute("/signup")({
-  head: () => ({
-    meta: [
-      { title: "Sign Up — Students Only — PlugU" },
-      { name: "description", content: "Create your PlugU account with your verified student email. Students-only campus marketplace." },
-    ],
-  }),
-  component: SignUp,
+  beforeLoad: () => {
+    throw redirect({ to: "/auth", search: { next: "", mode: "sign-up" } });
+  },
 });
 
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Grad"];

@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale } from "lucide-react";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Trophy, Scale, LogOut } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
-import { getStudent } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { useProfile } from "@/hooks/use-profile";
+import { useQueryClient } from "@tanstack/react-query";
+import { signOutAndReset } from "@/lib/sign-out";
 import { SellerReputation } from "@/components/SellerReputation";
 import pluguLogo from "@/assets/plugu-logo.png";
 import { listings } from "@/lib/mock-data";
@@ -36,10 +38,11 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
 ];
 
 function Profile() {
-  const student = typeof window !== "undefined" ? getStudent() : null;
-  const displayName = student?.name ?? "Kingpin";
-  const subline = student
-    ? `${student.school} · ${student.year} · ${student.major}`
+  const { profile } = useProfile();
+  const queryClient = useQueryClient();
+  const displayName = profile?.full_name ?? "Kingpin";
+  const subline = profile
+    ? [profile.school_name, profile.year, profile.major].filter(Boolean).join(" · ")
     : "Talladega College · Junior · Business";
   return (
     <AppShell title="PROFILE">
@@ -68,6 +71,12 @@ function Profile() {
         <p className="mt-3 text-sm text-muted-foreground max-w-xs mx-auto">
           Plug for the culture. Vendor connect, event promoter, and student of the game.
         </p>
+        <button
+          onClick={() => signOutAndReset(queryClient)}
+          className="tap mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"
+        >
+          <LogOut className="h-3 w-3" /> Sign out
+        </button>
       </section>
 
       {/* Skills & interests */}
