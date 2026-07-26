@@ -13,6 +13,7 @@ import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -84,6 +85,11 @@ const TermsRoute = TermsRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -389,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -447,6 +454,7 @@ export interface FileRoutesByTo {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -506,6 +514,7 @@ export interface FileRoutesById {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -566,6 +575,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/settings'
     | '/signup'
     | '/terms'
     | '/trust'
@@ -624,6 +634,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/settings'
     | '/signup'
     | '/terms'
     | '/trust'
@@ -682,6 +693,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/settings'
     | '/signup'
     | '/terms'
     | '/trust'
@@ -741,6 +753,7 @@ export interface RootRouteChildren {
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
+  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
@@ -783,6 +796,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -1260,6 +1280,7 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
+  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
