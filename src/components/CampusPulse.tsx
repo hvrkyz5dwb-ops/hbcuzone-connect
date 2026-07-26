@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Crown, Bell, ArrowRight, Calendar, Users, Sparkles, BadgeCheck, GraduationCap, Plug as PlugIcon, Gem,
-  TrendingUp, Megaphone, Store, Map as MapIcon, MessageSquare, Plug, Radio,
+  TrendingUp, Megaphone, Store, Map as MapIcon, MessageSquare, Plug, Radio, Plus,
 } from "lucide-react";
 import { SectionHeader } from "@/components/AppShell";
 import { Reveal } from "@/components/Reveal";
@@ -13,7 +13,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getCampusWeather } from "@/lib/campus-intel.functions";
 import { getSellerPlan } from "@/lib/seller-plan";
 import { liveActivity, businessSpotlight, aiRecommendations } from "@/lib/opportunities-data";
-import { announcements, events, featuredKingpins, listings } from "@/lib/mock-data";
+import { announcements, events as seedEvents, featuredKingpins, listings, hbcuEvents } from "@/lib/mock-data";
+import { listUserEvents, subscribeUserEvents, type UserEvent } from "@/lib/events-storage";
 
 function Countdown({ when }: { when: string }) {
   return (
@@ -79,6 +80,27 @@ export function CampusPulse() {
     return () => clearInterval(i);
   }, []);
   const activity = liveActivity[tick];
+
+  // School-scoped upcoming events: user-posted + seeded, filtered to this campus.
+  const [userEvents, setUserEvents] = useState<UserEvent[]>(() => listUserEvents(displayCampus));
+  useEffect(() => {
+    setUserEvents(listUserEvents(displayCampus));
+    return subscribeUserEvents(() => setUserEvents(listUserEvents(displayCampus)));
+  }, [displayCampus]);
+  const normKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const schoolKey = normKey(displayCampus);
+  const seededForSchool = [
+    ...seedEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, school: undefined as string | undefined })),
+    ...hbcuEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, school: e.school as string | undefined })),
+  ].filter((e) => {
+    if (!e.school) return true;
+    const k = normKey(e.school);
+    return k.includes(schoolKey) || schoolKey.includes(k);
+  });
+  const upcoming = [
+    ...userEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, mine: true })),
+    ...seededForSchool.map((e) => ({ title: e.title, when: e.when, where: e.where, mine: false })),
+  ];
 
   return (
     <>
@@ -265,11 +287,30 @@ export function CampusPulse() {
       <Reveal as="section" index={6} className="mt-7">
         <SectionHeader title="Tonight & this week" action="All events" />
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {events.map((e) => {
+          {upcoming.length === 0 && (
+            <Link
+              to="/events"
+              className="min-w-[240px] rounded-2xl border border-dashed border-primary/50 bg-card p-4 flex flex-col items-center justify-center text-center gap-2"
+              style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.12)" }}
+            >
+              <div
+                className="h-10 w-10 grid place-items-center rounded-full text-primary-foreground"
+                style={{ background: "var(--gradient-bronze)" }}
+              >
+                <Plus className="h-5 w-5" />
+              </div>
+              <p className="text-sm font-semibold">No events at {displayCampus} yet</p>
+              <p className="text-[11px] text-muted-foreground">Tap to post the first one</p>
+            </Link>
+          )}
+          {upcoming.map((e) => {
             const isRsvp = !!rsvped[e.title];
             return (
               <div key={e.title} className="min-w-[240px] rounded-2xl border border-border bg-[image:var(--gradient-surface)] p-4">
                 <Countdown when={e.when} />
+                {e.mine && (
+                  <span className="ml-2 text-[9px] uppercase tracking-widest text-accent">Yours</span>
+                )}
                 <h3 className="mt-2 font-semibold text-base leading-snug">{e.title}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{e.where}</p>
                 <div className="mt-3 flex items-center justify-between">
@@ -290,6 +331,21 @@ export function CampusPulse() {
               </div>
             );
           })}
+          {upcoming.length > 0 && (
+            <Link
+              to="/events"
+              className="min-w-[160px] rounded-2xl border border-dashed border-primary/50 bg-card p-4 flex flex-col items-center justify-center gap-2 text-center"
+            >
+              <div
+                className="h-9 w-9 grid place-items-center rounded-full text-primary-foreground"
+                style={{ background: "var(--gradient-bronze)" }}
+              >
+                <Plus className="h-4 w-4" />
+              </div>
+              <p className="text-[11px] font-semibold">Add event</p>
+              <p className="text-[10px] text-muted-foreground">Post to {displayCampus}</p>
+            </Link>
+          )}
         </div>
       </Reveal>
 
