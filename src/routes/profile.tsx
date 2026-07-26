@@ -116,17 +116,6 @@ function Profile() {
 
       <SellerReputation />
 
-      <section className="mt-6 px-5">
-        <button
-          onClick={replayPluguIntro}
-          className="w-full flex items-center gap-3 px-4 py-4 text-sm rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors"
-        >
-          <PlayCircle className="h-4 w-4 text-primary" />
-          <span className="flex-1 text-left">Replay PlugU Intro</span>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </section>
-
       <section className="mt-6 px-5 pb-4">
         <h2 className="text-sm font-semibold tracking-tight mb-3">My Listings</h2>
         <div className="grid grid-cols-3 gap-2">
