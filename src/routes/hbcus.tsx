@@ -513,6 +513,15 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-pink-300" /> Events on the Yard & Nationally</p>
             <AiNewsFeed category="HBCU campus events homecomings career fairs conferences" school={activeSchool} count={4} compact />
           </div>
+          <div>
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Flame className="h-3.5 w-3.5 text-orange-300" /> Campus Buzz · Fizz · IG · TikTok</p>
+            <AiNewsFeed
+              category={`Trending posts, viral moments, memes, and student chatter from Fizz, Instagram Reels, TikTok, YouTube and Twitter about ${activeSchool} and its students right now — parties, professors, dorms, dining, greek life, sports, drama`}
+              school={activeSchool}
+              count={5}
+              compact
+            />
+          </div>
         </div>
       </div>
 
