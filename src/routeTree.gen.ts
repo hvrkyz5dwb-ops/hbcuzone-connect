@@ -20,6 +20,7 @@ import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestSchoolAccessRouteImport } from './routes/request-school-access'
+import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as PromoteRouteImport } from './routes/promote'
@@ -132,6 +133,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RequestSchoolAccessRoute = RequestSchoolAccessRouteImport.update({
   id: '/request-school-access',
   path: '/request-school-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportProblemRoute = ReportProblemRouteImport.update({
+  id: '/report-problem',
+  path: '/report-problem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundsRoute = RefundsRouteImport.update({
@@ -466,6 +472,7 @@ export interface FileRoutesByFullPath {
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
@@ -537,6 +544,7 @@ export interface FileRoutesByTo {
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
@@ -609,6 +617,7 @@ export interface FileRoutesById {
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
@@ -682,6 +691,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
@@ -753,6 +763,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
@@ -896,6 +908,7 @@ export interface RootRouteChildren {
   PromoteRoute: typeof PromoteRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
+  ReportProblemRoute: typeof ReportProblemRoute
   RequestSchoolAccessRoute: typeof RequestSchoolAccessRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SafetyRoute: typeof SafetyRoute
@@ -1000,6 +1013,13 @@ declare module '@tanstack/react-router' {
       path: '/request-school-access'
       fullPath: '/request-school-access'
       preLoaderRoute: typeof RequestSchoolAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report-problem': {
+      id: '/report-problem'
+      path: '/report-problem'
+      fullPath: '/report-problem'
+      preLoaderRoute: typeof ReportProblemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refunds': {
@@ -1530,6 +1550,7 @@ const rootRouteChildren: RootRouteChildren = {
   PromoteRoute: PromoteRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
+  ReportProblemRoute: ReportProblemRoute,
   RequestSchoolAccessRoute: RequestSchoolAccessRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SafetyRoute: SafetyRoute,
