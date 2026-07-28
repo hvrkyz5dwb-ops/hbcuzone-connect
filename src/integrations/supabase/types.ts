@@ -147,37 +147,64 @@ export type Database = {
       }
       businesses: {
         Row: {
+          availability: string | null
           avatar_url: string | null
           bio: string | null
+          campus_name: string | null
+          cancellation_policy: string | null
+          category: string | null
+          contact_method: string
           created_at: string
+          description: string | null
+          fulfillment: string[]
           id: string
           is_active: boolean
           name: string
+          onboarding_step: number
           owner_user_id: string
+          rules_accepted_at: string | null
           school_id: string | null
           slug: string
           updated_at: string
         }
         Insert: {
+          availability?: string | null
           avatar_url?: string | null
           bio?: string | null
+          campus_name?: string | null
+          cancellation_policy?: string | null
+          category?: string | null
+          contact_method?: string
           created_at?: string
+          description?: string | null
+          fulfillment?: string[]
           id?: string
           is_active?: boolean
           name: string
+          onboarding_step?: number
           owner_user_id: string
+          rules_accepted_at?: string | null
           school_id?: string | null
           slug: string
           updated_at?: string
         }
         Update: {
+          availability?: string | null
           avatar_url?: string | null
           bio?: string | null
+          campus_name?: string | null
+          cancellation_policy?: string | null
+          category?: string | null
+          contact_method?: string
           created_at?: string
+          description?: string | null
+          fulfillment?: string[]
           id?: string
           is_active?: boolean
           name?: string
+          onboarding_step?: number
           owner_user_id?: string
+          rules_accepted_at?: string | null
           school_id?: string | null
           slug?: string
           updated_at?: string
@@ -585,63 +612,84 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          completed_transactions: number
           created_at: string
+          display_name: string | null
           email: string
           full_name: string | null
+          graduation_year: number | null
           id: string
           is_hbcu_student: boolean
           is_suspended: boolean
           major: string | null
           onboarding_completed_at: string | null
+          rating_avg: number
+          rating_count: number
           school_domain: string | null
           school_id: string | null
           school_name: string | null
+          status: string
           suspended_at: string | null
           suspended_reason: string | null
           terms_accepted_at: string | null
           updated_at: string
+          username: string | null
           verification_status: string
           year: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          completed_transactions?: number
           created_at?: string
+          display_name?: string | null
           email: string
           full_name?: string | null
+          graduation_year?: number | null
           id: string
           is_hbcu_student?: boolean
           is_suspended?: boolean
           major?: string | null
           onboarding_completed_at?: string | null
+          rating_avg?: number
+          rating_count?: number
           school_domain?: string | null
           school_id?: string | null
           school_name?: string | null
+          status?: string
           suspended_at?: string | null
           suspended_reason?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
+          username?: string | null
           verification_status?: string
           year?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          completed_transactions?: number
           created_at?: string
+          display_name?: string | null
           email?: string
           full_name?: string | null
+          graduation_year?: number | null
           id?: string
           is_hbcu_student?: boolean
           is_suspended?: boolean
           major?: string | null
           onboarding_completed_at?: string | null
+          rating_avg?: number
+          rating_count?: number
           school_domain?: string | null
           school_id?: string | null
           school_name?: string | null
+          status?: string
           suspended_at?: string | null
           suspended_reason?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
+          username?: string | null
           verification_status?: string
           year?: string | null
         }
@@ -930,7 +978,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          completed_transactions: number | null
+          created_at: string | null
+          display_name: string | null
+          graduation_year: number | null
+          id: string | null
+          is_hbcu_student: boolean | null
+          major: string | null
+          rating_avg: number | null
+          rating_count: number | null
+          school_name: string | null
+          status: string | null
+          username: string | null
+          verification_status: string | null
+          year: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          completed_transactions?: number | null
+          created_at?: string | null
+          display_name?: never
+          graduation_year?: number | null
+          id?: string | null
+          is_hbcu_student?: boolean | null
+          major?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
+          school_name?: string | null
+          status?: string | null
+          username?: string | null
+          verification_status?: string | null
+          year?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          completed_transactions?: number | null
+          created_at?: string | null
+          display_name?: never
+          graduation_year?: number | null
+          id?: string | null
+          is_hbcu_student?: boolean | null
+          major?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
+          school_name?: string | null
+          status?: string | null
+          username?: string | null
+          verification_status?: string | null
+          year?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
