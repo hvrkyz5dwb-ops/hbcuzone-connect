@@ -25,6 +25,7 @@ import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as PromoteRouteImport } from './routes/promote'
+import { Route as ProhibitedItemsRouteImport } from './routes/prohibited-items'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlugReachRouteImport } from './routes/plug-reach'
@@ -160,6 +161,11 @@ const ReferralsRoute = ReferralsRouteImport.update({
 const PromoteRoute = PromoteRouteImport.update({
   id: '/promote',
   path: '/promote',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProhibitedItemsRoute = ProhibitedItemsRouteImport.update({
+  id: '/prohibited-items',
+  path: '/prohibited-items',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -482,6 +488,7 @@ export interface FileRoutesByFullPath {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -556,6 +563,7 @@ export interface FileRoutesByTo {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -631,6 +639,7 @@ export interface FileRoutesById {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -707,6 +716,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
@@ -781,6 +791,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
@@ -855,6 +866,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
@@ -930,6 +942,7 @@ export interface RootRouteChildren {
   PlugReachRoute: typeof PlugReachRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
+  ProhibitedItemsRoute: typeof ProhibitedItemsRoute
   PromoteRoute: typeof PromoteRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
@@ -1074,6 +1087,13 @@ declare module '@tanstack/react-router' {
       path: '/promote'
       fullPath: '/promote'
       preLoaderRoute: typeof PromoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prohibited-items': {
+      id: '/prohibited-items'
+      path: '/prohibited-items'
+      fullPath: '/prohibited-items'
+      preLoaderRoute: typeof ProhibitedItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1588,6 +1608,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlugReachRoute: PlugReachRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
+  ProhibitedItemsRoute: ProhibitedItemsRoute,
   PromoteRoute: PromoteRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
