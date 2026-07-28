@@ -164,8 +164,7 @@ function ProfileInner() {
         {myListings && myListings.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
             {myListings.slice(0, 9).map((l) => {
-              const img = (l as unknown as { cover_url?: string | null; images?: { url: string }[] });
-              const src = img.cover_url ?? img.images?.[0]?.url ?? null;
+              const src = l.images?.[0]?.url ?? null;
               return (
                 <Link
                   key={l.id}
