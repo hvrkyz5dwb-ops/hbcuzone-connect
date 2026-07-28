@@ -215,35 +215,6 @@ function Home() {
         </Link>
       </section>
 
-      {/* Recent Messages */}
-      <section className="mt-7">
-        <SectionHeader title="Recent Messages" action="Inbox" onAction={() => navigate({ to: "/messages" })} />
-        <ul className="px-5 space-y-2">
-          {messagesList.slice(0, 3).map((m) => (
-            <li key={m.id}>
-            <Link
-              to="/messages/$id"
-              params={{ id: m.id }}
-              className="tap flex items-center gap-3 p-3 rounded-2xl bg-card border border-border"
-            >
-              <div className="relative h-10 w-10 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
-                {m.name[0]}
-                {m.unread && <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card" style={{ background: "var(--plugu-gold)" }} />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold truncate">{m.name}</p>
-                  <span className="text-[10px] text-muted-foreground shrink-0">{m.time}</span>
-                </div>
-                <p className="text-xs text-muted-foreground truncate">{m.preview}</p>
-              </div>
-              <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       {/* Recommended Services */}
       <section className="mt-7 mb-4">
         <SectionHeader title="Recommended for you" action="See all" onAction={() => navigate({ to: "/market" })} />
