@@ -1,124 +1,78 @@
-# Phase 1 — Auth, School Verification & Database Foundation
+# Phase 2 — Profiles & Seller Onboarding
 
-Goal: replace prototype auth/data with a real, RLS-secured backend so the full journey (signup → verified profile → seller → listing → messages → order → review → admin) can be built on solid ground. This plan covers **Phase 1 only**. Later phases (listings, orders, messages, reviews, admin, payments) come after this is approved and shipped.
+Wire student profiles and seller onboarding to the live database, replacing the mock-only surfaces.
 
-## What already exists (keeping as-is)
+## 1. Database migration
 
-- Supabase Auth wired via `@/integrations/supabase/client`, session hook, `/auth` page, `/reset-password` page.
-- `profiles` table (id, email, full_name, school_name, school_domain, year, major, is_hbcu_student, onboarding_completed_at, terms_accepted_at).
-- `user_roles` + `has_role()` RBAC helper.
-- `handle_new_user()` trigger populating profiles from `raw_user_meta_data`.
-- Sign-out flow, `/reset-password` UI, redirect-when-authenticated on `/auth`, onboarding gate.
+Extend the existing tables (no new tables — reuses `profiles` and `businesses`):
 
-I will not redesign these — I'll harden the DB behind them.
+**profiles** — add:
+- `username` text unique (citext-style lowercase, 3–20 chars)
+- `display_name` text (public-safe name, defaults to `full_name`)
+- `graduation_year` int
+- `status` text CHECK in (`student`, `alumni`) default `student`
+- `avatar_url` already exists
+- `completed_transactions` int default 0
+- `rating_avg` numeric(3,2) default 0
+- `rating_count` int default 0
 
-## What Phase 1 adds
+**businesses** — add:
+- `category` text
+- `description` text (rename intent; keep `bio` too for back-compat)
+- `campus_name` text
+- `fulfillment` text[] (subset of `pickup|delivery|appointment|digital`)
+- `availability` text
+- `cancellation_policy` text
+- `contact_method` text default `plugu_dm`
+- `rules_accepted_at` timestamptz
+- `onboarding_step` int default 0 (0 = draft, 5 = complete)
+- `is_active` already exists (flipped true only after step 5)
 
-### 1. Schools registry (source of truth)
+**public_profiles view** — safe columns only (no email, no suspension reason). Grant SELECT to `anon` + `authenticated`.
 
-New tables:
+Grants + RLS updates:
+- Keep existing self-only policies on `profiles`; new view exposes the safe fields publicly.
+- `businesses` policies unchanged (public read for `is_active=true`, owner read for drafts).
 
-- `schools` — id, name, domain (unique, lowercased), type (`hbcu` | `university` | `college` | `community`), city, state, is_active, created_at, updated_at. Public read (anon + authenticated).
-- `school_access_requests` — id, requester_user_id, requested_school_name, requested_domain, note, status (`pending` | `approved` | `denied`), reviewed_by, reviewed_at, created_at. RLS: users insert/read their own; admins read/update all.
+## 2. Profile UI
 
-Seed `schools` from `src/lib/hbcus-data.ts` in the same migration (literal INSERTs).
+- Extend `useProfile` and add a `usePublicProfile(username)` hook.
+- `/profile` (self): show avatar, display name, @username, school, grad year, student/alumni pill, bio, verified badge, rating summary, completed-transactions count, join date. Never render email publicly. Add "Edit profile" button.
+- `/profile/edit`: form for display name, username (uniqueness check), grad year, status, bio, avatar URL. Saves via `supabase.from('profiles').update`.
+- `/u/$username`: public read via `public_profiles` view. Same public fields; no edit affordance.
 
-### 2. Trusted verification on profiles
+## 3. Seller onboarding
 
-Add to `profiles`:
+New route `/seller/onboarding` — 5-step wizard, auto-saves after each step so progress isn't lost:
 
-- `school_id uuid references public.schools(id)`
-- `verification_status text` default `'pending'` (`pending` | `verified` | `alumni` | `denied`)
-- `is_suspended boolean` default false
-- `suspended_reason text`, `suspended_at timestamptz`
+1. Business name + category (creates `businesses` row, `is_active=false`, `onboarding_step=1`)
+2. Description + logo/avatar URL
+3. Campus (defaults to the verified school), fulfillment options (multi-select checkboxes), general availability
+4. Cancellation policy, preferred contact method (defaults to PlugU DM)
+5. Read + accept seller rules and prohibited-items policy → sets `rules_accepted_at`, `is_active=true`, `onboarding_step=5`
 
-Rewrite `handle_new_user()` trigger:
+Draft is looked up by `owner_user_id`; resuming the wizard rehydrates fields and jumps to the last saved step. "Save & exit" button on every step.
 
-- Lowercase domain from `NEW.email`.
-- Look up matching active row in `schools`; if found set `school_id`, `school_name`, `school_domain`, `is_hbcu_student = (type = 'hbcu')`, `verification_status = 'verified'`. Otherwise leave `school_id` null and `verification_status = 'pending'`.
-- Ignore any client-supplied `school_*` / `is_hbcu_student` in metadata (server derives from verified email domain only).
+Guard: signup requires `verification_status='verified'` before entering onboarding (otherwise shows verify-first CTA).
 
-Add a **column-level** RLS: users may update their profile but **not** `school_id`, `school_name`, `school_domain`, `is_hbcu_student`, `verification_status`, `is_suspended` (enforced via a `BEFORE UPDATE` trigger that reverts those columns for non-admins).
+## 4. Seller dashboard `/seller`
 
-### 3. Marketplace + trust schema (structure only in Phase 1)
+New minimal functional dashboard fed by the real business row:
+- Header: logo, name, category, campus, active/draft chip
+- Stats: listings count, orders count, rating avg — real Supabase counts
+- Actions: Add listing (→ existing market flow), Edit business, View public storefront, Boost
+- If no business exists → "Become a seller" CTA that routes to `/seller/onboarding`
 
-Create empty, RLS-protected tables so future phases plug in:
+`/business` (existing rich mock hub) stays but its "Get started" CTA is rewired to `/seller/onboarding`. Profile menu gains "Seller dashboard".
 
-- `businesses` (owner user_id, school_id, name, slug, bio, avatar_url, is_active)
-- `listings` (business_id, seller_user_id, school_id, title, description, category, price_cents, kind `item|service|booking`, status `draft|active|sold|removed`)
-- `listing_images` (listing_id, url, position)
-- `service_availability` (listing_id, weekday, start_time, end_time)
-- `conversations` (id, listing_id nullable, created_by)
-- `conversation_members` (conversation_id, user_id)
-- `messages` (conversation_id, sender_user_id, body, created_at)
-- `orders` (buyer_user_id, seller_user_id, listing_id, status `pending|accepted|completed|cancelled|disputed`, total_cents)
-- `order_items` (order_id, listing_id, qty, unit_price_cents)
-- `bookings` (order_id, listing_id, scheduled_at, duration_min, status)
-- `reviews` (order_id unique, reviewer_user_id, subject_user_id, rating 1-5, body)
-- `reports` (reporter_user_id, target_type, target_id, reason, status)
-- `blocked_users` (blocker_user_id, blocked_user_id)
-- `notifications` (user_id, kind, payload jsonb, read_at)
-- `disputes` (order_id, opened_by, reason, status)
-- `favorites` (user_id, listing_id)
-- `admin_actions` (admin_user_id, action, target_type, target_id, note)
-- `subscription_plans` (code, name, price_cents, features jsonb)
-- `seller_subscriptions` (user_id, plan_code, status, current_period_end)
-- `boosts` (listing_id, kind, expires_at, amount_cents)
-- `payout_accounts` (user_id, provider, external_id, status)
+## Technical
 
-All: UUID PK, `created_at`, `updated_at` where mutable, FKs, indexes on the hot columns (`school_id`, `user_id`, `seller_user_id`, `buyer_user_id`, `listings.category`, `listings.status`, `orders.status`, `created_at`), and `GRANT SELECT, INSERT, UPDATE, DELETE ... TO authenticated` + `GRANT ALL ... TO service_role`. `anon` gets SELECT only on `schools`, `listings` (active only via RLS), `businesses` (active), and `reviews`.
+- All writes through the browser Supabase client with RLS (`owner_user_id = auth.uid()` insert/update). No server functions needed for this phase.
+- Username uniqueness enforced at DB (unique index) + surfaced as a friendly error in the edit form.
+- `public_profiles` view is `SECURITY INVOKER` (default) with explicit column list — email is not selectable.
+- Ratings/transactions columns default to 0; live aggregation from `orders`/`reviews` will be layered in a later phase.
 
-### 4. RLS policies (Phase 1 shape)
-
-- `profiles`: keep existing self-only; admin can read all via `has_role(auth.uid(),'admin')`.
-- `schools`: read anon+authenticated; write admin only.
-- `school_access_requests`: user manages own row; admin reads/updates all.
-- `businesses` / `listings` / `listing_images` / `service_availability`: owner writes; anyone reads `active`/`published` rows; owner reads own drafts. Suspended users cannot write (check via subquery on `profiles.is_suspended`).
-- `conversations` / `conversation_members` / `messages`: only participants read/write; only members can insert messages; suspended users blocked from inserts.
-- `orders` / `order_items` / `bookings`: buyer and seller can read; buyer inserts; seller updates status.
-- `reviews`: insert allowed only when a matching completed order exists (`EXISTS` clause) and reviewer was buyer or seller.
-- `reports`, `disputes`, `admin_actions`: user inserts own; admin reads all.
-- `blocked_users`, `favorites`, `notifications`: self-only.
-- `subscription_plans`: public read; admin write. `seller_subscriptions`, `boosts`, `payout_accounts`: self read/write.
-
-All policies use `has_role()` for admin checks (avoids the infinite-recursion trap).
-
-### 5. Frontend wiring (minimal, targeted — no redesign)
-
-- `useProfile`: expose new `verification_status`, `is_suspended`, `school_id`.
-- `/auth` create-account: keep the existing form, but drop any client-side `school_name` writing to profile (trigger owns it now). Show a "we couldn't match your school" banner + link to a new `/schools/request` form when `verification_status = 'pending'` after signup.
-- New `/schools/request` route: simple form that inserts into `school_access_requests`.
-- Suspended-account guard: a small effect in `AppShell` that, if `is_suspended`, replaces the shell with a "Your account is under review" screen (blocks nav to compose/create/message).
-- Redirect-when-authenticated on `/auth`: already exists — verify and leave alone.
-
-### 6. Admin surface (Phase 1 scope only)
-
-Add a minimal `/admin/schools` panel (gated by `has_role('admin')`) to:
-
-- List pending `school_access_requests` and approve/deny (approve inserts into `schools`, updates the requester's `school_id` + `verification_status`).
-- Toggle a user's `verification_status` (verified/alumni/denied) and `is_suspended`.
-
-Everything else in admin stays as-is until later phases.
-
-## Out of scope for Phase 1
-
-Listings CRUD UI, messaging UI, orders/checkout, reviews UI, disputes UI, payments, notifications delivery, boosts. Their **tables and RLS** land now; the **UIs** ship in later phases.
-
-## Technical notes
-
-- Migration order per table: CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY. All in one migration call.
-- `handle_new_user()` rewrite must be `SECURITY DEFINER` with `SET search_path = public` (already the pattern).
-- Column-lock trigger on `profiles` uses `has_role(auth.uid(),'admin')` to allow admin overrides.
-- Seed `schools` from `hbcus-data.ts` via literal INSERTs in the migration (no seeding via server fn on load).
-- No new server functions strictly needed for Phase 1 — Supabase client + RLS handles it. Admin approve/deny goes through `requireSupabaseAuth` server fn to keep the admin check server-side.
-
-## Deliverables & report
-
-After Phase 1 lands I'll report:
-
-- Migration applied (tables, policies, seed count).
-- Files touched (small: `useProfile`, `AppShell` suspend gate, `/schools/request`, `/admin/schools`, `/auth` banner).
-- Manual steps you still need to do: none for Phase 1 (Supabase Auth email + password reset already work on Lovable Cloud). Custom email templates and auto-confirm are still off unless you ask.
-- What's explicitly deferred to Phase 2+.
-
-Reply "go" to apply, or tell me what to change.
+## Out of scope this phase
+- Payout provider connect (stubbed under existing `payout_accounts` table).
+- Live rating recomputation triggers.
+- Public storefront route at `/biz/$slug` (dashboard "View storefront" link added, route follows in Phase 3 marketplace work).
