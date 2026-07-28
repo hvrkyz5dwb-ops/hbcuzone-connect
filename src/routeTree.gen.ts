@@ -64,7 +64,6 @@ import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
-import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
@@ -350,11 +349,6 @@ const OrdersIdRoute = OrdersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => OrdersRoute,
 } as any)
-const MessagesIdRoute = MessagesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MessagesRoute,
-} as any)
 const LaunchSlugRoute = LaunchSlugRouteImport.update({
   id: '/launch/$slug',
   path: '/launch/$slug',
@@ -425,7 +419,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
-  '/messages': typeof MessagesRouteWithChildren
+  '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
@@ -456,7 +450,6 @@ export interface FileRoutesByFullPath {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
-  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
@@ -492,7 +485,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
-  '/messages': typeof MessagesRouteWithChildren
+  '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
@@ -523,7 +516,6 @@ export interface FileRoutesByTo {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
-  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
@@ -560,7 +552,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
-  '/messages': typeof MessagesRouteWithChildren
+  '/messages': typeof MessagesRoute
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
@@ -591,7 +583,6 @@ export interface FileRoutesById {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
-  '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
@@ -660,7 +651,6 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
-    | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
     | '/season/$slug'
@@ -727,7 +717,6 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
-    | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
     | '/season/$slug'
@@ -794,7 +783,6 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
-    | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
     | '/season/$slug'
@@ -831,7 +819,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
   McpRoute: typeof McpRoute
-  MessagesRoute: typeof MessagesRouteWithChildren
+  MessagesRoute: typeof MessagesRoute
   MilestonesRoute: typeof MilestonesRoute
   NationalsRoute: typeof NationalsRoute
   NewsRoute: typeof NewsRoute
@@ -1258,13 +1246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof OrdersRoute
     }
-    '/messages/$id': {
-      id: '/messages/$id'
-      path: '/$id'
-      fullPath: '/messages/$id'
-      preLoaderRoute: typeof MessagesIdRouteImport
-      parentRoute: typeof MessagesRoute
-    }
     '/launch/$slug': {
       id: '/launch/$slug'
       path: '/launch/$slug'
@@ -1365,18 +1346,6 @@ const HbcusRouteChildren: HbcusRouteChildren = {
 
 const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
-interface MessagesRouteChildren {
-  MessagesIdRoute: typeof MessagesIdRoute
-}
-
-const MessagesRouteChildren: MessagesRouteChildren = {
-  MessagesIdRoute: MessagesIdRoute,
-}
-
-const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
-  MessagesRouteChildren,
-)
-
 interface OrdersIdRouteChildren {
   OrdersIdDisputeRoute: typeof OrdersIdDisputeRoute
 }
@@ -1432,7 +1401,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
   McpRoute: McpRoute,
-  MessagesRoute: MessagesRouteWithChildren,
+  MessagesRoute: MessagesRoute,
   MilestonesRoute: MilestonesRoute,
   NationalsRoute: NationalsRoute,
   NewsRoute: NewsRoute,
