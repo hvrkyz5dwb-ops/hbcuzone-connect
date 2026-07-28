@@ -39,11 +39,17 @@ function CommunityGuidelinesPage() {
             </div>
             <p className="mb-2">PlugU strictly prohibits the sale, purchase, distribution, or advertisement of:</p>
             <ul className="list-disc space-y-1 pl-5">
-              <li>Illegal drugs, controlled substances, drug paraphernalia, or counterfeit medication</li>
-              <li>Weapons, firearms, ammunition, explosives, or dangerous materials</li>
-              <li>Stolen goods, counterfeit items, or fraudulent services</li>
-              <li>Academic cheating services, fake IDs, or credentials</li>
-              <li>Any item or body text illegal under local, state, or federal law</li>
+              <li>Illegal drugs & controlled substances</li>
+              <li>Drug distribution or paraphernalia</li>
+              <li>Weapons, firearms, ammunition, explosives</li>
+              <li>Stolen property</li>
+              <li>Fake identification</li>
+              <li>Academic cheating services (essays, exam help, ghost-writing)</li>
+              <li>Counterfeit goods (fake brands, replicas)</li>
+              <li>Sexual services or adult content</li>
+              <li>Harassment, threats, or hate speech</li>
+              <li>Fraudulent events or scam ticketing</li>
+              <li>Any illegal product or service under local, state, or federal law</li>
             </ul>
           </div>
 
