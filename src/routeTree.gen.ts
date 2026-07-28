@@ -56,6 +56,7 @@ import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
+import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -305,6 +306,11 @@ const SellerPlansRoute = SellerPlansRouteImport.update({
   path: '/seller/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerOnboardingRoute = SellerOnboardingRouteImport.update({
+  id: '/seller/onboarding',
+  path: '/seller/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   id: '/seller/analytics',
   path: '/seller/analytics',
@@ -430,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -492,6 +499,7 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -555,6 +563,7 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -619,6 +628,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -681,6 +691,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -743,6 +754,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -802,6 +814,7 @@ export interface RootRouteChildren {
   LaunchSlugRoute: typeof LaunchSlugRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
+  SellerOnboardingRoute: typeof SellerOnboardingRoute
   SellerPlansRoute: typeof SellerPlansRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1138,6 +1151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerPlansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/onboarding': {
+      id: '/seller/onboarding'
+      path: '/seller/onboarding'
+      fullPath: '/seller/onboarding'
+      preLoaderRoute: typeof SellerOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/analytics': {
       id: '/seller/analytics'
       path: '/seller/analytics'
@@ -1354,6 +1374,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaunchSlugRoute: LaunchSlugRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
+  SellerOnboardingRoute: SellerOnboardingRoute,
   SellerPlansRoute: SellerPlansRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
