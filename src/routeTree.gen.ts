@@ -70,7 +70,6 @@ import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listin
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -382,11 +381,6 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
-const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
-  id: '/dispute',
-  path: '/dispute',
-  getParentRoute: () => OrdersIdRoute,
-} as any)
 const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
   id: '/school/$slug',
   path: '/school/$slug',
@@ -457,7 +451,7 @@ export interface FileRoutesByFullPath {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -469,7 +463,6 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
-  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -524,7 +517,7 @@ export interface FileRoutesByTo {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -536,7 +529,6 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
-  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -592,7 +584,7 @@ export interface FileRoutesById {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -604,7 +596,6 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
-  '/orders/$id/dispute': typeof OrdersIdDisputeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -673,7 +664,6 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
-    | '/orders/$id/dispute'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -740,7 +730,6 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
-    | '/orders/$id/dispute'
   id:
     | '__root__'
     | '/'
@@ -807,7 +796,6 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
-    | '/orders/$id/dispute'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1300,13 +1288,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders/$id/dispute': {
-      id: '/orders/$id/dispute'
-      path: '/dispute'
-      fullPath: '/orders/$id/dispute'
-      preLoaderRoute: typeof OrdersIdDisputeRouteImport
-      parentRoute: typeof OrdersIdRoute
-    }
     '/hbcus/school/$slug': {
       id: '/hbcus/school/$slug'
       path: '/school/$slug'
@@ -1377,24 +1358,12 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
   MessagesRouteChildren,
 )
 
-interface OrdersIdRouteChildren {
-  OrdersIdDisputeRoute: typeof OrdersIdDisputeRoute
-}
-
-const OrdersIdRouteChildren: OrdersIdRouteChildren = {
-  OrdersIdDisputeRoute: OrdersIdDisputeRoute,
-}
-
-const OrdersIdRouteWithChildren = OrdersIdRoute._addFileChildren(
-  OrdersIdRouteChildren,
-)
-
 interface OrdersRouteChildren {
-  OrdersIdRoute: typeof OrdersIdRouteWithChildren
+  OrdersIdRoute: typeof OrdersIdRoute
 }
 
 const OrdersRouteChildren: OrdersRouteChildren = {
-  OrdersIdRoute: OrdersIdRouteWithChildren,
+  OrdersIdRoute: OrdersIdRoute,
 }
 
 const OrdersRouteWithChildren =
