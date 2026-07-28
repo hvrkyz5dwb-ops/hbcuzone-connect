@@ -12,6 +12,8 @@ import { DailySlides } from "@/components/DailySlides";
 import { SmartSearch } from "@/components/SmartSearch";
 import { OpportunityRail } from "@/components/OpportunityRail";
 import { CommunityBoard } from "@/components/CommunityBoard";
+import { useProfile } from "@/hooks/use-profile";
+import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   categories, nearbyServices, scholarships, hbcuDiscounts,
@@ -62,6 +64,8 @@ function Home() {
 
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
+
+      <VerificationBanner />
 
       {/* Phase 6 — daily hits & competition */}
       <section className="mt-6 px-5">
