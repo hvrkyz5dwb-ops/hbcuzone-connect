@@ -261,7 +261,17 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                         active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.75} />
+                      <span className="relative">
+                        <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.75} />
+                        {t.label === "Inbox" && inboxUnread > 0 && (
+                          <span
+                            className="absolute -top-1 -right-2 min-w-[16px] h-[16px] px-1 grid place-items-center rounded-full text-[9px] font-bold text-black"
+                            style={{ background: "var(--plugu-gold)" }}
+                          >
+                            {inboxUnread > 9 ? "9+" : inboxUnread}
+                          </span>
+                        )}
+                      </span>
                       <span>{t.label}</span>
                       {active && (
                         <span
