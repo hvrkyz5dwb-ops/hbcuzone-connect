@@ -14,6 +14,7 @@ import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
+import { useUnreadCount } from "@/hooks/use-messages";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
 
 // Module-scoped flag prevents any re-mount of AppShell (internal navigation,
