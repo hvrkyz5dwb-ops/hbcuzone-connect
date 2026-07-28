@@ -93,7 +93,7 @@ export async function adminPerform(input: {
     _action: input.action,
     _target_type: input.targetType,
     _target_id: input.targetId,
-    _note: input.note ?? null,
+    _note: input.note ?? "",
   });
   if (error) throw error;
 }
