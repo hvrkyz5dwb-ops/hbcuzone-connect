@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ShieldCheck, MessageSquare, AlertTriangle, Loader2, Calendar, Package } from "lucide-react";
+import { ArrowLeft, ShieldCheck, MessageSquare, AlertTriangle, Loader2, Calendar, Package, Star } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -185,6 +185,16 @@ function OrderDetail() {
             </Link>
           )}
         </div>
+
+        {(order.status === "completed" || order.booking?.status === "completed") && (
+          <Link
+            to="/orders/$id/review"
+            params={{ id: order.id }}
+            className="mt-3 tap w-full py-2.5 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-xs font-semibold inline-flex items-center justify-center gap-2"
+          >
+            <Star className="h-3.5 w-3.5" /> Leave a review
+          </Link>
+        )}
 
         {/* State machine buttons */}
         {(nextOrderStates.length > 0 || nextBookingStates.length > 0) && (
