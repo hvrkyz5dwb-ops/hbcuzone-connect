@@ -12,6 +12,7 @@ import { LoadingGrid, EmptyState } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useMarketplace } from "@/hooks/use-listings";
 import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
+import { getOrCreateConversation } from "@/lib/messages-db";
 import { MVP_CATEGORIES, formatPrice, categoryLabel, type PriceType } from "@/lib/categories";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -281,7 +282,14 @@ function ListingCard({
             <ShoppingBag className="h-3.5 w-3.5" /> {l.price_type === "quote" ? "Request" : "Buy"}
           </button>
           <button
-            onClick={() => { toast.success("Message opened"); navigate({ to: "/messages" }); }}
+            onClick={async () => {
+              try {
+                const convId = await getOrCreateConversation(l.seller_user_id, l.id);
+                navigate({ to: "/messages/$id", params: { id: convId } });
+              } catch (err) {
+                toast.error("Couldn't open chat", { description: (err as Error).message });
+              }
+            }}
             className="tap h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border"
             aria-label="Message"
           >
