@@ -15,6 +15,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SellerAgreementRouteImport } from './routes/seller-agreement'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
@@ -109,6 +110,11 @@ const SignupRoute = SignupRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerAgreementRoute = SellerAgreementRouteImport.update({
+  id: '/seller-agreement',
+  path: '/seller-agreement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -485,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
@@ -558,6 +565,7 @@ export interface FileRoutesByTo {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
@@ -632,6 +640,7 @@ export interface FileRoutesById {
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
@@ -707,6 +716,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
     | '/support'
@@ -780,6 +790,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
     | '/support'
@@ -853,6 +864,7 @@ export interface FileRouteTypes {
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
     | '/support'
@@ -927,6 +939,7 @@ export interface RootRouteChildren {
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
+  SellerAgreementRoute: typeof SellerAgreementRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   SupportRoute: typeof SupportRoute
@@ -991,6 +1004,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller-agreement': {
+      id: '/seller-agreement'
+      path: '/seller-agreement'
+      fullPath: '/seller-agreement'
+      preLoaderRoute: typeof SellerAgreementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -1577,6 +1597,7 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
+  SellerAgreementRoute: SellerAgreementRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   SupportRoute: SupportRoute,
