@@ -56,6 +56,7 @@ import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
@@ -308,6 +309,11 @@ const SellerIndexRoute = SellerIndexRouteImport.update({
   path: '/seller/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerPlansRoute = SellerPlansRouteImport.update({
   id: '/seller/plans',
   path: '/seller/plans',
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -516,6 +523,7 @@ export interface FileRoutesByTo {
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
   '/seller': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -582,6 +590,7 @@ export interface FileRoutesById {
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -649,6 +658,7 @@ export interface FileRouteTypes {
     | '/seller/analytics'
     | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -714,6 +724,7 @@ export interface FileRouteTypes {
     | '/seller/analytics'
     | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
     | '/seller'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -779,6 +790,7 @@ export interface FileRouteTypes {
     | '/seller/analytics'
     | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -840,6 +852,7 @@ export interface RootRouteChildren {
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerOnboardingRoute: typeof SellerOnboardingRoute
   SellerPlansRoute: typeof SellerPlansRoute
+  UUsernameRoute: typeof UUsernameRoute
   SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1176,6 +1189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/plans': {
       id: '/seller/plans'
       path: '/seller/plans'
@@ -1426,6 +1446,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerOnboardingRoute: SellerOnboardingRoute,
   SellerPlansRoute: SellerPlansRoute,
+  UUsernameRoute: UUsernameRoute,
   SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
