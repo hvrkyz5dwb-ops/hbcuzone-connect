@@ -370,8 +370,7 @@ img, video { content-visibility: auto; }
 
 /* Keyboard focus ring for all interactive elements — accessible without
    disturbing the metallic aesthetic. */
-:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"]))
-  :focus-visible {
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--plugu-gold, #d4af37);
   outline-offset: 2px;
   border-radius: 8px;
