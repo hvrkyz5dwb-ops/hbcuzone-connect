@@ -70,6 +70,7 @@ import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listin
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as SellerAvailabilityListingIdRouteImport } from './routes/seller.availability.$listingId'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -382,6 +383,12 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SellerAvailabilityListingIdRoute =
+  SellerAvailabilityListingIdRouteImport.update({
+    id: '/seller/availability/$listingId',
+    path: '/seller/availability/$listingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
@@ -470,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -537,6 +545,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -605,6 +614,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -674,6 +684,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/seller/availability/$listingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -741,6 +752,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/seller/availability/$listingId'
   id:
     | '__root__'
     | '/'
@@ -808,6 +820,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/seller/availability/$listingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -869,6 +882,7 @@ export interface RootRouteChildren {
   SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  SellerAvailabilityListingIdRoute: typeof SellerAvailabilityListingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1300,6 +1314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/availability/$listingId': {
+      id: '/seller/availability/$listingId'
+      path: '/seller/availability/$listingId'
+      fullPath: '/seller/availability/$listingId'
+      preLoaderRoute: typeof SellerAvailabilityListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id/dispute': {
       id: '/orders/$id/dispute'
       path: '/dispute'
@@ -1471,6 +1492,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  SellerAvailabilityListingIdRoute: SellerAvailabilityListingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
