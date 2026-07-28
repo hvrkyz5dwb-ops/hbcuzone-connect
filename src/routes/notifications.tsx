@@ -1,15 +1,22 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
-import { Bell, CheckCheck, Trash2, ChevronRight } from "lucide-react";
+import { Bell, CheckCheck, Trash2, ChevronRight, Loader2 } from "lucide-react";
 import {
-  markAllRead, markRead, clearAll, NOTIF_LABEL,
-  type PluguNotification,
-} from "@/lib/notifications-storage";
+  markAllNotificationsRead, markNotificationRead, clearAllNotifications,
+  labelFor, emojiFor, titleFor, bodyFor, hrefFor, type NotifRow,
+} from "@/lib/notifications-db";
 import { useNotifications } from "@/hooks/use-notifications";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/auth", search: { next: "/notifications", mode: "" } });
+  },
   head: () => ({
     meta: [
       { title: "Notifications — PlugU" },
@@ -19,8 +26,8 @@ export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
 });
 
-function relative(t: number): string {
-  const s = Math.max(1, Math.round((Date.now() - t) / 1000));
+function relative(iso: string): string {
+  const s = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
   if (s < 60) return `${s}s`;
   const m = Math.round(s / 60);
   if (m < 60) return `${m}m`;
@@ -30,14 +37,15 @@ function relative(t: number): string {
   return `${d}d`;
 }
 
-function groupByDay(list: PluguNotification[]) {
+function groupByDay(list: NotifRow[]) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const yesterday = today - 86400_000;
-  const groups: Record<string, PluguNotification[]> = { Today: [], Yesterday: [], Earlier: [] };
+  const groups: Record<string, NotifRow[]> = { Today: [], Yesterday: [], Earlier: [] };
   for (const n of list) {
-    if (n.createdAt >= today) groups.Today.push(n);
-    else if (n.createdAt >= yesterday) groups.Yesterday.push(n);
+    const t = new Date(n.created_at).getTime();
+    if (t >= today) groups.Today.push(n);
+    else if (t >= yesterday) groups.Yesterday.push(n);
     else groups.Earlier.push(n);
   }
   return groups;
@@ -45,12 +53,26 @@ function groupByDay(list: PluguNotification[]) {
 
 function NotificationsPage() {
   const navigate = useNavigate();
-  const { list, unread } = useNotifications();
+  const qc = useQueryClient();
+  const { list, unread, loading } = useNotifications();
   const groups = groupByDay(list);
 
-  function openItem(n: PluguNotification) {
-    markRead(n.id);
-    if (n.href) navigate({ to: n.href as any });
+  async function openItem(n: NotifRow) {
+    if (!n.read_at) {
+      try { await markNotificationRead(n.id); qc.invalidateQueries({ queryKey: ["notifications"] }); } catch {}
+    }
+    const href = hrefFor(n);
+    if (href) navigate({ to: href as any });
+  }
+
+  async function onReadAll() {
+    try { await markAllNotificationsRead(); qc.invalidateQueries({ queryKey: ["notifications"] }); toast.success("Marked all as read"); }
+    catch (err) { toast.error((err as Error).message); }
+  }
+  async function onClear() {
+    if (!confirm("Clear your notification history?")) return;
+    try { await clearAllNotifications(); qc.invalidateQueries({ queryKey: ["notifications"] }); toast("Cleared", { description: "Your inbox is empty." }); }
+    catch (err) { toast.error((err as Error).message); }
   }
 
   return (
@@ -64,15 +86,13 @@ function NotificationsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => { markAllRead(); toast.success("Marked all as read"); }}
+            <button onClick={onReadAll}
               disabled={unread === 0}
               className="tap inline-flex items-center gap-1.5 text-[11px] px-3 py-2 rounded-full border border-border bg-secondary disabled:opacity-50"
             >
               <CheckCheck className="h-3.5 w-3.5" /> Read all
             </button>
-            <button
-              onClick={() => { clearAll(); toast("Cleared", { description: "Your inbox is empty." }); }}
+            <button onClick={onClear}
               disabled={list.length === 0}
               className="tap inline-flex items-center gap-1.5 text-[11px] px-3 py-2 rounded-full border border-border bg-secondary disabled:opacity-50"
             >
@@ -82,11 +102,13 @@ function NotificationsPage() {
         </div>
       </section>
 
-      {list.length === 0 ? (
+      {loading ? (
+        <div className="py-16 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div>
+      ) : list.length === 0 ? (
         <EmptyState
           icon={Bell}
           title="Quiet on the wire"
-          description="You'll get pings for likes, comments, orders, referrals, and rank changes."
+          description="Order updates, messages, reviews, and moderation decisions land here."
           action={
             <Link
               to="/"
@@ -111,15 +133,13 @@ function NotificationsPage() {
                       <button
                         onClick={() => openItem(n)}
                         className={`tap w-full text-left grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 rounded-2xl border transition-colors ${
-                          n.read
-                            ? "border-border bg-card"
-                            : "border-primary/30 bg-card"
+                          n.read_at ? "border-border bg-card" : "border-primary/30 bg-card"
                         }`}
-                        style={ n.read ? undefined : { boxShadow: "0 0 22px -18px var(--plugu-gold)" }}
+                        style={ n.read_at ? undefined : { boxShadow: "0 0 22px -18px var(--plugu-gold)" }}
                       >
                         <div className="relative h-10 w-10 shrink-0 grid place-items-center rounded-xl border border-border bg-[image:var(--gradient-bronze)] text-primary-foreground text-lg">
-                          {n.emoji ?? "🔔"}
-                          {!n.read && (
+                          {emojiFor(n.kind)}
+                          {!n.read_at && (
                             <span
                               className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card"
                               style={{ background: "var(--plugu-gold)" }}
@@ -128,18 +148,18 @@ function NotificationsPage() {
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className={`text-sm truncate ${n.read ? "font-medium" : "font-semibold"}`}>
-                              {n.title}
+                            <p className={`text-sm truncate ${n.read_at ? "font-medium" : "font-semibold"}`}>
+                              {titleFor(n)}
                             </p>
                             <span className="shrink-0 text-[9px] tracking-widest uppercase text-muted-foreground/80">
-                              {NOTIF_LABEL[n.kind]}
+                              {labelFor(n.kind)}
                             </span>
                           </div>
-                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">{n.body}</p>
+                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">{bodyFor(n)}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className="text-[10px] text-muted-foreground">{relative(n.createdAt)}</span>
-                          {n.href && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
+                          <span className="text-[10px] text-muted-foreground">{relative(n.created_at)}</span>
+                          {hrefFor(n) && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
                         </div>
                       </button>
                     </li>
