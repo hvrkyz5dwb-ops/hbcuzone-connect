@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { fetchListing } from "@/lib/listings-db";
+import { getOrCreateConversation } from "@/lib/messages-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
 import { createOrder, paymentLabel, type PaymentMethod } from "@/lib/orders-storage";
 import { currentFeePercent, currentSellerTierMeta } from "@/lib/seller-plan";
@@ -118,7 +119,14 @@ function ProtectedCheckout() {
 
           <div className="mt-6 flex flex-col gap-2 mx-auto max-w-sm px-5">
             <button
-              onClick={() => navigate({ to: "/messages" })}
+              onClick={async () => {
+                try {
+                  const convId = await getOrCreateConversation(listing.seller_user_id, listing.id);
+                  navigate({ to: "/messages/$id", params: { id: convId } });
+                } catch (err) {
+                  toast.error("Couldn't open chat", { description: (err as Error).message });
+                }
+              }}
               className="tap w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium text-sm inline-flex items-center justify-center gap-2"
             >
               <MessageSquare className="h-4 w-4" /> Message {sellerName}
