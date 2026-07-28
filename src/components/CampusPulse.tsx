@@ -9,6 +9,7 @@ import { Reveal } from "@/components/Reveal";
 import { usePersona } from "@/hooks/use-persona";
 import { greetingFor } from "@/lib/weather-mock";
 import { useSchool } from "@/hooks/use-school";
+import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
 import { getCampusWeather } from "@/lib/campus-intel.functions";
 import { getSellerPlan } from "@/lib/seller-plan";
@@ -56,6 +57,7 @@ function badgeWordmarkClass(badge: string): string {
 export function CampusPulse() {
   const [persona] = usePersona();
   const school = useSchool();
+  const { profile } = useProfile();
   const [upgraded, setUpgraded] = useState(false);
   useEffect(() => {
     try { setUpgraded(getSellerPlan().tier !== "free"); } catch {}
@@ -64,6 +66,11 @@ export function CampusPulse() {
   const displayBadge = upgraded ? persona.badge : "Plug";
   const isUpgraded = upgraded;
   const displayCampus = school.name && school.name !== "Your Campus" ? school.name : persona.campus;
+  // Match the Profile tab exactly: full name (first name only for greeting),
+  // school, year, and major all come from the signed-in profile row.
+  const firstName = (profile?.full_name?.trim().split(/\s+/)[0]) || "Plug";
+  const displayYear = profile?.year || persona.year;
+  const displayMajor = profile?.major || persona.major;
   const weatherQ = useQuery({
     queryKey: ["campus-weather", displayCampus, school.city, school.state],
     queryFn: () => getCampusWeather({ data: { school: displayCampus, city: school.city, state: school.state } }),
@@ -111,17 +118,13 @@ export function CampusPulse() {
             <p className="text-xs text-muted-foreground">{greeting},</p>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-2 truncate">
               <span>Hello </span>
-              {isUpgraded ? (
-                <>
-                  <span className={badgeWordmarkClass(displayBadge)}>{displayBadge}</span>
-                  <BadgeIcon badge={displayBadge} />
-                </>
-              ) : (
-                <span className="text-white">Plug</span>
-              )}
+              <span className={isUpgraded ? badgeWordmarkClass(displayBadge) : "text-white"}>
+                {firstName}
+              </span>
+              {isUpgraded && <BadgeIcon badge={displayBadge} />}
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1 truncate">
-              {displayCampus} · {persona.year} · {persona.major}
+              {[displayCampus, displayYear, displayMajor].filter(Boolean).join(" · ")}
             </p>
           </div>
           <div className="flex items-center gap-2">
