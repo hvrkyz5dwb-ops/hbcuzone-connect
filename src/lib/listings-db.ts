@@ -225,15 +225,10 @@ export async function createListing(input: ListingInput): Promise<string> {
 }
 
 export async function updateListing(id: string, patch: Partial<ListingInput>): Promise<void> {
-  const update: Record<string, unknown> = {};
-  const passthrough: (keyof ListingInput)[] = [
-    "title","description","category","kind","price_cents","price_type",
-    "campus_name","school_id","business_id","fulfillment","quantity",
-    "availability","fulfillment_time","cancellation_policy","status",
-  ];
-  for (const k of passthrough) if (patch[k] !== undefined) update[k as string] = patch[k];
-  if (Object.keys(update).length > 0) {
-    const { error } = await supabase.from("listings").update(update).eq("id", id);
+  const { images: _img, ...rest } = patch;
+  void _img;
+  if (Object.keys(rest).length > 0) {
+    const { error } = await supabase.from("listings").update(rest as never).eq("id", id);
     if (error) throw error;
   }
   if (patch.images) await replaceImages(id, patch.images);
