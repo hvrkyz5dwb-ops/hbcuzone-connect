@@ -17,8 +17,8 @@ function Refunds() {
       <article className="max-w-2xl mx-auto px-5 py-6 text-sm text-white/80 space-y-5">
         <header>
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Refund & Dispute Policy</h1>
-          <p className="text-xs text-white/50 mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
-          <p className="text-xs text-amber-300/80 mt-1">Placeholder — final attorney-reviewed policy is still pending. This copy is not attorney approved.</p>
+          <p className="text-xs text-muted-foreground mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
+          <p className="text-xs text-amber-300 mt-1">Placeholder — final attorney-reviewed policy is still pending. This copy is not attorney approved.</p>
         </header>
 
         <Section title="PlugU is not the seller">

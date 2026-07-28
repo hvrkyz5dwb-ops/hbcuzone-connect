@@ -19,8 +19,8 @@ function SellerAgreement() {
       <article className="max-w-2xl mx-auto px-5 py-6 text-sm text-white/80 space-y-5">
         <header>
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Seller Agreement</h1>
-          <p className="text-xs text-white/50 mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
-          <p className="text-xs text-amber-300/80">
+          <p className="text-xs text-muted-foreground mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
+          <p className="text-xs text-amber-300">
             Placeholder — final attorney-reviewed terms are still pending. This copy is not attorney approved. Do not rely on it as legal advice.
           </p>
         </header>

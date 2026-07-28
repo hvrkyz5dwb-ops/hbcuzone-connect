@@ -21,8 +21,8 @@ function Prohibited() {
       <article className="max-w-2xl mx-auto px-5 py-6 text-sm text-white/80 space-y-5">
         <header>
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Prohibited Items Policy</h1>
-          <p className="text-xs text-white/50 mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
-          <p className="text-xs text-amber-300/80">
+          <p className="text-xs text-muted-foreground mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
+          <p className="text-xs text-amber-300">
             Placeholder — final attorney-reviewed policy is still pending. This copy is not attorney approved.
           </p>
         </header>
@@ -40,7 +40,7 @@ function Prohibited() {
           ))}
         </ul>
 
-        <p className="text-xs text-white/60">
+        <p className="text-xs text-muted-foreground">
           Not sure whether something is allowed? Ask us first through <Link to="/support" className="underline text-accent">Contact Support</Link>. See also the <Link to="/community-guidelines" className="underline text-accent">Community Guidelines</Link> and <Link to="/terms" className="underline text-accent">Terms of Service</Link>.
         </p>
       </article>
