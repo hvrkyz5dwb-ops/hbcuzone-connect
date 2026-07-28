@@ -189,6 +189,8 @@ function Admin() {
           </ul>
         )}
 
+        {tab === "access" && <SchoolAccessPanel />}
+
         {tab === "announce" && (
           <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
             <input placeholder="Announcement title" className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-sm outline-none" />
