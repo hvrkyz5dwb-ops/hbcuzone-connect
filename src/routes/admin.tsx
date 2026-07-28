@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ShieldCheck, Users, Store, Flag, Megaphone, BarChart3, Crown,
-  GraduationCap, CreditCard, MapPin, Ban, Check, X, Lock
+  GraduationCap, CreditCard, MapPin, Ban, Check, X, Lock, School as SchoolIcon
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -23,6 +25,7 @@ const TABS = [
   { key: "reports", label: "Reports", icon: Flag },
   { key: "users", label: "Users", icon: Users },
   { key: "campuses", label: "Campuses", icon: MapPin },
+  { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "announce", label: "Announce", icon: Megaphone },
   { key: "pricing", label: "Pricing", icon: CreditCard },
   { key: "ambass", label: "Ambassadors", icon: GraduationCap },
