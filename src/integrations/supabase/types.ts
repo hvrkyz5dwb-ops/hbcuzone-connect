@@ -1338,6 +1338,15 @@ export type Database = {
       }
     }
     Functions: {
+      admin_perform: {
+        Args: {
+          _action: string
+          _note: string
+          _target_id: string
+          _target_type: string
+        }
+        Returns: undefined
+      }
       create_booking_secure: {
         Args: { _note: string; _slot_id: string }
         Returns: string
