@@ -47,6 +47,7 @@ import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -270,6 +271,11 @@ const EconomyRoute = EconomyRouteImport.update({
   path: '/economy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DailyRoute = DailyRouteImport.update({
   id: '/daily',
   path: '/daily',
@@ -446,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -518,6 +525,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -591,6 +599,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -665,6 +674,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -737,6 +747,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -809,6 +820,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -882,6 +894,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   DailyRoute: typeof DailyRoute
+  DeleteAccountRoute: typeof DeleteAccountRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRouteWithChildren
@@ -1204,6 +1217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EconomyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daily': {
       id: '/daily'
       path: '/daily'
@@ -1524,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   DailyRoute: DailyRoute,
+  DeleteAccountRoute: DeleteAccountRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRouteWithChildren,
