@@ -88,6 +88,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const { theme, toggle } = useTheme();
   const [plugOpen, setPlugOpen] = useState(false);
   const { unread } = useNotifications();
+  const inboxUnread = useUnreadCount();
   const { session, loading: sessionLoading } = useSession();
   const { profile } = useProfile();
   // AI-style HBCU detection: trust the stored flag, but always re-derive from
