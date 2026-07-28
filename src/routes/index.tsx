@@ -182,6 +182,18 @@ function centsToPrice(cents: number) {
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
 
+function EmptyRow({ icon, text, cta, to }: { icon: React.ReactNode; text: string; cta: string; to: string }) {
+  return (
+    <div className="px-5">
+      <div className="rounded-2xl border border-dashed border-border bg-card/50 p-4 flex items-center gap-3">
+        <div className="h-9 w-9 grid place-items-center rounded-xl border border-border text-primary">{icon}</div>
+        <p className="flex-1 text-xs text-muted-foreground">{text}</p>
+        <Link to={to as never} className="tap rounded-xl bg-primary text-primary-foreground text-[11px] font-semibold px-3 py-1.5">{cta}</Link>
+      </div>
+    </div>
+  );
+}
+
 function ListingCard({ l }: { l: ListingWithExtras }) {
   const cover = l.images[0]?.url;
   return (
