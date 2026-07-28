@@ -3,11 +3,13 @@ import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAl
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
+import { useIsAdmin } from "@/hooks/use-is-admin";
+import { useMyListings } from "@/hooks/use-listings";
+import { useSession } from "@/hooks/use-session";
+import { ReviewsList } from "@/components/ReviewsList";
 import { useQueryClient } from "@tanstack/react-query";
 import { signOutAndReset } from "@/lib/sign-out";
-import { SellerReputation } from "@/components/SellerReputation";
 import pluguLogo from "@/assets/plugu-logo.png";
-import { listings } from "@/lib/mock-data";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 
 export const Route = createFileRoute("/profile")({
@@ -22,18 +24,17 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const menu: { label: string; icon: typeof Heart; to: string }[] = [
+type MenuItem = { label: string; icon: typeof Heart; to: string };
+const baseMenu: MenuItem[] = [
   { label: "Seller Dashboard", icon: Store, to: "/seller" },
-  { label: "Plug Business Center", icon: Store, to: "/business" },
-  { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
-  { label: "Upgrade to KingPin", icon: Sparkles, to: "/upgrade" },
-  { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
-  { label: "Payment History", icon: Receipt, to: "/payment-history" },
-  { label: "My Listings", icon: ListOrdered, to: "/market" },
+  { label: "My Listings", icon: ListOrdered, to: "/seller/listings" },
+  { label: "Orders", icon: ShoppingBag, to: "/orders" },
   { label: "Saved", icon: Heart, to: "/saved" },
+  { label: "Payment History", icon: Receipt, to: "/payment-history" },
+  { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
+  { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
   { label: "Trust Center", icon: Scale, to: "/trust" },
   { label: "Safety & Tools", icon: ShieldAlert, to: "/safety" },
-  { label: "Admin", icon: ShieldCheck, to: "/admin" },
   { label: "Settings", icon: Settings, to: "/settings" },
 ];
 
@@ -52,6 +53,9 @@ function StatCell({ icon, value, label }: { icon?: React.ReactNode; value: React
 
 function ProfileInner() {
   const { profile } = useProfile();
+  const { user } = useSession();
+  const { isAdmin } = useIsAdmin();
+  const { data: myListings } = useMyListings();
   const queryClient = useQueryClient();
   const displayName = profile?.display_name ?? profile?.full_name ?? "Plug";
   const handle = profile?.username ? `@${profile.username}` : null;
@@ -61,6 +65,9 @@ function ProfileInner() {
   const subline = profile
     ? [profile.school_name, grad, profile.major].filter(Boolean).join(" · ")
     : "Set up your profile";
+  const menu: MenuItem[] = isAdmin
+    ? [...baseMenu, { label: "Admin", icon: ShieldCheck, to: "/admin" }]
+    : baseMenu;
   return (
     <AppShell title="PROFILE">
       {/* Cover photo */}
@@ -104,18 +111,6 @@ function ProfileInner() {
         </div>
       </section>
 
-      {/* Skills & interests */}
-      <section className="mt-4 px-5">
-        <h2 className="text-sm font-semibold tracking-tight mb-2">Skills & Interests</h2>
-        <div className="flex flex-wrap gap-2">
-          {["Branding", "Event Promo", "Photography", "Sales", "Marketing", "Entrepreneurship"].map((s) => (
-            <span key={s} className="text-[11px] px-3 py-1.5 rounded-full bg-card border border-border text-foreground/80">
-              {s}
-            </span>
-          ))}
-        </div>
-      </section>
-
       <section className="mt-5 px-5">
         <div className="grid grid-cols-3 rounded-2xl bg-card border border-border divide-x divide-border">
           <StatCell
@@ -152,17 +147,50 @@ function ProfileInner() {
         </ul>
       </section>
 
-      <SellerReputation />
+      {user?.id && (
+        <section className="mt-6 px-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold tracking-tight">Verified Reviews</h2>
+            <Link to="/trust" className="text-[11px] tracking-wider uppercase text-accent inline-flex items-center gap-1">
+              <ShieldCheck className="h-3.5 w-3.5" /> Trust Center
+            </Link>
+          </div>
+          <ReviewsList userId={user.id} />
+        </section>
+      )}
 
       <section className="mt-6 px-5 pb-4">
         <h2 className="text-sm font-semibold tracking-tight mb-3">My Listings</h2>
-        <div className="grid grid-cols-3 gap-2">
-          {listings.slice(0, 6).map((l) => (
-            <div key={l.id} className="aspect-square rounded-xl overflow-hidden border border-border bg-secondary">
-              <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
-            </div>
-          ))}
-        </div>
+        {myListings && myListings.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2">
+            {myListings.slice(0, 9).map((l) => {
+              const src = l.images?.[0]?.url ?? null;
+              return (
+                <Link
+                  key={l.id}
+                  to="/seller/listings"
+                  className="aspect-square rounded-xl overflow-hidden border border-border bg-secondary grid place-items-center text-[10px] text-muted-foreground"
+                >
+                  {src ? (
+                    <img src={src} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="px-1 text-center">{l.title}</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+            <p className="text-sm text-muted-foreground">You haven't posted any listings yet.</p>
+            <Link
+              to="/seller/listings"
+              className="mt-3 inline-flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Create your first listing
+            </Link>
+          </div>
+        )}
       </section>
     </AppShell>
   );

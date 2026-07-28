@@ -1,8 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
-  Sparkles, Briefcase, Building2, ShieldAlert, X, Trophy, Rocket,
-  Package, BarChart3, Gift, Crown, Flame, CalendarHeart, Newspaper,
+  Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -15,6 +14,7 @@ import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
 import { useUnreadCount } from "@/hooks/use-messages";
+import { useMyBusiness } from "@/hooks/use-business";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
 
 // Module-scoped flag prevents any re-mount of AppShell (internal navigation,
@@ -61,26 +61,7 @@ const tabs: Tab[] = [
   { to: "/profile", label: "Profile", icon: User },
 ];
 
-const quickActions: { to: string; label: string; icon: LucideIcon; hint: string }[] = [
-  { to: "/daily", label: "PlugU Daily", icon: Newspaper, hint: "News, wins & culture — refreshed daily" },
-  { to: "/notifications", label: "Notifications", icon: Bell, hint: "Likes, orders, rank changes & more" },
-  { to: "/nationals", label: "National Competition", icon: Trophy, hint: "Live campus leaderboard & rankings" },
-  { to: "/awards", label: "Year-End Awards", icon: Crown, hint: "Grants, scholarships & top businesses" },
-  { to: "/heatmap", label: "Campus Heat Map", icon: Flame, hint: "Where the yard is going off" },
-  { to: "/business", label: "Become a Plug", icon: Building2, hint: "Sell items, food, services & more" },
-  { to: "/seller/plans", label: "Seller Plans", icon: Crown, hint: "Free · Pro · KingPin — lower your fee" },
-  { to: "/seller/analytics", label: "Seller Analytics", icon: BarChart3, hint: "Views, conversions & growth" },
-  { to: "/orders", label: "Orders & Disputes", icon: Package, hint: "Escrow, delivery, refunds" },
-  { to: "/referrals", label: "Referral Program", icon: Gift, hint: "Your code, streak & achievements" },
-  { to: "/ambassadors", label: "Campus Ambassadors", icon: Crown, hint: "Rep PlugU — merch, scholarships, perks" },
-  { to: "/milestones", label: "Milestones", icon: Trophy, hint: "Shareable achievements as you grow" },
-  { to: "/upgrade", label: "Upgrade to KingPin", icon: Sparkles, hint: "Boost listings & rep your campus" },
-  { to: "/plug-reach", label: "Plug Reach™ Promo", icon: Rocket, hint: "Launch pricing — campus to nationwide" },
-  { to: "/hub", label: "Career & Money Hub", icon: Briefcase, hint: "Internships, grants, side hustles" },
-  { to: "/map", label: "Live Campus Map", icon: Map, hint: "What's near you, right now" },
-  { to: "/season/homecoming", label: "Seasonal Campaign", icon: CalendarHeart, hint: "Auto-changes with the season" },
-  { to: "/safety", label: "Safety & Tools", icon: ShieldAlert, hint: "SOS, rides, lost & found" },
-];
+type QuickAction = { to: string; label: string; icon: LucideIcon; hint: string };
 
 export function AppShell({ children, title }: { children: ReactNode; title?: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -91,6 +72,48 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const inboxUnread = useUnreadCount();
   const { session, loading: sessionLoading } = useSession();
   const { profile } = useProfile();
+  const { business } = useMyBusiness();
+  const isSeller = !!business && business.is_active && business.onboarding_step >= 5;
+  const hasDraftBusiness = !!business && !isSeller;
+
+  // Only surface actions the current user can actually use.
+  const quickActions: QuickAction[] = [];
+  if (isSeller) {
+    quickActions.push({
+      to: "/seller/listings", label: "Create listing", icon: Plus,
+      hint: "Post something to sell on your campus market.",
+    });
+    quickActions.push({
+      to: "/seller/listings", label: "Offer a service", icon: Scissors,
+      hint: "Haircuts, nails, tutoring, rides — book by the slot.",
+    });
+    quickActions.push({
+      to: "/promote", label: "Promote an event", icon: Megaphone,
+      hint: "Pin it to the campus map. Boost to feature it.",
+    });
+    quickActions.push({
+      to: "/seller", label: "Open seller dashboard", icon: LayoutDashboard,
+      hint: "Listings, orders, payouts, analytics.",
+    });
+  } else if (hasDraftBusiness) {
+    quickActions.push({
+      to: "/seller/onboarding", label: "Finish seller setup", icon: Sparkles,
+      hint: `Step ${business!.onboarding_step}/5 — get approved to sell.`,
+    });
+    quickActions.push({
+      to: "/promote", label: "Promote an event", icon: Megaphone,
+      hint: "You can promote events without being a full seller.",
+    });
+  } else {
+    quickActions.push({
+      to: "/seller/onboarding", label: "Become a Plug", icon: Sparkles,
+      hint: "Set up your business to unlock listings & services.",
+    });
+    quickActions.push({
+      to: "/promote", label: "Promote an event", icon: Megaphone,
+      hint: "Pin it to the campus map. Boost to feature it.",
+    });
+  }
   // AI-style HBCU detection: trust the stored flag, but always re-derive from
   // the verified school domain / email so returning students who signed up
   // before the flag existed still see HBCUS. Any @<hbcu>.edu qualifies.
@@ -306,7 +329,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-[10px] tracking-[0.25em] uppercase" style={{ color: "var(--plugu-gold)" }}>The Plug</p>
-                <h3 className="text-lg font-bold">What you tryna do?</h3>
+                <h3 className="text-lg font-bold">Quick actions</h3>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {isSeller ? "You're set up as a seller." : hasDraftBusiness ? "Finish setup to unlock listings." : "Become a Plug to start selling."}
+                </p>
               </div>
               <button
                 onClick={() => setPlugOpen(false)}
