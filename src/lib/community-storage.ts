@@ -1,5 +1,14 @@
 // School-scoped community posts — students share what's happening on campus.
 // Persisted in localStorage so posts survive reloads without a backend.
+
+export type Comment = {
+  id: string;
+  postId: string;
+  author: string;
+  text: string;
+  createdAt: number;
+};
+
 export type CommunityPost = {
   id: string;
   school: string;
@@ -8,15 +17,24 @@ export type CommunityPost = {
   createdAt: number;
   likes: number;
   likedByMe: boolean;
+  visibility: "campus" | "public";
+  comments: Comment[];
 };
 
-const KEY = "plugu:community-posts:v1";
+const KEY = "plugu:community-posts:v2";
 
 function readAll(): CommunityPost[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as CommunityPost[]) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as CommunityPost[];
+    // Backfill new fields for legacy v1 posts.
+    return parsed.map((p) => ({
+      visibility: "campus",
+      comments: [],
+      ...p,
+    }));
   } catch {
     return [];
   }
@@ -36,15 +54,21 @@ function norm(s: string) {
 
 export function listCommunityPosts(school?: string): CommunityPost[] {
   const all = readAll().sort((a, b) => b.createdAt - a.createdAt);
-  if (!school) return all;
+  if (!school) return all.filter((p) => p.visibility === "public");
   const n = norm(school);
   return all.filter((p) => {
+    if (p.visibility === "public") return true;
     const ps = norm(p.school);
     return ps.includes(n) || n.includes(ps);
   });
 }
 
-export function addCommunityPost(input: { school: string; author: string; text: string }): CommunityPost {
+export function addCommunityPost(input: {
+  school: string;
+  author: string;
+  text: string;
+  visibility?: "campus" | "public";
+}): CommunityPost {
   const post: CommunityPost = {
     id: `cp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     school: input.school,
@@ -53,6 +77,8 @@ export function addCommunityPost(input: { school: string; author: string; text: 
     createdAt: Date.now(),
     likes: 0,
     likedByMe: false,
+    visibility: input.visibility || "campus",
+    comments: [],
   };
   writeAll([post, ...readAll()]);
   return post;
@@ -70,6 +96,30 @@ export function toggleLikeCommunityPost(id: string) {
 
 export function removeCommunityPost(id: string) {
   writeAll(readAll().filter((p) => p.id !== id));
+}
+
+export function addComment(postId: string, author: string, text: string): Comment {
+  const comment: Comment = {
+    id: `cc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    postId,
+    author: author || "Plug",
+    text: text.trim(),
+    createdAt: Date.now(),
+  };
+  writeAll(
+    readAll().map((p) =>
+      p.id === postId ? { ...p, comments: [...p.comments, comment] } : p,
+    ),
+  );
+  return comment;
+}
+
+export function removeComment(postId: string, commentId: string) {
+  writeAll(
+    readAll().map((p) =>
+      p.id === postId ? { ...p, comments: p.comments.filter((c) => c.id !== commentId) } : p,
+    ),
+  );
 }
 
 export function subscribeCommunityPosts(cb: () => void): () => void {
