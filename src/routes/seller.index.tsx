@@ -1,10 +1,14 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useMyBusiness } from "@/hooks/use-business";
 import { AppShell, SectionHeader } from "@/components/AppShell";
-import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Loader2, Sparkles } from "lucide-react";
+import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Loader2, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle } from "lucide-react";
+import { getStripeStatus, getMyPayoutAccount, createSellerOnboardingLink, syncPayoutAccount } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/seller/")({
   ssr: false,
@@ -24,6 +28,11 @@ export const Route = createFileRoute("/seller/")({
 function SellerDashboard() {
   const { user } = useSession();
   const { business, loading } = useMyBusiness();
+  const stripeStatusQ = useQuery({ queryKey: ["stripe-status"], queryFn: () => getStripeStatus() });
+  const payoutQ = useQuery({ queryKey: ["payout-account"], queryFn: () => getMyPayoutAccount() });
+  const startOnboarding = useServerFn(createSellerOnboardingLink);
+  const syncPayout = useServerFn(syncPayoutAccount);
+  const [busy, setBusy] = useState(false);
 
   const stats = useQuery({
     queryKey: ["seller-stats", business?.id ?? null, user?.id ?? null],
@@ -47,6 +56,22 @@ function SellerDashboard() {
         <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
       </AppShell>
     );
+  }
+
+  async function openStripeOnboarding() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const origin = window.location.origin;
+      const { url } = await startOnboarding({
+        data: { returnUrl: `${origin}/seller?stripe=return`, refreshUrl: `${origin}/seller?stripe=refresh` },
+      });
+      window.location.href = url;
+    } catch (err) {
+      toast.error("Couldn't start Stripe onboarding", { description: (err as Error).message });
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!business) {
@@ -103,6 +128,19 @@ function SellerDashboard() {
           <StatCard icon={Star} label="Rating" value={(business as unknown as { rating_avg?: number }).rating_avg ?? "—"} />
         </div>
 
+        <SectionHeader title="Payouts" />
+        <StripePayoutCard
+          configured={!!stripeStatusQ.data?.configured}
+          mode={stripeStatusQ.data?.mode ?? null}
+          payout={payoutQ.data ?? null}
+          busy={busy}
+          onConnect={openStripeOnboarding}
+          onSync={async () => {
+            try { await syncPayout({}); await payoutQ.refetch(); toast.success("Payout status refreshed"); }
+            catch (err) { toast.error("Couldn't refresh", { description: (err as Error).message }); }
+          }}
+        />
+
         <SectionHeader title="Actions" />
         <div className="grid gap-2 px-1">
           <ActionRow to="/seller/listings" icon={Plus} label="Manage listings" hint="Create, pause, delete or edit" />
@@ -112,6 +150,61 @@ function SellerDashboard() {
         </div>
       </section>
     </AppShell>
+  );
+}
+
+function StripePayoutCard({
+  configured, mode, payout, busy, onConnect, onSync,
+}: {
+  configured: boolean;
+  mode: "test" | "live" | null;
+  payout: { external_id: string | null; status: string; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean; onboarding_url: string | null } | null;
+  busy: boolean;
+  onConnect: () => void;
+  onSync: () => void;
+}) {
+  if (!configured) {
+    return (
+      <div className="mx-1 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-300" />
+          <p className="text-sm font-semibold text-amber-100">Payouts unavailable</p>
+        </div>
+        <p className="mt-1 text-[11px] text-amber-200/80">
+          PlugU hasn't finished connecting Stripe yet. You can list items and reserve orders, but no card will be charged and no payouts will be sent until Stripe is live.
+        </p>
+      </div>
+    );
+  }
+  const connected = !!payout?.external_id;
+  const ready = !!payout?.charges_enabled && !!payout?.payouts_enabled;
+  return (
+    <div className="mx-1 rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2">
+        <CircleDollarSign className="h-4 w-4 text-primary" />
+        <p className="text-sm font-semibold">Stripe Connect · {mode === "live" ? "Live" : "Test"} mode</p>
+        {ready && <BadgeCheck className="h-4 w-4 text-emerald-400 ml-auto" />}
+      </div>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        {!connected && "Connect Stripe to receive payouts. Takes about 3 minutes."}
+        {connected && !ready && "Onboarding started — a few more details are needed before you can receive payouts."}
+        {ready && "You're ready to receive payouts. Buyers can check out on your listings."}
+      </p>
+      <div className="mt-3 flex gap-2">
+        <button
+          disabled={busy}
+          onClick={onConnect}
+          className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-60"
+        >
+          {!connected ? "Connect Stripe" : ready ? "Update payout details" : "Continue onboarding"}
+        </button>
+        {connected && (
+          <button onClick={onSync} className="px-3 py-2.5 rounded-xl border border-border bg-secondary text-xs">
+            Refresh
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
