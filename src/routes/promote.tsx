@@ -33,7 +33,7 @@ function PromotePage() {
   const school = useSchool();
   const profile = useProfile();
   const activeSchool = school.name && school.name !== "Your Campus" ? school.name : "your campus";
-  const author = profile.data?.full_name?.split(" ")[0] || "Plug";
+  const author = profile.profile?.full_name?.split(" ")[0] || "Plug";
 
   const fn = useServerFn(generateCampusLayout);
   const q = useQuery({
