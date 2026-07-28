@@ -123,7 +123,7 @@ function SellerOnboarding() {
     if (!user) return false;
     setSaving(true);
     setErr(null);
-    const payload: Record<string, unknown> = {
+    const payload = {
       owner_user_id: user.id,
       school_id: profile?.school_id ?? null,
       name: draft.name.trim(),
@@ -139,8 +139,8 @@ function SellerOnboarding() {
       contact_method: draft.contact_method,
       onboarding_step: Math.max(business?.onboarding_step ?? 0, next - 1, finalize ? 5 : next - 1),
       is_active: finalize ? true : false,
+      rules_accepted_at: finalize ? new Date().toISOString() : (business?.rules_accepted_at ?? null),
     };
-    if (finalize) payload.rules_accepted_at = new Date().toISOString();
 
     let error;
     if (business?.id) {
