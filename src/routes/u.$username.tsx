@@ -1,10 +1,15 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
-import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Loader2 } from "lucide-react";
+import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Loader2, Flag, Ban } from "lucide-react";
 import { ReviewsList } from "@/components/ReviewsList";
+import { ReportDialog } from "@/components/ReportDialog";
+import { blockUser } from "@/lib/moderation";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/u/$username")({
   ssr: false,
@@ -40,6 +45,10 @@ type PublicProfile = {
 
 function PublicProfile() {
   const { username } = Route.useParams();
+  const { session } = useSession();
+  const meId = session?.user?.id ?? null;
+  const [reportOpen, setReportOpen] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const q = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async (): Promise<PublicProfile | null> => {
@@ -76,6 +85,16 @@ function PublicProfile() {
   const displayName = p.display_name || `@${p.username}`;
   const joined = new Date(p.created_at);
   const isAlumni = p.status === "alumni";
+  const isSelf = meId === p.id;
+
+  async function onBlock() {
+    if (!meId) return toast.error("Sign in to block");
+    if (!confirm(`Block ${displayName}? You won't see their messages or listings.`)) return;
+    setBlocking(true);
+    try { await blockUser(p!.id); toast.success("User blocked"); }
+    catch (err) { toast.error((err as Error).message); }
+    finally { setBlocking(false); }
+  }
 
   return (
     <AppShell title="PROFILE">
@@ -108,6 +127,17 @@ function PublicProfile() {
         </div>
 
         {p.bio && <p className="mt-3 text-sm text-muted-foreground max-w-sm mx-auto">{p.bio}</p>}
+
+        {!isSelf && meId && (
+          <div className="mt-4 flex justify-center gap-2">
+            <button onClick={() => setReportOpen(true)} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-accent/40 text-accent bg-accent/5">
+              <Flag className="h-3 w-3"/> Report
+            </button>
+            <button onClick={onBlock} disabled={blocking} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-destructive/40 text-destructive bg-destructive/5 disabled:opacity-60">
+              <Ban className="h-3 w-3"/> {blocking ? "Blocking…" : "Block"}
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="px-5">
@@ -122,6 +152,8 @@ function PublicProfile() {
         <p className="text-[10px] tracking-[0.24em] uppercase text-muted-foreground mb-2">Verified reviews</p>
         <ReviewsList userId={p.id} />
       </section>
+
+      <ReportDialog open={reportOpen} onClose={() => setReportOpen(false)} targetType="user" targetId={p.id} targetLabel={displayName} />
     </AppShell>
   );
 }
