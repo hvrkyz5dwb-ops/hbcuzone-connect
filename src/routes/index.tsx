@@ -311,7 +311,7 @@ function UpcomingEvents() {
 }
 
 function SellCta() {
-  const { data: business } = useMyBusiness();
+  const { business } = useMyBusiness();
   const target = business ? "/seller" : "/seller/onboarding";
   return (
     <section className="mt-7 px-5">
