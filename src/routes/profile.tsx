@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap } from "lucide-react";
+import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
@@ -38,6 +38,19 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
 ];
 
 function Profile() {
+  return <ProfileInner />;
+}
+
+function StatCell({ icon, value, label }: { icon?: React.ReactNode; value: React.ReactNode; label: string }) {
+  return (
+    <div className="py-4 text-center">
+      <p className="font-bold flex items-center justify-center gap-1">{icon}{value}</p>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function ProfileInner() {
   const { profile } = useProfile();
   const queryClient = useQueryClient();
   const displayName = profile?.display_name ?? profile?.full_name ?? "Plug";
