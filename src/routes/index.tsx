@@ -13,7 +13,7 @@ import { useSession } from "@/hooks/use-session";
 import { IntroCarousel, hasSeenIntro } from "@/components/IntroCarousel";
 import { AVAILABLE_CATEGORIES } from "@/lib/categories";
 import { useMarketplace } from "@/hooks/use-listings";
-import { useBusiness } from "@/hooks/use-business";
+import { useMyBusiness } from "@/hooks/use-business";
 import type { ListingWithExtras } from "@/lib/listings-db";
 
 export const Route = createFileRoute("/")({
@@ -311,7 +311,7 @@ function UpcomingEvents() {
 }
 
 function SellCta() {
-  const { business } = useBusiness();
+  const { data: business } = useMyBusiness();
   const target = business ? "/seller" : "/seller/onboarding";
   return (
     <section className="mt-7 px-5">
