@@ -1,21 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Plug, Map as MapIcon, ChevronRight, GraduationCap, Briefcase, Tag,
-  Building2, MessageSquare, ArrowRight, Star, Trophy,
+  Building2, ArrowRight, Star, Trophy,
   Newspaper, Flame, Crown,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import campusMap from "@/assets/campus-map.jpg";
-import { PluguDaily } from "@/components/PluguDaily";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CampusPulse } from "@/components/CampusPulse";
-import { DailyCard } from "@/components/DailyCard";
+import { DailySlides } from "@/components/DailySlides";
 import { SmartSearch } from "@/components/SmartSearch";
 import { OpportunityRail } from "@/components/OpportunityRail";
 import { CommunityBoard } from "@/components/CommunityBoard";
 import { toast } from "sonner";
 import {
-  categories, nearbyServices, messagesList, scholarships, hbcuDiscounts,
+  categories, nearbyServices, scholarships, hbcuDiscounts,
 } from "@/lib/mock-data";
 import { currentSeason } from "@/lib/seasons";
 import { yourRank } from "@/lib/nationals";
@@ -58,8 +57,8 @@ function Home() {
   return (
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
-      {/* PlugU Daily — top-of-home card, rotates daily */}
-      <DailyCard />
+      {/* PlugU Daily — top-of-home slide carousel */}
+      <DailySlides />
 
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
@@ -94,9 +93,6 @@ function Home() {
           ))}
         </div>
       </section>
-
-      {/* PlugU Daily — briefing */}
-      <PluguDaily />
 
       {/* Scholarships & Grants */}
       <section className="mt-7">
