@@ -667,6 +667,7 @@ export type Database = {
           cancel_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
+          client_idempotency_key: string | null
           created_at: string
           fulfillment_method: string | null
           id: string
@@ -674,11 +675,17 @@ export type Database = {
           listing_id: string | null
           meetup_location: string | null
           note: string | null
+          paid_at: string | null
           payment_status: string
           platform_fee_cents: number
           processing_fee_cents: number
+          refunded_at: string | null
           seller_user_id: string
           status: string
+          stripe_charge_id: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_refund_id: string | null
           subtotal_cents: number
           total_cents: number
           updated_at: string
@@ -688,6 +695,7 @@ export type Database = {
           cancel_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          client_idempotency_key?: string | null
           created_at?: string
           fulfillment_method?: string | null
           id?: string
@@ -695,11 +703,17 @@ export type Database = {
           listing_id?: string | null
           meetup_location?: string | null
           note?: string | null
+          paid_at?: string | null
           payment_status?: string
           platform_fee_cents?: number
           processing_fee_cents?: number
+          refunded_at?: string | null
           seller_user_id: string
           status?: string
+          stripe_charge_id?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
           subtotal_cents?: number
           total_cents?: number
           updated_at?: string
@@ -709,6 +723,7 @@ export type Database = {
           cancel_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          client_idempotency_key?: string | null
           created_at?: string
           fulfillment_method?: string | null
           id?: string
@@ -716,11 +731,17 @@ export type Database = {
           listing_id?: string | null
           meetup_location?: string | null
           note?: string | null
+          paid_at?: string | null
           payment_status?: string
           platform_fee_cents?: number
           processing_fee_cents?: number
+          refunded_at?: string | null
           seller_user_id?: string
           status?: string
+          stripe_charge_id?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
           subtotal_cents?: number
           total_cents?: number
           updated_at?: string
@@ -737,27 +758,42 @@ export type Database = {
       }
       payout_accounts: {
         Row: {
+          charges_enabled: boolean
           created_at: string
+          details_submitted: boolean
           external_id: string | null
           id: string
+          last_synced_at: string | null
+          onboarding_url: string | null
+          payouts_enabled: boolean
           provider: string
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          charges_enabled?: boolean
           created_at?: string
+          details_submitted?: boolean
           external_id?: string | null
           id?: string
+          last_synced_at?: string | null
+          onboarding_url?: string | null
+          payouts_enabled?: boolean
           provider: string
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          charges_enabled?: boolean
           created_at?: string
+          details_submitted?: boolean
           external_id?: string | null
           id?: string
+          last_synced_at?: string | null
+          onboarding_url?: string | null
+          payouts_enabled?: boolean
           provider?: string
           status?: string
           updated_at?: string
@@ -1171,6 +1207,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean
+          processed_at: string | null
+          processing_error: string | null
+          provider: string
+          received_at: string
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean
+          processed_at?: string | null
+          processing_error?: string | null
+          provider?: string
+          received_at?: string
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean
+          processed_at?: string | null
+          processing_error?: string | null
+          provider?: string
+          received_at?: string
         }
         Relationships: []
       }

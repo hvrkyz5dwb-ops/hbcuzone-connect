@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign, Loader2,
-  BadgeCheck, RefreshCw, MessageSquare, MapPin, Calendar, Truck, Package,
+  BadgeCheck, RefreshCw, MessageSquare, MapPin, Calendar, Truck, Package, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -14,6 +15,7 @@ import {
   createProductOrder, createServiceBooking, centsToDollars,
 } from "@/lib/orders-db";
 import { useOpenSlots } from "@/hooks/use-orders";
+import { getStripeStatus, createCheckoutSession } from "@/lib/stripe.functions";
 
 type PaymentMethod = "apple_pay" | "cash_app" | "card";
 const paymentLabel = (m: PaymentMethod) =>
@@ -42,6 +44,9 @@ function ProtectedCheckout() {
     queryKey: ["listing", listingId],
     queryFn: () => fetchListing(listingId),
   });
+  const stripeStatusQ = useQuery({ queryKey: ["stripe-status"], queryFn: () => getStripeStatus() });
+  const paymentsLive = !!stripeStatusQ.data?.configured;
+  const startCheckout = useServerFn(createCheckoutSession);
   const isService = listing?.kind === "service";
   const slotsQ = useOpenSlots(isService ? listingId : "");
   const [slotId, setSlotId] = useState<string | null>(null);
@@ -59,6 +64,11 @@ function ProtectedCheckout() {
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [placed, setPlaced] = useState<string | null>(null);
+  // Prevent double-submits from a rapid double click.
+  const [idempotencyKey] = useState(() =>
+    (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  );
+  void idempotencyKey;
 
   if (isPending) {
     return (
@@ -87,6 +97,7 @@ function ProtectedCheckout() {
 
   async function placeOrder() {
     if (!listing) return;
+    if (loading) return;
     setLoading(true);
     try {
       let id: string;
@@ -101,8 +112,30 @@ function ProtectedCheckout() {
           meetupLocation: meetup || undefined,
         });
       }
-      setPlaced(id);
-      toast.success("Payment held in escrow", { description: `${paymentLabel(method)} · Secured` });
+
+      if (paymentsLive) {
+        // Real Stripe checkout — redirect the buyer.
+        try {
+          const origin = window.location.origin;
+          const { url } = await startCheckout({
+            data: {
+              orderId: id,
+              successUrl: `${origin}/orders/${id}?paid=1`,
+              cancelUrl: `${origin}/payment-failed`,
+            },
+          });
+          window.location.href = url;
+          return;
+        } catch (err) {
+          toast.error("Couldn't start Stripe checkout", { description: (err as Error).message });
+        }
+      } else {
+        // Honest: order reserved, but payment is not accepted yet.
+        setPlaced(id);
+        toast.message("Order reserved — payment not collected", {
+          description: "Checkout is unavailable during the current test environment.",
+        });
+      }
     } catch (err) {
       toast.error("Couldn't place order", { description: (err as Error).message });
     } finally {
@@ -343,16 +376,35 @@ function ProtectedCheckout() {
           />
         </div>
 
+        {!paymentsLive && (
+          <div className="mt-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 flex gap-2 text-[11px] text-amber-200">
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-amber-100">Checkout is unavailable in this test environment.</p>
+              <p className="mt-0.5 text-amber-200/80">
+                No card will be charged. You can reserve an order to coordinate with the seller,
+                but payments turn on once PlugU connects Stripe.
+              </p>
+            </div>
+          </div>
+        )}
+
         <button
           disabled={loading || (isService && !slotId)}
           onClick={placeOrder}
-          className="mt-5 w-full py-3.5 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          className="mt-4 w-full py-3.5 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-bronze)" }}
         >
-          {loading ? "Securing payment…" : `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`}
+          {loading
+            ? (paymentsLive ? "Redirecting to Stripe…" : "Reserving order…")
+            : paymentsLive
+              ? `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`
+              : `Reserve order · ${centsToDollars(preview.total)}`}
         </button>
         <p className="mt-2 text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
-          Secure checkout · Protected by PlugU
+          {paymentsLive
+            ? `Secure checkout · Stripe ${stripeStatusQ.data?.mode ?? "test"} mode`
+            : "No payment collected · Test environment"}
         </p>
       </section>
     </AppShell>
