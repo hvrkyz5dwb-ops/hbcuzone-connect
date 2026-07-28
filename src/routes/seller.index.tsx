@@ -105,7 +105,7 @@ function SellerDashboard() {
 
         <SectionHeader title="Actions" />
         <div className="grid gap-2 px-1">
-          <ActionRow to="/market" icon={Plus} label="Add a listing" hint="Create a product or service" />
+          <ActionRow to="/seller/listings" icon={Plus} label="Manage listings" hint="Create, pause, delete or edit" />
           <ActionRow to="/seller/onboarding" icon={Pencil} label="Edit business" hint="Category, campus, policies, contact" />
           <ActionRow to="/promote" icon={Rocket} label="Promote & boost" hint="Get seen across campus" />
           <ActionRow to="/business" icon={ExternalLink} label="Full business center" hint="Analytics, revenue, discounts, plan" />
