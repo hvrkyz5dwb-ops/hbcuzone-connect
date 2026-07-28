@@ -1,78 +1,80 @@
-# Phase 2 — Profiles & Seller Onboarding
+# Phase 5 — Orders & Bookings
 
-Wire student profiles and seller onboarding to the live database, replacing the mock-only surfaces.
+Ship real database-backed orders (products) and bookings (services) with the exact status machines you specified, plus tamper-proof pricing.
 
-## 1. Database migration
+## Database (single migration)
 
-Extend the existing tables (no new tables — reuses `profiles` and `businesses`):
+Extend the existing `orders`, `order_items`, `bookings`, and `service_availability` tables — no rebuild.
 
-**profiles** — add:
-- `username` text unique (citext-style lowercase, 3–20 chars)
-- `display_name` text (public-safe name, defaults to `full_name`)
-- `graduation_year` int
-- `status` text CHECK in (`student`, `alumni`) default `student`
-- `avatar_url` already exists
-- `completed_transactions` int default 0
-- `rating_avg` numeric(3,2) default 0
-- `rating_count` int default 0
+**orders** — add:
+- `kind` text: `product` | `service`
+- `payment_status` text: `pending` | `held` | `captured` | `refunded` | `failed`
+- `fulfillment_method` text (pickup / delivery / meetup / virtual / shipping)
+- `platform_fee_cents` int, `processing_fee_cents` int, `subtotal_cents` int
+- `cancel_reason` text, `cancelled_by` uuid, `cancelled_at` timestamptz
+- `meetup_location` text, `note` text
+- Status now allows: `pending, accepted, preparing, ready_for_pickup, out_for_delivery, completed, cancelled, refunded, disputed` (CHECK constraint)
 
-**businesses** — add:
-- `category` text
-- `description` text (rename intent; keep `bio` too for back-compat)
-- `campus_name` text
-- `fulfillment` text[] (subset of `pickup|delivery|appointment|digital`)
-- `availability` text
-- `cancellation_policy` text
-- `contact_method` text default `plugu_dm`
-- `rules_accepted_at` timestamptz
-- `onboarding_step` int default 0 (0 = draft, 5 = complete)
-- `is_active` already exists (flipped true only after step 5)
+**bookings** — add:
+- `buyer_user_id`, `seller_user_id`, `slot_start`, `slot_end` (timestamptz)
+- Status: `pending, accepted, declined, completed, cancelled, no_show`
+- `cancel_reason` text, `decline_reason` text
+- **Exclusion constraint** on `(listing_id WITH =, tstzrange(slot_start, slot_end) WITH &&)` filtered to active statuses — prevents double booking at the DB level.
 
-**public_profiles view** — safe columns only (no email, no suspension reason). Grant SELECT to `anon` + `authenticated`.
+**order_status_history** (new): `order_id, from_status, to_status, changed_by, note, created_at`. Trigger on `orders` UPDATE inserts a row automatically.
 
-Grants + RLS updates:
-- Keep existing self-only policies on `profiles`; new view exposes the safe fields publicly.
-- `businesses` policies unchanged (public read for `is_active=true`, owner read for drafts).
+**booking_status_history** (new): same shape for bookings.
 
-## 2. Profile UI
+**service_availability_slots** (new, replaces the recurring weekday table for booking): concrete `slot_start` / `slot_end` rows sellers publish. Buyers pick from these.
 
-- Extend `useProfile` and add a `usePublicProfile(username)` hook.
-- `/profile` (self): show avatar, display name, @username, school, grad year, student/alumni pill, bio, verified badge, rating summary, completed-transactions count, join date. Never render email publicly. Add "Edit profile" button.
-- `/profile/edit`: form for display name, username (uniqueness check), grad year, status, bio, avatar URL. Saves via `supabase.from('profiles').update`.
-- `/u/$username`: public read via `public_profiles` view. Same public fields; no edit affordance.
+**Financial lock-down**:
+- `orders_guard_financials()` trigger: on UPDATE, only `service_role` or the row's status-transition path may change `total_cents`, `subtotal_cents`, `platform_fee_cents`, `processing_fee_cents`, `unit_price_cents`. Non-privileged updates that touch those columns get their old values restored.
+- `create_order_secure(listing_id, qty, fulfillment_method, note, meetup_location)` — SECURITY DEFINER RPC that reads `listings.price_cents` server-side, computes fees from a fixed schedule, and inserts the order + items atomically. Frontend never sends money numbers.
+- `create_booking_secure(listing_id, slot_id, note)` — same pattern, plus atomic slot claim.
+- `transition_order_status(order_id, next_status, note)` — enforces the state machine (who can move to what) and writes history.
+- `transition_booking_status(booking_id, next_status, reason)` — same, includes no-show/complete/cancel rules.
 
-## 3. Seller onboarding
+Standard `GRANT` blocks + owner/participant RLS for all new tables.
 
-New route `/seller/onboarding` — 5-step wizard, auto-saves after each step so progress isn't lost:
+## Server layer
 
-1. Business name + category (creates `businesses` row, `is_active=false`, `onboarding_step=1`)
-2. Description + logo/avatar URL
-3. Campus (defaults to the verified school), fulfillment options (multi-select checkboxes), general availability
-4. Cancellation policy, preferred contact method (defaults to PlugU DM)
-5. Read + accept seller rules and prohibited-items policy → sets `rules_accepted_at`, `is_active=true`, `onboarding_step=5`
+`src/lib/orders-db.ts` (new, replaces the localStorage `orders-storage`):
+- `createProductOrder`, `createServiceBooking` → call the SECURITY DEFINER RPCs.
+- `listMyOrders({ role: "buyer" | "seller" })`, `getOrder(id)`, `getOrderHistory(id)`.
+- `transitionOrder(id, next, note)`, `cancelOrder(id, reason)`, `openDispute(id, reason)`.
+- Booking equivalents + `listOpenSlots(listingId)`.
 
-Draft is looked up by `owner_user_id`; resuming the wizard rehydrates fields and jumps to the last saved step. "Save & exit" button on every step.
+`src/hooks/use-orders.ts`, `src/hooks/use-bookings.ts` — React Query wrappers with realtime subscriptions on `orders`, `bookings`, and their history tables.
 
-Guard: signup requires `verification_status='verified'` before entering onboarding (otherwise shows verify-first CTA).
+## Frontend
 
-## 4. Seller dashboard `/seller`
+**Checkout (`/checkout/$listingId`)**: swap the localStorage `createOrder` call for `createProductOrder` (products) or navigate into a **BookingPicker** (services). Server returns the row with all locked-in totals; UI just displays them.
 
-New minimal functional dashboard fed by the real business row:
-- Header: logo, name, category, campus, active/draft chip
-- Stats: listings count, orders count, rating avg — real Supabase counts
-- Actions: Add listing (→ existing market flow), Edit business, View public storefront, Boost
-- If no business exists → "Become a seller" CTA that routes to `/seller/onboarding`
+**BookingPicker** (new component): calendar view of `service_availability_slots`, disables taken slots, submits via `createServiceBooking`.
 
-`/business` (existing rich mock hub) stays but its "Get started" CTA is rewired to `/seller/onboarding`. Profile menu gains "Seller dashboard".
+**Seller availability** (`/seller/availability`, new): sellers add / remove concrete slots per service listing.
 
-## Technical
+**Orders list (`/orders`)**: real data via `useMyOrders`; filter tabs `All / Buying / Selling / Bookings`. Show status chip, payment status, fulfillment method.
 
-- All writes through the browser Supabase client with RLS (`owner_user_id = auth.uid()` insert/update). No server functions needed for this phase.
-- Username uniqueness enforced at DB (unique index) + surfaced as a friendly error in the edit form.
-- `public_profiles` view is `SECURITY INVOKER` (default) with explicit column list — email is not selectable.
-- Ratings/transactions columns default to 0; live aggregation from `orders`/`reviews` will be layered in a later phase.
+**Order detail (`/orders/$id`)**: 
+- Buyer view: cancel (with reason), open dispute, mark received (→ completed).
+- Seller view: accept / decline, preparing → ready_for_pickup / out_for_delivery, mark completed, no_show (bookings), cancel with reason.
+- Status timeline rendered from `order_status_history`.
+- All money fields read-only; `readOnly` on any input near totals removed.
 
-## Out of scope this phase
-- Payout provider connect (stubbed under existing `payout_accounts` table).
-- Live rating recomputation triggers.
-- Public storefront route at `/biz/$slug` (dashboard "View storefront" link added, route follows in Phase 3 marketplace work).
+**Notifications**: on every status transition, RPC also inserts into `notifications` for the other party (already-existing table).
+
+## Guardrails (matches your spec)
+
+- Frontend never posts `total_cents`, `platform_fee_cents`, `processing_fee_cents`, `unit_price_cents`. RPCs derive everything from `listings`.
+- DB trigger reverts any client attempt to mutate financial columns.
+- Booking double-booking prevented by exclusion constraint, not app code.
+- Status transitions enforced by RPC — invalid moves throw.
+
+## Out of scope for this phase
+
+- Real payment capture (Stripe/Paddle) — statuses simulate `held`/`captured` for now; hooking a live processor is a follow-up.
+- Push notifications (in-app row only).
+- Rides category stays disabled per Phase 3.
+
+Proceeding on approval.

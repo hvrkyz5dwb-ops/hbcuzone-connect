@@ -3,15 +3,21 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign, Loader2,
-  BadgeCheck, RefreshCw, MessageSquare, MapPin,
+  BadgeCheck, RefreshCw, MessageSquare, MapPin, Calendar, Truck, Package,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { fetchListing } from "@/lib/listings-db";
 import { getOrCreateConversation } from "@/lib/messages-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
-import { createOrder, paymentLabel, type PaymentMethod } from "@/lib/orders-storage";
-import { currentFeePercent, currentSellerTierMeta } from "@/lib/seller-plan";
+import {
+  createProductOrder, createServiceBooking, centsToDollars,
+} from "@/lib/orders-db";
+import { useOpenSlots } from "@/hooks/use-orders";
+
+type PaymentMethod = "apple_pay" | "cash_app" | "card";
+const paymentLabel = (m: PaymentMethod) =>
+  m === "apple_pay" ? "Apple Pay" : m === "cash_app" ? "Cash App Pay" : "Card";
 
 export const Route = createFileRoute("/checkout/$listingId")({
   head: () => ({ meta: [{ title: "Protected Checkout — PlugU" }] }),
@@ -24,6 +30,11 @@ const METHODS: { key: PaymentMethod; label: string; sub: string; Icon: typeof Cr
   { key: "card", label: "Debit / Credit Card", sub: "Visa · Mastercard · Amex", Icon: CreditCard },
 ];
 
+// Client-side preview only — the server RPC is the source of truth.
+const PLATFORM_FEE = 0.08;
+const PROCESSING_PCT = 0.029;
+const PROCESSING_FLAT_CENTS = 30;
+
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
@@ -31,16 +42,23 @@ function ProtectedCheckout() {
     queryKey: ["listing", listingId],
     queryFn: () => fetchListing(listingId),
   });
-  const price = useMemo(() => (listing ? listing.price_cents / 100 : 0), [listing]);
-  const feePercent = currentFeePercent();
-  const fee = +(price * (feePercent / 100)).toFixed(2);
-  const total = +(price + fee).toFixed(2);
+  const isService = listing?.kind === "service";
+  const slotsQ = useOpenSlots(isService ? listingId : "");
+  const [slotId, setSlotId] = useState<string | null>(null);
+
+  const subtotalCents = listing?.price_cents ?? 0;
+  const preview = useMemo(() => {
+    const platform = Math.round(subtotalCents * PLATFORM_FEE);
+    const processing = Math.round(subtotalCents * PROCESSING_PCT) + PROCESSING_FLAT_CENTS;
+    return { platform, processing, total: subtotalCents + platform + processing };
+  }, [subtotalCents]);
+
   const [method, setMethod] = useState<PaymentMethod>("apple_pay");
+  const [fulfillment, setFulfillment] = useState<string>("");
   const [meetup, setMeetup] = useState("Student Center · Today 5pm");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [placed, setPlaced] = useState<string | null>(null);
-  const tier = currentSellerTierMeta();
 
   if (isPending) {
     return (
@@ -64,27 +82,32 @@ function ProtectedCheckout() {
   const cover = listing.images[0]?.url ?? "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600";
   const sellerName = listing.campus_name ?? "PlugU seller";
   const campusName = listing.campus_name ?? "";
+  const fulfillmentOptions = listing.fulfillment && listing.fulfillment.length > 0 ? listing.fulfillment : ["pickup"];
+  const effectiveFulfillment = fulfillment || fulfillmentOptions[0];
 
-  function placeOrder() {
+  async function placeOrder() {
     if (!listing) return;
     setLoading(true);
-    setTimeout(() => {
-      const order = createOrder({
-        listingId: listing.id,
-        title: listing.title,
-        image: cover,
-        price,
-        seller: sellerName,
-        campus: campusName,
-        method,
-        note: note || undefined,
-        meetup: meetup || undefined,
-        feePercent,
-      });
-      setPlaced(order.id);
-      toast.success("Payment held in escrow", { description: `Order ${order.id} · ${paymentLabel(method)}` });
+    try {
+      let id: string;
+      if (isService) {
+        if (!slotId) { toast.error("Pick an available time slot"); setLoading(false); return; }
+        id = await createServiceBooking({ slotId, note: note || undefined });
+      } else {
+        id = await createProductOrder({
+          listingId: listing.id,
+          fulfillmentMethod: effectiveFulfillment,
+          note: note || undefined,
+          meetupLocation: meetup || undefined,
+        });
+      }
+      setPlaced(id);
+      toast.success("Payment held in escrow", { description: `${paymentLabel(method)} · Secured` });
+    } catch (err) {
+      toast.error("Couldn't place order", { description: (err as Error).message });
+    } finally {
       setLoading(false);
-    }, 700);
+    }
   }
 
   if (placed) {
@@ -102,7 +125,9 @@ function ProtectedCheckout() {
             <ShieldCheck className="h-7 w-7" style={{ color: "var(--plugu-gold)" }} />
           </div>
           <p className="mt-4 text-[10px] tracking-[0.32em] uppercase text-muted-foreground">Protected by PlugU</p>
-          <h1 className="mt-1 text-2xl font-bold plugu-antique-wordmark">Order confirmed</h1>
+          <h1 className="mt-1 text-2xl font-bold plugu-antique-wordmark">
+            {isService ? "Booking requested" : "Order confirmed"}
+          </h1>
           <p className="mt-2 text-xs text-muted-foreground">Funds held safely until you confirm delivery.</p>
 
           <div className="mt-6 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 text-left">
@@ -112,7 +137,7 @@ function ProtectedCheckout() {
                 <p className="text-sm font-semibold truncate">{listing.title}</p>
                 <p className="text-[11px] text-muted-foreground truncate">{sellerName} · {campusName}</p>
               </div>
-              <span className="text-sm font-bold" style={{ color: "var(--plugu-gold)" }}>${total.toFixed(2)}</span>
+              <span className="text-sm font-bold" style={{ color: "var(--plugu-gold)" }}>{centsToDollars(preview.total)}</span>
             </div>
             <p className="mt-3 text-[11px] text-muted-foreground">Order ID · <span className="font-mono">{placed}</span></p>
           </div>
@@ -163,13 +188,76 @@ function ProtectedCheckout() {
               </p>
               <p className="text-[11px] text-primary mt-0.5">{formatPrice(listing.price_cents, listing.price_type as PriceType)}</p>
             </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted-foreground inline-flex items-center gap-1">
+              {isService ? <Calendar className="h-3 w-3"/> : <Package className="h-3 w-3"/>}
+              {isService ? "Service" : "Product"}
+            </span>
           </div>
           <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
-            <Row label="Item" value={`$${price.toFixed(2)}`} />
-            <Row label={`PlugU fee (${feePercent}% · ${tier.name})`} value={`$${fee.toFixed(2)}`} muted />
-            <Row label="Total" value={`$${total.toFixed(2)}`} bold />
+            <Row label="Item" value={centsToDollars(subtotalCents)} />
+            <Row label="Platform fee (8%)" value={centsToDollars(preview.platform)} muted />
+            <Row label="Processing (2.9% + $0.30)" value={centsToDollars(preview.processing)} muted />
+            <Row label="Total" value={centsToDollars(preview.total)} bold />
+            <p className="text-[10px] text-muted-foreground pt-1">Final totals confirmed server-side at checkout.</p>
           </div>
         </div>
+
+        {/* Service: slot picker */}
+        {isService && (
+          <>
+            <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Pick a time</p>
+            <div className="mt-2 rounded-2xl border border-border bg-card p-3">
+              {slotsQ.isLoading ? (
+                <div className="py-6 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>
+              ) : (slotsQ.data ?? []).length === 0 ? (
+                <p className="text-[11px] text-muted-foreground py-2">
+                  This provider hasn't opened any slots yet. Message them to request a time.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {slotsQ.data!.map((s) => {
+                    const start = new Date(s.slot_start);
+                    const end = new Date(s.slot_end);
+                    const active = slotId === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => setSlotId(s.id)}
+                        className={`tap text-left rounded-xl border p-2.5 transition-colors ${active ? "border-accent bg-secondary" : "border-border bg-card"}`}
+                      >
+                        <p className="text-[11px] font-semibold">{start.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} – {end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Product: fulfillment picker */}
+        {!isService && fulfillmentOptions.length > 1 && (
+          <>
+            <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Fulfillment</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {fulfillmentOptions.map((f) => {
+                const active = effectiveFulfillment === f;
+                return (
+                  <button
+                    key={f}
+                    onClick={() => setFulfillment(f)}
+                    className={`tap px-3 py-1.5 rounded-full text-[11px] border inline-flex items-center gap-1.5 ${active ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-muted-foreground"}`}
+                  >
+                    <Truck className="h-3 w-3" /> {f}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         {/* Protected by PlugU */}
         <div
@@ -229,33 +317,39 @@ function ProtectedCheckout() {
           })}
         </div>
 
-        {/* Meetup */}
-        <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Meetup & notes</p>
+        {/* Meetup / notes */}
+        <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">
+          {isService ? "Notes for provider" : "Meetup & notes"}
+        </p>
         <div className="mt-2 rounded-2xl border border-border bg-card p-3 space-y-2">
-          <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" /> Meetup spot / drop-off
-          </label>
-          <input
-            value={meetup}
-            onChange={(e) => setMeetup(e.target.value)}
-            className="w-full bg-transparent text-sm outline-none border-b border-border/60 pb-2"
-          />
+          {!isService && (
+            <>
+              <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" /> Meetup spot / drop-off
+              </label>
+              <input
+                value={meetup}
+                onChange={(e) => setMeetup(e.target.value)}
+                className="w-full bg-transparent text-sm outline-none border-b border-border/60 pb-2"
+              />
+            </>
+          )}
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Anything the seller should know?"
+            placeholder={isService ? "Anything the provider should know?" : "Anything the seller should know?"}
             rows={2}
             className="w-full bg-transparent text-sm outline-none pt-2 resize-none"
           />
         </div>
 
         <button
-          disabled={loading}
+          disabled={loading || (isService && !slotId)}
           onClick={placeOrder}
           className="mt-5 w-full py-3.5 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-bronze)" }}
         >
-          {loading ? "Securing payment…" : `Pay $${total.toFixed(2)} with ${paymentLabel(method)}`}
+          {loading ? "Securing payment…" : `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`}
         </button>
         <p className="mt-2 text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
           Secure checkout · Protected by PlugU

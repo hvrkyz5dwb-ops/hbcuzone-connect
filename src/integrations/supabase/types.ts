@@ -62,34 +62,90 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_status_history: {
+        Row: {
+          booking_id: string
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          to_status: string
+        }
+        Insert: {
+          booking_id: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          to_status: string
+        }
+        Update: {
+          booking_id?: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_status_history_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
+          buyer_user_id: string | null
+          cancel_reason: string | null
           created_at: string
+          decline_reason: string | null
           duration_min: number
           id: string
           listing_id: string
           order_id: string
           scheduled_at: string
+          seller_user_id: string | null
+          slot_end: string | null
+          slot_start: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          buyer_user_id?: string | null
+          cancel_reason?: string | null
           created_at?: string
+          decline_reason?: string | null
           duration_min: number
           id?: string
           listing_id: string
           order_id: string
           scheduled_at: string
+          seller_user_id?: string | null
+          slot_end?: string | null
+          slot_start?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          buyer_user_id?: string | null
+          cancel_reason?: string | null
           created_at?: string
+          decline_reason?: string | null
           duration_min?: number
           id?: string
           listing_id?: string
           order_id?: string
           scheduled_at?: string
+          seller_user_id?: string | null
+          slot_end?: string | null
+          slot_start?: string | null
           status?: string
           updated_at?: string
         }
@@ -567,34 +623,105 @@ export type Database = {
           },
         ]
       }
+      order_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          order_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           buyer_user_id: string
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
+          fulfillment_method: string | null
           id: string
+          kind: string
           listing_id: string | null
+          meetup_location: string | null
+          note: string | null
+          payment_status: string
+          platform_fee_cents: number
+          processing_fee_cents: number
           seller_user_id: string
           status: string
+          subtotal_cents: number
           total_cents: number
           updated_at: string
         }
         Insert: {
           buyer_user_id: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
+          fulfillment_method?: string | null
           id?: string
+          kind?: string
           listing_id?: string | null
+          meetup_location?: string | null
+          note?: string | null
+          payment_status?: string
+          platform_fee_cents?: number
+          processing_fee_cents?: number
           seller_user_id: string
           status?: string
+          subtotal_cents?: number
           total_cents?: number
           updated_at?: string
         }
         Update: {
           buyer_user_id?: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
+          fulfillment_method?: string | null
           id?: string
+          kind?: string
           listing_id?: string | null
+          meetup_location?: string | null
+          note?: string | null
+          payment_status?: string
+          platform_fee_cents?: number
+          processing_fee_cents?: number
           seller_user_id?: string
           status?: string
+          subtotal_cents?: number
           total_cents?: number
           updated_at?: string
         }
@@ -955,6 +1082,47 @@ export type Database = {
           },
         ]
       }
+      service_availability_slots: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          id: string
+          is_booked: boolean
+          listing_id: string
+          seller_user_id: string
+          slot_end: string
+          slot_start: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          is_booked?: boolean
+          listing_id: string
+          seller_user_id: string
+          slot_end: string
+          slot_start: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          is_booked?: boolean
+          listing_id?: string
+          seller_user_id?: string
+          slot_end?: string
+          slot_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_availability_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           code: string
@@ -1067,6 +1235,20 @@ export type Database = {
       }
     }
     Functions: {
+      create_booking_secure: {
+        Args: { _note: string; _slot_id: string }
+        Returns: string
+      }
+      create_order_secure: {
+        Args: {
+          _fulfillment_method: string
+          _listing_id: string
+          _meetup_location: string
+          _note: string
+          _qty: number
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1079,6 +1261,14 @@ export type Database = {
         Returns: boolean
       }
       is_suspended: { Args: { _user_id: string }; Returns: boolean }
+      transition_booking_status: {
+        Args: { _booking_id: string; _next: string; _reason: string }
+        Returns: undefined
+      }
+      transition_order_status: {
+        Args: { _next: string; _note: string; _order_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
