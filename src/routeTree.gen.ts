@@ -20,6 +20,7 @@ import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as PromoteRouteImport } from './routes/promote'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlugReachRouteImport } from './routes/plug-reach'
@@ -121,6 +122,11 @@ const RefundsRoute = RefundsRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromoteRoute = PromoteRouteImport.update({
+  id: '/promote',
+  path: '/promote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -396,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByTo {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -517,6 +525,7 @@ export interface FileRoutesById {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/promote'
     | '/referrals'
     | '/refunds'
     | '/reset-password'
@@ -639,6 +649,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/promote'
     | '/referrals'
     | '/refunds'
     | '/reset-password'
@@ -699,6 +710,7 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/promote'
     | '/referrals'
     | '/refunds'
     | '/reset-password'
@@ -760,6 +772,7 @@ export interface RootRouteChildren {
   PlugReachRoute: typeof PlugReachRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  PromoteRoute: typeof PromoteRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -858,6 +871,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/promote': {
+      id: '/promote'
+      path: '/promote'
+      fullPath: '/promote'
+      preLoaderRoute: typeof PromoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1295,6 +1315,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlugReachRoute: PlugReachRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  PromoteRoute: PromoteRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
