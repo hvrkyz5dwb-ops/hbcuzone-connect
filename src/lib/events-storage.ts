@@ -6,6 +6,9 @@ export type UserEvent = {
   when: string;
   where: string;
   createdAt: number;
+  promoted?: boolean;
+  boost?: number; // 0 = free (on-campus only), higher = paid ad tier
+  spot?: { x: number; y: number; label: string } | null;
 };
 
 const KEY = "plugu:user-events:v1";

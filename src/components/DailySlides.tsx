@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Quote, Newspaper, Plug } from "lucide-react";
+import { ArrowRight, Quote, Newspaper, Plug, Megaphone } from "lucide-react";
 
 type Slide = {
   key: string;
   eyebrow: string;
   title: string;
   blurb: string;
-  to: "/daily" | "/news" | "/business";
+  to: "/daily" | "/news" | "/business" | "/promote";
   cta: string;
   icon: typeof Quote;
   tint: string;
@@ -84,6 +84,17 @@ export function DailySlides() {
       icon: Plug,
       tint: "var(--plugu-gold)",
       emoji: "🔌",
+    },
+    {
+      key: "promote",
+      eyebrow: "Free On-Campus",
+      title: "Promote your local event",
+      blurb: "Pin your event to a spot on your live campus map — free for on-campus, paid boosts available.",
+      to: "/promote",
+      cta: "Promote now",
+      icon: Megaphone,
+      tint: "var(--plugu-purple)",
+      emoji: "📣",
     },
   ];
 
