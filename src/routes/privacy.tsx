@@ -19,6 +19,7 @@ function Privacy() {
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Privacy Policy</h1>
           <p className="text-xs text-white/50 mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
           <p className="text-xs text-white/50">This is app-owned editable content, not a certification or legal opinion.</p>
+          <p className="text-xs text-amber-300/80 mt-1">Placeholder — final attorney-reviewed Privacy Policy is still pending. This copy is not attorney approved.</p>
         </header>
 
         <Section title="What we collect">
