@@ -12,6 +12,7 @@ import { LoadingGrid, EmptyState } from "@/components/EmptyState";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useMarketplace } from "@/hooks/use-listings";
 import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
+import { getOrCreateConversation } from "@/lib/messages-db";
 import { MVP_CATEGORIES, formatPrice, categoryLabel, type PriceType } from "@/lib/categories";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
