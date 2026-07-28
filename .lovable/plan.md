@@ -1,127 +1,124 @@
-# PlugU Production Migration Plan
+# Phase 1 — Auth, School Verification & Database Foundation
 
-Full move from localStorage-based prototype data to a real Supabase backend with proper auth, RLS, and protected routing. This will span **many turns**. Each turn ships a working slice — the app stays usable throughout.
+Goal: replace prototype auth/data with a real, RLS-secured backend so the full journey (signup → verified profile → seller → listing → messages → order → review → admin) can be built on solid ground. This plan covers **Phase 1 only**. Later phases (listings, orders, messages, reviews, admin, payments) come after this is approved and shipped.
 
-## Guiding rules
+## What already exists (keeping as-is)
 
-- Do **not** touch the visual identity: dark theme, antique gold, statue splash, wordmarks, AppShell layout stay as-is.
-- Do **not** delete features. If a screen has no backend yet, it keeps its current localStorage source until that turn migrates it.
-- One clear source of truth: `supabase.auth` for identity, `profiles` table for user data. The old `plugu.student` localStorage account object gets removed at the end of Turn 1.
-- Every new table ships with GRANTs + RLS + policies in the same migration.
-- Every mutation is idempotent (guard against double-taps) and validated with zod.
+- Supabase Auth wired via `@/integrations/supabase/client`, session hook, `/auth` page, `/reset-password` page.
+- `profiles` table (id, email, full_name, school_name, school_domain, year, major, is_hbcu_student, onboarding_completed_at, terms_accepted_at).
+- `user_roles` + `has_role()` RBAC helper.
+- `handle_new_user()` trigger populating profiles from `raw_user_meta_data`.
+- Sign-out flow, `/reset-password` UI, redirect-when-authenticated on `/auth`, onboarding gate.
 
-## Turn-by-turn roadmap
+I will not redesign these — I'll harden the DB behind them.
 
-### Turn 1 — Auth foundation (this turn, after plan approval)
-- Migration: `profiles`, `user_roles` (+`app_role` enum, `has_role` fn), `terms_acceptance`, auto-create-profile trigger on `auth.users` insert, updated_at triggers, RLS + GRANTs.
-- Enable `password_hibp_enabled`. Keep email confirmation ON (user must verify).
-- Rewrite `src/routes/auth.tsx`: sign in, sign up, forgot password, `.edu`-only validation using `APPROVED_SCHOOLS`, terms/privacy checkbox required, resend verification.
-- New `src/routes/reset-password.tsx` (public).
-- New `src/routes/verify-email.tsx` explaining "check your inbox" + resend.
-- New `src/routes/_authenticated/route.tsx` (integration-managed shape) gating the whole app.
-- Move ALL current top-level routes under `_authenticated/` **except** `/auth`, `/reset-password`, `/verify-email`, `/terms`, `/privacy`, `/safety` (public info), and the MCP/OAuth/well-known routes.
-- `src/routes/index.tsx` becomes public landing → CTA to `/auth`; signed-in users get redirected to `/home` (renamed from current index body).
-- Root `onAuthStateChange` subscriber in `__root.tsx` filtered to identity events; router.invalidate + queryClient.invalidate on sign-in/out.
-- Sign-out helper with cache teardown (cancelQueries → clear → signOut → navigate).
-- **Delete** `src/lib/auth.ts` fake-account storage; keep only `APPROVED_SCHOOLS`, `validateStudentEmail`, `detectHbcuSchool` as pure helpers. Rewire every consumer (`useSchool`, `AppShell`, `signup`, etc.) to read from Supabase profile.
-- `/signup` becomes a thin redirect to `/auth`.
-- Report at end: what works, what to test manually.
+## What Phase 1 adds
 
-### Turn 2 — Profiles + onboarding + roles
-- `/onboarding` becomes required post-signup step (interests, year, major, campus confirm) writing to `profiles`. Gate: `profiles.onboarding_completed_at IS NULL` → force `/onboarding`.
-- Profile edit page writes to DB with optimistic + rollback.
-- Admin role via `user_roles` — `/admin` now checks `has_role(uid,'admin')` server-side; passcode gate removed.
-- Storage bucket `avatars` (public read, owner write) + upload UI.
+### 1. Schools registry (source of truth)
 
-### Turn 3 — Listings (marketplace core)
-- Tables: `listings`, `listing_images`, `saved_listings`, `listing_reports`.
-- Storage bucket `listing-images` (public read, owner write, size/type limits).
-- CRUD server fns; RLS: public read of `status='active'`, owner-only write, plus owner read of own drafts.
-- Migrate `src/hooks/use-listings.ts` + `src/lib/listings-storage.ts` consumers. Idempotency key column.
-- `/market`, `/saved`, seller listing management wired to DB.
-- Search + filters via `createServerFn` with pagination.
+New tables:
 
-### Turn 4 — Messaging
-- Tables: `conversations`, `conversation_participants`, `messages`, `blocks`.
-- RLS: only participants can read/write. Realtime subscription on `messages`.
-- Rewrite `messages.tsx`, `messages.$id.tsx`. Retry-on-fail, unread counts, block/report.
+- `schools` — id, name, domain (unique, lowercased), type (`hbcu` | `university` | `college` | `community`), city, state, is_active, created_at, updated_at. Public read (anon + authenticated).
+- `school_access_requests` — id, requester_user_id, requested_school_name, requested_domain, note, status (`pending` | `approved` | `denied`), reviewed_by, reviewed_at, created_at. RLS: users insert/read their own; admins read/update all.
 
-### Turn 5 — Orders, checkout, reviews, disputes
-- Tables: `orders`, `order_events`, `reviews`, `disputes`.
-- Checkout server fn (no real payments — clearly marked "Demo checkout" until Stripe/Paddle is enabled).
-- Reviews gated on `orders.status='completed'` + `buyer_id=auth.uid()`.
-- Dispute center wired to DB.
+Seed `schools` from `src/lib/hbcus-data.ts` in the same migration (literal INSERTs).
 
-### Turn 6 — Community layer
-- Tables: `notifications`, `follows`, `event_rsvps`, `campus_feed_posts`, `post_reactions`, `referrals`, `ambassador_stats`.
-- Notification bell reads real rows; each notification has a destination.
-- RSVP counters via row-count, not localStorage.
+### 2. Trusted verification on profiles
 
-### Turn 7 — Plans, boosts, KingPin, seller subscriptions
-- Tables: `seller_plans`, `boosts`, `plan_history`.
-- Enforce plan benefits server-side (listing limits, boost slots).
-- Payment provider decision: recommend Stripe built-in via `payments--enable_stripe_payments` (ask user before enabling).
+Add to `profiles`:
 
-### Turn 8 — HBCUS live data + campus map persistence
-- Keep AI-powered feeds (already server fns).
-- Persist school communities: `school_posts`, `school_events` scoped by school slug with RLS "must belong to that school".
-- Home-campus stored on profile, not localStorage.
+- `school_id uuid references public.schools(id)`
+- `verification_status text` default `'pending'` (`pending` | `verified` | `alumni` | `denied`)
+- `is_suspended boolean` default false
+- `suspended_reason text`, `suspended_at timestamptz`
 
-### Turn 9 — Audit & cleanup
-- Dead-button sweep: every `onClick` traced to a real action or explicitly disabled with tooltip.
-- Empty/loading/error states for every route (skeletons already partially exist).
-- Duplicate-submit guards on every mutation (disabled + inflight ref).
-- Mobile responsiveness pass on the routes touched.
-- Run `supabase--linter` + `security--run_security_scan`, fix findings.
-- Delete every remaining `*-storage.ts` localStorage module.
-- Final report with manual QA steps.
+Rewrite `handle_new_user()` trigger:
 
-## Technical section (details for the technical reader)
+- Lowercase domain from `NEW.email`.
+- Look up matching active row in `schools`; if found set `school_id`, `school_name`, `school_domain`, `is_hbcu_student = (type = 'hbcu')`, `verification_status = 'verified'`. Otherwise leave `school_id` null and `verification_status = 'pending'`.
+- Ignore any client-supplied `school_*` / `is_hbcu_student` in metadata (server derives from verified email domain only).
 
-### Auth architecture
-- Client: `@/integrations/supabase/client` (browser only).
-- Server fns needing user: `.middleware([requireSupabaseAuth])` — bearer attached by existing `attachSupabaseAuth` in `src/start.ts`.
-- Public reads: server publishable client inside handler, `TO anon` SELECT policies with column projection.
-- Admin ops: `await import('@/integrations/supabase/client.server')` inside handler only.
+Add a **column-level** RLS: users may update their profile but **not** `school_id`, `school_name`, `school_domain`, `is_hbcu_student`, `verification_status`, `is_suspended` (enforced via a `BEFORE UPDATE` trigger that reverts those columns for non-admins).
 
-### Protected routing shape
-```text
-src/routes/
-  index.tsx                    public landing
-  auth.tsx                     public, redirects to /home if signed in
-  reset-password.tsx           public
-  verify-email.tsx             public
-  terms.tsx, privacy.tsx       public
-  safety.tsx                   public
-  _authenticated/
-    route.tsx                  ssr:false gate → /auth if no session
-    home.tsx                   the real signed-in home
-    market.tsx, map.tsx, hbcus.tsx, messages.tsx, profile.tsx, ...all others
-  [.]lovable.oauth.consent.tsx public (MCP)
-  [.mcp]/*, [.well-known]/*    public
-```
+### 3. Marketplace + trust schema (structure only in Phase 1)
 
-### Turn 1 SQL (preview)
-- `profiles(id uuid PK → auth.users, email, full_name, school_name, school_domain, year, major, avatar_url, onboarding_completed_at, terms_accepted_at, is_hbcu_student bool, created_at, updated_at)`.
-- `app_role enum('admin','moderator','user')`.
-- `user_roles(id, user_id, role, unique(user_id,role))`.
-- `has_role(_user_id uuid, _role app_role) → bool` SECURITY DEFINER.
-- Trigger `handle_new_user()` on `auth.users` insert → insert profile row from `raw_user_meta_data`.
-- RLS: profile self-read + self-update; user_roles self-read only.
-- GRANTs per rules (authenticated + service_role; no anon on profiles until we know what's public).
+Create empty, RLS-protected tables so future phases plug in:
 
-### Data-layer strategy
-- TanStack Query for all server-fn reads (already the template default).
-- Every mutation returns updated row; invalidate on success.
-- Idempotency: client generates `nanoid()` per submission, server upserts on `(user_id, idempotency_key)` unique index for creation endpoints.
+- `businesses` (owner user_id, school_id, name, slug, bio, avatar_url, is_active)
+- `listings` (business_id, seller_user_id, school_id, title, description, category, price_cents, kind `item|service|booking`, status `draft|active|sold|removed`)
+- `listing_images` (listing_id, url, position)
+- `service_availability` (listing_id, weekday, start_time, end_time)
+- `conversations` (id, listing_id nullable, created_by)
+- `conversation_members` (conversation_id, user_id)
+- `messages` (conversation_id, sender_user_id, body, created_at)
+- `orders` (buyer_user_id, seller_user_id, listing_id, status `pending|accepted|completed|cancelled|disputed`, total_cents)
+- `order_items` (order_id, listing_id, qty, unit_price_cents)
+- `bookings` (order_id, listing_id, scheduled_at, duration_min, status)
+- `reviews` (order_id unique, reviewer_user_id, subject_user_id, rating 1-5, body)
+- `reports` (reporter_user_id, target_type, target_id, reason, status)
+- `blocked_users` (blocker_user_id, blocked_user_id)
+- `notifications` (user_id, kind, payload jsonb, read_at)
+- `disputes` (order_id, opened_by, reason, status)
+- `favorites` (user_id, listing_id)
+- `admin_actions` (admin_user_id, action, target_type, target_id, note)
+- `subscription_plans` (code, name, price_cents, features jsonb)
+- `seller_subscriptions` (user_id, plan_code, status, current_period_end)
+- `boosts` (listing_id, kind, expires_at, amount_cents)
+- `payout_accounts` (user_id, provider, external_id, status)
 
-### What I will NOT do
-- No new Supabase Edge Functions (use `createServerFn` and TanStack routes).
-- No changing `src/integrations/supabase/*` generated files.
-- No exposing service role key in browser code.
-- No touching `auth.*`, `storage.buckets` via SQL (use storage tools).
+All: UUID PK, `created_at`, `updated_at` where mutable, FKs, indexes on the hot columns (`school_id`, `user_id`, `seller_user_id`, `buyer_user_id`, `listings.category`, `listings.status`, `orders.status`, `created_at`), and `GRANT SELECT, INSERT, UPDATE, DELETE ... TO authenticated` + `GRANT ALL ... TO service_role`. `anon` gets SELECT only on `schools`, `listings` (active only via RLS), `businesses` (active), and `reviews`.
 
-## Deliverable at end of every turn
-A short structured report: features touched, migrations run, RLS/GRANT changes, remaining limitations, exact manual QA steps.
+### 4. RLS policies (Phase 1 shape)
 
-**Approve this plan and I'll ship Turn 1 (auth foundation) immediately.**
+- `profiles`: keep existing self-only; admin can read all via `has_role(auth.uid(),'admin')`.
+- `schools`: read anon+authenticated; write admin only.
+- `school_access_requests`: user manages own row; admin reads/updates all.
+- `businesses` / `listings` / `listing_images` / `service_availability`: owner writes; anyone reads `active`/`published` rows; owner reads own drafts. Suspended users cannot write (check via subquery on `profiles.is_suspended`).
+- `conversations` / `conversation_members` / `messages`: only participants read/write; only members can insert messages; suspended users blocked from inserts.
+- `orders` / `order_items` / `bookings`: buyer and seller can read; buyer inserts; seller updates status.
+- `reviews`: insert allowed only when a matching completed order exists (`EXISTS` clause) and reviewer was buyer or seller.
+- `reports`, `disputes`, `admin_actions`: user inserts own; admin reads all.
+- `blocked_users`, `favorites`, `notifications`: self-only.
+- `subscription_plans`: public read; admin write. `seller_subscriptions`, `boosts`, `payout_accounts`: self read/write.
+
+All policies use `has_role()` for admin checks (avoids the infinite-recursion trap).
+
+### 5. Frontend wiring (minimal, targeted — no redesign)
+
+- `useProfile`: expose new `verification_status`, `is_suspended`, `school_id`.
+- `/auth` create-account: keep the existing form, but drop any client-side `school_name` writing to profile (trigger owns it now). Show a "we couldn't match your school" banner + link to a new `/schools/request` form when `verification_status = 'pending'` after signup.
+- New `/schools/request` route: simple form that inserts into `school_access_requests`.
+- Suspended-account guard: a small effect in `AppShell` that, if `is_suspended`, replaces the shell with a "Your account is under review" screen (blocks nav to compose/create/message).
+- Redirect-when-authenticated on `/auth`: already exists — verify and leave alone.
+
+### 6. Admin surface (Phase 1 scope only)
+
+Add a minimal `/admin/schools` panel (gated by `has_role('admin')`) to:
+
+- List pending `school_access_requests` and approve/deny (approve inserts into `schools`, updates the requester's `school_id` + `verification_status`).
+- Toggle a user's `verification_status` (verified/alumni/denied) and `is_suspended`.
+
+Everything else in admin stays as-is until later phases.
+
+## Out of scope for Phase 1
+
+Listings CRUD UI, messaging UI, orders/checkout, reviews UI, disputes UI, payments, notifications delivery, boosts. Their **tables and RLS** land now; the **UIs** ship in later phases.
+
+## Technical notes
+
+- Migration order per table: CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY. All in one migration call.
+- `handle_new_user()` rewrite must be `SECURITY DEFINER` with `SET search_path = public` (already the pattern).
+- Column-lock trigger on `profiles` uses `has_role(auth.uid(),'admin')` to allow admin overrides.
+- Seed `schools` from `hbcus-data.ts` via literal INSERTs in the migration (no seeding via server fn on load).
+- No new server functions strictly needed for Phase 1 — Supabase client + RLS handles it. Admin approve/deny goes through `requireSupabaseAuth` server fn to keep the admin check server-side.
+
+## Deliverables & report
+
+After Phase 1 lands I'll report:
+
+- Migration applied (tables, policies, seed count).
+- Files touched (small: `useProfile`, `AppShell` suspend gate, `/schools/request`, `/admin/schools`, `/auth` banner).
+- Manual steps you still need to do: none for Phase 1 (Supabase Auth email + password reset already work on Lovable Cloud). Custom email templates and auto-confirm are still off unless you ask.
+- What's explicitly deferred to Phase 2+.
+
+Reply "go" to apply, or tell me what to change.
