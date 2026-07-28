@@ -88,8 +88,15 @@ function SellerListings() {
           icon={Store}
           title="No listings yet"
           description="Publish your first listing — a haircut slot, a hoodie, a photo session, tutoring hours."
-          actionLabel="Create your first listing"
-          onAction={() => setComposer({ open: true })}
+          action={
+            <button
+              onClick={() => setComposer({ open: true })}
+              className="tap inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-semibold text-primary-foreground"
+              style={{ background: "var(--gradient-bronze)" }}
+            >
+              <Plus className="h-4 w-4" /> Create your first listing
+            </button>
+          }
         />
       ) : (
         <section className="mt-4 px-5 pb-24 space-y-2">
