@@ -136,11 +136,8 @@ function HbcusPage() {
       </AppShell>
     );
   }
-  if (profile && !isHbcu) {
+  if (!profile || !isHbcu || !verification.verified) {
     return <NonHbcuGate school={school.name} domain={domain ?? undefined} />;
-  }
-  if (!verification.verified) {
-    return <VerificationWall onVerified={verification.verify} previewSchool={school.verified ? school.name : undefined} />;
   }
   // Fallback: verified but school not in profiles → preview mode with default HBCU.
   const resolved = verification.school && schoolProfiles.some((s) => s.name === verification.school)

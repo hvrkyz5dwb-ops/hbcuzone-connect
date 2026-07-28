@@ -17,6 +17,8 @@ export type Profile = {
   is_hbcu_student: boolean;
   onboarding_completed_at: string | null;
   terms_accepted_at: string | null;
+  school_id: string | null;
+  verification_status: "verified" | "pending" | "rejected" | string;
 };
 
 export function useProfile() {
@@ -31,7 +33,7 @@ export function useProfile() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id,email,full_name,school_name,school_domain,year,major,bio,avatar_url,is_hbcu_student,onboarding_completed_at,terms_accepted_at",
+          "id,email,full_name,school_name,school_domain,year,major,bio,avatar_url,is_hbcu_student,onboarding_completed_at,terms_accepted_at,school_id,verification_status",
         )
         .eq("id", user.id)
         .maybeSingle();

@@ -274,6 +274,13 @@ function AuthPage() {
                 <ShieldCheck className="h-3.5 w-3.5" /> Recognized as {emailCheck.school.name}.
               </p>
             )}
+            <p className="text-[11px] text-muted-foreground">
+              School not listed?{" "}
+              <Link to="/request-school-access" className="text-primary underline">
+                Request access
+              </Link>{" "}
+              after creating your account.
+            </p>
             <div className="grid grid-cols-2 gap-3">
               <Labeled label="Year">
                 <select

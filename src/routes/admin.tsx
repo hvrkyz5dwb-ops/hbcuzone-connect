@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ShieldCheck, Users, Store, Flag, Megaphone, BarChart3, Crown,
-  GraduationCap, CreditCard, MapPin, Ban, Check, X, Lock
+  GraduationCap, CreditCard, MapPin, Ban, Check, X, Lock, School as SchoolIcon
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -23,6 +25,7 @@ const TABS = [
   { key: "reports", label: "Reports", icon: Flag },
   { key: "users", label: "Users", icon: Users },
   { key: "campuses", label: "Campuses", icon: MapPin },
+  { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "announce", label: "Announce", icon: Megaphone },
   { key: "pricing", label: "Pricing", icon: CreditCard },
   { key: "ambass", label: "Ambassadors", icon: GraduationCap },
@@ -186,6 +189,8 @@ function Admin() {
           </ul>
         )}
 
+        {tab === "access" && <SchoolAccessPanel />}
+
         {tab === "announce" && (
           <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
             <input placeholder="Announcement title" className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-sm outline-none" />
@@ -258,6 +263,86 @@ function ActionList({
           <span className="flex-1 text-sm">{h}</span>
           <AdminBtn variant="ok">{leftLabel}</AdminBtn>
           <AdminBtn variant="bad">{rightLabel}</AdminBtn>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+type AccessRow = {
+  id: string;
+  requester_user_id: string;
+  requested_school_name: string;
+  requested_domain: string;
+  status: string;
+  note: string | null;
+  created_at: string;
+};
+
+function SchoolAccessPanel() {
+  const qc = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin:school_access_requests"],
+    queryFn: async (): Promise<AccessRow[]> => {
+      const { data, error } = await supabase
+        .from("school_access_requests")
+        .select("id,requester_user_id,requested_school_name,requested_domain,status,note,created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data as AccessRow[]) ?? [];
+    },
+  });
+
+  async function review(id: string, status: "approved" | "rejected") {
+    const { data: sess } = await supabase.auth.getSession();
+    const reviewer = sess.session?.user.id ?? null;
+    const { error } = await supabase
+      .from("school_access_requests")
+      .update({ status, reviewed_by: reviewer, reviewed_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["admin:school_access_requests"] });
+  }
+
+  if (isLoading) return <p className="text-xs text-muted-foreground">Loading requests…</p>;
+  if (error) return <p className="text-xs text-destructive">Couldn't load requests. Admin role required.</p>;
+  if (!data || data.length === 0) return <p className="text-xs text-muted-foreground">No requests yet.</p>;
+
+  return (
+    <ul className="space-y-2">
+      {data.map((r) => (
+        <li key={r.id} className="rounded-2xl bg-card border border-border p-3">
+          <div className="flex items-start gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{r.requested_school_name}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                @{r.requested_domain} · {new Date(r.created_at).toLocaleDateString()}
+              </p>
+              {r.note && <p className="text-[11px] text-muted-foreground mt-1 italic">"{r.note}"</p>}
+            </div>
+            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-border text-muted-foreground">
+              {r.status}
+            </span>
+          </div>
+          {r.status === "pending" && (
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => review(r.id, "approved")}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] border bg-primary/10 border-primary/30 text-primary"
+              >
+                <Check className="h-3.5 w-3.5" /> Approve
+              </button>
+              <button
+                onClick={() => review(r.id, "rejected")}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] border bg-destructive/10 border-destructive/30 text-destructive"
+              >
+                <X className="h-3.5 w-3.5" /> Reject
+              </button>
+            </div>
+          )}
         </li>
       ))}
     </ul>

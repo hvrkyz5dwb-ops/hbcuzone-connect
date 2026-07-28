@@ -12,6 +12,8 @@ import { DailySlides } from "@/components/DailySlides";
 import { SmartSearch } from "@/components/SmartSearch";
 import { OpportunityRail } from "@/components/OpportunityRail";
 import { CommunityBoard } from "@/components/CommunityBoard";
+import { useProfile } from "@/hooks/use-profile";
+import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   categories, nearbyServices, scholarships, hbcuDiscounts,
@@ -62,6 +64,8 @@ function Home() {
 
       {/* Campus Pulse — modular dashboard (greeting, summary, quick actions, ticker, trending, events) */}
       <CampusPulse />
+
+      <VerificationBanner />
 
       {/* Phase 6 — daily hits & competition */}
       <section className="mt-6 px-5">
@@ -261,6 +265,33 @@ function Home() {
       </section>
       </PullToRefresh>
     </AppShell>
+  );
+}
+
+function VerificationBanner() {
+  const { profile } = useProfile();
+  if (!profile) return null;
+  if (profile.verification_status === "verified" && profile.school_id) return null;
+  return (
+    <section className="mt-4 px-5">
+      <Link
+        to="/request-school-access"
+        className="flex items-start gap-3 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-left"
+      >
+        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-foreground">
+            {profile.verification_status === "rejected"
+              ? "School verification denied"
+              : "Verify your school to unlock everything"}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Your <span className="text-foreground">@{profile.school_domain ?? "school"}</span> domain isn't in our verified registry yet — request access here.
+          </p>
+        </div>
+        <span className="shrink-0 text-primary text-sm">→</span>
+      </Link>
+    </section>
   );
 }
 
