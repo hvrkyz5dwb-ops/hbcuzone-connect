@@ -71,6 +71,7 @@ import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.d
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as SellerAvailabilityListingIdRouteImport } from './routes/seller.availability.$listingId'
+import { Route as OrdersIdReviewRouteImport } from './routes/orders.$id.review'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
@@ -390,6 +391,11 @@ const SellerAvailabilityListingIdRoute =
     path: '/seller/availability/$listingId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OrdersIdReviewRoute = OrdersIdReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => OrdersIdRoute,
+} as any)
 const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
@@ -484,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/orders/$id/review': typeof OrdersIdReviewRoute
   '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRoutesByTo {
@@ -553,6 +560,7 @@ export interface FileRoutesByTo {
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/orders/$id/review': typeof OrdersIdReviewRoute
   '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRoutesById {
@@ -623,6 +631,7 @@ export interface FileRoutesById {
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
+  '/orders/$id/review': typeof OrdersIdReviewRoute
   '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
 }
 export interface FileRouteTypes {
@@ -694,6 +703,7 @@ export interface FileRouteTypes {
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/orders/$id/review'
     | '/seller/availability/$listingId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -763,6 +773,7 @@ export interface FileRouteTypes {
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/orders/$id/review'
     | '/seller/availability/$listingId'
   id:
     | '__root__'
@@ -832,6 +843,7 @@ export interface FileRouteTypes {
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
+    | '/orders/$id/review'
     | '/seller/availability/$listingId'
   fileRoutesById: FileRoutesById
 }
@@ -1334,6 +1346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerAvailabilityListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders/$id/review': {
+      id: '/orders/$id/review'
+      path: '/review'
+      fullPath: '/orders/$id/review'
+      preLoaderRoute: typeof OrdersIdReviewRouteImport
+      parentRoute: typeof OrdersIdRoute
+    }
     '/orders/$id/dispute': {
       id: '/orders/$id/dispute'
       path: '/dispute'
@@ -1420,10 +1439,12 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
 
 interface OrdersIdRouteChildren {
   OrdersIdDisputeRoute: typeof OrdersIdDisputeRoute
+  OrdersIdReviewRoute: typeof OrdersIdReviewRoute
 }
 
 const OrdersIdRouteChildren: OrdersIdRouteChildren = {
   OrdersIdDisputeRoute: OrdersIdDisputeRoute,
+  OrdersIdReviewRoute: OrdersIdReviewRoute,
 }
 
 const OrdersIdRouteWithChildren = OrdersIdRoute._addFileChildren(
