@@ -55,9 +55,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
+import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
+import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
@@ -300,9 +304,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/seller/',
+  path: '/seller/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerPlansRoute = SellerPlansRouteImport.update({
   id: '/seller/plans',
   path: '/seller/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerOnboardingRoute = SellerOnboardingRouteImport.update({
+  id: '/seller/onboarding',
+  path: '/seller/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
@@ -314,6 +333,11 @@ const SeasonSlugRoute = SeasonSlugRouteImport.update({
   id: '/season/$slug',
   path: '/season/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProfileRoute,
 } as any)
 const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
@@ -407,7 +431,7 @@ export interface FileRoutesByFullPath {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -428,9 +452,13 @@ export interface FileRoutesByFullPath {
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
+  '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -469,7 +497,7 @@ export interface FileRoutesByTo {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -490,9 +518,13 @@ export interface FileRoutesByTo {
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
+  '/seller': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -532,7 +564,7 @@ export interface FileRoutesById {
   '/payment-success': typeof PaymentSuccessRoute
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
@@ -553,9 +585,13 @@ export interface FileRoutesById {
   '/launch/$slug': typeof LaunchSlugRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
+  '/u/$username': typeof UUsernameRoute
+  '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
@@ -617,9 +653,13 @@ export interface FileRouteTypes {
     | '/launch/$slug'
     | '/messages/$id'
     | '/orders/$id'
+    | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
+    | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
@@ -679,9 +719,13 @@ export interface FileRouteTypes {
     | '/launch/$slug'
     | '/messages/$id'
     | '/orders/$id'
+    | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
+    | '/seller'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
@@ -741,9 +785,13 @@ export interface FileRouteTypes {
     | '/launch/$slug'
     | '/messages/$id'
     | '/orders/$id'
+    | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/onboarding'
     | '/seller/plans'
+    | '/u/$username'
+    | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/hbcus/school/$slug'
@@ -783,7 +831,7 @@ export interface RootRouteChildren {
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PlugReachRoute: typeof PlugReachRoute
   PrivacyRoute: typeof PrivacyRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   PromoteRoute: typeof PromoteRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
@@ -802,7 +850,10 @@ export interface RootRouteChildren {
   LaunchSlugRoute: typeof LaunchSlugRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
+  SellerOnboardingRoute: typeof SellerOnboardingRoute
   SellerPlansRoute: typeof SellerPlansRoute
+  UUsernameRoute: typeof UUsernameRoute
+  SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -1131,11 +1182,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/': {
+      id: '/seller/'
+      path: '/seller'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/plans': {
       id: '/seller/plans'
       path: '/seller/plans'
       fullPath: '/seller/plans'
       preLoaderRoute: typeof SellerPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/onboarding': {
+      id: '/seller/onboarding'
+      path: '/seller/onboarding'
+      fullPath: '/seller/onboarding'
+      preLoaderRoute: typeof SellerOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller/analytics': {
@@ -1151,6 +1223,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/season/$slug'
       preLoaderRoute: typeof SeasonSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/profile/edit': {
+      id: '/profile/edit'
+      path: '/edit'
+      fullPath: '/profile/edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof ProfileRoute
     }
     '/orders/$id': {
       id: '/orders/$id'
@@ -1301,6 +1380,17 @@ const OrdersRouteChildren: OrdersRouteChildren = {
 const OrdersRouteWithChildren =
   OrdersRoute._addFileChildren(OrdersRouteChildren)
 
+interface ProfileRouteChildren {
+  ProfileEditRoute: typeof ProfileEditRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileEditRoute: ProfileEditRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -1334,7 +1424,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentSuccessRoute: PaymentSuccessRoute,
   PlugReachRoute: PlugReachRoute,
   PrivacyRoute: PrivacyRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   PromoteRoute: PromoteRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
@@ -1354,7 +1444,10 @@ const rootRouteChildren: RootRouteChildren = {
   LaunchSlugRoute: LaunchSlugRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
+  SellerOnboardingRoute: SellerOnboardingRoute,
   SellerPlansRoute: SellerPlansRoute,
+  UUsernameRoute: UUsernameRoute,
+  SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
