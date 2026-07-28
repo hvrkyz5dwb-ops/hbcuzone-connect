@@ -44,6 +44,7 @@ import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as DailyRouteImport } from './routes/daily'
+import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BusinessRouteImport } from './routes/business'
@@ -242,6 +243,11 @@ const DailyRoute = DailyRouteImport.update({
   path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
+  id: '/community-guidelines',
+  path: '/community-guidelines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityRoute = CommunityRouteImport.update({
   id: '/community',
   path: '/community',
@@ -365,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -424,6 +431,7 @@ export interface FileRoutesByTo {
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -484,6 +492,7 @@ export interface FileRoutesById {
   '/business': typeof BusinessRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
@@ -545,6 +554,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/checkout'
     | '/community'
+    | '/community-guidelines'
     | '/daily'
     | '/economy'
     | '/events'
@@ -604,6 +614,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/checkout'
     | '/community'
+    | '/community-guidelines'
     | '/daily'
     | '/economy'
     | '/events'
@@ -663,6 +674,7 @@ export interface FileRouteTypes {
     | '/business'
     | '/checkout'
     | '/community'
+    | '/community-guidelines'
     | '/daily'
     | '/economy'
     | '/events'
@@ -723,6 +735,7 @@ export interface RootRouteChildren {
   BusinessRoute: typeof BusinessRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
   CommunityRoute: typeof CommunityRoute
+  CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   DailyRoute: typeof DailyRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
@@ -1015,6 +1028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community-guidelines': {
+      id: '/community-guidelines'
+      path: '/community-guidelines'
+      fullPath: '/community-guidelines'
+      preLoaderRoute: typeof CommunityGuidelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community': {
       id: '/community'
       path: '/community'
@@ -1250,6 +1270,7 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessRoute: BusinessRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
   CommunityRoute: CommunityRoute,
+  CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   DailyRoute: DailyRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,

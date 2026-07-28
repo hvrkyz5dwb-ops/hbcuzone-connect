@@ -321,6 +321,18 @@ function AuthPage() {
             <button type="button" onClick={() => reset("sign-in")} className="w-full text-xs text-muted-foreground underline">
               Already have an account? Sign in
             </button>
+
+            <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+              PlugU does not permit or promote the sale, purchase, distribution, or advertisement of illegal drugs, controlled substances, weapons, or other{" "}
+              <Link to="/community-guidelines" className="underline hover:text-foreground transition-colors">
+                prohibited items
+              </Link>
+              . Accounts that violate this{" "}
+              <Link to="/community-guidelines" className="underline hover:text-foreground transition-colors">
+                policy
+              </Link>{" "}
+              may be suspended or permanently removed.
+            </p>
           </form>
         )}
 
