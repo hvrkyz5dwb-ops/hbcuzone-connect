@@ -1373,6 +1373,8 @@ export type Database = {
         Returns: boolean
       }
       is_suspended: { Args: { _user_id: string }; Returns: boolean }
+      mark_all_notifications_read: { Args: never; Returns: number }
+      mark_notification_read: { Args: { _id: string }; Returns: undefined }
       transition_booking_status: {
         Args: { _booking_id: string; _next: string; _reason: string }
         Returns: undefined
