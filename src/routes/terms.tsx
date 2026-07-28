@@ -19,6 +19,7 @@ function Terms() {
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Terms of Service</h1>
           <p className="text-xs text-white/50 mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
           <p className="text-xs text-white/50">This document is app-owned editable content, not a legal opinion. PlugU can update these Terms; continued use means you accept the changes.</p>
+          <p className="text-xs text-amber-300/80 mt-1">Placeholder — final attorney-reviewed Terms are still pending. This copy is not attorney approved.</p>
         </header>
 
         <Section title="1. Eligibility">
