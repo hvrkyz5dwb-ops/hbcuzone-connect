@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { signOutAndReset } from "@/lib/sign-out";
 import {
   Sun, Moon, Bell, ShieldCheck, CreditCard, Scale, ShieldAlert,
-  User, LogOut, ChevronRight, Trash2, Info,
+  User, LogOut, ChevronRight, Trash2, Info, LifeBuoy, Bug, FileWarning, FileText, Ban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
@@ -128,8 +128,30 @@ function SettingsPage() {
             <span className="flex-1">Clear local app data</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
+          <LinkRow to="/delete-account" icon={Trash2} label="Delete account" />
+        </div>
+      </section>
+
+      {/* Legal */}
+      <section className="mt-5 px-5">
+        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Legal</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
           <LinkRow to="/terms" icon={Info} label="Terms of Service" />
           <LinkRow to="/privacy" icon={Info} label="Privacy Policy" />
+          <LinkRow to="/community-guidelines" icon={FileText} label="Community Guidelines" />
+          <LinkRow to="/seller-agreement" icon={FileText} label="Seller Agreement" />
+          <LinkRow to="/refunds" icon={FileWarning} label="Refund & Cancellation Policy" />
+          <LinkRow to="/prohibited-items" icon={Ban} label="Prohibited Items" />
+          <LinkRow to="/safety" icon={ShieldAlert} label="Safety Guidelines" />
+        </div>
+      </section>
+
+      {/* Support */}
+      <section className="mt-5 px-5">
+        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Support</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
+          <LinkRow to="/support" icon={LifeBuoy} label="Contact support" />
+          <LinkRow to="/report-problem" icon={Bug} label="Report a problem" />
         </div>
       </section>
 
