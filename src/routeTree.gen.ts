@@ -53,6 +53,7 @@ import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -297,6 +298,11 @@ const AmbassadorsRoute = AmbassadorsRouteImport.update({
   path: '/ambassadors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -419,6 +425,7 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
@@ -488,6 +495,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
@@ -558,6 +566,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
@@ -629,6 +638,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/ambassadors'
     | '/auth'
     | '/awards'
@@ -698,6 +708,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/ambassadors'
     | '/auth'
     | '/awards'
@@ -767,6 +778,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/ambassadors'
     | '/auth'
     | '/awards'
@@ -837,6 +849,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
   AuthRoute: typeof AuthRoute
   AwardsRoute: typeof AwardsRoute
@@ -1207,6 +1220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AmbassadorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -1455,6 +1475,7 @@ const ProfileRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
   AuthRoute: AuthRoute,
   AwardsRoute: AwardsRoute,
