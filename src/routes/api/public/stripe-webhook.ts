@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         // Idempotent insert; dedupe by (provider, event_id).
         const { error: insertErr } = await supabaseAdmin
           .from("webhook_events")
-          .insert({ provider: "stripe", event_id: event.id, event_type: event.type, payload: event as unknown as Record<string, unknown> });
+          .insert({ provider: "stripe", event_id: event.id, event_type: event.type, payload: event as never });
         if (insertErr && !`${insertErr.message}`.includes("duplicate")) {
           console.error("[stripe-webhook] log failed", insertErr);
         }
@@ -79,10 +79,10 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
                 await supabaseAdmin.from("orders").update({ status: "disputed" }).eq("id", orderId);
                 await supabaseAdmin.from("disputes").insert({
                   order_id: orderId,
-                  opened_by: null,
+                  opened_by: (obj.metadata as Record<string, string> | undefined)?.plugu_user_id ?? orderId,
                   reason: `Stripe dispute ${obj.id ?? ""}`,
                   status: "open",
-                });
+                } as never);
               }
               break;
             }
