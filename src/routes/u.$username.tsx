@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Loader2 } from "lucide-react";
+import { ReviewsList } from "@/components/ReviewsList";
 
 export const Route = createFileRoute("/u/$username")({
   ssr: false,
@@ -115,6 +116,11 @@ function PublicProfile() {
           <Stat icon={ShoppingBag} value={p.completed_transactions} label="Deals done" />
           <Stat value={joined.toLocaleDateString(undefined, { month: "short", year: "numeric" })} label="Joined" />
         </div>
+      </section>
+
+      <section className="px-5 mt-6 pb-10">
+        <p className="text-[10px] tracking-[0.24em] uppercase text-muted-foreground mb-2">Verified reviews</p>
+        <ReviewsList userId={p.id} />
       </section>
     </AppShell>
   );
