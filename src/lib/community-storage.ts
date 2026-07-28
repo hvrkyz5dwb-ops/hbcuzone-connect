@@ -31,9 +31,9 @@ function readAll(): CommunityPost[] {
     const parsed = JSON.parse(raw) as CommunityPost[];
     // Backfill new fields for legacy v1 posts.
     return parsed.map((p) => ({
-      visibility: "campus",
-      comments: [],
       ...p,
+      visibility: p.visibility || "campus",
+      comments: p.comments || [],
     }));
   } catch {
     return [];
