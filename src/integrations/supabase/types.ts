@@ -1305,6 +1305,37 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews_verified: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string | null
+          listing_id: string | null
+          order_id: string | null
+          order_kind: string | null
+          rating: number | null
+          reviewer_user_id: string | null
+          subject_user_id: string | null
+          updated_at: string | null
+          verification_kind: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_booking_secure: {
