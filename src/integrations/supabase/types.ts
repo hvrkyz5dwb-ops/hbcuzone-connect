@@ -1189,6 +1189,63 @@ export type Database = {
         }
         Relationships: []
       }
+      support_requests: {
+        Row: {
+          admin_note: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          related_listing_id: string | null
+          related_order_id: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          related_listing_id?: string | null
+          related_order_id?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          related_listing_id?: string | null
+          related_order_id?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_related_listing_id_fkey"
+            columns: ["related_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_requests_related_order_id_fkey"
+            columns: ["related_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

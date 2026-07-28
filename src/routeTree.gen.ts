@@ -12,16 +12,20 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SellerAgreementRouteImport } from './routes/seller-agreement'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestSchoolAccessRouteImport } from './routes/request-school-access'
+import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as PromoteRouteImport } from './routes/promote'
+import { Route as ProhibitedItemsRouteImport } from './routes/prohibited-items'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlugReachRouteImport } from './routes/plug-reach'
@@ -45,6 +49,7 @@ import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -93,6 +98,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -101,6 +111,11 @@ const SignupRoute = SignupRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerAgreementRoute = SellerAgreementRouteImport.update({
+  id: '/seller-agreement',
+  path: '/seller-agreement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -128,6 +143,11 @@ const RequestSchoolAccessRoute = RequestSchoolAccessRouteImport.update({
   path: '/request-school-access',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReportProblemRoute = ReportProblemRouteImport.update({
+  id: '/report-problem',
+  path: '/report-problem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RefundsRoute = RefundsRouteImport.update({
   id: '/refunds',
   path: '/refunds',
@@ -141,6 +161,11 @@ const ReferralsRoute = ReferralsRouteImport.update({
 const PromoteRoute = PromoteRouteImport.update({
   id: '/promote',
   path: '/promote',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProhibitedItemsRoute = ProhibitedItemsRouteImport.update({
+  id: '/prohibited-items',
+  path: '/prohibited-items',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -256,6 +281,11 @@ const EventsRoute = EventsRouteImport.update({
 const EconomyRoute = EconomyRouteImport.update({
   id: '/economy',
   path: '/economy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DailyRoute = DailyRouteImport.update({
@@ -434,6 +464,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -457,16 +488,20 @@ export interface FileRoutesByFullPath {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -504,6 +539,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -527,16 +563,20 @@ export interface FileRoutesByTo {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -575,6 +615,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/daily': typeof DailyRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRouteWithChildren
@@ -598,16 +639,20 @@ export interface FileRoutesById {
   '/plug-reach': typeof PlugReachRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
+  '/report-problem': typeof ReportProblemRoute
   '/request-school-access': typeof RequestSchoolAccessRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety': typeof SafetyRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
+  '/seller-agreement': typeof SellerAgreementRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/upgrade': typeof UpgradeRoute
@@ -647,6 +692,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -670,16 +716,20 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
+    | '/support'
     | '/terms'
     | '/trust'
     | '/upgrade'
@@ -717,6 +767,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -740,16 +791,20 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
+    | '/support'
     | '/terms'
     | '/trust'
     | '/upgrade'
@@ -787,6 +842,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/community-guidelines'
     | '/daily'
+    | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
@@ -810,16 +866,20 @@ export interface FileRouteTypes {
     | '/plug-reach'
     | '/privacy'
     | '/profile'
+    | '/prohibited-items'
     | '/promote'
     | '/referrals'
     | '/refunds'
+    | '/report-problem'
     | '/request-school-access'
     | '/reset-password'
     | '/safety'
     | '/saved'
     | '/search'
+    | '/seller-agreement'
     | '/settings'
     | '/signup'
+    | '/support'
     | '/terms'
     | '/trust'
     | '/upgrade'
@@ -858,6 +918,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   DailyRoute: typeof DailyRoute
+  DeleteAccountRoute: typeof DeleteAccountRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRouteWithChildren
@@ -881,16 +942,20 @@ export interface RootRouteChildren {
   PlugReachRoute: typeof PlugReachRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
+  ProhibitedItemsRoute: typeof ProhibitedItemsRoute
   PromoteRoute: typeof PromoteRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
+  ReportProblemRoute: typeof ReportProblemRoute
   RequestSchoolAccessRoute: typeof RequestSchoolAccessRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SafetyRoute: typeof SafetyRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
+  SellerAgreementRoute: typeof SellerAgreementRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   UpgradeRoute: typeof UpgradeRoute
@@ -933,6 +998,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -945,6 +1017,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller-agreement': {
+      id: '/seller-agreement'
+      path: '/seller-agreement'
+      fullPath: '/seller-agreement'
+      preLoaderRoute: typeof SellerAgreementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -982,6 +1061,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestSchoolAccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/report-problem': {
+      id: '/report-problem'
+      path: '/report-problem'
+      fullPath: '/report-problem'
+      preLoaderRoute: typeof ReportProblemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/refunds': {
       id: '/refunds'
       path: '/refunds'
@@ -1001,6 +1087,13 @@ declare module '@tanstack/react-router' {
       path: '/promote'
       fullPath: '/promote'
       preLoaderRoute: typeof PromoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prohibited-items': {
+      id: '/prohibited-items'
+      path: '/prohibited-items'
+      fullPath: '/prohibited-items'
+      preLoaderRoute: typeof ProhibitedItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1162,6 +1255,13 @@ declare module '@tanstack/react-router' {
       path: '/economy'
       fullPath: '/economy'
       preLoaderRoute: typeof EconomyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/daily': {
@@ -1484,6 +1584,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   DailyRoute: DailyRoute,
+  DeleteAccountRoute: DeleteAccountRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRouteWithChildren,
@@ -1507,16 +1608,20 @@ const rootRouteChildren: RootRouteChildren = {
   PlugReachRoute: PlugReachRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
+  ProhibitedItemsRoute: ProhibitedItemsRoute,
   PromoteRoute: PromoteRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
+  ReportProblemRoute: ReportProblemRoute,
   RequestSchoolAccessRoute: RequestSchoolAccessRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SafetyRoute: SafetyRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
+  SellerAgreementRoute: SellerAgreementRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   UpgradeRoute: UpgradeRoute,
