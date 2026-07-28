@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut } from "lucide-react";
+import { Crown, Settings, BadgeCheck, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 const menu: { label: string; icon: typeof Heart; to: string }[] = [
+  { label: "Seller Dashboard", icon: Store, to: "/seller" },
   { label: "Plug Business Center", icon: Store, to: "/business" },
   { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
   { label: "Upgrade to KingPin", icon: Sparkles, to: "/upgrade" },
@@ -39,10 +40,14 @@ const menu: { label: string; icon: typeof Heart; to: string }[] = [
 function Profile() {
   const { profile } = useProfile();
   const queryClient = useQueryClient();
-  const displayName = profile?.full_name ?? "Kingpin";
+  const displayName = profile?.display_name ?? profile?.full_name ?? "Plug";
+  const handle = profile?.username ? `@${profile.username}` : null;
+  const isAlumni = profile?.status === "alumni";
+  const grad = profile?.graduation_year ?? profile?.year;
+  const joined = profile?.created_at ? new Date(profile.created_at) : null;
   const subline = profile
-    ? [profile.school_name, profile.year, profile.major].filter(Boolean).join(" · ")
-    : "Talladega College · Junior · Business";
+    ? [profile.school_name, grad, profile.major].filter(Boolean).join(" · ")
+    : "Set up your profile";
   return (
     <AppShell title="PROFILE">
       {/* Cover photo */}
@@ -53,29 +58,37 @@ function Profile() {
         </div>
       </section>
       <section className="px-5 -mt-12 text-center relative">
-        <div className="mx-auto h-24 w-24 rounded-full border-2 border-primary/60 bg-card grid place-items-center shadow-[var(--shadow-glow)]">
-          <img src={pluguLogo} alt="Kingpin avatar" className="h-16 w-16 object-contain" />
+        <div className="mx-auto h-24 w-24 rounded-full border-2 border-primary/60 bg-card grid place-items-center shadow-[var(--shadow-glow)] overflow-hidden">
+          {profile?.avatar_url
+            ? <img src={profile.avatar_url} alt={displayName} className="h-full w-full object-cover" />
+            : <img src={pluguLogo} alt="avatar" className="h-16 w-16 object-contain" />}
         </div>
         <h1 className="mt-3 text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
           {displayName} <Crown className="h-5 w-5 text-accent" />
           <VerifiedStudentBadge size="xs" iconOnly />
         </h1>
+        {handle && <p className="text-xs text-muted-foreground">{handle}</p>}
         <p className="text-sm text-muted-foreground">{subline}</p>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
-          <VerifiedStudentBadge size="sm" />
-          <span className="inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border border-accent/40 text-accent">
-            <BadgeCheck className="h-3.5 w-3.5" /> Kingpin
+          {profile?.verification_status === "verified" && <VerifiedStudentBadge size="sm" />}
+          <span className={`inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border ${isAlumni ? "border-accent/40 text-accent" : "border-primary/40 text-primary"}`}>
+            <GraduationCap className="h-3.5 w-3.5" /> {isAlumni ? "Alumni" : "Student"}
           </span>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground max-w-xs mx-auto">
-          Plug for the culture. Vendor connect, event promoter, and student of the game.
-        </p>
-        <button
-          onClick={() => signOutAndReset(queryClient)}
-          className="tap mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          <LogOut className="h-3 w-3" /> Sign out
-        </button>
+        {profile?.bio && (
+          <p className="mt-3 text-sm text-muted-foreground max-w-xs mx-auto">{profile.bio}</p>
+        )}
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <Link to="/profile/edit" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground">
+            <Pencil className="h-3 w-3" /> Edit profile
+          </Link>
+          <button
+            onClick={() => signOutAndReset(queryClient)}
+            className="tap inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="h-3 w-3" /> Sign out
+          </button>
+        </div>
       </section>
 
       {/* Skills & interests */}
@@ -92,16 +105,20 @@ function Profile() {
 
       <section className="mt-5 px-5">
         <div className="grid grid-cols-3 rounded-2xl bg-card border border-border divide-x divide-border">
-          {[
-            { n: "42", l: "Posts" },
-            { n: "1.2K", l: "Followers" },
-            { n: "380", l: "Following" },
-          ].map((s) => (
-            <div key={s.l} className="py-4 text-center">
-              <p className="font-bold">{s.n}</p>
-              <p className="text-[11px] text-muted-foreground">{s.l}</p>
-            </div>
-          ))}
+          <StatCell
+            icon={<Star className="h-3.5 w-3.5 text-primary" />}
+            value={profile && profile.rating_count > 0 ? profile.rating_avg.toFixed(1) : "—"}
+            label={`Rating (${profile?.rating_count ?? 0})`}
+          />
+          <StatCell
+            icon={<ShoppingBag className="h-3.5 w-3.5 text-primary" />}
+            value={profile?.completed_transactions ?? 0}
+            label="Deals done"
+          />
+          <StatCell
+            value={joined ? joined.toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "—"}
+            label="Joined"
+          />
         </div>
       </section>
 
