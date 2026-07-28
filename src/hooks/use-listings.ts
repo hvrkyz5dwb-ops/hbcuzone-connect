@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
-import { listAll, listMine, subscribeListings } from "@/lib/listings-storage";
+import { useQuery } from "@tanstack/react-query";
+import {
+  fetchMarketplace, fetchMyListings, type DiscoveryFilters, type ListingWithExtras,
+} from "@/lib/listings-db";
 
-export function useListings() {
-  const [all, setAll] = useState(() => listAll());
-  const [mine, setMineState] = useState(() => listMine());
-  useEffect(() => {
-    const refresh = () => { setAll(listAll()); setMineState(listMine()); };
-    refresh();
-    return subscribeListings(refresh);
-  }, []);
-  return { all, mine };
+export function useMarketplace(filters: DiscoveryFilters) {
+  return useQuery({
+    queryKey: ["marketplace", filters],
+    queryFn: () => fetchMarketplace(filters),
+    staleTime: 30_000,
+  });
+}
+
+export function useMyListings() {
+  return useQuery<ListingWithExtras[]>({
+    queryKey: ["my-listings"],
+    queryFn: fetchMyListings,
+    staleTime: 10_000,
+  });
 }

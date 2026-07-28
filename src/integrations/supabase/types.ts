@@ -378,13 +378,22 @@ export type Database = {
       }
       listings: {
         Row: {
+          availability: string | null
           business_id: string | null
+          campus_name: string | null
+          cancellation_policy: string | null
           category: string
           created_at: string
           description: string | null
+          favorite_count: number
+          fulfillment: string[]
+          fulfillment_time: string | null
           id: string
           kind: string
+          moderation_status: string
           price_cents: number
+          price_type: string
+          quantity: number | null
           school_id: string | null
           seller_user_id: string
           status: string
@@ -392,13 +401,22 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          availability?: string | null
           business_id?: string | null
+          campus_name?: string | null
+          cancellation_policy?: string | null
           category: string
           created_at?: string
           description?: string | null
+          favorite_count?: number
+          fulfillment?: string[]
+          fulfillment_time?: string | null
           id?: string
           kind: string
+          moderation_status?: string
           price_cents?: number
+          price_type?: string
+          quantity?: number | null
           school_id?: string | null
           seller_user_id: string
           status?: string
@@ -406,13 +424,22 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          availability?: string | null
           business_id?: string | null
+          campus_name?: string | null
+          cancellation_policy?: string | null
           category?: string
           created_at?: string
           description?: string | null
+          favorite_count?: number
+          fulfillment?: string[]
+          fulfillment_time?: string | null
           id?: string
           kind?: string
+          moderation_status?: string
           price_cents?: number
+          price_type?: string
+          quantity?: number | null
           school_id?: string | null
           seller_user_id?: string
           status?: string

@@ -59,6 +59,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
+import { Route as SellerListingsRouteImport } from './routes/seller.listings'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
@@ -324,6 +325,11 @@ const SellerOnboardingRoute = SellerOnboardingRouteImport.update({
   path: '/seller/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerListingsRoute = SellerListingsRouteImport.update({
+  id: '/seller/listings',
+  path: '/seller/listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   id: '/seller/analytics',
   path: '/seller/analytics',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
@@ -521,6 +528,7 @@ export interface FileRoutesByTo {
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
@@ -588,6 +596,7 @@ export interface FileRoutesById {
   '/profile/edit': typeof ProfileEditRoute
   '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
@@ -656,6 +665,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/listings'
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/listings'
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/season/$slug'
     | '/seller/analytics'
+    | '/seller/listings'
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
@@ -850,6 +862,7 @@ export interface RootRouteChildren {
   LaunchSlugRoute: typeof LaunchSlugRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
+  SellerListingsRoute: typeof SellerListingsRoute
   SellerOnboardingRoute: typeof SellerOnboardingRoute
   SellerPlansRoute: typeof SellerPlansRoute
   UUsernameRoute: typeof UUsernameRoute
@@ -1210,6 +1223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/listings': {
+      id: '/seller/listings'
+      path: '/seller/listings'
+      fullPath: '/seller/listings'
+      preLoaderRoute: typeof SellerListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/analytics': {
       id: '/seller/analytics'
       path: '/seller/analytics'
@@ -1444,6 +1464,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaunchSlugRoute: LaunchSlugRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
+  SellerListingsRoute: SellerListingsRoute,
   SellerOnboardingRoute: SellerOnboardingRoute,
   SellerPlansRoute: SellerPlansRoute,
   UUsernameRoute: UUsernameRoute,

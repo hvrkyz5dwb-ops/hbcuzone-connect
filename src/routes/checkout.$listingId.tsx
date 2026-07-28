@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign,
+  ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign, Loader2,
   BadgeCheck, RefreshCw, MessageSquare, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { findListing } from "@/lib/listings-storage";
+import { fetchListing } from "@/lib/listings-db";
+import { formatPrice, type PriceType } from "@/lib/categories";
 import { createOrder, paymentLabel, type PaymentMethod } from "@/lib/orders-storage";
 import { currentFeePercent, currentSellerTierMeta } from "@/lib/seller-plan";
 
@@ -24,11 +26,11 @@ const METHODS: { key: PaymentMethod; label: string; sub: string; Icon: typeof Cr
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
-  const listing = useMemo(() => findListing(listingId), [listingId]);
-  const price = useMemo(() => {
-    if (!listing) return 0;
-    return parseFloat(listing.price.replace(/[^0-9.]/g, "")) || 0;
-  }, [listing]);
+  const { data: listing, isPending } = useQuery({
+    queryKey: ["listing", listingId],
+    queryFn: () => fetchListing(listingId),
+  });
+  const price = useMemo(() => (listing ? listing.price_cents / 100 : 0), [listing]);
   const feePercent = currentFeePercent();
   const fee = +(price * (feePercent / 100)).toFixed(2);
   const total = +(price + fee).toFixed(2);
@@ -38,6 +40,14 @@ function ProtectedCheckout() {
   const [loading, setLoading] = useState(false);
   const [placed, setPlaced] = useState<string | null>(null);
   const tier = currentSellerTierMeta();
+
+  if (isPending) {
+    return (
+      <AppShell title="CHECKOUT">
+        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+      </AppShell>
+    );
+  }
 
   if (!listing) {
     return (
@@ -50,6 +60,10 @@ function ProtectedCheckout() {
     );
   }
 
+  const cover = listing.images[0]?.url ?? "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600";
+  const sellerName = listing.campus_name ?? "PlugU seller";
+  const campusName = listing.campus_name ?? "";
+
   function placeOrder() {
     if (!listing) return;
     setLoading(true);
@@ -57,10 +71,10 @@ function ProtectedCheckout() {
       const order = createOrder({
         listingId: listing.id,
         title: listing.title,
-        image: listing.image,
+        image: cover,
         price,
-        seller: listing.seller,
-        campus: listing.campus,
+        seller: sellerName,
+        campus: campusName,
         method,
         note: note || undefined,
         meetup: meetup || undefined,
@@ -92,10 +106,10 @@ function ProtectedCheckout() {
 
           <div className="mt-6 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 text-left">
             <div className="flex items-center gap-3">
-              <img src={listing.image} alt="" className="h-14 w-14 rounded-xl object-cover" />
+              <img src={cover} alt="" className="h-14 w-14 rounded-xl object-cover" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{listing.title}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{listing.seller} · {listing.campus}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{sellerName} · {campusName}</p>
               </div>
               <span className="text-sm font-bold" style={{ color: "var(--plugu-gold)" }}>${total.toFixed(2)}</span>
             </div>
@@ -107,7 +121,7 @@ function ProtectedCheckout() {
               onClick={() => navigate({ to: "/messages" })}
               className="tap w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium text-sm inline-flex items-center justify-center gap-2"
             >
-              <MessageSquare className="h-4 w-4" /> Message {listing.seller}
+              <MessageSquare className="h-4 w-4" /> Message {sellerName}
             </button>
             <Link
               to="/orders/$id"
@@ -133,12 +147,13 @@ function ProtectedCheckout() {
         {/* Order summary */}
         <div className="mt-3 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <img src={listing.image} alt={listing.title} className="h-16 w-16 rounded-xl object-cover" />
+            <img src={cover} alt={listing.title} className="h-16 w-16 rounded-xl object-cover" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{listing.title}</p>
               <p className="text-[11px] text-muted-foreground truncate">
-                {listing.seller} · {listing.campus}
+                {sellerName} · {campusName}
               </p>
+              <p className="text-[11px] text-primary mt-0.5">{formatPrice(listing.price_cents, listing.price_type as PriceType)}</p>
             </div>
           </div>
           <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
