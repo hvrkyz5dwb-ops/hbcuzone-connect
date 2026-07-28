@@ -76,13 +76,17 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             }
             case "charge.dispute.created": {
               if (orderId) {
+                const { data: ord } = await supabaseAdmin
+                  .from("orders").select("buyer_user_id").eq("id", orderId).maybeSingle();
                 await supabaseAdmin.from("orders").update({ status: "disputed" }).eq("id", orderId);
-                await supabaseAdmin.from("disputes").insert({
-                  order_id: orderId,
-                  opened_by: (obj.metadata as Record<string, string> | undefined)?.plugu_user_id ?? orderId,
-                  reason: `Stripe dispute ${obj.id ?? ""}`,
-                  status: "open",
-                } as never);
+                if (ord?.buyer_user_id) {
+                  await supabaseAdmin.from("disputes").insert({
+                    order_id: orderId,
+                    opened_by: ord.buyer_user_id,
+                    reason: `Stripe dispute ${obj.id ?? ""}`,
+                    status: "open",
+                  });
+                }
               }
               break;
             }
