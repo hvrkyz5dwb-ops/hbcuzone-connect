@@ -53,8 +53,12 @@ function EventsPage() {
   const userEntries = mine.map((e) => ({
     id: e.id, title: e.title, when: e.when, where: e.where, kind: "Campus" as const,
     school: e.school, ticket: undefined as string | undefined, userId: e.id,
+    promoted: !!e.promoted, boost: e.boost ?? 0,
   }));
-  const all = [...userEntries, ...seeded];
+  const seededTagged = seeded.map((e) => ({ ...e, promoted: false, boost: 0 }));
+  const all = [...userEntries, ...seededTagged].sort(
+    (a, b) => (Number(b.promoted) - Number(a.promoted)) || ((b.boost ?? 0) - (a.boost ?? 0)),
+  );
   const filteredAll = all.filter((e) => filter === "All" || e.kind === filter);
 
   return (
@@ -113,6 +117,11 @@ function EventsPage() {
               <li key={id} className="rounded-2xl border border-border bg-card p-4 slide-up">
                 <div className="flex items-center gap-2 text-[11px] text-primary">
                   <Calendar className="h-3.5 w-3.5" /> {e.when}
+                  {(e as { promoted?: boolean }).promoted && (
+                    <span className="ml-2 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-full border border-accent/60 text-accent">
+                      Promoted
+                    </span>
+                  )}
                   {userId && (
                     <span className="ml-auto text-[9px] uppercase tracking-widest text-accent">You posted</span>
                   )}
