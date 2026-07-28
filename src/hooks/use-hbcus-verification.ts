@@ -1,65 +1,34 @@
-import { useEffect, useState } from "react";
+// HBCUS access is derived entirely from the backend profile row:
+//   is_hbcu_student (set by handle_new_user based on schools.type = 'hbcu')
+//   verification_status = 'verified' (set when the .edu domain matched a school)
+// No client-side self-verify path exists — users cannot bypass by writing
+// localStorage or picking a school in the UI.
 import { useProfile } from "./use-profile";
-import { schoolProfiles } from "@/lib/hbcus-data";
-
-const KEY = "plugu.hbcus.verified";
 
 export type HbcusVerification = {
   verified: boolean;
-  method: "edu" | "id" | "school" | null;
+  method: "edu" | null;
   email?: string;
   school?: string;
+  hydrated: boolean;
+  /** No-op — retained so legacy callers compile. */
+  verify: () => void;
+  reset: () => void;
 };
 
-const DEFAULT: HbcusVerification = { verified: false, method: null };
-
-export function useHbcusVerification() {
-  const { profile } = useProfile();
-  const [state, setState] = useState<HbcusVerification>(DEFAULT);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    function sync() {
-      try {
-        // If the signed-in profile has a verified .edu matching an HBCU, reflect it.
-        if (
-          profile?.is_hbcu_student &&
-          profile.school_name &&
-          schoolProfiles.some((p) => p.name === profile.school_name)
-        ) {
-          const merged: HbcusVerification = {
-            verified: true,
-            method: "edu",
-            email: profile.email,
-            school: profile.school_name,
-          };
-          setState(merged);
-          try { window.localStorage.setItem(KEY, JSON.stringify(merged)); } catch {}
-          return;
-        }
-        const raw = window.localStorage.getItem(KEY);
-        if (raw) setState({ ...DEFAULT, ...JSON.parse(raw) });
-        else setState(DEFAULT);
-      } catch {}
-    }
-    sync();
-    setHydrated(true);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("storage", sync);
-    };
-  }, [profile?.id, profile?.is_hbcu_student, profile?.school_name, profile?.email]);
-
-  function verify(next: Omit<HbcusVerification, "verified"> & { verified?: boolean }) {
-    const merged: HbcusVerification = { ...DEFAULT, ...next, verified: true };
-    setState(merged);
-    try { window.localStorage.setItem(KEY, JSON.stringify(merged)); } catch {}
-  }
-
-  function reset() {
-    setState(DEFAULT);
-    try { window.localStorage.removeItem(KEY); } catch {}
-  }
-
-  return { ...state, hydrated, verify, reset };
+export function useHbcusVerification(): HbcusVerification {
+  const { profile, loading } = useProfile();
+  const verified =
+    !!profile &&
+    profile.is_hbcu_student === true &&
+    profile.verification_status === "verified";
+  return {
+    verified,
+    method: verified ? "edu" : null,
+    email: profile?.email,
+    school: profile?.school_name ?? undefined,
+    hydrated: !loading,
+    verify: () => {},
+    reset: () => {},
+  };
 }
