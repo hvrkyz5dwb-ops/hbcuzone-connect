@@ -4,7 +4,7 @@ import {
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
@@ -68,6 +68,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const [plugOpen, setPlugOpen] = useState(false);
+  // Tap the "P" for the Campus Hub; hold it for seller quick actions.
+  const pressTimer = useRef<number | null>(null);
+  const longPress = useRef(false);
   const { unread } = useNotifications();
   const inboxUnread = useUnreadCount();
   const { session, loading: sessionLoading } = useSession();
