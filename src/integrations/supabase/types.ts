@@ -275,6 +275,111 @@ export type Database = {
           },
         ]
       }
+      campus_events: {
+        Row: {
+          boost_tier: number
+          cancel_reason: string | null
+          category: string
+          contact_info: string | null
+          cover_url: string | null
+          created_at: string
+          creator_user_id: string
+          description: string | null
+          ends_at: string | null
+          hiring_enabled: boolean
+          host_name: string | null
+          id: string
+          is_featured: boolean
+          lat: number | null
+          lng: number | null
+          location: string
+          org_id: string | null
+          rsvp_count: number
+          school_id: string | null
+          starts_at: string
+          status: string
+          ticket_price_cents: number | null
+          ticketing_enabled: boolean
+          title: string
+          updated_at: string
+          vendor_booths_enabled: boolean
+          volunteer_recruiting: boolean
+        }
+        Insert: {
+          boost_tier?: number
+          cancel_reason?: string | null
+          category?: string
+          contact_info?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creator_user_id: string
+          description?: string | null
+          ends_at?: string | null
+          hiring_enabled?: boolean
+          host_name?: string | null
+          id?: string
+          is_featured?: boolean
+          lat?: number | null
+          lng?: number | null
+          location?: string
+          org_id?: string | null
+          rsvp_count?: number
+          school_id?: string | null
+          starts_at: string
+          status?: string
+          ticket_price_cents?: number | null
+          ticketing_enabled?: boolean
+          title: string
+          updated_at?: string
+          vendor_booths_enabled?: boolean
+          volunteer_recruiting?: boolean
+        }
+        Update: {
+          boost_tier?: number
+          cancel_reason?: string | null
+          category?: string
+          contact_info?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creator_user_id?: string
+          description?: string | null
+          ends_at?: string | null
+          hiring_enabled?: boolean
+          host_name?: string | null
+          id?: string
+          is_featured?: boolean
+          lat?: number | null
+          lng?: number | null
+          location?: string
+          org_id?: string | null
+          rsvp_count?: number
+          school_id?: string | null
+          starts_at?: string
+          status?: string
+          ticket_price_cents?: number | null
+          ticketing_enabled?: boolean
+          title?: string
+          updated_at?: string
+          vendor_booths_enabled?: boolean
+          volunteer_recruiting?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_events_org_fk"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "student_orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_members: {
         Row: {
           conversation_id: string
@@ -373,6 +478,99 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_comments: {
+        Row: {
+          body: string
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "campus_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_recaps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_recaps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "campus_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          user_id: string
+          visible_to_friends: boolean
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          user_id: string
+          visible_to_friends?: boolean
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          user_id?: string
+          visible_to_friends?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "campus_events"
             referencedColumns: ["id"]
           },
         ]
@@ -752,6 +950,64 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_announcements: {
+        Row: {
+          author_user_id: string
+          body: string
+          created_at: string
+          id: string
+          org_id: string
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          created_at?: string
+          id?: string
+          org_id: string
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_announcements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "student_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_follows: {
+        Row: {
+          created_at: string
+          org_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          org_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          org_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_follows_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "student_orgs"
             referencedColumns: ["id"]
           },
         ]
@@ -1155,6 +1411,65 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_orgs: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          category: string
+          contact_email: string | null
+          created_at: string
+          follower_count: number
+          id: string
+          instagram: string | null
+          is_verified: boolean
+          name: string
+          owner_user_id: string
+          school_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          category?: string
+          contact_email?: string | null
+          created_at?: string
+          follower_count?: number
+          id?: string
+          instagram?: string | null
+          is_verified?: boolean
+          name: string
+          owner_user_id: string
+          school_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          category?: string
+          contact_email?: string | null
+          created_at?: string
+          follower_count?: number
+          id?: string
+          instagram?: string | null
+          is_verified?: boolean
+          name?: string
+          owner_user_id?: string
+          school_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_orgs_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
             referencedColumns: ["id"]
           },
         ]

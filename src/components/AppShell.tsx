@@ -4,7 +4,7 @@ import {
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
@@ -68,6 +68,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const [plugOpen, setPlugOpen] = useState(false);
+  // Tap the "P" for the Campus Hub; hold it for seller quick actions.
+  const pressTimer = useRef<number | null>(null);
+  const longPress = useRef(false);
   const { unread } = useNotifications();
   const inboxUnread = useUnreadCount();
   const { session, loading: sessionLoading } = useSession();
@@ -243,13 +246,19 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   return (
                     <li key="plug-center" className="flex justify-center">
                       <button
-                        onClick={() => setPlugOpen(true)}
+                        onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
+                        onPointerDown={() => {
+                          longPress.current = false;
+                          pressTimer.current = window.setTimeout(() => { longPress.current = true; setPlugOpen(true); }, 500);
+                        }}
+                        onPointerUp={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
+                        onPointerLeave={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
                         className="tap plugu-breathe -mt-8 grid place-items-center w-16 h-16 rounded-full relative overflow-hidden"
                         style={{
                           background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
                           border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
                         }}
-                        aria-label="Open Plug quick actions"
+                        aria-label="Open Campus Hub — hold for quick actions"
                       >
                         <span
                           aria-hidden="true"

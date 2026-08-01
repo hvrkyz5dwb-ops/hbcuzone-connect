@@ -54,6 +54,7 @@ import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as CampusRouteImport } from './routes/campus'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -308,6 +309,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampusRoute = CampusRouteImport.update({
+  id: '/campus',
+  path: '/campus',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessRoute = BusinessRouteImport.update({
   id: '/business',
   path: '/business',
@@ -460,6 +466,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
+  '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
@@ -535,6 +542,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
+  '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
@@ -611,6 +619,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
   '/business': typeof BusinessRoute
+  '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
@@ -688,6 +697,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/awards'
     | '/business'
+    | '/campus'
     | '/checkout'
     | '/community'
     | '/community-guidelines'
@@ -763,6 +773,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/awards'
     | '/business'
+    | '/campus'
     | '/checkout'
     | '/community'
     | '/community-guidelines'
@@ -838,6 +849,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/awards'
     | '/business'
+    | '/campus'
     | '/checkout'
     | '/community'
     | '/community-guidelines'
@@ -914,6 +926,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AwardsRoute: typeof AwardsRoute
   BusinessRoute: typeof BusinessRoute
+  CampusRoute: typeof CampusRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
   CommunityRoute: typeof CommunityRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
@@ -1292,6 +1305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campus': {
+      id: '/campus'
+      path: '/campus'
+      fullPath: '/campus'
+      preLoaderRoute: typeof CampusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/business': {
       id: '/business'
       path: '/business'
@@ -1580,6 +1600,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AwardsRoute: AwardsRoute,
   BusinessRoute: BusinessRoute,
+  CampusRoute: CampusRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
   CommunityRoute: CommunityRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
