@@ -68,7 +68,7 @@ export async function fetchEvents(opts: { schoolId?: string | null; limit?: numb
     .from("campus_events")
     .select(SELECT)
     .eq("status", "active")
-    .gte("ends_at_fallback" in opts ? "starts_at" : "starts_at", new Date(Date.now() - 12 * 3600_000).toISOString())
+    .gte("starts_at", new Date(Date.now() - 12 * 3600_000).toISOString())
     .order("is_featured", { ascending: false })
     .order("starts_at", { ascending: true })
     .limit(opts.limit ?? 60);
