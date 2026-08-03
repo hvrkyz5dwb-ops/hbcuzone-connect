@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck } from "lucide-react";
+import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck, Calculator } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
 import { SELLER_TIERS, setSellerPlan, getSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
@@ -10,12 +10,18 @@ import { saveSelectedPlan } from "@/lib/plan-storage";
 export const Route = createFileRoute("/upgrade")({
   head: () => ({
     meta: [
-      { title: "Upgrade — PlugU" },
-      { name: "description", content: "Boost your listings across campus, your state, or the nation — plus premium seller memberships." },
+      { title: "Upgrade — PlugU Seller Plans & Boosts" },
+      { name: "description", content: "Lower your fee with a seller membership, or boost a listing from your campus to nationwide. See how fast it pays for itself." },
+      { property: "og:title", content: "Upgrade — PlugU Seller Plans & Boosts" },
+      { property: "og:description", content: "Seller memberships and promotion boosts built for student sellers." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Upgrade,
 });
+
+const AVG_SALE_KEY = "plugu.avgSalePrice";
 
 const tierAccent: Record<BoostPackage["tier"], string> = {
   bronze: "#c88a4a",
@@ -25,19 +31,88 @@ const tierAccent: Record<BoostPackage["tier"], string> = {
   diamond: "#a8e0ff",
 };
 
-const pkgIcon: Record<BoostPackage["key"], typeof Rocket> = {
+const pkgIcon: Record<string, typeof Rocket> = {
   "local-boost": Zap,
   "campus-featured": Star,
   "local-network": TrendingUp,
-  "statewide": Sparkles,
-  "ultimate": Crown,
+  statewide: Sparkles,
+  ultimate: Crown,
 };
+
+function money(n: number) {
+  return `$${n.toFixed(2).replace(/\.00$/, "")}`;
+}
+
+/** Shared average-sale-price state, persisted so every calculator agrees. */
+function useAvgSale() {
+  const [avg, setAvg] = useState(35);
+  useEffect(() => {
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(AVG_SALE_KEY) : null;
+    const n = raw ? Number(raw) : NaN;
+    if (Number.isFinite(n) && n > 0) setAvg(n);
+  }, []);
+  function update(n: number) {
+    setAvg(n);
+    if (typeof window !== "undefined") window.localStorage.setItem(AVG_SALE_KEY, String(n));
+  }
+  return { avg, setAvg: update };
+}
+
+/** Subtle break-even calculator shown under every paid plan / boost. */
+function BreakEven({
+  price,
+  feePercent,
+  avg,
+  onAvgChange,
+  accent,
+}: {
+  price: number;
+  feePercent: number;
+  avg: number;
+  onAvgChange: (n: number) => void;
+  accent: string;
+}) {
+  const netPerSale = Math.max(avg * (1 - feePercent / 100), 0.01);
+  const sales = Math.max(1, Math.ceil(price / netPerSale));
+  return (
+    <div className="mt-3 rounded-2xl border border-border/70 bg-background/50 px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
+        <Calculator className="h-3 w-3" style={{ color: accent }} /> Estimated break-even
+      </div>
+      <div className="mt-1.5 flex items-center gap-2 text-[12px]">
+        <span className="text-muted-foreground">If your average sale is</span>
+        <span className="inline-flex items-center rounded-lg border border-border bg-card px-1.5">
+          <span className="text-muted-foreground text-[12px]">$</span>
+          <input
+            type="number"
+            min={1}
+            inputMode="decimal"
+            aria-label="Your average sale price in dollars"
+            value={avg}
+            onChange={(e) => onAvgChange(Math.max(1, Number(e.target.value) || 1))}
+            className="w-12 bg-transparent py-0.5 text-[12px] font-semibold outline-none"
+          />
+        </span>
+      </div>
+      <p className="mt-1 text-[12px]">
+        You only need{" "}
+        <span className="font-bold" style={{ color: accent }}>
+          {sales} more {sales === 1 ? "sale" : "sales"}
+        </span>{" "}
+        to cover this.
+        <span className="text-muted-foreground"> ({money(netPerSale)} net per sale after the {feePercent}% fee)</span>
+      </p>
+    </div>
+  );
+}
 
 function Upgrade() {
   const navigate = useNavigate();
   const [currentTier, setCurrentTier] = useState<SellerTier>("free");
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [pending, setPending] = useState<SellerTier | null>(null);
+  const { avg, setAvg } = useAvgSale();
+
   useEffect(() => {
     const p = getSellerPlan();
     setCurrentTier(p.tier);
@@ -55,58 +130,41 @@ function Upgrade() {
       saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
       toast.success(`${meta.name} activated`, { description: `${meta.fee}% fee · billed ${cycle}` });
       navigate({ to: "/payment-success" });
-    } catch (e) {
+    } catch {
       toast.error("Couldn't activate plan", { description: "Please try again in a moment." });
       setPending(null);
     }
   }
 
+  const cycleLabel = cycle === "year" ? "/yr" : cycle === "semester" ? "/sem" : "/mo";
+  const cycleMonths = cycle === "year" ? 12 : cycle === "semester" ? 5 : 1;
+
   return (
     <AppShell title="UPGRADE">
-      <section className="px-5 pt-5 text-center">
+      <section className="px-5 pt-6 text-center">
         <span className="inline-flex items-center gap-1 text-[10px] tracking-[0.24em] uppercase px-3 py-1 rounded-full border border-accent/40 text-accent">
           <Sparkles className="h-3 w-3" /> PlugU Plans
         </span>
-        <h1 className="mt-3 text-2xl font-bold tracking-tight">Get plugged in.</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          One-time boosts to promote a listing, or a membership to keep more of every sale.
+        <h1 className="mt-3 text-[26px] leading-tight font-bold tracking-tight">Make your hustle pay for itself.</h1>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground max-w-xs mx-auto">
+          Keep more of every sale with a membership, or pay once to get seen by more students.
         </p>
       </section>
 
       <nav className="mt-5 mx-5 grid grid-cols-2 gap-2">
-        <a href="#boosts" className="rounded-xl border border-border bg-card px-3 py-2 text-center text-xs font-semibold">
-          Promotion Boosts
+        <a href="#memberships" className="tap rounded-xl border border-border bg-card px-3 py-2.5 text-center text-xs font-semibold">
+          Seller Plans
         </a>
-        <a href="#memberships" className="rounded-xl border border-border bg-card px-3 py-2 text-center text-xs font-semibold">
-          Seller Memberships
+        <a href="#boosts" className="tap rounded-xl border border-border bg-card px-3 py-2.5 text-center text-xs font-semibold">
+          Promotion Boosts
         </a>
       </nav>
 
-      {/* -------- Boosts -------- */}
-      <section id="boosts" className="mt-6 px-5">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-bold">Promotion Boosts</h2>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">One-time</span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Pick your reach, pick your run-time. No subscription.
-        </p>
-
-        <div className="mt-4 space-y-4 pb-2">
-          {boostPackages.map((pkg) => (
-            <BoostCard key={pkg.key} pkg={pkg} />
-          ))}
-        </div>
-      </section>
-
       {/* -------- Memberships -------- */}
-      <section id="memberships" className="mt-8 px-5 pb-8">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-bold">Seller Memberships</h2>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Recurring</span>
-        </div>
+      <section id="memberships" className="mt-8 px-5 scroll-mt-4">
+        <h2 className="text-lg font-bold tracking-tight">Seller Plans</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Lower your PlugU transaction fee and unlock long-term perks.
+          Lower your PlugU transaction fee and rank higher on your campus.
         </p>
 
         <div className="mt-4 mx-auto grid grid-cols-3 rounded-full border border-border p-1 bg-card text-[11px] font-semibold">
@@ -114,7 +172,7 @@ function Upgrade() {
             <button
               key={c}
               onClick={() => setCycle(c)}
-              className={`tap rounded-full py-1.5 uppercase tracking-wider transition-colors ${
+              className={`tap rounded-full py-2 uppercase tracking-wider transition-all duration-300 ${
                 cycle === c ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
               }`}
             >
@@ -123,85 +181,188 @@ function Upgrade() {
           ))}
         </div>
 
-        <div className="mt-4 grid gap-3">
-          {SELLER_TIERS.map((t) => (
-            <div
-              key={t.key}
-              className="rounded-2xl p-4 border border-border bg-card"
-              style={{ boxShadow: t.key === "kingpin" ? `0 0 32px -14px ${t.accent}` : undefined }}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div>
+        <div className="mt-4 grid gap-4">
+          {SELLER_TIERS.map((t) => {
+            const raw = cycle === "year" ? t.pricing.year : cycle === "semester" ? t.pricing.semester : t.pricing.monthly;
+            const price = raw ?? t.pricing.monthly;
+            const monthlyEq = price / cycleMonths;
+            const savings =
+              t.pricing.monthly > 0 && cycleMonths > 1
+                ? Math.round((1 - price / (t.pricing.monthly * cycleMonths)) * 100)
+                : 0;
+            const popular = t.key === "pro";
+            const active = currentTier === t.key;
+            return (
+              <div
+                key={t.key}
+                className="relative rounded-3xl p-5 transition-all duration-300 ease-out"
+                style={{
+                  background: "linear-gradient(160deg, rgba(24,24,24,0.95), rgba(9,9,9,0.96))",
+                  border: `1px solid color-mix(in oklab, ${t.accent} ${active || popular ? 55 : 24}%, transparent)`,
+                  boxShadow: popular
+                    ? `0 0 46px -16px ${t.accent}, 0 0 90px -40px var(--plugu-gold)`
+                    : t.key === "kingpin"
+                      ? `0 0 40px -18px ${t.accent}`
+                      : undefined,
+                }}
+              >
+                {popular && (
+                  <span
+                    className="absolute -top-2 left-5 text-[9px] font-black tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
+                    style={{ background: "var(--gradient-bronze)", color: "#111" }}
+                  >
+                    ★ Most Popular
+                  </span>
+                )}
+                {t.key === "kingpin" && (
+                  <span
+                    className="absolute -top-2 left-5 text-[9px] font-black tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
+                    style={{ background: t.accent, color: "#111" }}
+                  >
+                    👑 Premium
+                  </span>
+                )}
+
+                <div className="flex items-center gap-2">
+                  {t.key === "kingpin" ? (
+                    <Crown className="h-4 w-4" style={{ color: t.accent }} />
+                  ) : t.key === "pro" ? (
+                    <ShieldCheck className="h-4 w-4" style={{ color: t.accent }} />
+                  ) : (
+                    <Sparkles className="h-4 w-4" style={{ color: t.accent }} />
+                  )}
                   <p className="text-[10px] tracking-[0.24em] uppercase" style={{ color: t.accent }}>
                     {t.badge}
                   </p>
-                  <p className="mt-1 text-base font-bold">{t.name}</p>
+                  <span className="ml-auto text-[11px] font-semibold" style={{ color: t.accent }}>
+                    {t.fee}% fee
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold" style={{ color: t.accent }}>
-                  {t.fee}% fee
-                </span>
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.tagline}</p>
 
-              <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                <span className="rounded-md bg-secondary px-2 py-0.5">
-                  {t.pricing.monthly === 0 ? "Free" : `$${t.pricing.monthly}/mo`}
-                </span>
-                {t.pricing.semester != null && (
-                  <span className="rounded-md bg-secondary px-2 py-0.5">${t.pricing.semester}/sem</span>
-                )}
-                {t.pricing.year != null && (
-                  <span className="rounded-md bg-secondary px-2 py-0.5">${t.pricing.year}/yr</span>
-                )}
-              </div>
+                <h3 className="mt-2 text-xl font-bold tracking-tight">{t.name}</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">{t.tagline}</p>
 
-              <button
-                onClick={() => activateMembership(t.key)}
-                disabled={currentTier === t.key || pending !== null}
-                className="tap mt-3 w-full py-2.5 rounded-xl text-xs font-semibold text-primary-foreground disabled:opacity-60"
-                style={{ background: currentTier === t.key ? "linear-gradient(160deg,#333,#111)" : "var(--gradient-bronze)" }}
-              >
-                {currentTier === t.key ? "Current plan" : pending === t.key ? "Activating…" : t.key === "free" ? "Switch to Free" : `Activate ${t.name} — ${cycle}`}
-              </button>
-            </div>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="text-[34px] leading-none font-black tracking-tight">
+                    {price === 0 ? "Free" : money(price)}
+                  </span>
+                  {price > 0 && <span className="text-xs text-muted-foreground">{cycleLabel}</span>}
+                  {savings > 0 && (
+                    <span
+                      className="ml-auto text-[9px] font-black tracking-[0.16em] uppercase px-2 py-1 rounded-full"
+                      style={{ background: "var(--gradient-bronze)", color: "#111" }}
+                    >
+                      Save {savings}%
+                    </span>
+                  )}
+                </div>
+                {price > 0 && cycleMonths > 1 && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    ≈ {money(monthlyEq)}/mo, billed {cycle === "year" ? "yearly" : "per semester"}
+                  </p>
+                )}
+
+                <ul className="mt-4 space-y-1.5">
+                  {t.perks.map((p) => (
+                    <li key={p} className="flex items-start gap-2 text-[12.5px]">
+                      <Check className="h-3.5 w-3.5 mt-[3px] shrink-0" style={{ color: t.accent }} /> {p}
+                    </li>
+                  ))}
+                </ul>
+
+                {t.roi && (
+                  <div className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] px-3 py-2.5">
+                    <p className="text-[12px] text-emerald-300/90 leading-relaxed">{t.roi}</p>
+                  </div>
+                )}
+
+                {price > 0 && (
+                  <BreakEven price={price} feePercent={t.fee} avg={avg} onAvgChange={setAvg} accent={t.accent} />
+                )}
+
+                <button
+                  onClick={() => activateMembership(t.key)}
+                  disabled={active || pending !== null}
+                  className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground transition-transform duration-200 active:scale-[0.98] disabled:opacity-60"
+                  style={{ background: active ? "linear-gradient(160deg,#333,#111)" : "var(--gradient-bronze)" }}
+                >
+                  {active
+                    ? "Current plan"
+                    : pending === t.key
+                      ? "Activating…"
+                      : t.key === "free"
+                        ? "Switch to Free"
+                        : `Get ${t.name}`}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* -------- Boosts -------- */}
+      <section id="boosts" className="mt-10 px-5 pb-10 scroll-mt-4">
+        <h2 className="text-lg font-bold tracking-tight">Promotion Boosts</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Only pay when you need more exposure. No subscription required.
+        </p>
+
+        <div className="mt-4 space-y-4">
+          {boostPackages.map((pkg) => (
+            <BoostCard key={pkg.key} pkg={pkg} avg={avg} onAvgChange={setAvg} feePercent={SELLER_TIERS.find((t) => t.key === currentTier)?.fee ?? 5} />
           ))}
         </div>
 
-        <Link to="/seller/plans" className="mt-4 block text-center text-xs text-muted-foreground">
-          Detailed plan comparison →
-        </Link>
-        <Link to="/manage-plan" className="mt-2 block text-center text-xs text-muted-foreground">
-          Manage current plan →
-        </Link>
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <Link to="/seller/plans" className="text-xs text-muted-foreground">
+            Detailed plan comparison →
+          </Link>
+          <Link to="/manage-plan" className="text-xs text-muted-foreground">
+            Manage current plan →
+          </Link>
+        </div>
       </section>
     </AppShell>
   );
 }
 
-function BoostCard({ pkg }: { pkg: BoostPackage }) {
+function BoostCard({
+  pkg,
+  avg,
+  onAvgChange,
+  feePercent,
+}: {
+  pkg: BoostPackage;
+  avg: number;
+  onAvgChange: (n: number) => void;
+  feePercent: number;
+}) {
   const navigate = useNavigate();
-  const defaultIdx = pkg.durations.findIndex((d) => d.badge === "Best Value");
-  const [selected, setSelected] = useState(defaultIdx >= 0 ? defaultIdx : 0);
+  const defaultIdx = useMemo(() => {
+    const i = pkg.durations.findIndex((d) => d.badge === "Best Value");
+    return i >= 0 ? i : 0;
+  }, [pkg]);
+  const [selected, setSelected] = useState(defaultIdx);
   const [busy, setBusy] = useState(false);
-  const Icon = pkgIcon[pkg.key as keyof typeof pkgIcon] ?? Rocket;
+  const Icon = pkgIcon[pkg.key] ?? Rocket;
   const accent = tierAccent[pkg.tier];
   const chosen = pkg.durations[selected];
 
   return (
     <div
-      className="relative rounded-3xl p-5 overflow-hidden"
+      className="relative rounded-3xl p-5 overflow-hidden transition-all duration-300 ease-out"
       style={{
-        background: "linear-gradient(160deg, rgba(26,26,26,0.95), rgba(10,10,10,0.95))",
-        border: `1px solid color-mix(in oklab, ${accent} 30%, transparent)`,
-        boxShadow: pkg.highlight ? `0 0 40px -14px ${accent}` : undefined,
+        background: "linear-gradient(160deg, rgba(24,24,24,0.95), rgba(9,9,9,0.96))",
+        border: `1px solid color-mix(in oklab, ${accent} ${pkg.highlight ? 50 : 26}%, transparent)`,
+        boxShadow: pkg.highlight ? `0 0 44px -16px ${accent}` : undefined,
       }}
     >
       {pkg.highlight && (
         <span
-          className="absolute top-3 right-3 text-[9px] font-black tracking-[0.22em] uppercase px-2 py-0.5 rounded-full"
-          style={{ background: accent, color: "#111" }}
+          className="absolute top-4 right-4 text-[9px] font-black tracking-[0.22em] uppercase px-2 py-0.5 rounded-full"
+          style={{ background: "var(--gradient-bronze)", color: "#111" }}
         >
-          Popular
+          ★ Popular
         </span>
       )}
 
@@ -211,13 +372,13 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
           {pkg.reach}
         </p>
       </div>
-      <h3 className="mt-2 text-xl font-bold">{pkg.name}</h3>
+      <h3 className="mt-2 text-xl font-bold tracking-tight">{pkg.name}</h3>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{pkg.tagline}</p>
 
-      <ul className="mt-3 space-y-1">
+      <ul className="mt-3 space-y-1.5">
         {pkg.features.map((f) => (
-          <li key={f} className="flex items-center gap-2 text-[12px] text-muted-foreground">
-            <Check className="h-3 w-3 shrink-0" style={{ color: accent }} /> {f}
+          <li key={f} className="flex items-start gap-2 text-[12.5px] text-foreground/90">
+            <Check className="h-3.5 w-3.5 mt-[3px] shrink-0" style={{ color: accent }} /> {f}
           </li>
         ))}
       </ul>
@@ -229,31 +390,43 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
             <button
               key={d.key}
               onClick={() => setSelected(i)}
-              className="tap rounded-xl px-2 py-2 text-left transition-all"
+              aria-pressed={active}
+              className="tap relative rounded-2xl px-2 py-2.5 text-left transition-all duration-300 ease-out active:scale-[0.97]"
               style={{
-                background: active ? "color-mix(in oklab, " + accent + " 12%, #0a0a0a)" : "#111",
-                border: `1px solid ${active ? accent : "color-mix(in oklab, " + accent + " 20%, transparent)"}`,
+                background: active ? `color-mix(in oklab, ${accent} 14%, #0a0a0a)` : "#111",
+                border: `1px solid ${active ? accent : `color-mix(in oklab, ${accent} 20%, transparent)`}`,
+                transform: active ? "translateY(-1px)" : undefined,
               }}
             >
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{d.label}</p>
-              <p className="mt-0.5 text-sm font-bold">${d.price}</p>
-              {d.badge && (
-                <p className="mt-0.5 text-[9px] font-semibold" style={{ color: accent }}>
-                  {d.badge}
+              <p className="mt-0.5 text-sm font-bold">{money(d.price)}</p>
+              {d.badge === "Best Value" && (
+                <p className="mt-0.5 text-[8.5px] font-black tracking-[0.14em] uppercase text-[color:var(--plugu-gold)]">
+                  ★ Best Value
                 </p>
               )}
             </button>
           );
         })}
-        {/* Fill grid if fewer than 3 */}
         {pkg.durations.length < 3 &&
           Array.from({ length: 3 - pkg.durations.length }).map((_, i) => <div key={`spacer-${i}`} />)}
       </div>
 
+      <div className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] px-3 py-2.5">
+        <p className="text-[12px] text-emerald-300/90 leading-relaxed">{pkg.roi}</p>
+      </div>
+
+      {chosen && (
+        <BreakEven price={chosen.price} feePercent={feePercent} avg={avg} onAvgChange={onAvgChange} accent={accent} />
+      )}
+
       <button
         onClick={() => {
           if (busy) return;
-          if (!chosen || chosen.price < 0) { toast.error("Invalid boost — pick a duration"); return; }
+          if (!chosen || chosen.price < 0) {
+            toast.error("Invalid boost — pick a duration");
+            return;
+          }
           setBusy(true);
           try {
             saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
@@ -265,10 +438,10 @@ function BoostCard({ pkg }: { pkg: BoostPackage }) {
           }
         }}
         disabled={busy}
-        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground transition-transform duration-200 active:scale-[0.98] disabled:opacity-60"
         style={{ background: "var(--gradient-bronze)" }}
       >
-        {busy ? "Saving…" : `Boost for $${chosen.price} · ${chosen.label}`}
+        {busy ? "Saving…" : `Boost for ${money(chosen.price)} · ${chosen.label}`}
       </button>
     </div>
   );
