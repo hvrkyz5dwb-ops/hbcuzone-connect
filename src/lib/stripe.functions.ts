@@ -8,13 +8,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // Public config probe — safe for unauthenticated callers.
 export const getStripeStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const { stripeConfigured } = await import("./stripe.server");
+  const { stripeConfigured, stripeMode } = await import("./stripe.server");
   const configured = stripeConfigured();
   return {
     configured,
-    mode: configured
-      ? (process.env.STRIPE_SECRET_KEY!.startsWith("sk_live_") ? "live" as const : "test" as const)
-      : null,
+    mode: stripeMode(),
     webhookConfigured: !!process.env.STRIPE_WEBHOOK_SECRET,
   };
 });

@@ -4,13 +4,25 @@
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
+/** Accepts a full secret key (sk_) or a restricted key (rk_). */
+export function stripeKey(): string | undefined {
+  const key = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_RESTRICTED_API_KEY;
+  return key || undefined;
+}
+
 export function stripeConfigured(): boolean {
-  const key = process.env.STRIPE_SECRET_KEY;
-  return !!key && (key.startsWith("sk_test_") || key.startsWith("sk_live_"));
+  const key = stripeKey();
+  return !!key && /^(sk|rk)_(test|live)_/.test(key);
+}
+
+export function stripeMode(): "test" | "live" | null {
+  const key = stripeKey();
+  if (!key) return null;
+  return key.includes("_live_") ? "live" : "test";
 }
 
 export function requireStripeKey(): string {
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = stripeKey();
   if (!key) throw new Error("Stripe not configured — set STRIPE_SECRET_KEY");
   return key;
 }
