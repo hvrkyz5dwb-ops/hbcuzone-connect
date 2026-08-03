@@ -20,6 +20,69 @@ export const SELLER_TIERS: {
   perks: string[];
   badge: string;
   accent: string;
+  roi?: string;
+}[] = [
+  {
+    key: "free",
+    name: "Free Seller",
+    fee: 5,
+    price: 0,
+    pricing: { monthly: 0 },
+    tagline: "Get started. Sell anything on your campus.",
+    badge: "Starter",
+    accent: "#9aa0a6",
+    perks: [
+      "5% PlugU transaction fee",
+      "Unlimited listings",
+      "Basic analytics",
+      "Standard search placement",
+      "Standard seller badge",
+    ],
+  },
+  {
+    key: "pro",
+    name: "Verified Pro",
+    fee: 2,
+    price: 7.99,
+    pricing: { monthly: 7.99, semester: 39.99, year: 69.99 },
+    tagline: "For hustlers who ship every week.",
+    badge: "Verified Pro",
+    accent: "#c9c9c9",
+    roi: "Sell just 2\u20133 extra items each month and this membership typically pays for itself.",
+    perks: [
+      "2% transaction fee",
+      "Verified Pro badge",
+      "Priority search ranking",
+      "Better feed placement",
+      "Advanced analytics",
+      "Priority support",
+      "Early access to new features",
+    ],
+  },
+  {
+    key: "kingpin",
+    name: "KingPin Seller",
+    fee: 0,
+    price: 14.99,
+    pricing: { monthly: 14.99, semester: 79.99, year: 129.99 },
+    tagline: "You run the campus. Keep 100%.",
+    badge: "KingPin",
+    accent: "#f4c96a",
+    roi: "One successful week of sales can easily cover this membership. Keep 100% of every sale.",
+    perks: [
+      "0% PlugU transaction fee",
+      "Gold KingPin badge",
+      "Highest campus search ranking",
+      "Featured seller priority",
+      "Premium analytics",
+      "Exclusive promotions",
+      "Early feature access",
+      "Priority support",
+    ],
+  },
+];
+  badge: string;
+  accent: string;
 }[] = [
   {
     key: "free",
