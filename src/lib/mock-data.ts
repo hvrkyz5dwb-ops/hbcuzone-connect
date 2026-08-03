@@ -277,6 +277,7 @@ export type BoostPackage = {
   features: string[];
   tier: "bronze" | "silver" | "gold" | "platinum" | "diamond";
   highlight?: boolean;
+  roi: string; // plain-language payback message
   durations: BoostDuration[];
 };
 
@@ -287,15 +288,16 @@ export const boostPackages: BoostPackage[] = [
     tagline: "Get seen on your campus.",
     reach: "Single campus",
     tier: "bronze",
+    roi: "One extra sale often covers the cost of this boost.",
     features: [
       "Priority placement on your campus",
       "Highlighted listing",
-      "Higher in search",
-      "Increased feed visibility",
+      "Higher search ranking",
+      "Increased Home Feed visibility",
     ],
     durations: [
       { key: "local-boost-3d", label: "3 Days", days: 3, price: 4.99 },
-      { key: "local-boost-7d", label: "7 Days", days: 7, price: 7.99, badge: "Save 20%" },
+      { key: "local-boost-7d", label: "7 Days", days: 7, price: 7.99 },
       { key: "local-boost-30d", label: "30 Days", days: 30, price: 19.99, badge: "Best Value" },
     ],
   },
@@ -306,16 +308,17 @@ export const boostPackages: BoostPackage[] = [
     reach: "Single campus · Featured slot",
     tier: "silver",
     highlight: true,
+    roi: "Perfect for product drops, dorm move-in week, parties, or limited-time promotions.",
     features: [
       "Featured on Home Feed",
-      "Vendor Spotlight placement",
-      "Featured badge on your listing",
-      "Priority search ranking",
+      "Vendor Spotlight",
+      "Featured badge",
+      "Priority search placement",
     ],
     durations: [
-      { key: "campus-featured-3d", label: "3 Days", days: 3, price: 9.99 },
-      { key: "campus-featured-7d", label: "7 Days", days: 7, price: 14.99, badge: "Save 15%" },
-      { key: "campus-featured-30d", label: "30 Days", days: 30, price: 34.99, badge: "Save 35%" },
+      { key: "campus-featured-3d", label: "3 Days", days: 3, price: 7.99 },
+      { key: "campus-featured-7d", label: "7 Days", days: 7, price: 12.99 },
+      { key: "campus-featured-30d", label: "30 Days", days: 30, price: 29.99, badge: "Best Value" },
     ],
   },
   {
@@ -324,51 +327,55 @@ export const boostPackages: BoostPackage[] = [
     tagline: "Reach nearby colleges in your region.",
     reach: "Nearby colleges",
     tier: "gold",
+    roi: "Reach thousands of nearby students with one promotion.",
     features: [
-      "Shown to nearby colleges",
+      "Visible across nearby colleges",
       "Regional feed placement",
       "Cross-campus discovery",
-      "Priority search across region",
+      "Regional search priority",
     ],
     durations: [
-      { key: "local-network-3d", label: "3 Days", days: 3, price: 19.99 },
-      { key: "local-network-7d", label: "7 Days", days: 7, price: 29.99 },
-      { key: "local-network-30d", label: "30 Days", days: 30, price: 69.99, badge: "Best Value" },
+      { key: "local-network-3d", label: "3 Days", days: 3, price: 14.99 },
+      { key: "local-network-7d", label: "7 Days", days: 7, price: 24.99 },
+      { key: "local-network-30d", label: "30 Days", days: 30, price: 59.99, badge: "Best Value" },
     ],
   },
   {
     key: "statewide",
-    name: "Statewide",
+    name: "Statewide Network",
     tagline: "Every PlugU campus in your state.",
     reach: "Statewide network",
     tier: "platinum",
+    roi: "Built for growing businesses that want to dominate an entire state.",
     features: [
       "Visible across every PlugU campus in your state",
       "Statewide feed placement",
       "Statewide trending eligibility",
-      "Priority state-level search",
+      "Statewide search priority",
     ],
     durations: [
-      { key: "statewide-3d", label: "3 Days", days: 3, price: 39.99 },
-      { key: "statewide-7d", label: "7 Days", days: 7, price: 54.99 },
-      { key: "statewide-30d", label: "30 Days", days: 30, price: 119.99, badge: "Best Value" },
+      { key: "statewide-3d", label: "3 Days", days: 3, price: 29.99 },
+      { key: "statewide-7d", label: "7 Days", days: 7, price: 49.99 },
+      { key: "statewide-30d", label: "30 Days", days: 30, price: 99.99, badge: "Best Value" },
     ],
   },
   {
     key: "ultimate",
-    name: "Ultimate",
+    name: "Ultimate (National)",
     tagline: "Nationwide reach across nearly every PlugU feed.",
     reach: "National",
     tier: "diamond",
+    roi: "For serious brands ready to reach students nationwide.",
     features: [
       "Highest search priority",
-      "Featured placement nationwide",
-      "Trending section eligibility",
-      "Ultimate badge on your listing",
+      "Featured nationwide",
+      "National Trending eligibility",
+      "Ultimate badge",
+      "Maximum exposure across PlugU",
     ],
     durations: [
-      { key: "ultimate-7d", label: "7 Days", days: 7, price: 99.99 },
-      { key: "ultimate-30d", label: "30 Days", days: 30, price: 249.99, badge: "Best Value" },
+      { key: "ultimate-7d", label: "7 Days", days: 7, price: 79.99 },
+      { key: "ultimate-30d", label: "30 Days", days: 30, price: 199.99, badge: "Best Value" },
     ],
   },
 ];
