@@ -102,26 +102,21 @@ function Market() {
         </div>
 
         <div className="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {[{ key: "all", label: "All", betaDisabled: false }, ...MVP_CATEGORIES].map((c) => {
+          {[{ key: "all", label: "All" }, ...MVP_CATEGORIES].map((c) => {
             const isActive = category === c.key;
-            const disabled = "betaDisabled" in c && c.betaDisabled;
             return (
               <button
                 key={c.key}
                 onClick={() => {
-                  if (disabled) { toast("Rides return after beta", { description: "Coming soon to PlugU." }); return; }
                   setCategory(c.key); setPage(0);
                 }}
                 className={`tap shrink-0 px-4 py-2 rounded-full text-xs border transition-all whitespace-nowrap ${
                   isActive
                     ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary shadow-[var(--shadow-glow)]"
-                    : disabled
-                      ? "bg-card text-muted-foreground/50 border-border/60 line-through"
-                      : "bg-card text-muted-foreground border-border hover:text-foreground"
+                    : "bg-card text-muted-foreground border-border hover:text-foreground"
                 }`}
               >
                 {c.label}
-                {disabled && <span className="ml-1 text-[9px] uppercase tracking-widest">Beta soon</span>}
               </button>
             );
           })}

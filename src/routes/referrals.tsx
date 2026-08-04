@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Share2, Trophy, Users, Flame, Building2, Award, Sparkles } from "lucide-react";
+import { Copy, Share2, Users, Flame, Building2, Award, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import {
-  getReferralState, referralAchievements, referralRank, referralLink,
+  getReferralState, referralAchievements, referralLink,
   type ReferralState,
 } from "@/lib/referrals";
 
@@ -20,7 +20,6 @@ function ReferralsPage() {
 
   const link = referralLink(state.code);
   const achievements = referralAchievements(state);
-  const rank = referralRank();
   const verified = state.referrals.filter((r) => r.verified).length;
   const businesses = state.referrals.filter((r) => r.business).length;
 
@@ -85,24 +84,6 @@ function ReferralsPage() {
           <Stat Icon={Sparkles} label="Verified" value={verified} />
           <Stat Icon={Building2} label="Businesses" value={businesses} />
           <Stat Icon={Flame} label="Streak" value={state.streak} />
-        </div>
-
-        {/* Rank */}
-        <div className="mt-4 rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-            <p className="text-xs font-semibold">Rank</p>
-          </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <div>
-              <p className="text-[10px] tracking-wide uppercase text-muted-foreground">Your campus</p>
-              <p className="text-xl font-bold">#{rank.campus}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] tracking-wide uppercase text-muted-foreground">National</p>
-              <p className="text-xl font-bold">#{rank.national.toLocaleString()}</p>
-            </div>
-          </div>
         </div>
 
         {/* Achievements */}

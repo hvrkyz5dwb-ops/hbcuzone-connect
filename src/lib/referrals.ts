@@ -86,25 +86,3 @@ export function referralAchievements(state: ReferralState): ReferralAchievement[
     { key: "streak", label: "Momentum Streak", hint: `${streak} in a row`, earned: streak >= 5, progress: Math.min(100, streak * 20) },
   ];
 }
-
-export function referralRank(): { campus: number; national: number } {
-  const state = getReferralState();
-  const total = state.referrals.length;
-  // Playful mocked ranks that improve as you refer more.
-  const campus = Math.max(1, 128 - total * 4);
-  const national = Math.max(12, 12_400 - total * 350);
-  return { campus, national };
-}
-
-export function creditReferralFromUrl() {
-  if (typeof window === "undefined") return;
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
-    if (!ref) return;
-    const flagKey = `plugu.refCredited.${ref}`;
-    if (window.localStorage.getItem(flagKey)) return;
-    addReferral({ code: ref, name: "New student", verified: true, business: false });
-    window.localStorage.setItem(flagKey, "1");
-  } catch {}
-}

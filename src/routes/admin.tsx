@@ -277,14 +277,15 @@ function UsersPanel() {
   const q = useQuery({
     queryKey: ["admin-users", term],
     queryFn: async () => {
-      let qb = supabase.from("profiles")
-        .select("id,email,username,display_name,school_name,is_suspended,verification_status,rating_avg,rating_count,completed_transactions,created_at")
-        .order("created_at",{ascending:false}).limit(100);
-      const t = term.trim();
-      if (t) qb = qb.or(`email.ilike.%${t}%,username.ilike.%${t}%,display_name.ilike.%${t}%`);
-      const { data, error } = await qb;
+      // Email is column-restricted on profiles; the admin-gated RPC is the only read path.
+      const { data, error } = await (supabase.rpc as any)("admin_user_directory")
+        .order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
-      return data ?? [];
+      const rows = (data ?? []) as any[];
+      const t = term.trim().toLowerCase();
+      if (!t) return rows;
+      return rows.filter((r) =>
+        [r.email, r.username, r.display_name].some((v) => typeof v === "string" && v.toLowerCase().includes(t)));
     },
   });
   return (

@@ -70,7 +70,7 @@ Return STRICT JSON: { "tempF": number, "high": number, "low": number,
 No markdown, no extra keys.`;
 
 export const getCampusWeather = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => WeatherInput.parse(d))
+  .validator((d: unknown) => WeatherInput.parse(d))
   .handler(async ({ data }): Promise<CampusWeather> => {
     const loc = [data.city, data.state].filter(Boolean).join(", ");
     const prompt = `Campus: ${data.school}${loc ? ` (${loc})` : ""}. Current date: ${new Date().toDateString()}.`;
@@ -125,7 +125,7 @@ Return STRICT JSON:
 No markdown. If the query is ambiguous, pick the most likely campus interpretation.`;
 
 export const getRouteEstimate = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => RouteInput.parse(d))
+  .validator((d: unknown) => RouteInput.parse(d))
   .handler(async ({ data }): Promise<RouteEstimate> => {
     const parsed = await callAI(ROUTE_SYSTEM, `Campus: ${data.campus}\nQuestion: ${data.query}`);
     if (!parsed) {

@@ -1719,6 +1719,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_user_directory: {
+        Args: never
+        Returns: {
+          completed_transactions: number
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          is_suspended: boolean
+          rating_avg: number
+          rating_count: number
+          school_name: string
+          username: string
+          verification_status: string
+        }[]
+      }
       create_booking_secure: {
         Args: { _note: string; _slot_id: string }
         Returns: string

@@ -125,20 +125,22 @@ function Upgrade() {
   function activateMembership(tier: SellerTier) {
     if (pending) return;
     const meta = SELLER_TIERS.find((t) => t.key === tier)!;
-    const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
-    setPending(tier);
-    try {
-      setSellerPlan(tier, cycle);
-      setCurrentTier(tier);
-      saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
-      toast.success(`${meta.name} activated`, {
-        description: tier === "free" ? `${meta.fee}% fee applies` : `${meta.fee}% fee · valid for ${CYCLE_VALIDITY[cycle].label}`,
-      });
-      navigate({ to: "/payment-success" });
-    } catch {
-      toast.error("Couldn't activate plan", { description: "Please try again in a moment." });
+    if (tier === "free") {
+      setPending(tier);
+      try {
+        setSellerPlan(tier, cycle);
+        setCurrentTier(tier);
+        saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: 0 });
+        toast.success("Switched to Free Seller", { description: `${meta.fee}% fee applies` });
+      } catch {
+        toast.error("Couldn't switch plan", { description: "Please try again in a moment." });
+      }
       setPending(null);
+      return;
     }
+    // Paid memberships activate only after a confirmed Stripe payment —
+    // checkout verifies the session before unlocking the tier.
+    navigate({ to: "/checkout", search: { plan: `seller_${tier}_${cycle}` } });
   }
 
   const cycleLabel = cycle === "year" ? "/yr" : cycle === "semester" ? "/sem" : "/mo";
@@ -356,7 +358,6 @@ function BoostCard({
     return i >= 0 ? i : 0;
   }, [pkg]);
   const [selected, setSelected] = useState(defaultIdx);
-  const [busy, setBusy] = useState(false);
   const Icon = pkgIcon[pkg.key] ?? Rocket;
   const accent = tierAccent[pkg.tier];
   const chosen = pkg.durations[selected];
@@ -435,26 +436,16 @@ function BoostCard({
 
       <button
         onClick={() => {
-          if (busy) return;
           if (!chosen || chosen.price < 0) {
             toast.error("Invalid boost — pick a duration");
             return;
           }
-          setBusy(true);
-          try {
-            saveSelectedPlan({ key: `boost_${pkg.key}_${chosen.key}`, name: `${pkg.name} · ${chosen.label}`, price: chosen.price });
-            toast.success(`${pkg.name} boost saved`);
-            navigate({ to: "/payment-success" });
-          } catch {
-            toast.error("Couldn't save boost — please retry");
-            setBusy(false);
-          }
+          navigate({ to: "/checkout", search: { plan: chosen.key } });
         }}
-        disabled={busy}
         className="tap mt-4 w-full py-3 rounded-2xl text-sm font-semibold text-primary-foreground transition-transform duration-200 active:scale-[0.98] disabled:opacity-60"
         style={{ background: "var(--gradient-bronze)" }}
       >
-        {busy ? "Saving…" : `Boost for ${money(chosen.price)} · ${chosen.label}`}
+        {chosen ? `Boost for ${money(chosen.price)} · ${chosen.label}` : "Pick a duration"}
       </button>
     </div>
   );
