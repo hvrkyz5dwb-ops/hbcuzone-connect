@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck, Calculator } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
-import { SELLER_TIERS, setSellerPlan, getSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import { SELLER_TIERS, setSellerPlan, getSellerPlanState, CYCLE_VALIDITY, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
 import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/upgrade")({
@@ -114,9 +114,12 @@ function Upgrade() {
   const { avg, setAvg } = useAvgSale();
 
   useEffect(() => {
-    const p = getSellerPlan();
-    setCurrentTier(p.tier);
-    if (p.cycle) setCycle(p.cycle);
+    const { plan, expired } = getSellerPlanState();
+    setCurrentTier(plan.tier);
+    if (plan.cycle) setCycle(plan.cycle);
+    if (expired) {
+      toast("Membership expired", { description: "Your paid plan ran out — you're back on Free Seller." });
+    }
   }, []);
 
   function activateMembership(tier: SellerTier) {
@@ -128,7 +131,9 @@ function Upgrade() {
       setSellerPlan(tier, cycle);
       setCurrentTier(tier);
       saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
-      toast.success(`${meta.name} activated`, { description: `${meta.fee}% fee · billed ${cycle}` });
+      toast.success(`${meta.name} activated`, {
+        description: tier === "free" ? `${meta.fee}% fee applies` : `${meta.fee}% fee · valid for ${CYCLE_VALIDITY[cycle].label}`,
+      });
       navigate({ to: "/payment-success" });
     } catch {
       toast.error("Couldn't activate plan", { description: "Please try again in a moment." });
@@ -180,6 +185,9 @@ function Upgrade() {
             </button>
           ))}
         </div>
+        <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          Bigger plan, longer access — membership stays active for {CYCLE_VALIDITY[cycle].label}.
+        </p>
 
         <div className="mt-4 grid gap-4">
           {SELLER_TIERS.map((t) => {
@@ -259,6 +267,11 @@ function Upgrade() {
                 {price > 0 && cycleMonths > 1 && (
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     ≈ {money(monthlyEq)}/mo, billed {cycle === "year" ? "yearly" : "per semester"}
+                  </p>
+                )}
+                {price > 0 && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Valid for {CYCLE_VALIDITY[cycle].label} from activation
                   </p>
                 )}
 

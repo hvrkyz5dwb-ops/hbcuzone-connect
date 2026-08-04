@@ -6,6 +6,7 @@ export type SellerPlan = {
   tier: SellerTier;
   cycle?: BillingCycle;
   since: string;
+  validUntil?: string;
 };
 
 const KEY = "plugu.sellerPlan.v1";
@@ -83,6 +84,17 @@ export const SELLER_TIERS: {
 ];
 
 export function getSellerPlan(): SellerPlan {
+  return getSellerPlanState().plan;
+}
+
+/** How long each billing cycle keeps a paid membership active. */
+export const CYCLE_VALIDITY: Record<BillingCycle, { days: number; label: string; short: string }> = {
+  monthly: { days: 30, label: "30 days", short: "30 days" },
+  semester: { days: 150, label: "a full semester (150 days)", short: "full semester" },
+  year: { days: 365, label: "a full year (365 days)", short: "full year" },
+};
+
+function readPlan(): SellerPlan {
   if (typeof window === "undefined") return { tier: "free", since: new Date().toISOString() };
   try {
     const raw = window.localStorage.getItem(KEY);
@@ -93,10 +105,41 @@ export function getSellerPlan(): SellerPlan {
   return initial;
 }
 
+/**
+ * Reads the plan and auto-downgrades to Free when a paid membership
+ * has passed its validity window. `expired` is true when a downgrade happened.
+ */
+export function getSellerPlanState(): { plan: SellerPlan; expired: boolean } {
+  const plan = readPlan();
+  if (
+    plan.tier !== "free" &&
+    plan.validUntil &&
+    new Date(plan.validUntil).getTime() < Date.now()
+  ) {
+    const reset: SellerPlan = { tier: "free", since: new Date().toISOString() };
+    if (typeof window !== "undefined") window.localStorage.setItem(KEY, JSON.stringify(reset));
+    return { plan: reset, expired: true };
+  }
+  return { plan, expired: false };
+}
+
 export function setSellerPlan(tier: SellerTier, cycle: BillingCycle = "monthly"): SellerPlan {
-  const plan: SellerPlan = { tier, cycle, since: new Date().toISOString() };
+  const now = Date.now();
+  const { days } = CYCLE_VALIDITY[cycle];
+  const plan: SellerPlan = {
+    tier,
+    cycle,
+    since: new Date(now).toISOString(),
+    ...(tier === "free" ? {} : { validUntil: new Date(now + days * 86_400_000).toISOString() }),
+  };
   if (typeof window !== "undefined") window.localStorage.setItem(KEY, JSON.stringify(plan));
   return plan;
+}
+
+/** Days left on a paid membership, or null for Free / legacy plans without an expiry. */
+export function planDaysRemaining(plan: SellerPlan): number | null {
+  if (plan.tier === "free" || !plan.validUntil) return null;
+  return Math.max(0, Math.ceil((new Date(plan.validUntil).getTime() - Date.now()) / 86_400_000));
 }
 
 export function currentFeePercent(): number {

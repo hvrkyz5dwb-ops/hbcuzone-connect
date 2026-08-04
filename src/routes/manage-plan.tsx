@@ -1,10 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, RefreshCw, Trash2, Receipt, ShieldCheck } from "lucide-react";
+import { Crown, RefreshCw, Trash2, Receipt, ShieldCheck, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { clearSelectedPlan, getSelectedPlan } from "@/lib/plan-storage";
-import { getSellerPlan, setSellerPlan, SELLER_TIERS, type SellerPlan } from "@/lib/seller-plan";
+import {
+  getSellerPlanState,
+  setSellerPlan,
+  planDaysRemaining,
+  CYCLE_VALIDITY,
+  SELLER_TIERS,
+  type SellerPlan,
+} from "@/lib/seller-plan";
 
 export const Route = createFileRoute("/manage-plan")({
   head: () => ({ meta: [{ title: "Manage Plan — PlugU" }] }),
@@ -14,8 +21,16 @@ export const Route = createFileRoute("/manage-plan")({
 function Manage() {
   const [plan, setPlan] = useState(getSelectedPlan());
   const [seller, setSeller] = useState<SellerPlan | null>(null);
-  useEffect(() => { setSeller(getSellerPlan()); }, []);
+  useEffect(() => {
+    const { plan, expired } = getSellerPlanState();
+    setSeller(plan);
+    if (expired) {
+      toast("Membership expired", { description: "Your paid plan ran out — you're back on Free Seller (5% fee)." });
+    }
+  }, []);
   const sellerMeta = seller ? SELLER_TIERS.find((t) => t.key === seller.tier) : null;
+  const daysLeft = seller ? planDaysRemaining(seller) : null;
+  const totalDays = seller?.cycle ? CYCLE_VALIDITY[seller.cycle].days : 0;
 
   return (
     <AppShell title="MANAGE PLAN">
@@ -30,6 +45,31 @@ function Manage() {
             <p className="text-[11px] text-muted-foreground mt-1">
               {sellerMeta.fee}% transaction fee · billed {seller?.cycle ?? "monthly"}
             </p>
+            {seller?.validUntil && daysLeft !== null && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Clock className="h-3 w-3" style={{ color: sellerMeta.accent }} />
+                    Valid until {new Date(seller.validUntil).toLocaleDateString()}
+                  </span>
+                  <span className="font-semibold" style={{ color: sellerMeta.accent }}>
+                    {daysLeft} {daysLeft === 1 ? "day" : "days"} left
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1.5 rounded-full bg-border/60 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${totalDays > 0 ? Math.min(100, Math.round((daysLeft / totalDays) * 100)) : 0}%`,
+                      background: sellerMeta.accent,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {seller?.tier !== "free" && !seller?.validUntil && (
+              <p className="mt-2 text-[11px] text-muted-foreground">Legacy plan — no expiry on record.</p>
+            )}
           </div>
         )}
 
