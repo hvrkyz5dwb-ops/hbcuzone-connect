@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { addCommunityPost } from "@/lib/community-storage";
@@ -17,7 +18,7 @@ const TEMPLATES = [
 export function LookingForSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { profile } = useProfile();
   const [text, setText] = useState("");
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
   function post(body: string) {
     const clean = body.trim();
@@ -35,7 +36,7 @@ export function LookingForSheet({ open, onClose }: { open: boolean; onClose: () 
     onClose();
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Post a Looking For request">
       <button
         aria-label="Close"
@@ -89,6 +90,7 @@ export function LookingForSheet({ open, onClose }: { open: boolean; onClose: () 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
