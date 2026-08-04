@@ -5,9 +5,8 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import {
   getReferralState, referralAchievements, referralRank, referralLink,
-  addReferral, type ReferralState,
+  type ReferralState,
 } from "@/lib/referrals";
-import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/referrals")({
   head: () => ({ meta: [{ title: "Referrals — PlugU" }] }),
@@ -15,7 +14,6 @@ export const Route = createFileRoute("/referrals")({
 });
 
 function ReferralsPage() {
-  const { profile } = useProfile();
   const [state, setState] = useState<ReferralState | null>(null);
   useEffect(() => { setState(getReferralState()); }, []);
   if (!state) return null;
