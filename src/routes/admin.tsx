@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,10 +14,6 @@ import { adminPerform, type AdminAction } from "@/lib/moderation";
 export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({ meta: [{ title: "Admin — PlugU" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/admin", mode: "" } });
-  },
   component: Admin,
 });
 

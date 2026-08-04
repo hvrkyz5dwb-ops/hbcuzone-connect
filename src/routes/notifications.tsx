@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
@@ -8,16 +8,11 @@ import {
   labelFor, emojiFor, titleFor, bodyFor, hrefFor, type NotifRow,
 } from "@/lib/notifications-db";
 import { useNotifications } from "@/hooks/use-notifications";
-import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/notifications", mode: "" } });
-  },
   head: () => ({
     meta: [
       { title: "Notifications — PlugU" },

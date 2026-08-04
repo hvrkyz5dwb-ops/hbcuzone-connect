@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/use-profile";
@@ -15,10 +15,6 @@ export const Route = createFileRoute("/profile/edit")({
       { name: "description", content: "Update your public PlugU profile: display name, username, bio, and more." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/profile/edit", mode: "" } });
-  },
   component: EditProfile,
 });
 

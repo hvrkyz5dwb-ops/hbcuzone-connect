@@ -1,8 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Package, ShieldCheck, ChevronRight, Receipt, Loader2, Calendar } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { useMyOrders } from "@/hooks/use-orders";
 import {
   STATUS_LABEL, BOOKING_STATUS_LABEL, statusToneClass, centsToDollars,
@@ -12,10 +11,6 @@ import {
 export const Route = createFileRoute("/orders")({
   ssr: false,
   head: () => ({ meta: [{ title: "Orders — PlugU" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/orders", mode: "" } });
-  },
   component: OrdersPage,
 });
 

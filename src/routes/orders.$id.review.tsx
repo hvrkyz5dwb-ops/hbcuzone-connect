@@ -1,9 +1,8 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Loader2, ShieldCheck, Star } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useOrder } from "@/hooks/use-orders";
 import { fetchReviewForOrder, submitReview } from "@/lib/reviews-db";
@@ -11,10 +10,6 @@ import { fetchReviewForOrder, submitReview } from "@/lib/reviews-db";
 export const Route = createFileRoute("/orders/$id/review")({
   ssr: false,
   head: () => ({ meta: [{ title: "Leave a review — PlugU" }] }),
-  beforeLoad: async ({ params }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: `/orders/${params.id}/review`, mode: "" } });
-  },
   component: ReviewPage,
 });
 
