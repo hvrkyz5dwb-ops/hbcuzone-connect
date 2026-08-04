@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
-import { supabase } from "@/integrations/supabase/client";
 import { useMyListings } from "@/hooks/use-listings";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";

@@ -1,9 +1,8 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ShieldCheck, MessageSquare, AlertTriangle, Loader2, Calendar, Package, Star } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useOrder, useOrderHistory, useTransitionOrder, useTransitionBooking } from "@/hooks/use-orders";
 import {

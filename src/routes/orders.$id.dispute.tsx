@@ -1,9 +1,8 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, AlertTriangle, ShieldCheck, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { useOrder, useOpenDispute } from "@/hooks/use-orders";
 
 export const Route = createFileRoute("/orders/$id/dispute")({

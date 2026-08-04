@@ -1,8 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequestSchoolAccess } from "@/components/RequestSchoolAccess";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/request-school-access")({
   ssr: false,

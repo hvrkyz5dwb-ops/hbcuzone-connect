@@ -1,10 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2, CalendarClock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { fetchListing } from "@/lib/listings-db";
 import {
   useSellerSlots, useAddSellerSlot, useDeleteSellerSlot,

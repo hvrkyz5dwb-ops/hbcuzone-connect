@@ -1,8 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Package, ShieldCheck, ChevronRight, Receipt, Loader2, Calendar } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { useMyOrders } from "@/hooks/use-orders";
 import {
   STATUS_LABEL, BOOKING_STATUS_LABEL, statusToneClass, centsToDollars,
