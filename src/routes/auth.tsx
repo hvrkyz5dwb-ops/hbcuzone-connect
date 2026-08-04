@@ -13,7 +13,7 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "PlugU is students-only. Create your account with a verified .edu email." },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { next?: string; mode?: string } => ({
     next: typeof s.next === "string" ? s.next : "",
     mode: typeof s.mode === "string" ? s.mode : "",
   }),

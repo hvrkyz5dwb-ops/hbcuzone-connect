@@ -180,8 +180,8 @@ function ListingCard({ l }: { l: ListingWithExtras }) {
   const cover = l.images[0]?.url;
   return (
     <Link
-      to="/listing/$id"
-      params={{ id: l.id }}
+      to="/checkout/$listingId"
+      params={{ listingId: l.id }}
       className="tap min-w-[160px] w-40 shrink-0 rounded-2xl border border-border bg-card overflow-hidden"
     >
       <div className="h-24 bg-black/40 relative">
@@ -250,7 +250,7 @@ function NearbyServices() {
         <ul className="px-5 space-y-2">
           {services.map((s) => (
             <li key={s.id}>
-              <Link to="/listing/$id" params={{ id: s.id }} className="tap flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
+              <Link to="/checkout/$listingId" params={{ listingId: s.id }} className="tap flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
                 <div className="h-11 w-11 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
                   {s.title[0]?.toUpperCase() ?? "?"}
                 </div>
@@ -287,7 +287,7 @@ function UpcomingEvents() {
       ) : data && data.length > 0 ? (
         <div className="px-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {data.map((e) => (
-            <Link key={e.id} to="/listing/$id" params={{ id: e.id }} className="tap min-w-[220px] w-56 rounded-2xl border border-border bg-card p-3">
+            <Link key={e.id} to="/checkout/$listingId" params={{ listingId: e.id }} className="tap min-w-[220px] w-56 rounded-2xl border border-border bg-card p-3">
               <div className="flex items-center gap-1.5 text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>
                 <CalendarDays className="h-3 w-3" /> Event
               </div>

@@ -13,8 +13,8 @@ import { bucketOf, categoryMeta, EVENT_CATEGORIES, type CampusEvent } from "@/li
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/campus")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    event: typeof s.event === "string" ? s.event : undefined,
+  validateSearch: (s: Record<string, unknown>): { event?: string } => ({
+    ...(typeof s.event === "string" ? { event: s.event } : {}),
   }),
   head: () => ({
     meta: [
