@@ -234,3 +234,73 @@ export const refundOrder = createServerFn({ method: "POST" })
 
     return { refundId: refund.id, status: refund.status };
   });
+
+// Create a Stripe Checkout Session for a plan purchase (seller membership,
+// promotion boost, or Plug Reach™ package). The price is resolved
+// server-side from the canonical plan catalog — the client only sends a
+// plan key, so amounts cannot be tampered with.
+export const createPlanCheckoutSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((v) =>
+    z.object({
+      planKey: z.string().min(3).max(120),
+      successUrl: z.string().url(),
+      cancelUrl: z.string().url(),
+    }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    const { stripeConfigured, stripeFetch } = await import("./stripe.server");
+    if (!stripeConfigured()) {
+      throw new Error("Card payments are temporarily unavailable. Please try again later.");
+    }
+    const { resolvePlanKey } = await import("./plan-catalog");
+    const plan = resolvePlanKey(data.planKey);
+    if (!plan) throw new Error("That plan is no longer available.");
+
+    const session = await stripeFetch<{ id: string; url: string }>("/checkout/sessions", {
+      method: "POST",
+      idempotencyKey: `plan_${context.userId}_${plan.key}`,
+      body: {
+        mode: "payment",
+        success_url: data.successUrl,
+        cancel_url: data.cancelUrl,
+        line_items: [{
+          quantity: 1,
+          price_data: {
+            currency: "usd",
+            unit_amount: plan.unitAmountCents,
+            product_data: { name: plan.name },
+          },
+        }],
+        metadata: { plugu_plan_key: plan.key, plugu_user_id: context.userId },
+      },
+    });
+
+    return { url: session.url, sessionId: session.id };
+  });
+
+// Verify a completed plan checkout after Stripe redirects back. Only the
+// buyer who started the session can verify it, and activation happens
+// only when Stripe reports the session as paid.
+export const verifyPlanCheckout = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((v) => z.object({ sessionId: z.string().min(8).max(200) }).parse(v))
+  .handler(async ({ data, context }) => {
+    const { stripeConfigured, stripeFetch } = await import("./stripe.server");
+    if (!stripeConfigured()) throw new Error("Payments are temporarily unavailable.");
+    const s = await stripeFetch<{
+      id: string;
+      payment_status: string;
+      amount_total: number | null;
+      metadata?: Record<string, string>;
+    }>(`/checkout/sessions/${data.sessionId}`);
+    const planKey = s.metadata?.plugu_plan_key ?? null;
+    if (!planKey || s.metadata?.plugu_user_id !== context.userId) {
+      throw new Error("This payment doesn't belong to your account.");
+    }
+    return {
+      paid: s.payment_status === "paid",
+      planKey,
+      amountCents: s.amount_total ?? 0,
+    };
+  });

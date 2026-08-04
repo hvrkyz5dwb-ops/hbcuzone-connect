@@ -1,12 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { CreditCard, Lock, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { pricingTiers } from "@/lib/mock-data";
-import { getSelectedPlan, saveSelectedPlan } from "@/lib/plan-storage";
-import { fireAchievement } from "@/components/AchievementBurst";
-import { useEffect } from "react";
+import { resolvePlanKey } from "@/lib/plan-catalog";
+import { createPlanCheckoutSession } from "@/lib/stripe.functions";
 
 const search = z.object({ plan: z.string().optional() });
 
@@ -16,29 +14,53 @@ export const Route = createFileRoute("/checkout")({
   component: Checkout,
 });
 
+function money(cents: number) {
+  return `$${(cents / 100).toFixed(2).replace(/\.00$/, "")}`;
+}
+
 function Checkout() {
   const { plan } = Route.useSearch();
-  const navigate = useNavigate();
-  const [dynamicTier, setDynamicTier] = useState<{ key: string; name: string; price: number; tagline?: string; duration?: string } | null>(null);
-  useEffect(() => {
-    if (plan && plan.startsWith("reach-")) {
-      const saved = getSelectedPlan();
-      if (saved && saved.key === plan) {
-        setDynamicTier({ key: saved.key, name: saved.name, price: saved.price, tagline: "Plug Reach™ promotion.", duration: "" });
-      }
-    }
-  }, [plan]);
-  const tier = dynamicTier ?? pricingTiers.find((t) => t.key === plan) ?? pricingTiers[0];
+  const resolved = plan ? resolvePlanKey(plan) : null;
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function placeholderCheckout() {
+  async function pay() {
+    if (!resolved || loading) return;
     setLoading(true);
-    saveSelectedPlan({ key: tier.key, name: tier.name, price: tier.price });
-    fireAchievement({
-      title: `${tier.name} unlocked`,
-      subtitle: "Your plug just leveled up. Charging your account…",
-    });
-    setTimeout(() => navigate({ to: "/payment-success" }), 600);
+    setError(null);
+    try {
+      const origin = window.location.origin;
+      const { url } = await createPlanCheckoutSession({
+        data: {
+          planKey: resolved.key,
+          successUrl: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${origin}/checkout?plan=${encodeURIComponent(resolved.key)}`,
+        },
+      });
+      window.location.assign(url);
+    } catch (e) {
+      setError((e as Error).message);
+      setLoading(false);
+    }
+  }
+
+  if (!resolved) {
+    return (
+      <AppShell title="CHECKOUT">
+        <section className="px-5 pt-10 text-center">
+          <h1 className="text-xl font-bold">No plan selected</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pick a membership or boost first, then come back to check out.
+          </p>
+          <Link
+            to="/upgrade"
+            className="mt-5 inline-block py-3 px-6 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
+          >
+            Browse plans
+          </Link>
+        </section>
+      </AppShell>
+    );
   }
 
   return (
@@ -46,36 +68,37 @@ function Checkout() {
       <section className="px-5 pt-5">
         <div className="rounded-2xl bg-card border border-border p-4">
           <p className="text-xs tracking-wider uppercase text-muted-foreground">Selected Plan</p>
-          <div className="mt-2 flex items-baseline justify-between">
-            <h1 className="text-xl font-bold">{tier.name}</h1>
-            <p className="text-2xl font-bold text-primary">${tier.price}</p>
+          <div className="mt-2 flex items-baseline justify-between gap-3">
+            <h1 className="text-xl font-bold">{resolved.name}</h1>
+            <p className="text-2xl font-bold text-primary">{money(resolved.unitAmountCents)}</p>
           </div>
-          {tier.duration && (
-            <p className="text-[11px] tracking-wider uppercase text-accent mt-1">Runs for {tier.duration}</p>
-          )}
-          <p className="text-xs text-muted-foreground mt-1">{tier.tagline}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {resolved.kind === "membership"
+              ? "Seller membership — one-time payment for the full period."
+              : resolved.kind === "reach"
+                ? "Plug Reach™ promotion — one-time payment."
+                : "Promotion boost — one-time payment."}
+          </p>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-dashed border-border bg-secondary/50 p-4 space-y-3">
+        <div className="mt-4 rounded-2xl border border-border bg-secondary/50 p-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Lock className="h-3.5 w-3.5" /> Payments coming soon. Stripe not connected yet.
-          </div>
-          <div className="flex items-center gap-2 px-3 py-3 rounded-xl bg-card border border-border opacity-60">
-            <CreditCard className="h-4 w-4" />
-            <span className="text-xs">Card ending •••• 4242 (demo)</span>
+            <Lock className="h-3.5 w-3.5" /> You'll enter your card on Stripe's secure page — PlugU never sees or stores card numbers.
           </div>
         </div>
 
         <button
-          onClick={placeholderCheckout}
+          onClick={pay}
           disabled={loading}
-          className="mt-4 w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium text-sm disabled:opacity-60"
+          className="tap mt-4 w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium text-sm disabled:opacity-60"
         >
-          {loading ? "Saving..." : `Confirm $${tier.price} — Placeholder`}
+          {loading ? "Opening secure checkout…" : `Pay ${money(resolved.unitAmountCents)} with Stripe`}
         </button>
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">
-          Payments coming soon. Your plan selection has been saved.
-        </p>
+        {error && (
+          <p role="alert" className="mt-2 text-center text-[12px] text-destructive">
+            {error}
+          </p>
+        )}
 
         <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
           <ShieldCheck className="h-3 w-3 text-primary" /> Secure checkout · PlugU
