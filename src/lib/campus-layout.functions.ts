@@ -108,7 +108,7 @@ function clamp(n: unknown, lo: number, hi: number, def: number): number {
 }
 
 export const generateCampusLayout = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<CampusLayout> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) return fallback(data.school, "AI campus layout is offline.");

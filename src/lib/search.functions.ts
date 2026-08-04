@@ -39,7 +39,7 @@ Rules:
 - Keep everything safe, no contact info, no promises. Return ONLY the JSON object.`;
 
 export const askAI = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<AskAIResult> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) {

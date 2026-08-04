@@ -32,7 +32,7 @@ export const getMyPayoutAccount = createServerFn({ method: "GET" })
 // Create-or-refresh Stripe Connect Express onboarding link for the current seller.
 export const createSellerOnboardingLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v) => z.object({ returnUrl: z.string().url(), refreshUrl: z.string().url() }).parse(v))
+  .validator((v) => z.object({ returnUrl: z.string().url(), refreshUrl: z.string().url() }).parse(v))
   .handler(async ({ data, context }) => {
     const { stripeConfigured, stripeFetch } = await import("./stripe.server");
     if (!stripeConfigured()) {
@@ -119,7 +119,7 @@ export const syncPayoutAccount = createServerFn({ method: "POST" })
 // are canonical and cannot be tampered with from the client.
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v) => z.object({
+  .validator((v) => z.object({
     orderId: z.string().uuid(),
     successUrl: z.string().url(),
     cancelUrl: z.string().url(),
@@ -200,7 +200,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 // Seller- or admin-initiated refund. Uses stored payment_intent_id.
 export const refundOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((v) => z.object({ orderId: z.string().uuid(), reason: z.string().max(400).optional() }).parse(v))
+  .validator((v) => z.object({ orderId: z.string().uuid(), reason: z.string().max(400).optional() }).parse(v))
   .handler(async ({ data, context }) => {
     const { stripeConfigured, stripeFetch } = await import("./stripe.server");
     if (!stripeConfigured()) throw new Error("Stripe is not configured yet.");

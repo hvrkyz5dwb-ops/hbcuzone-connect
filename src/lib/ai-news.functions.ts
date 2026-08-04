@@ -76,7 +76,7 @@ function safeParse(s: string): any | null {
 }
 
 export const generateNews = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<AiNewsResult> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) return fallback(data.category, "AI news is offline. Try again later.");
