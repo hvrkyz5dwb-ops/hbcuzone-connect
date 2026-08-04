@@ -40,13 +40,16 @@ export function useProfile() {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("profiles")
+        // email is column-restricted to the service/admin paths; the signed-in
+        // user's own email comes from the auth session instead.
         .select(
-          "id,email,full_name,display_name,username,school_name,school_domain,year,graduation_year,status,major,bio,avatar_url,is_hbcu_student,completed_transactions,rating_avg,rating_count,created_at,onboarding_completed_at,terms_accepted_at,school_id,verification_status",
+          "id,full_name,display_name,username,school_name,school_domain,year,graduation_year,status,major,bio,avatar_url,is_hbcu_student,completed_transactions,rating_avg,rating_count,created_at,onboarding_completed_at,terms_accepted_at,school_id,verification_status",
         )
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
-      return (data as Profile | null) ?? null;
+      if (!data) return null;
+      return { ...(data as Omit<Profile, "email">), email: user.email ?? "" } as Profile;
     },
   });
 
