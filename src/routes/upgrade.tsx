@@ -358,7 +358,6 @@ function BoostCard({
     return i >= 0 ? i : 0;
   }, [pkg]);
   const [selected, setSelected] = useState(defaultIdx);
-  const [busy, setBusy] = useState(false);
   const Icon = pkgIcon[pkg.key] ?? Rocket;
   const accent = tierAccent[pkg.tier];
   const chosen = pkg.durations[selected];
