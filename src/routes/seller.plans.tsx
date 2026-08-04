@@ -1,9 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Crown, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Crown, ShieldCheck, Sparkles, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { SELLER_TIERS, getSellerPlan, setSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import {
+  SELLER_TIERS,
+  CYCLE_VALIDITY,
+  getSellerPlanState,
+  planDaysRemaining,
+  setSellerPlan,
+  type BillingCycle,
+  type SellerTier,
+} from "@/lib/seller-plan";
 import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/seller/plans")({
@@ -14,20 +22,29 @@ export const Route = createFileRoute("/seller/plans")({
 function SellerPlansPage() {
   const [tier, setTier] = useState<SellerTier>("free");
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
   useEffect(() => {
-    const p = getSellerPlan();
-    setTier(p.tier);
-    if (p.cycle) setCycle(p.cycle);
+    const { plan, expired } = getSellerPlanState();
+    setTier(plan.tier);
+    if (plan.cycle) setCycle(plan.cycle);
+    setDaysLeft(planDaysRemaining(plan));
+    if (expired) {
+      toast("Membership expired", { description: "Your paid plan ran out — you're back on Free Seller (5% fee)." });
+    }
   }, []);
 
   function choose(next: SellerTier) {
-    setSellerPlan(next, cycle);
+    const plan = setSellerPlan(next, cycle);
     setTier(next);
+    setDaysLeft(planDaysRemaining(plan));
     const meta = SELLER_TIERS.find((t) => t.key === next)!;
     const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
     saveSelectedPlan({ key: `seller_${next}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
     toast.success(`Now on ${SELLER_TIERS.find((t) => t.key === next)?.name}`, {
-      description: next === "free" ? "5% fee applies to sales." : next === "pro" ? "2% fee. Verified Pro badge active." : "0% fee. Gold KingPin unlocked.",
+      description:
+        next === "free"
+          ? "5% fee applies to sales."
+          : `${next === "pro" ? "2% fee. Verified Pro badge active." : "0% fee. Gold KingPin unlocked."} Valid for ${CYCLE_VALIDITY[cycle].label}.`,
     });
   }
 
@@ -55,6 +72,10 @@ function SellerPlansPage() {
             </button>
           ))}
         </div>
+        <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+          <Clock className="h-3 w-3 text-accent" />
+          Bigger plan, longer access — valid for {CYCLE_VALIDITY[cycle].label}.
+        </p>
 
         <div className="mt-6 space-y-3">
           {SELLER_TIERS.map((t) => {
@@ -107,6 +128,16 @@ function SellerPlansPage() {
                     {t.fee}% fee
                   </span>
                 </div>
+                {price > 0 && (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Valid for {CYCLE_VALIDITY[cycle].label}
+                  </p>
+                )}
+                {active && daysLeft !== null && (
+                  <p className="mt-1 text-[11px] font-semibold" style={{ color: t.accent }}>
+                    {daysLeft} {daysLeft === 1 ? "day" : "days"} remaining
+                  </p>
+                )}
 
                 <ul className="mt-4 space-y-1.5">
                   {t.perks.map((p) => (
