@@ -1,6 +1,5 @@
-// MVP marketplace categories for PlugU (Phase 3).
-// Rides is intentionally disabled during closed beta but kept in code
-// so designs and copy stay intact for launch.
+// Marketplace categories for PlugU. All categories are live at launch —
+// rides runs through the standard service-listing flow.
 
 export type CategoryKey =
   | "hair"
@@ -34,7 +33,7 @@ export const MVP_CATEGORIES: CategoryDef[] = [
   { key: "music", label: "Music & Creative", emoji: "🎙️", kind: "service" },
   { key: "events", label: "Campus Events", emoji: "🎉", kind: "either" },
   { key: "tutoring", label: "Tutoring", emoji: "📚", kind: "service" },
-  { key: "rides", label: "Rides", emoji: "🚗", kind: "service", betaDisabled: true },
+  { key: "rides", label: "Rides", emoji: "🚗", kind: "service" },
 ];
 
 export const AVAILABLE_CATEGORIES = MVP_CATEGORIES.filter((c) => !c.betaDisabled);

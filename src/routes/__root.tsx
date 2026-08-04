@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap",
       },
       // Preload the splash hero so first paint isn't blocked on the 2 MB image.
-      { rel: "preload", as: "image", href: heroSplash.url, fetchpriority: "high" },
+      { rel: "preload", as: "image", href: heroSplash.url, fetchPriority: "high" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/favicon.png" },

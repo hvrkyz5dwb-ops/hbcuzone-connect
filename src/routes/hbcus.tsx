@@ -547,7 +547,7 @@ function VerificationWall({
                     {schoolProfiles.map((s) => <option key={s.name}>{s.name}</option>)}
                   </select>
                 </label>
-                <p className="mt-2 text-[10px] text-muted-foreground">School registrar verification coming soon.</p>
+                <p className="mt-2 text-[10px] text-muted-foreground">Eligibility is confirmed from your verified .edu student email.</p>
               </div>
             )}
 
