@@ -18,10 +18,6 @@ export const Route = createFileRoute("/seller/")({
       { name: "description", content: "Manage your PlugU business: listings, orders, and reputation." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/seller", mode: "" } });
-  },
   component: SellerDashboard,
 });
 

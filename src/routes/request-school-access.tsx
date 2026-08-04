@@ -12,10 +12,6 @@ export const Route = createFileRoute("/request-school-access")({
       { name: "description", content: "Ask the PlugU team to add your college so you can get verified." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/request-school-access", mode: "" } });
-  },
   component: Page,
 });
 

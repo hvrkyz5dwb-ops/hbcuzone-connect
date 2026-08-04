@@ -13,10 +13,6 @@ import {
 export const Route = createFileRoute("/seller/availability/$listingId")({
   ssr: false,
   head: () => ({ meta: [{ title: "Availability — PlugU" }] }),
-  beforeLoad: async ({ params }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: `/seller/availability/${params.listingId}`, mode: "" } });
-  },
   component: AvailabilityPage,
 });
 

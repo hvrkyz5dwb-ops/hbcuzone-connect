@@ -9,10 +9,6 @@ import { useOrder, useOpenDispute } from "@/hooks/use-orders";
 export const Route = createFileRoute("/orders/$id/dispute")({
   ssr: false,
   head: () => ({ meta: [{ title: "Dispute — PlugU" }] }),
-  beforeLoad: async ({ params }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: `/orders/${params.id}/dispute`, mode: "" } });
-  },
   component: DisputeForm,
 });
 

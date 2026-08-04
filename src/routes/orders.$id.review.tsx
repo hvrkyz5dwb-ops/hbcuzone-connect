@@ -11,10 +11,6 @@ import { fetchReviewForOrder, submitReview } from "@/lib/reviews-db";
 export const Route = createFileRoute("/orders/$id/review")({
   ssr: false,
   head: () => ({ meta: [{ title: "Leave a review — PlugU" }] }),
-  beforeLoad: async ({ params }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: `/orders/${params.id}/review`, mode: "" } });
-  },
   component: ReviewPage,
 });
 

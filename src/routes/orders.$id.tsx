@@ -16,10 +16,6 @@ import { getOrCreateConversation } from "@/lib/messages-db";
 export const Route = createFileRoute("/orders/$id")({
   ssr: false,
   head: () => ({ meta: [{ title: "Order — PlugU" }] }),
-  beforeLoad: async ({ params }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: `/orders/${params.id}`, mode: "" } });
-  },
   component: OrderDetail,
 });
 

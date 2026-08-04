@@ -14,10 +14,6 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/notifications")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/notifications", mode: "" } });
-  },
   head: () => ({
     meta: [
       { title: "Notifications — PlugU" },

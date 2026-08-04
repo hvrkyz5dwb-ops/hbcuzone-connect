@@ -15,10 +15,6 @@ export const Route = createFileRoute("/profile/edit")({
       { name: "description", content: "Update your public PlugU profile: display name, username, bio, and more." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/profile/edit", mode: "" } });
-  },
   component: EditProfile,
 });
 

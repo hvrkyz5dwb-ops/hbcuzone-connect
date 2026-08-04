@@ -17,10 +17,6 @@ export const Route = createFileRoute("/seller/onboarding")({
       { name: "description", content: "Set up your PlugU seller profile in a few quick steps. Your progress saves as you go." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/seller/onboarding", mode: "" } });
-  },
   component: SellerOnboarding,
 });
 

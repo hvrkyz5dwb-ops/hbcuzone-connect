@@ -12,10 +12,6 @@ import {
 export const Route = createFileRoute("/orders")({
   ssr: false,
   head: () => ({ meta: [{ title: "Orders — PlugU" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/auth", search: { next: "/orders", mode: "" } });
-  },
   component: OrdersPage,
 });
 
