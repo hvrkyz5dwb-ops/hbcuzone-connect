@@ -68,7 +68,7 @@ function PackageCard({ pkg }: { pkg: ReachPackage }) {
   function select(d: ReachDuration) {
     const key = `reach-${pkg.key}-${d.label.toLowerCase().replace(/\s+/g, "-")}`;
     const name = `Plug Reach™ — ${pkg.name} · ${d.label}`;
-    saveSelectedPlan({ key, name, price: Math.round(d.price) });
+    saveSelectedPlan({ key, name, price: d.price });
     navigate({ to: "/checkout", search: { plan: key } });
   }
   const Icon = pkg.tier === "diamond" ? Gem : Zap;
@@ -114,7 +114,7 @@ function PackageCard({ pkg }: { pkg: ReachPackage }) {
         </div>
 
         <div className="relative mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <Check className="h-3 w-3 text-primary" /> Cancel anytime · Placeholder billing
+          <Check className="h-3 w-3 text-primary" /> One-time payment · Secure Stripe checkout
         </div>
       </div>
     </div>

@@ -33,9 +33,14 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
 
         try {
           const obj = event.data.object as Record<string, unknown>;
-          const orderId =
+          // Only order checkouts carry an order reference. Plan purchases
+          // (memberships/boosts) use metadata.plugu_plan_key instead and
+          // must not touch the orders table.
+          const rawOrderId =
             (obj.metadata as Record<string, string> | undefined)?.plugu_order_id ??
             (obj.client_reference_id as string | undefined);
+          const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const orderId = rawOrderId && UUID_RE.test(rawOrderId) ? rawOrderId : undefined;
 
           switch (event.type) {
             case "checkout.session.completed": {

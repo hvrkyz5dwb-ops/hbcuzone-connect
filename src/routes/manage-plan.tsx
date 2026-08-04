@@ -81,7 +81,7 @@ function Manage() {
             <h1 className="mt-2 text-2xl font-bold">{plan.name}</h1>
             <p className="text-primary font-bold mt-1">${plan.price}</p>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Selected {new Date(plan.selectedAt).toLocaleDateString()} · Awaiting Stripe activation
+              Activated {new Date(plan.selectedAt).toLocaleDateString()} · Paid via Stripe
             </p>
           </div>
         ) : (
@@ -126,7 +126,7 @@ function Manage() {
         </ul>
 
         <p className="mt-4 text-[11px] text-center text-muted-foreground">
-          Payments coming soon. Your plan selection has been saved.
+          Billing is handled securely by Stripe. Manage purchases from Payment history.
         </p>
       </section>
     </AppShell>
