@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useMyBusiness } from "@/hooks/use-business";
 import { AppShell, SectionHeader } from "@/components/AppShell";
-import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Loader2, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle } from "lucide-react";
+import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Loader2, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle, BarChart3, Users, Repeat } from "lucide-react";
 import { getStripeStatus, getMyPayoutAccount, createSellerOnboardingLink, syncPayoutAccount } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/seller/")({
@@ -39,13 +39,22 @@ function SellerDashboard() {
     enabled: !!business?.id,
     queryFn: async () => {
       const bizId = business!.id;
-      const [listings, orders] = await Promise.all([
+      const [listings, orders, rows] = await Promise.all([
         supabase.from("listings").select("id", { count: "exact", head: true }).eq("business_id", bizId),
         supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_user_id", user!.id),
+        supabase.from("orders").select("buyer_user_id,total_cents,payment_status").eq("seller_user_id", user!.id).limit(500),
       ]);
+      const paid = (rows.data ?? []).filter((r) => r.payment_status === "paid");
+      const revenue = paid.reduce((s, r) => s + (r.total_cents ?? 0), 0);
+      const byBuyer = new Map<string, number>();
+      for (const r of rows.data ?? []) byBuyer.set(r.buyer_user_id, (byBuyer.get(r.buyer_user_id) ?? 0) + 1);
+      const repeat = [...byBuyer.values()].filter((c) => c > 1).length;
       return {
         listings: listings.count ?? 0,
         orders: orders.count ?? 0,
+        revenue,
+        buyers: byBuyer.size,
+        repeat,
       };
     },
   });
@@ -125,7 +134,14 @@ function SellerDashboard() {
         <div className="mt-4 grid grid-cols-3 gap-2">
           <StatCard icon={ShoppingBag} label="Listings" value={stats.data?.listings ?? 0} />
           <StatCard icon={Store} label="Orders" value={stats.data?.orders ?? 0} />
+          <StatCard
+            icon={CircleDollarSign}
+            label="Revenue"
+            value={stats.data ? `$${(stats.data.revenue / 100).toFixed(0)}` : "—"}
+          />
           <StatCard icon={Star} label="Rating" value={(business as unknown as { rating_avg?: number }).rating_avg ?? "—"} />
+          <StatCard icon={Users} label="Buyers" value={stats.data?.buyers ?? 0} />
+          <StatCard icon={Repeat} label="Repeat" value={stats.data?.repeat ?? 0} />
         </div>
 
         <SectionHeader title="Payouts" />
@@ -144,6 +160,7 @@ function SellerDashboard() {
         <SectionHeader title="Actions" />
         <div className="grid gap-2 px-1">
           <ActionRow to="/seller/listings" icon={Plus} label="Manage listings" hint="Create, pause, delete or edit" />
+          <ActionRow to="/seller/analytics" icon={BarChart3} label="Seller analytics" hint="Views, sales, conversion, tier ROI" />
           <ActionRow to="/seller/onboarding" icon={Pencil} label="Edit business" hint="Category, campus, policies, contact" />
           <ActionRow to="/promote" icon={Rocket} label="Promote & boost" hint="Get seen across campus" />
           <ActionRow to="/business" icon={ExternalLink} label="Full business center" hint="Analytics, revenue, discounts, plan" />

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { Bell, CheckCheck, Trash2, ChevronRight, Loader2 } from "lucide-react";
@@ -55,7 +56,13 @@ function NotificationsPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { list, unread, loading } = useNotifications();
-  const groups = groupByDay(list);
+  const [cat, setCat] = useState("All");
+  const cats = useMemo(
+    () => ["All", ...Array.from(new Set(list.map((n) => labelFor(n.kind))))],
+    [list],
+  );
+  const filtered = cat === "All" ? list : list.filter((n) => labelFor(n.kind) === cat);
+  const groups = groupByDay(filtered);
 
   async function openItem(n: NotifRow) {
     if (!n.read_at) {
@@ -102,6 +109,24 @@ function NotificationsPage() {
         </div>
       </section>
 
+      {!loading && cats.length > 2 && (
+        <div className="mt-4 flex gap-1.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {cats.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={`tap shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                cat === c
+                  ? "border-primary/50 bg-primary/15 text-primary"
+                  : "border-border bg-card text-muted-foreground"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="py-16 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div>
       ) : list.length === 0 ? (
@@ -118,6 +143,8 @@ function NotificationsPage() {
             </Link>
           }
         />
+      ) : filtered.length === 0 ? (
+        <p className="py-14 text-center text-xs text-muted-foreground">Nothing in {cat} yet.</p>
       ) : (
         <div className="mt-5 pb-6">
           {Object.entries(groups).map(([label, items]) =>

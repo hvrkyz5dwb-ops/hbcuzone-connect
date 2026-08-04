@@ -5,9 +5,8 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import {
   getReferralState, referralAchievements, referralRank, referralLink,
-  addReferral, type ReferralState,
+  type ReferralState,
 } from "@/lib/referrals";
-import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/referrals")({
   head: () => ({ meta: [{ title: "Referrals — PlugU" }] }),
@@ -15,7 +14,6 @@ export const Route = createFileRoute("/referrals")({
 });
 
 function ReferralsPage() {
-  const { profile } = useProfile();
   const [state, setState] = useState<ReferralState | null>(null);
   useEffect(() => { setState(getReferralState()); }, []);
   if (!state) return null;
@@ -39,18 +37,6 @@ function ReferralsPage() {
       copy();
     }
   }
-  function simulate() {
-    const next = addReferral({
-      code: state!.code,
-      name: `Student · ${state!.referrals.length + 1}`,
-      campus: profile?.school_name ?? "Talladega College",
-      verified: true,
-      business: Math.random() > 0.7,
-    });
-    setState({ ...next });
-    toast.success("Referral credited");
-  }
-
   return (
     <AppShell title="REFERRALS">
       <section className="px-5 pt-5 slide-up">
@@ -159,13 +145,6 @@ function ReferralsPage() {
             </div>
           ))}
         </div>
-
-        <button
-          onClick={simulate}
-          className="mt-5 tap w-full py-2.5 rounded-2xl bg-secondary border border-dashed border-border text-[11px] text-muted-foreground"
-        >
-          Simulate a signup using your link (demo)
-        </button>
 
         <div className="mt-6 rounded-2xl border border-dashed border-border p-4 text-center">
           <p className="text-xs">Ready to level up?</p>

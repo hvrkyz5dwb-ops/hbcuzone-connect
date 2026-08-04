@@ -1,14 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
-  Plug, Search, ArrowRight, Store, Sparkles, CalendarDays, MapPin, ChevronRight,
+  Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CommunityBoard } from "@/components/CommunityBoard";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { IntroCarousel, hasSeenIntro } from "@/components/IntroCarousel";
 import { AVAILABLE_CATEGORIES } from "@/lib/categories";
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
+  const [lookingOpen, setLookingOpen] = useState(false);
 
   // Guests never see the app. They either watch the intro (first open)
   // or get bounced to /auth (already saw it). Signed-in users fall through
@@ -52,8 +55,38 @@ function Home() {
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
 
-      {/* Hero — primary message + search */}
-      <Hero />
+      {/* Hero — primary message + rotating highlights */}
+      <section className="px-5 pt-4">
+        <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--plugu-gold)" }}>
+          Your campus, plugged in
+        </p>
+        <h1 className="mt-1.5 text-[20px] font-extrabold leading-[1.2] text-foreground">
+          Buy from students. Book student services.{" "}
+          <span style={{ color: "var(--plugu-gold)" }}>Make money on your campus.</span>
+        </h1>
+      </section>
+
+      <HeroCarousel />
+
+      {/* Search + Looking For */}
+      <section className="mt-3 flex gap-2 px-5">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/search" })}
+          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground"
+        >
+          <Search className="h-4 w-4 shrink-0 text-primary" />
+          <span className="truncate">Search haircuts, food, tutors, dorm gear…</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setLookingOpen(true)}
+          className="tap flex shrink-0 items-center gap-1.5 rounded-2xl border border-primary/40 bg-primary/10 px-3.5 py-3 text-xs font-semibold text-primary"
+        >
+          <Megaphone className="h-4 w-4" /> Looking For
+        </button>
+      </section>
+      <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
 
       <VerificationBanner />
 
@@ -123,57 +156,6 @@ function VerificationBanner() {
         </div>
         <span className="shrink-0 text-primary text-sm">→</span>
       </Link>
-    </section>
-  );
-}
-
-function Hero() {
-  const navigate = useNavigate();
-  return (
-    <section className="px-5 pt-4">
-      <div
-        className="relative overflow-hidden rounded-3xl border border-primary/30 p-5"
-        style={{
-          background:
-            "linear-gradient(160deg, rgba(24,18,10,0.9) 0%, rgba(10,10,10,0.9) 60%), radial-gradient(circle at 20% 0%, color-mix(in oklab, var(--plugu-gold) 30%, transparent), transparent 60%)",
-        }}
-      >
-        <p
-          className="text-[10px] tracking-[0.28em] uppercase"
-          style={{ color: "var(--plugu-gold)" }}
-        >
-          Your campus, plugged in
-        </p>
-        <h1 className="mt-2 text-[22px] leading-[1.15] font-extrabold text-foreground">
-          Buy from students. <br />
-          Book student services. <br />
-          <span style={{ color: "var(--plugu-gold)" }}>Make money on your campus.</span>
-        </h1>
-
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/search" })}
-          className="tap mt-4 flex w-full items-center gap-2 rounded-2xl border border-border bg-card/80 px-4 py-3 text-left text-sm text-muted-foreground backdrop-blur"
-        >
-          <Search className="h-4 w-4 text-primary" />
-          Search haircuts, food, tutors, dorm gear…
-        </button>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Link
-            to="/market"
-            className="tap flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-xs font-semibold text-primary-foreground"
-          >
-            <Store className="h-4 w-4" /> Browse market
-          </Link>
-          <Link
-            to="/seller/onboarding"
-            className="tap flex items-center justify-center gap-1.5 rounded-xl border border-primary/50 bg-black/30 py-2.5 text-xs font-semibold text-foreground"
-          >
-            <Plug className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} /> Start selling
-          </Link>
-        </div>
-      </div>
     </section>
   );
 }

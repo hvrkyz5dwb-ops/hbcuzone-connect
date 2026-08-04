@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap } from "lucide-react";
+import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap, Gift } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
@@ -32,6 +32,7 @@ const baseMenu: MenuItem[] = [
   { label: "Saved", icon: Heart, to: "/saved" },
   { label: "Payment History", icon: Receipt, to: "/payment-history" },
   { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
+  { label: "Referral Center", icon: Gift, to: "/referrals" },
   { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
   { label: "Trust Center", icon: Scale, to: "/trust" },
   { label: "Safety & Tools", icon: ShieldAlert, to: "/safety" },
