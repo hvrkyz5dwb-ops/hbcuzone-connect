@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
@@ -8,6 +8,10 @@ export function useNotifications(): { list: NotifRow[]; unread: number; loading:
   const { session } = useSession();
   const uid = session?.user?.id ?? null;
   const qc = useQueryClient();
+  // Unique per hook instance: AppShell and the notifications page both mount
+  // this hook, and two supabase channels sharing one topic throw
+  // "cannot add postgres_changes callbacks after subscribe()".
+  const instanceId = useId();
 
   const q = useQuery({
     queryKey: ["notifications", uid],
@@ -19,7 +23,7 @@ export function useNotifications(): { list: NotifRow[]; unread: number; loading:
   useEffect(() => {
     if (!uid) return;
     const channel = supabase
-      .channel(`notif:${uid}`)
+      .channel(`notif:${uid}:${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
