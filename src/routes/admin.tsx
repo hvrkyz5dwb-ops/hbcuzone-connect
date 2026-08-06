@@ -733,14 +733,7 @@ function KingPinTargeting() {
       }[];
     },
   });
-  const users = useQuery({
-    queryKey: ["admin-user-directory"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("admin_user_directory");
-      if (error) throw error;
-      return (data ?? []) as unknown as { id: string; username: string | null; display_name: string | null }[];
-    },
-  });
+  const users = useAdminDirectory();
 
   async function setScope(id: string, scope: string) {
     const { error } = await supabase.from("seller_subscriptions").update({ promo_scope: scope }).eq("id", id);
