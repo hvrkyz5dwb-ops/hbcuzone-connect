@@ -11,7 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import heroSplash from "@/assets/plugu-hero-splash.png.asset.json";
+import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
+import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -107,7 +108,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap",
       },
       // Preload the splash hero so first paint isn't blocked on the 2 MB image.
-      { rel: "preload", as: "image", href: heroSplash.url, fetchPriority: "high" },
+      { rel: "preload", as: "image", href: monumentDark.url, fetchPriority: "high" },
+      { rel: "preload", as: "image", href: monumentLit.url },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/favicon.png" },

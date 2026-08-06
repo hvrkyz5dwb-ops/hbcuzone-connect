@@ -1,134 +1,204 @@
 import { useEffect, useState } from "react";
-import hero from "@/assets/plugu-hero-splash.png.asset.json";
+import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
+import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
+import { playSplashAudio } from "@/lib/splash-audio";
 
 /**
- * PlugU Splash — hero poster with gentle Ken Burns push, gold glow breathe,
- * and drifting gold dust. First visit 4.5s, return visit 2.5s.
+ * PlugU launch splash — "The Monument Powers On" (2.6s).
  *
- * Perf notes (targets 60fps on mid-range mobile):
- *  - Only opacity + transform animate (compositor-only, no repaint).
- *  - No `filter: blur()` on animating layers; no mix-blend-mode.
- *  - `contain: strict` isolates paint from the app tree behind it.
- *  - Hero image is preloaded from __root.tsx and decoded async.
- *  - Dust particle count kept low (8), no per-particle filters.
+ * Scene clock (matches the storyboard):
+ *   0.00–0.45s  Darkness → the obsidian monument reveals out of black
+ *   0.45–1.25s  Power builds — gold sparks rise around the plug prongs
+ *   1.30s       Lightning strikes the U at the base (bolt + flash + shake)
+ *   1.35–1.60s  A gold energy wave sweeps up the pedestal
+ *   1.55–1.90s  The whole monument powers on (lit plate cross-fades in)
+ *   1.90–2.20s  Power surges — radial shockwave, bigger burst, brightness
+ *   2.25–2.60s  Camera zooms through the P straight into the app
+ *
+ * SFX are synthesized with WebAudio (thunder, crackle, bass impact,
+ * power-up, startup chime) — zero audio files.
+ *
+ * Perf: only transform/opacity animate on compositor layers; one static
+ * blurred layer fades in during the final zoom. `contain: strict`
+ * isolates paint from the app behind it. Both plates are preloaded
+ * from __root.tsx. Reduced-motion users get a 1.2s static power-on.
  */
-const SEEN_KEY = "plugu.splash.seen";
+const TOTAL_MS = 2600;
+const REDUCED_MS = 1200;
 
-export function SplashScreen() {
+// Bolt runs from the storm sky down onto the U (66%, 64% of the art).
+const BOLT_MAIN = "M46,-2 L52,7 L45,13 L55,21 L49,29 L58,35 L51,43 L60,49 L55,55 L64,59 L66,64";
+const BOLT_BRANCHES = ["M55,21 L64,25 L70,33", "M51,43 L42,47 L38,55", "M58,35 L68,40 L73,47"];
+const ARCS = ["M59,67 L63,65 L67,68 L71,66", "M61,59 L64,61 L69,60"];
+
+// Gold sparks rising around the plug prongs (P bowl at ~52%, 30%).
+const PRONG_SPARKS = [
+  { left: "50.5%", top: "31%", d: "0.90s", dx: "-7px" },
+  { left: "53%", top: "29%", d: "0.98s", dx: "6px" },
+  { left: "55%", top: "31.5%", d: "1.06s", dx: "-4px" },
+  { left: "52%", top: "33%", d: "1.15s", dx: "8px" },
+  { left: "56.5%", top: "29.5%", d: "1.24s", dx: "-9px" },
+  { left: "51%", top: "28.5%", d: "1.33s", dx: "5px" },
+  { left: "54%", top: "32%", d: "1.42s", dx: "-6px" },
+  { left: "49%", top: "30%", d: "1.62s", dx: "9px" },
+  { left: "55.5%", top: "30.5%", d: "1.70s", dx: "-8px" },
+  { left: "52.5%", top: "27.5%", d: "1.78s", dx: "4px" },
+  { left: "50%", top: "32.5%", d: "1.88s", dx: "-5px" },
+  { left: "56%", top: "28%", d: "1.96s", dx: "7px" },
+];
+
+// Radial burst from the impact point (the U).
+const IMPACT_BURST = [
+  { dx: "-46px", dy: "-30px" },
+  { dx: "-18px", dy: "-52px" },
+  { dx: "16px", dy: "-48px" },
+  { dx: "44px", dy: "-26px" },
+  { dx: "-52px", dy: "8px" },
+  { dx: "50px", dy: "12px" },
+  { dx: "-24px", dy: "34px" },
+  { dx: "26px", dy: "36px" },
+];
+
+export function SplashScreen({ onDone }: { onDone?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [gone, setGone] = useState(false);
-  const [fading, setFading] = useState(false);
-  const [full, setFull] = useState(true);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    let firstVisit = true;
-    try {
-      firstVisit = !window.localStorage.getItem(SEEN_KEY);
-      window.localStorage.setItem(SEEN_KEY, String(Date.now()));
-    } catch {}
     const prefersReduced =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReduced(prefersReduced);
-    setFull(firstVisit);
     setMounted(true);
-    const duration = prefersReduced ? 1200 : firstVisit ? 4500 : 2500;
-    const t1 = setTimeout(() => setFading(true), duration - 500);
-    const t2 = setTimeout(() => setGone(true), duration);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+
+    const stopAudio = prefersReduced ? () => {} : playSplashAudio();
+    const t = window.setTimeout(
+      () => {
+        setGone(true);
+        onDone?.();
+      },
+      prefersReduced ? REDUCED_MS : TOTAL_MS,
+    );
+    return () => {
+      window.clearTimeout(t);
+      stopAudio();
+    };
+  }, [onDone]);
 
   if (!mounted || gone) return null;
 
-  return (
-    <div
-      className={`fixed inset-0 z-[100] overflow-hidden bg-black transition-opacity duration-500 ease-out ${fading ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-      style={{ contain: "strict", willChange: "opacity" }}
-      aria-hidden="true"
-    >
-      {/* Hero poster — Ken Burns push skipped for reduced-motion users */}
-      <div className={`absolute inset-0 ${reduced ? "" : "cine-hero-push"}`}>
+  // Reduced motion: a single calm power-on frame, no animation at all.
+  if (reduced) {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden bg-black" style={{ contain: "strict" }} aria-hidden="true">
         <img
-          src={hero.url}
+          src={monumentLit.url}
           alt=""
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full object-cover"
+          style={{ objectPosition: "50% 40%", opacity: 0.9 }}
           decoding="async"
           fetchPriority="high"
           draggable={false}
         />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(120% 95% at 50% 42%, transparent 52%, rgba(0,0,0,0.55) 100%)" }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="spl-root fixed inset-0 z-[100] overflow-hidden bg-black" aria-hidden="true">
+      {/* The monument — reveal → power-build sway → strike shake → zoom through the P */}
+      <div className="spl-stage absolute inset-0">
+        <img
+          src={monumentDark.url}
+          alt=""
+          className="h-full w-full object-cover"
+          style={{ objectPosition: "50% 40%" }}
+          decoding="async"
+          fetchPriority="high"
+          draggable={false}
+        />
+        {/* Powered-on plate — cross-fades in as energy floods the P */}
+        <img
+          src={monumentLit.url}
+          alt=""
+          className="spl-lit absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "50% 40%" }}
+          decoding="async"
+          draggable={false}
+        />
+        {/* Lens bloom during the zoom-through (static blurred layer, opacity only) */}
+        <img
+          src={monumentLit.url}
+          alt=""
+          className="spl-zoombloom absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "50% 40%", filter: "blur(18px) saturate(1.3)", transform: "scale(1.15)" }}
+          decoding="async"
+          draggable={false}
+        />
       </div>
 
-      {/* Warm gold glow behind the statue's P — static for reduced-motion */}
+      {/* Lightning bolt + branches striking the U */}
+      <svg className="spl-bolt" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength={100} d={BOLT_MAIN} stroke="rgba(246,190,90,0.55)" strokeWidth="2.6" />
+        <path pathLength={100} d={BOLT_MAIN} stroke="#ffe9b0" strokeWidth="1.15" />
+        <path pathLength={100} d={BOLT_MAIN} stroke="#ffffff" strokeWidth="0.5" />
+        {BOLT_BRANCHES.map((d) => (
+          <path key={d} className="spl-branch" pathLength={100} d={d} stroke="#ffe9b0" strokeWidth="0.8" />
+        ))}
+      </svg>
+
+      {/* Residual electrical arcs dancing around the U after the strike */}
+      <svg className="spl-arcs" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        {ARCS.map((d) => (
+          <path key={d} d={d} />
+        ))}
+      </svg>
+
+      {/* Full-screen strike flash (double-flicker) */}
+      <div className="spl-flash absolute inset-0 pointer-events-none" />
+
+      {/* Warm backlight bloom — breathing behind the P once lit */}
+      <div className="spl-bloom pointer-events-none" />
+
+      {/* Gold energy wave sweeping up the pedestal after the strike */}
+      <div className="spl-sweep pointer-events-none" />
+
+      {/* Power-surge shockwave rings from the impact point */}
+      <span className="spl-shock pointer-events-none" />
+      <span className="spl-shock spl-shock-2 pointer-events-none" />
+
+      {/* Sparks rising around the prongs while power builds / surges */}
+      {PRONG_SPARKS.map((s, i) => (
+        <span
+          key={`p${i}`}
+          className="spl-spark absolute rounded-full pointer-events-none"
+          style={{ left: s.left, top: s.top, animationDelay: s.d, ["--dx" as string]: s.dx }}
+        />
+      ))}
+
+      {/* Impact burst at the U when the bolt lands */}
+      {IMPACT_BURST.map((s, i) => (
+        <span
+          key={`b${i}`}
+          className="spl-burst absolute rounded-full pointer-events-none"
+          style={{ left: "66%", top: "63.5%", ["--bx" as string]: s.dx, ["--by" as string]: s.dy }}
+        />
+      ))}
+
+      {/* Vignette — keeps edges cinematic and hides cover-crop seams */}
       <div
-        className={`absolute left-1/2 top-[38%] pointer-events-none ${reduced ? "" : "cine-hero-glow"}`}
+        className="absolute inset-0 pointer-events-none"
         style={{
-          width: "min(70vmin, 620px)",
-          height: "min(70vmin, 620px)",
-          transform: "translate(-50%, -50%)",
-          background:
-            "radial-gradient(circle, rgba(246,210,122,0.5) 0%, rgba(246,210,122,0.15) 40%, transparent 70%)",
-          opacity: reduced ? 0.55 : undefined,
+          background: "radial-gradient(120% 95% at 50% 42%, transparent 52%, rgba(0,0,0,0.55) 100%)",
         }}
       />
 
-      {/* Vignette + bottom fade — static, cheap */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background:
-          "radial-gradient(120% 90% at 50% 45%, transparent 0%, transparent 55%, rgba(0,0,0,0.7) 100%)",
-      }} />
-      <div className="absolute inset-x-0 bottom-0 h-40 pointer-events-none" style={{
-        background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.85))",
-      }} />
-
-      {/* Cinematic light sheen (skipped for reduced-motion) */}
-      {!reduced && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="cine-hero-sheen absolute -inset-y-10 w-[35%] -left-1/3"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, rgba(232,199,122,0.14) 45%, rgba(255,240,194,0.28) 50%, rgba(232,199,122,0.14) 55%, transparent 100%)",
-              mixBlendMode: "screen",
-            }}
-          />
-        </div>
-      )}
-
-      {/* Cinematic letterbox reveal (skipped for reduced-motion) */}
-      {!reduced && (
-        <>
-          <div
-            className="cine-letterbox-top absolute inset-x-0 top-0 h-[14vh] pointer-events-none"
-            style={{ background: "linear-gradient(180deg, #000 65%, transparent)" }}
-          />
-          <div
-            className="cine-letterbox-bottom absolute inset-x-0 bottom-0 h-[14vh] pointer-events-none"
-            style={{ background: "linear-gradient(0deg, #000 65%, transparent)" }}
-          />
-        </>
-      )}
-
-      {/* Drifting gold dust — skipped entirely for reduced-motion */}
-      {full && !reduced && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span
-              key={i}
-              className="cine-dust absolute rounded-full"
-              style={{
-                left: `${(i * 13 + 7) % 100}%`,
-                bottom: `-${(i * 5) % 40}px`,
-                width: 3,
-                height: 3,
-                background: "radial-gradient(circle, rgba(246,210,122,0.95), rgba(246,210,122,0) 70%)",
-                animationDelay: `${(i * 0.6) % 4}s`,
-                animationDuration: `${6 + (i % 4)}s`,
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Whiteout as the camera passes through the P */}
+      <div className="spl-whiteout absolute inset-0 pointer-events-none" />
     </div>
   );
 }

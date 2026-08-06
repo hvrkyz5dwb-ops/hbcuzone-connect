@@ -9,6 +9,7 @@ import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
+import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
@@ -129,6 +130,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   // Splash plays after auth is known and only when a student is signed in.
   const [showSplash, setShowSplash] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   useEffect(() => {
     if (sessionLoading || !session) return;
     if (!shouldPlaySplash()) return;
@@ -385,7 +387,21 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       )}
 
       <Toaster position="top-center" />
-      {showSplash && <SplashScreen />}
+      {showSplash && (
+        <SplashScreen
+          onDone={() => {
+            setShowSplash(false);
+            // Right after account creation, greet once the zoom-through lands.
+            try {
+              if (window.localStorage.getItem("plugu.welcome.pending")) {
+                window.localStorage.removeItem("plugu.welcome.pending");
+                setShowWelcome(true);
+              }
+            } catch {}
+          }}
+        />
+      )}
+      {showWelcome && <WelcomeOverlay onDone={() => setShowWelcome(false)} />}
     </div>
   );
 }

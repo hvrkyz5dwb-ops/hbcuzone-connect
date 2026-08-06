@@ -143,6 +143,11 @@ function AuthPage() {
       setPassword("");
       return;
     }
+    // First launch after account creation: play the cinematic splash and
+    // land on Home with the one-time welcome overlay.
+    try {
+      window.localStorage.setItem("plugu.welcome.pending", "1");
+    } catch {}
     window.location.href = safeNext(next);
   }
 
