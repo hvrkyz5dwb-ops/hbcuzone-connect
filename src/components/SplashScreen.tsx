@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
 import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
 import { fpsHudEnabled, startFpsMonitor, type HudStats } from "@/lib/fps-monitor";
@@ -91,6 +91,18 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
   const [gone, setGone] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [hud, setHud] = useState<HudStats | null>(null);
+  const [skipping, setSkipping] = useState(false);
+
+  // Refs keep the scene clock immune to re-renders: the effect runs once,
+  // and Skip can tear everything down from outside it.
+  const onDoneRef = useRef(onDone);
+  const mainTimer = useRef<number | undefined>(undefined);
+  const hudTimer = useRef<number | undefined>(undefined);
+  const monitorRef = useRef<ReturnType<typeof startFpsMonitor> | null>(null);
+  const stopAudioRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  });
 
   useEffect(() => {
     const prefersReduced =
@@ -102,36 +114,50 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
     // Frame-rate instrumentation — samples every rAF for the full splash,
     // then publishes a dropped-frame report (sessionStorage + console).
     const monitor = startFpsMonitor("splash", { reducedMotion: prefersReduced });
-    let hudTimer: number | undefined;
+    monitorRef.current = monitor;
     if (fpsHudEnabled()) {
-      hudTimer = window.setInterval(() => setHud(monitor.sample()), 250);
+      hudTimer.current = window.setInterval(() => setHud(monitor.sample()), 250);
       setHud(monitor.sample());
     }
 
-    const stopAudio = prefersReduced ? () => {} : playSplashAudio();
-    const t = window.setTimeout(
+    stopAudioRef.current = prefersReduced ? () => {} : playSplashAudio();
+    mainTimer.current = window.setTimeout(
       () => {
         monitor.stop();
-        if (hudTimer) window.clearInterval(hudTimer);
+        if (hudTimer.current) window.clearInterval(hudTimer.current);
         setGone(true);
-        onDone?.();
+        onDoneRef.current?.();
       },
       prefersReduced ? REDUCED_MS : TOTAL_MS,
     );
     return () => {
-      window.clearTimeout(t);
-      window.clearInterval(hudTimer);
+      window.clearTimeout(mainTimer.current);
+      if (hudTimer.current) window.clearInterval(hudTimer.current);
       monitor.abort();
-      stopAudio();
+      stopAudioRef.current();
     };
-  }, [onDone]);
+  }, []);
+
+  // Tap "Skip" — cut the scene clock and fade out fast, but stay smooth.
+  function skip() {
+    if (gone || skipping) return;
+    setSkipping(true);
+    window.clearTimeout(mainTimer.current);
+    if (hudTimer.current) window.clearInterval(hudTimer.current);
+    monitorRef.current?.stop();
+    stopAudioRef.current();
+    window.setTimeout(() => {
+      setGone(true);
+      onDoneRef.current?.();
+    }, 260);
+  }
 
   if (!mounted || gone) return null;
 
   // Reduced motion: a single calm power-on frame, no animation at all.
   if (reduced) {
     return (
-      <div className="fixed inset-0 z-[100] overflow-hidden bg-black" style={{ contain: "strict" }} aria-hidden="true">
+      <div className="fixed inset-0 z-[100] overflow-hidden bg-black" style={{ contain: "strict" }}>
         <img
           src={monumentLit.url}
           alt=""
@@ -145,13 +171,16 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
           className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(120% 95% at 50% 42%, transparent 52%, rgba(0,0,0,0.55) 100%)" }}
         />
+        <button type="button" onClick={skip} className="spl-skip" aria-label="Skip intro">
+          Skip
+        </button>
         <SplashFpsHud stats={hud} />
       </div>
     );
   }
 
   return (
-    <div className="spl-root fixed inset-0 z-[100] overflow-hidden bg-black" aria-hidden="true">
+    <div className={`spl-root fixed inset-0 z-[100] overflow-hidden bg-black ${skipping ? "spl-skipping" : ""}`}>
       {/* Ambient gold dust — floating from the first frame */}
       {GOLD_DUST.map((p, i) => (
         <span
@@ -258,6 +287,10 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
 
       {/* Final pulse — a gold ring expands across the screen as we crossfade */}
       <span className="spl-finalpulse" />
+
+      <button type="button" onClick={skip} className="spl-skip" aria-label="Skip intro">
+        Skip
+      </button>
 
       <SplashFpsHud stats={hud} />
     </div>
