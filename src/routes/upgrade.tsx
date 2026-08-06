@@ -174,32 +174,14 @@ function Upgrade() {
           Lower your PlugU transaction fee and rank higher on your campus.
         </p>
 
-        <div className="mt-4 mx-auto grid grid-cols-3 rounded-full border border-border p-1 bg-card text-[11px] font-semibold">
-          {(["monthly", "semester", "year"] as BillingCycle[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => setCycle(c)}
-              className={`tap rounded-full py-2 uppercase tracking-wider transition-all duration-300 ${
-                cycle === c ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {c === "monthly" ? "Monthly" : c === "semester" ? "Semester" : "Yearly"}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">
-          Bigger plan, longer access — membership stays active for {CYCLE_VALIDITY[cycle].label}.
+        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          Have a promo code? You can apply it at checkout.
         </p>
 
         <div className="mt-4 grid gap-4">
           {SELLER_TIERS.map((t) => {
-            const raw = cycle === "year" ? t.pricing.year : cycle === "semester" ? t.pricing.semester : t.pricing.monthly;
-            const price = raw ?? t.pricing.monthly;
-            const monthlyEq = price / cycleMonths;
-            const savings =
-              t.pricing.monthly > 0 && cycleMonths > 1
-                ? Math.round((1 - price / (t.pricing.monthly * cycleMonths)) * 100)
-                : 0;
+            const price = t.price;
+            const perLabel = t.cycle === "year" ? "/Year" : t.cycle === "semester" ? "/Semester" : "";
             const popular = t.key === "pro";
             const active = currentTier === t.key;
             return (
@@ -229,7 +211,7 @@ function Upgrade() {
                     className="absolute -top-2 left-5 text-[9px] font-black tracking-[0.22em] uppercase px-2.5 py-1 rounded-full"
                     style={{ background: t.accent, color: "#111" }}
                   >
-                    👑 Premium
+                    ★ Best Value
                   </span>
                 )}
 
@@ -257,23 +239,15 @@ function Upgrade() {
                     {price === 0 ? "Free" : money(price)}
                   </span>
                   {price > 0 && <span className="text-xs text-muted-foreground">{cycleLabel}</span>}
-                  {savings > 0 && (
-                    <span
-                      className="ml-auto text-[9px] font-black tracking-[0.16em] uppercase px-2 py-1 rounded-full"
-                      style={{ background: "var(--gradient-bronze)", color: "#111" }}
-                    >
-                      Save {savings}%
-                    </span>
-                  )}
                 </div>
-                {price > 0 && cycleMonths > 1 && (
+                {price > 0 && t.monthlyEquiv > 0 && (
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    ≈ {money(monthlyEq)}/mo, billed {cycle === "year" ? "yearly" : "per semester"}
+                    About {money(t.monthlyEquiv)}/month
                   </p>
                 )}
                 {price > 0 && (
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Valid for {CYCLE_VALIDITY[cycle].label} from activation
+                    Valid for {CYCLE_VALIDITY[t.cycle].label} from activation
                   </p>
                 )}
 
