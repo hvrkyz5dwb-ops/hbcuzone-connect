@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { useConversations } from "@/hooks/use-messages";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingList, EmptyState } from "@/components/EmptyState";
+import { ErrorState } from "@/components/QueryStates";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { formatPrice } from "@/lib/categories";
 import type { PriceType } from "@/lib/categories";
@@ -35,7 +36,7 @@ function timeAgo(iso: string): string {
 }
 
 function Messages() {
-  const { data: threads, isPending, refetch } = useConversations();
+  const { data: threads, isPending, isError, refetch } = useConversations();
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -70,6 +71,12 @@ function Messages() {
 
       {isPending ? (
         <div className="mt-4"><LoadingList rows={5} /></div>
+      ) : isError ? (
+        <ErrorState
+          title="Messages didn't load"
+          description="We couldn't reach your inbox. Check your connection and try again."
+          onRetry={() => void refetch()}
+        />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={MessageSquare}
