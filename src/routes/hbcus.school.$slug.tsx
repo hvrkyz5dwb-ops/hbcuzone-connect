@@ -59,7 +59,9 @@ const TABS: TabKey[] = [
 ];
 
 function SchoolCommunity() {
-  const { school } = Route.useLoaderData();
+  // Loader already 404s unknown slugs, so this lookup is guaranteed to hit.
+  const { slug } = Route.useParams();
+  const school = findSchoolBySlug(slug)!;
   const [tab, setTab] = useState<TabKey>("About");
 
   return (
