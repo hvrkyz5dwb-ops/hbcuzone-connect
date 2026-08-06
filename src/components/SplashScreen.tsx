@@ -267,7 +267,9 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
 /** Live FPS chip — only rendered when ?fps=1 / plugu:fps-hud is set. */
 function SplashFpsHud({ stats }: { stats: HudStats | null }) {
   if (!stats) return null;
-  const healthy = stats.fps >= stats.hz - 3;
+  // Neutral (gold) until the first real frame sample lands.
+  const warming = stats.fps <= 0;
+  const healthy = warming || stats.fps >= stats.hz - 3;
   return (
     <div
       className="absolute left-3 z-[102] rounded-md px-2 py-1 font-mono text-[10px] leading-tight pointer-events-none"
@@ -280,7 +282,7 @@ function SplashFpsHud({ stats }: { stats: HudStats | null }) {
       }}
       data-testid="splash-fps-hud"
     >
-      {stats.fps} FPS · {stats.hz}Hz · drop {stats.dropped}
+      {warming ? "…" : stats.fps} FPS · {stats.hz}Hz · drop {stats.dropped}
     </div>
   );
 }
