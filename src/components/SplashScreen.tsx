@@ -204,6 +204,9 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
       {/* Warm backlight bloom — breathing behind the P once lit */}
       <div className="spl-bloom pointer-events-none" />
 
+      {/* The U burning hotter than the rest — electric pulse after the strike */}
+      <div className="spl-upulse" />
+
       {/* Gold energy wave sweeping up the pedestal after the strike */}
       <div className="spl-sweep pointer-events-none" />
 
@@ -237,8 +240,8 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
         }}
       />
 
-      {/* Whiteout as the camera passes through the P */}
-      <div className="spl-whiteout absolute inset-0 pointer-events-none" />
+      {/* Final pulse — a gold ring expands across the screen as we crossfade */}
+      <span className="spl-finalpulse" />
     </div>
   );
 }
