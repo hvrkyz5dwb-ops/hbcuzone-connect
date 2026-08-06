@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
+import { ErrorState } from "@/components/QueryStates";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useMarketplace } from "@/hooks/use-listings";
 import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
@@ -58,7 +59,7 @@ function Market() {
     offset: page * PAGE_SIZE,
   }), [query, category, scope, profile?.school_id, priceMax, fulfillment, sort, page]);
 
-  const { data: listings, isPending, isFetching, refetch } = useMarketplace(filters);
+  const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
   async function onToggleFavorite(id: string, currently: boolean) {
     try {
@@ -173,6 +174,12 @@ function Market() {
 
       {isPending ? (
         <div className="mt-5"><LoadingGrid rows={6} /></div>
+      ) : isError ? (
+        <ErrorState
+          title="Marketplace didn't load"
+          description="We couldn't reach the listings. Check your connection and try again."
+          onRetry={() => void refetch()}
+        />
       ) : rows.length === 0 ? (
         <EmptyState
           icon={SearchX}

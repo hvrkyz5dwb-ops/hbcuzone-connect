@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Star, ShieldCheck, Flag, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchReviewsForUser, reportReview, adminDeleteReview, type VerifiedReview } from "@/lib/reviews-db";
+import { ErrorState } from "@/components/QueryStates";
 
 export function ReviewsList({ userId, isAdmin = false }: { userId: string; isAdmin?: boolean }) {
   const q = useQuery({
@@ -13,6 +14,15 @@ export function ReviewsList({ userId, isAdmin = false }: { userId: string; isAdm
 
   if (q.isPending) {
     return <div className="py-6 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>;
+  }
+  if (q.isError) {
+    return (
+      <ErrorState
+        title="Reviews didn't load"
+        description="Check your connection and try again."
+        onRetry={() => void q.refetch()}
+      />
+    );
   }
   const reviews = q.data ?? [];
   if (reviews.length === 0) {

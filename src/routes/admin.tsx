@@ -7,6 +7,7 @@ import {
   School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star, History,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ChargingLoader } from "@/components/ChargingLoader";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { adminPerform, type AdminAction } from "@/lib/moderation";
@@ -413,7 +414,7 @@ function AdminBtn({ children, variant, onClick }: { children: React.ReactNode; v
   return <button onClick={onClick} className={`tap inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] border ${c}`}>{children}</button>;
 }
 
-function Loading() { return <div className="py-10 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>; }
+function Loading() { return <div className="py-10 grid place-items-center"><ChargingLoader size={32} /></div>; }
 function Empty({ text }: { text: string }) { return <p className="text-xs text-muted-foreground px-1 py-4">{text}</p>; }
 
 // ================= Promo codes =================

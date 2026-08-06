@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Package, ShieldCheck, ChevronRight, Receipt, Loader2, Calendar } from "lucide-react";
+import { Package, ShieldCheck, ChevronRight, Receipt, Calendar } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { LoadingList } from "@/components/EmptyState";
+import { ErrorState } from "@/components/QueryStates";
 import { useMyOrders } from "@/hooks/use-orders";
 import {
   STATUS_LABEL, BOOKING_STATUS_LABEL, statusToneClass, centsToDollars,
@@ -34,7 +36,7 @@ const ACTIVE_STATUSES = new Set(["pending","accepted","preparing","ready_for_pic
 function OrdersPage() {
   const [role, setRole] = useState<OrderRole>("buyer");
   const [filter, setFilter] = useState<(typeof STATUS_FILTERS)[number]["key"]>("all");
-  const { data: orders, isPending } = useMyOrders(role);
+  const { data: orders, isPending, isError, refetch } = useMyOrders(role);
 
   const filtered = useMemo(() => {
     if (!orders) return [];
@@ -98,7 +100,13 @@ function OrdersPage() {
         </div>
 
         {isPending ? (
-          <div className="mt-10 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div>
+          <div className="mt-6"><LoadingList rows={5} /></div>
+        ) : isError ? (
+          <ErrorState
+            title="Orders didn't load"
+            description="We couldn't reach your order history. Check your connection and try again."
+            onRetry={() => void refetch()}
+          />
         ) : filtered.length === 0 ? (
           <div className="mt-8 rounded-3xl border border-dashed border-border p-8 text-center">
             <Package className="mx-auto h-8 w-8 text-muted-foreground" />

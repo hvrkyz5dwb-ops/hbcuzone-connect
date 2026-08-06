@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { ChargingLoader } from "@/components/ChargingLoader";
 import { getSelectedPlan, saveSelectedPlan } from "@/lib/plan-storage";
 import { resolvePlanKey } from "@/lib/plan-catalog";
 import { setSellerPlan, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
@@ -62,8 +63,8 @@ function Success() {
       <section className="px-5 pt-10 text-center">
         {state === "verifying" && (
           <>
-            <div className="mx-auto h-20 w-20 rounded-full grid place-items-center bg-card border border-border">
-              <Loader2 className="h-9 w-9 animate-spin text-primary" />
+            <div className="grid place-items-center">
+              <ChargingLoader size={56} />
             </div>
             <h1 className="mt-4 text-2xl font-bold">Confirming your payment…</h1>
             <p className="mt-1 text-sm text-muted-foreground">Checking with Stripe. One moment.</p>

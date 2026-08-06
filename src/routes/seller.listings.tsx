@@ -4,11 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
-  ArrowLeft, Plus, Pencil, Pause, Play, Trash2, X, Loader2, Package, Wrench,
+  ArrowLeft, Plus, Pencil, Pause, Play, Trash2, X, Package, Wrench,
   Store, ImageIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState, LoadingList } from "@/components/EmptyState";
+import { ErrorState } from "@/components/QueryStates";
 import { useMyListings } from "@/hooks/use-listings";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -51,7 +52,7 @@ const listingSchema = z.object({
 });
 
 function SellerListings() {
-  const { data, isPending, refetch } = useMyListings();
+  const { data, isPending, isError, refetch } = useMyListings();
   const [composer, setComposer] = useState<{ open: boolean; editing?: ListingWithExtras } | null>(null);
 
   return (
@@ -77,7 +78,13 @@ function SellerListings() {
       </section>
 
       {isPending ? (
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <div className="mt-4"><LoadingList rows={4} /></div>
+      ) : isError ? (
+        <ErrorState
+          title="Your listings didn't load"
+          description="We couldn't reach your seller listings. Check your connection and try again."
+          onRetry={() => void refetch()}
+        />
       ) : !data || data.length === 0 ? (
         <EmptyState
           icon={Store}

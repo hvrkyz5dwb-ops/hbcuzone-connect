@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { RouteErrorFallback, RouteNotFoundFallback, RoutePendingFallback } from "@/components/QueryStates";
 
 export const getRouter = () => {
   const queryClient = new QueryClient({
@@ -30,6 +31,11 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // Never render a blank screen: branded pending / error / 404 fallbacks
+    // catch slow or failed route loads app-wide.
+    defaultPendingComponent: RoutePendingFallback,
+    defaultErrorComponent: RouteErrorFallback,
+    defaultNotFoundComponent: RouteNotFoundFallback,
   });
 
   return router;

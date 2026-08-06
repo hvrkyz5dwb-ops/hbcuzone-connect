@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ShieldCheck, MessageSquare, AlertTriangle, Loader2, Calendar, Package, Star } from "lucide-react";
+import { ArrowLeft, ShieldCheck, MessageSquare, AlertTriangle, Calendar, Package, Star } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { useSession } from "@/hooks/use-session";
 import { useOrder, useOrderHistory, useTransitionOrder, useTransitionBooking } from "@/hooks/use-orders";
 import {
@@ -23,7 +24,7 @@ function OrderDetail() {
   const navigate = useNavigate();
   const { session } = useSession();
   const meId = session?.user?.id ?? null;
-  const { data: order, isPending } = useOrder(id);
+  const { data: order, isPending, isError, refetch } = useOrder(id);
   const { data: history } = useOrderHistory(id);
   const transitionOrder = useTransitionOrder();
   const transitionBooking = useTransitionBooking();
@@ -32,7 +33,18 @@ function OrderDetail() {
   if (isPending) {
     return (
       <AppShell title="ORDER">
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div>
+        <PageLoader message="Loading your order…" />
+      </AppShell>
+    );
+  }
+  if (isError) {
+    return (
+      <AppShell title="ORDER">
+        <ErrorState
+          title="Order didn't load"
+          description="We couldn't reach this order. Check your connection and try again."
+          onRetry={() => void refetch()}
+        />
       </AppShell>
     );
   }

@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState, LoadingList } from "@/components/EmptyState";
+import { ErrorState } from "@/components/QueryStates";
 import { Bell, CheckCheck, Trash2, ChevronRight, Loader2 } from "lucide-react";
 import {
   markAllNotificationsRead, markNotificationRead, clearAllNotifications,
@@ -50,7 +51,7 @@ function groupByDay(list: NotifRow[]) {
 function NotificationsPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { list, unread, loading } = useNotifications();
+  const { list, unread, loading, isError, refetch } = useNotifications();
   const [cat, setCat] = useState("All");
   const cats = useMemo(
     () => ["All", ...Array.from(new Set(list.map((n) => labelFor(n.kind))))],
@@ -123,7 +124,13 @@ function NotificationsPage() {
       )}
 
       {loading ? (
-        <div className="py-16 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div>
+        <div className="mt-4"><LoadingList rows={6} /></div>
+      ) : isError ? (
+        <ErrorState
+          title="Notifications didn't load"
+          description="We couldn't reach your inbox. Check your connection and try again."
+          onRetry={refetch}
+        />
       ) : list.length === 0 ? (
         <EmptyState
           icon={Bell}

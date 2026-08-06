@@ -4,8 +4,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
+import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
-import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Loader2, Flag, Ban } from "lucide-react";
+import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Flag, Ban } from "lucide-react";
 import { ReviewsList } from "@/components/ReviewsList";
 import { ReportDialog } from "@/components/ReportDialog";
 import { blockUser } from "@/lib/moderation";
@@ -65,7 +66,19 @@ function PublicProfile() {
   if (q.isPending) {
     return (
       <AppShell title="PROFILE">
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <PageLoader message="Loading profile…" />
+      </AppShell>
+    );
+  }
+
+  if (q.isError) {
+    return (
+      <AppShell title="PROFILE">
+        <ErrorState
+          title="Profile didn't load"
+          description="We couldn't reach this profile. Check your connection and try again."
+          onRetry={() => void q.refetch()}
+        />
       </AppShell>
     );
   }

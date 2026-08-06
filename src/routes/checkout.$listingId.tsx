@@ -3,11 +3,13 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign, Loader2,
+  ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign,
   BadgeCheck, RefreshCw, MessageSquare, MapPin, Calendar, Truck, Package, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { ChargingLoader } from "@/components/ChargingLoader";
+import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { fetchListing } from "@/lib/listings-db";
 import { getOrCreateConversation } from "@/lib/messages-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
@@ -40,7 +42,7 @@ const PROCESSING_FLAT_CENTS = 30;
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
-  const { data: listing, isPending } = useQuery({
+  const { data: listing, isPending, isError, refetch } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListing(listingId),
   });
@@ -73,7 +75,19 @@ function ProtectedCheckout() {
   if (isPending) {
     return (
       <AppShell title="CHECKOUT">
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <PageLoader message="Preparing checkout…" />
+      </AppShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <AppShell title="CHECKOUT">
+        <ErrorState
+          title="Checkout didn't load"
+          description="We couldn't reach this listing. Check your connection and try again."
+          onRetry={() => void refetch()}
+        />
       </AppShell>
     );
   }
@@ -241,7 +255,7 @@ function ProtectedCheckout() {
             <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Pick a time</p>
             <div className="mt-2 rounded-2xl border border-border bg-card p-3">
               {slotsQ.isLoading ? (
-                <div className="py-6 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>
+                <div className="py-6 grid place-items-center"><ChargingLoader size={28} message="Loading available times…" /></div>
               ) : (slotsQ.data ?? []).length === 0 ? (
                 <p className="text-[11px] text-muted-foreground py-2">
                   This provider hasn't opened any slots yet. Message them to request a time.

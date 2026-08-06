@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { fetchNotifications, type NotifRow } from "@/lib/notifications-db";
 
-export function useNotifications(): { list: NotifRow[]; unread: number; loading: boolean } {
+export function useNotifications(): { list: NotifRow[]; unread: number; loading: boolean; isError: boolean; refetch: () => void } {
   const { session } = useSession();
   const uid = session?.user?.id ?? null;
   const qc = useQueryClient();
@@ -35,5 +35,5 @@ export function useNotifications(): { list: NotifRow[]; unread: number; loading:
 
   const list = q.data ?? [];
   const unread = list.filter((n) => !n.read_at).length;
-  return { list, unread, loading: q.isPending };
+  return { list, unread, loading: q.isPending, isError: q.isError, refetch: () => void q.refetch() };
 }

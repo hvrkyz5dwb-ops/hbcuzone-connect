@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/use-profile";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { PageLoader } from "@/components/QueryStates";
 import { AlertCircle, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -87,7 +88,7 @@ function EditProfile() {
   if (loading || !profile) {
     return (
       <AppShell title="EDIT PROFILE">
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <PageLoader message="Loading your profile…" />
       </AppShell>
     );
   }
