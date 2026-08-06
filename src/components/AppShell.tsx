@@ -343,6 +343,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             role="dialog"
             aria-label="Quick actions"
             className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 mb-safe"
+            style={
+              keyboardOffset
+                ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+                : undefined
+            }
             style={{ animation: "plugu-slide-up 0.32s cubic-bezier(0.22,1,0.36,1) both" }}
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
