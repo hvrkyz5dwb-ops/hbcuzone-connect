@@ -110,9 +110,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // Preload the splash hero so first paint isn't blocked on the 2 MB image.
       { rel: "preload", as: "image", href: monumentDark.url, fetchPriority: "high" },
       { rel: "preload", as: "image", href: monumentLit.url },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      // Browser tab icons — small PNG first so tabs don't fetch the 512px file.
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
+      // iOS home-screen icon (180x180, flattened — iOS ignores alpha).
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
