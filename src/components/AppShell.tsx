@@ -158,7 +158,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     if (typeof window === "undefined") return;
     if (sessionLoading) return;
     // Public surfaces that anyone can see. Everything else requires a session.
-    const publicRoutes = ["/", "/auth", "/reset-password", "/onboarding", "/terms", "/privacy"];
+    const publicRoutes = ["/", "/auth", "/reset-password", "/terms", "/privacy"];
     const isPublic =
       publicRoutes.includes(pathname) ||
       pathname.startsWith("/api/") ||
