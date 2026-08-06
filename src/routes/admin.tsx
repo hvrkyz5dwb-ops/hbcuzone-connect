@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ClipboardList,
+  School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const TABS = [
   { key: "users", label: "Users", icon: Users },
   { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "log", label: "Activity Log", icon: ClipboardList },
+  { key: "promos", label: "Promos", icon: BadgePercent },
 ] as const;
 
 function Admin() {
@@ -89,6 +90,7 @@ function Admin() {
         {tab === "users" && <UsersPanel />}
         {tab === "access" && <SchoolAccessPanel />}
         {tab === "log" && <ActivityLog />}
+        {tab === "promos" && <PromosPanel />}
       </section>
     </AppShell>
   );
