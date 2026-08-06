@@ -4,12 +4,14 @@ import {
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
 import { SplashScreen } from "@/components/SplashScreen";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
+import { OnboardingExperience } from "@/components/OnboardingExperience";
+import { CoachMarks } from "@/components/CoachMarks";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
@@ -18,40 +20,19 @@ import { useKeyboardOffset } from "@/hooks/use-keyboard-offset";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useMyBusiness } from "@/hooks/use-business";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
-
-// Module-scoped flag prevents any re-mount of AppShell (internal navigation,
-// layout swaps) from replaying the splash within the same JS runtime.
-let SPLASH_SHOWN = false;
-
-// Keys used to gate the splash across refreshes and tabs.
-// - `PLAYED_KEY` (sessionStorage): once the splash plays in a tab, refreshing
-//   that tab won't replay it. Cleared automatically when the tab closes.
-// - `RECENT_KEY` (localStorage):   timestamp of the most recent play in ANY
-//   tab. A second tab opened right after the first will see this and skip,
-//   preventing multi-tab duplicates.
-const PLAYED_KEY = "plugu.splash.playedThisSession";
-const RECENT_KEY = "plugu.splash.lastPlayedAt";
-const MULTI_TAB_WINDOW_MS = 15_000;
-
-function shouldPlaySplash(): boolean {
-  if (typeof window === "undefined") return false;
-  if (SPLASH_SHOWN) return false;
-  try {
-    if (window.sessionStorage.getItem(PLAYED_KEY)) return false;
-    const recent = Number(window.localStorage.getItem(RECENT_KEY) ?? 0);
-    if (recent && Date.now() - recent < MULTI_TAB_WINDOW_MS) return false;
-  } catch {}
-  return true;
-}
-
-function markSplashPlayed() {
-  if (typeof window === "undefined") return;
-  SPLASH_SHOWN = true;
-  try {
-    window.sessionStorage.setItem(PLAYED_KEY, "1");
-    window.localStorage.setItem(RECENT_KEY, String(Date.now()));
-  } catch {}
-}
+import {
+  SPLASH_PLAYED_KEY,
+  SPLASH_RECENT_KEY,
+  shouldPlaySplash,
+  markSplashPlayed,
+  hasOnboarded,
+  markOnboarded,
+  hasToured,
+  markToured,
+  consumeWelcomePending,
+  setFeedStaggerPending,
+  FIRST_FEED_EVENT,
+} from "@/lib/first-launch";
 
 type Tab = { to: string; label: string; icon: LucideIcon };
 
@@ -130,23 +111,43 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const hbcuStudent =
     !!profile?.is_hbcu_student || (!!emailDomain && isHbcuDomain(emailDomain));
 
-  // Splash plays after auth is known and only when a student is signed in.
+  // First-launch journey for signed-in members:
+  //   cinematic splash → onboarding slides → coach-mark tour → welcome card.
+  // Each stage is gated by its own localStorage flag so it plays exactly once.
   const [showSplash, setShowSplash] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+
+  const beginFirstLaunch = useCallback(() => {
+    if (!hasOnboarded()) {
+      setShowOnboarding(true);
+      return;
+    }
+    if (!hasToured()) {
+      setShowTour(true);
+      return;
+    }
+    if (consumeWelcomePending()) setShowWelcome(true);
+  }, []);
+
   useEffect(() => {
     if (sessionLoading || !session) return;
-    if (!shouldPlaySplash()) return;
-    markSplashPlayed();
-    setShowSplash(true);
-  }, [sessionLoading, session]);
+    if (shouldPlaySplash()) {
+      markSplashPlayed();
+      setShowSplash(true);
+      return;
+    }
+    beginFirstLaunch();
+  }, [sessionLoading, session, beginFirstLaunch]);
 
   // If a sibling tab plays the splash while this tab is open, remember it
   // so a later refresh here doesn't replay. (No re-render needed.)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onStorage = (e: StorageEvent) => {
-      if (e.key === RECENT_KEY && e.newValue) {
-        try { window.sessionStorage.setItem(PLAYED_KEY, "1"); } catch {}
+      if (e.key === SPLASH_RECENT_KEY && e.newValue) {
+        try { window.sessionStorage.setItem(SPLASH_PLAYED_KEY, "1"); } catch {}
       }
     };
     window.addEventListener("storage", onStorage);
@@ -157,22 +158,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     if (typeof window === "undefined") return;
     if (sessionLoading) return;
     // Public surfaces that anyone can see. Everything else requires a session.
-    const publicRoutes = ["/", "/auth", "/reset-password", "/onboarding", "/terms", "/privacy"];
+    const publicRoutes = ["/", "/auth", "/reset-password", "/terms", "/privacy"];
     const isPublic =
       publicRoutes.includes(pathname) ||
       pathname.startsWith("/api/") ||
       pathname.startsWith("/.");
     if (!session && !isPublic) {
       navigate({ to: "/auth", search: { next: pathname, mode: "" } });
-      return;
-    }
-    if (session && pathname !== "/onboarding") {
-      try {
-        if (!window.localStorage.getItem("plugu.onboarded")) {
-          window.localStorage.setItem("plugu.onboarded", "1");
-          navigate({ to: "/onboarding" });
-        }
-      } catch {}
     }
   }, [pathname, session, sessionLoading, navigate]);
 
@@ -300,6 +292,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                     <Link
                       to={t.to}
                       aria-current={active ? "page" : undefined}
+                      data-tour={t.label.toLowerCase()}
                       className={`tap relative flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] tracking-wide transition-colors ${
                         active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -405,13 +398,30 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         <SplashScreen
           onDone={() => {
             setShowSplash(false);
-            // Right after account creation, greet once the zoom-through lands.
-            try {
-              if (window.localStorage.getItem("plugu.welcome.pending")) {
-                window.localStorage.removeItem("plugu.welcome.pending");
-                setShowWelcome(true);
-              }
-            } catch {}
+            beginFirstLaunch();
+          }}
+        />
+      )}
+      {showOnboarding && (
+        <OnboardingExperience
+          onComplete={() => {
+            markOnboarded();
+            setShowOnboarding(false);
+            setShowTour(true);
+          }}
+        />
+      )}
+      {showTour && (
+        <CoachMarks
+          onDone={() => {
+            markToured();
+            setShowTour(false);
+            // Fade into Home with the one-time animated feed entrance,
+            // then greet the newest member of the yard.
+            setFeedStaggerPending();
+            consumeWelcomePending();
+            try { window.dispatchEvent(new CustomEvent(FIRST_FEED_EVENT)); } catch {}
+            setShowWelcome(true);
           }}
         />
       )}

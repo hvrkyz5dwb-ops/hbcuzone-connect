@@ -1066,3 +1066,218 @@ img, video { content-visibility: auto; }
     opacity: 1 !important;
   }
 }
+
+/* ============================================
+   Splash — Skip control & fast exit
+   ============================================ */
+
+.spl-skip {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top, 0px));
+  right: 14px;
+  z-index: 70;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 246, 214, 0.85);
+  background: rgba(14, 12, 7, 0.55);
+  border: 1px solid rgba(244, 201, 106, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  animation: splSkipIn 0.5s ease 0.9s both;
+  -webkit-tap-highlight-color: transparent;
+}
+.spl-skip:hover {
+  color: #ffe9b0;
+  border-color: rgba(244, 201, 106, 0.6);
+}
+@keyframes splSkipIn {
+  to { opacity: 1; }
+}
+/* Skip pressed — everything cuts to a short, smooth fade */
+.spl-root.spl-skipping,
+.spl-root.spl-skipping * {
+  animation-play-state: paused;
+}
+.spl-root.spl-skipping {
+  opacity: 0;
+  transition: opacity 0.24s ease;
+}
+/* The reduced-motion splash shows Skip immediately */
+@media (prefers-reduced-motion: reduce) {
+  .spl-skip {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   First-launch onboarding (ob-*)
+   All motion runs on transform/opacity only.
+   ============================================ */
+
+.ob-root {
+  animation: obRootIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes obRootIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Copy — gold-rise entrance, replays on each slide via key change */
+.ob-copy {
+  animation: obRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+@keyframes obRise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Scene: campus — connections draw in, nodes pop with a gold pulse */
+.ob-line {
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  animation: obDraw 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+@keyframes obDraw {
+  to { stroke-dashoffset: 0; }
+}
+.ob-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    obPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both,
+    obGlow 3.2s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes obPop {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes obGlow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(244, 201, 106, 0)); }
+  50% { filter: drop-shadow(0 0 8px rgba(244, 201, 106, 0.85)); }
+}
+
+/* Scene: marketplace — cards pop in with stagger */
+.ob-card {
+  animation: obPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+
+/* Scene: income — bars rise from the baseline, chips toast in */
+.ob-bar {
+  transform-origin: bottom center;
+  animation: obGrow 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+@keyframes obGrow {
+  from { opacity: 0; transform: scaleY(0.06); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.ob-chip {
+  animation: obToast 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+@keyframes obToast {
+  from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.92); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Gentle idle float for scenes */
+.ob-float {
+  animation: obFloat 4.5s ease-in-out 0.6s infinite;
+}
+@keyframes obFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+
+/* ============================================
+   Coach marks (cm-*) — first-run tour spotlight
+   ============================================ */
+
+.cm-root {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  transition: opacity 0.22s ease;
+  animation: cmFadeIn 0.3s ease both;
+}
+@keyframes cmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Gold ring that punches the spotlight hole through the dim backdrop */
+.cm-ring {
+  position: absolute;
+  border-radius: 22px;
+  border: 2px solid rgba(244, 201, 106, 0.85);
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.72),
+    0 0 32px -2px rgba(244, 201, 106, 0.55),
+    inset 0 0 24px -6px rgba(244, 201, 106, 0.35);
+  transition:
+    top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cmRingPulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes cmRingPulse {
+  0%, 100% { border-color: rgba(244, 201, 106, 0.85); }
+  50% { border-color: rgba(244, 201, 106, 0.45); }
+}
+
+.cm-card {
+  position: absolute;
+  transition:
+    top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cmCardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+@keyframes cmCardIn {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* ============================================
+   First-feed entrance (fse-*) — staggered reveal
+   when the tour finishes and the welcome lands
+   ============================================ */
+
+.fse {
+  animation: fseIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fse-d1 { animation-delay: 0.1s; }
+.fse-d2 { animation-delay: 0.2s; }
+.fse-d3 { animation-delay: 0.3s; }
+.fse-d4 { animation-delay: 0.4s; }
+.fse-d5 { animation-delay: 0.5s; }
+.fse-d6 { animation-delay: 0.6s; }
+@keyframes fseIn {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-root,
+  .ob-copy,
+  .ob-line,
+  .ob-node,
+  .ob-card,
+  .ob-bar,
+  .ob-chip,
+  .ob-float,
+  .cm-root,
+  .cm-ring,
+  .cm-card,
+  .fse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

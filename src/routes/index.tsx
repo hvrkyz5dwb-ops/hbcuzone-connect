@@ -12,7 +12,16 @@ import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
-import { IntroCarousel, hasSeenIntro } from "@/components/IntroCarousel";
+import { OnboardingExperience } from "@/components/OnboardingExperience";
+import { SplashScreen } from "@/components/SplashScreen";
+import {
+  shouldPlaySplash,
+  markSplashPlayed,
+  hasSeenIntro,
+  markIntroSeen,
+  FIRST_FEED_EVENT,
+  consumeFeedStaggerPending,
+} from "@/lib/first-launch";
 import { AVAILABLE_CATEGORIES } from "@/lib/categories";
 import { useMarketplace } from "@/hooks/use-listings";
 import { useMyBusiness } from "@/hooks/use-business";
@@ -40,20 +49,62 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
-  // Guests never see the app. They either watch the intro (first open)
-  // or get bounced to /auth (already saw it). Signed-in users fall through
-  // to the full dashboard below — the statue splash plays via AppShell.
+  // Guests never see the app. First open: cinematic splash → onboarding
+  // slides → /auth. Returning guests go straight to /auth. Signed-in
+  // users fall through to the full dashboard below — the member journey
+  // (splash → onboarding → tour → welcome) runs via AppShell.
+  const [guestSplash, setGuestSplash] = useState(false);
+  const [guestIntro, setGuestIntro] = useState(false);
   useEffect(() => {
-    if (loading || session) return;
-    if (hasSeenIntro()) navigate({ to: "/auth", search: { next: "/", mode: "" } });
+    if (loading) return;
+    if (session) return;
+    if (shouldPlaySplash()) {
+      markSplashPlayed();
+      setGuestSplash(true);
+    } else if (!hasSeenIntro()) {
+      setGuestIntro(true);
+    } else {
+      navigate({ to: "/auth", search: { next: "/", mode: "" } });
+    }
   }, [loading, session, navigate]);
+
+  function finishGuestIntro() {
+    markIntroSeen();
+    setGuestIntro(false);
+    navigate({ to: "/auth", search: { next: "/", mode: "" } });
+  }
+
+  // One-time animated feed entrance after the coach-mark tour finishes:
+  // the welcome lands, then featured businesses & events stagger in.
+  const [feedStagger, setFeedStagger] = useState(false);
+  useEffect(() => {
+    const trigger = () => {
+      if (consumeFeedStaggerPending()) setFeedStagger(true);
+    };
+    trigger();
+    window.addEventListener(FIRST_FEED_EVENT, trigger);
+    return () => window.removeEventListener(FIRST_FEED_EVENT, trigger);
+  }, []);
+  useEffect(() => {
+    if (!feedStagger) return;
+    const t = window.setTimeout(() => setFeedStagger(false), 1500);
+    return () => window.clearTimeout(t);
+  }, [feedStagger]);
 
   if (!hydrated || loading) {
     return <div className="min-h-screen bg-background" aria-hidden="true" />;
   }
   if (!session) {
-    if (hasSeenIntro()) return <div className="min-h-screen bg-background" aria-hidden="true" />;
-    return <IntroCarousel />;
+    if (guestSplash) {
+      return (
+        <>
+          <SplashScreen onDone={() => { setGuestSplash(false); setGuestIntro(true); }} />
+          <div className="fixed inset-0 z-[90] bg-black" aria-hidden="true" />
+        </>
+      );
+    }
+    if (guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
+    return <div className="min-h-screen bg-background" aria-hidden="true" />;
   }
 
   return (
@@ -71,7 +122,9 @@ function Home() {
         </h1>
       </section>
 
-      <HeroCarousel />
+      <div className={feedStagger ? "fse fse-d1" : undefined}>
+        <HeroCarousel />
+      </div>
 
       {/* Search + Looking For */}
       <section className="mt-3 flex gap-2 px-5">
@@ -116,16 +169,24 @@ function Home() {
       </section>
 
       {/* Trending real listings */}
-      <TrendingListings />
+      <div className={feedStagger ? "fse fse-d2" : undefined}>
+        <TrendingListings />
+      </div>
 
       {/* Nearby campus services */}
-      <NearbyServices />
+      <div className={feedStagger ? "fse fse-d3" : undefined}>
+        <NearbyServices />
+      </div>
 
       {/* Upcoming campus events */}
-      <UpcomingEvents />
+      <div className={feedStagger ? "fse fse-d4" : undefined}>
+        <UpcomingEvents />
+      </div>
 
       {/* Sell on PlugU */}
-      <SellCta />
+      <div className={feedStagger ? "fse fse-d5" : undefined}>
+        <SellCta />
+      </div>
 
       {/* Community — student-posted campus updates */}
       <CommunityBoard />
@@ -213,7 +274,7 @@ function TrendingListings() {
   const navigate = useNavigate();
   const { data, isLoading } = useMarketplace({ sort: "popular", limit: 8 });
   return (
-    <section className="mt-7">
+    <section className="mt-7" data-tour="events">
       <SectionHeader title="Trending on PlugU" action="See all" onAction={() => navigate({ to: "/market" })} />
       {isLoading ? (
         <div className="px-5 flex gap-3 overflow-x-auto pb-2">
