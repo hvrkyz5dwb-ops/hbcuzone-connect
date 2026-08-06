@@ -230,7 +230,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
         <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
           <div
-            className="mx-3 mb-4 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
+            className="mx-3 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
             style={{
               background: "linear-gradient(180deg, rgba(23,23,23,0.72), rgba(10,10,10,0.82))",
               backdropFilter: "blur(28px) saturate(160%)",
