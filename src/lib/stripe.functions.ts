@@ -298,6 +298,27 @@ export const verifyPlanCheckout = createServerFn({ method: "GET" })
     if (!planKey || s.metadata?.plugu_user_id !== context.userId) {
       throw new Error("This payment doesn't belong to your account.");
     }
+
+    // Record the promo redemption exactly once per paid session so caps
+    // and per-account limits reflect real purchases only.
+    if (s.payment_status === "paid" && s.metadata?.plugu_promo_code_id) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const original = Number(s.metadata.plugu_original_cents ?? s.amount_total ?? 0);
+      const final = s.amount_total ?? original;
+      await supabaseAdmin.from("promo_code_redemptions").upsert(
+        {
+          code_id: s.metadata.plugu_promo_code_id,
+          user_id: context.userId,
+          plan_key: planKey,
+          original_cents: original,
+          discount_cents: Math.max(0, original - final),
+          final_cents: final,
+          stripe_session_id: s.id,
+        },
+        { onConflict: "stripe_session_id", ignoreDuplicates: true },
+      );
+    }
+
     return {
       paid: s.payment_status === "paid",
       planKey,
