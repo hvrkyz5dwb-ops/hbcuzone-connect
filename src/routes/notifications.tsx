@@ -83,8 +83,8 @@ function NotificationsPage() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="min-w-0">
             <p className="text-[10px] tracking-[0.24em] uppercase" style={{ color: "var(--plugu-gold)" }}>Inbox</p>
-            <h1 className="text-xl font-bold truncate">
-              {unread > 0 ? `${unread} new` : "You're all caught up"}
+            <h1 className="text-lg font-bold truncate">
+              {unread > 0 ? `${unread} new` : "All caught up"}
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
