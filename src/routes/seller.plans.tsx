@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, Crown, ShieldCheck, Sparkles, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,6 @@ import {
   getSellerPlanState,
   planDaysRemaining,
   setSellerPlan,
-  type BillingCycle,
   type SellerTier,
 } from "@/lib/seller-plan";
 import { saveSelectedPlan } from "@/lib/plan-storage";
@@ -20,13 +19,12 @@ export const Route = createFileRoute("/seller/plans")({
 });
 
 function SellerPlansPage() {
+  const navigate = useNavigate();
   const [tier, setTier] = useState<SellerTier>("free");
-  const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   useEffect(() => {
     const { plan, expired } = getSellerPlanState();
     setTier(plan.tier);
-    if (plan.cycle) setCycle(plan.cycle);
     setDaysLeft(planDaysRemaining(plan));
     if (expired) {
       toast("Membership expired", { description: "Your paid plan ran out — you're back on Free Seller (5% fee)." });
@@ -34,17 +32,18 @@ function SellerPlansPage() {
   }, []);
 
   function choose(next: SellerTier) {
-    const plan = setSellerPlan(next, cycle);
+    const meta = SELLER_TIERS.find((t) => t.key === next)!;
+    if (next !== "free") {
+      // Paid tiers activate only after a confirmed Stripe payment.
+      navigate({ to: "/checkout", search: { plan: `seller_${next}_${meta.cycle}` } });
+      return;
+    }
+    const plan = setSellerPlan(next, meta.cycle);
     setTier(next);
     setDaysLeft(planDaysRemaining(plan));
-    const meta = SELLER_TIERS.find((t) => t.key === next)!;
-    const price = cycle === "year" ? meta.pricing.year : cycle === "semester" ? meta.pricing.semester : meta.pricing.monthly;
-    saveSelectedPlan({ key: `seller_${next}_${cycle}`, name: `${meta.name} · ${cycle}`, price: price ?? 0 });
+    saveSelectedPlan({ key: `seller_${next}_${meta.cycle}`, name: `${meta.name} · ${meta.cycle}`, price: 0 });
     toast.success(`Now on ${SELLER_TIERS.find((t) => t.key === next)?.name}`, {
-      description:
-        next === "free"
-          ? "5% fee applies to sales."
-          : `${next === "pro" ? "2% fee. Verified Pro badge active." : "0% fee. Gold KingPin unlocked."} Valid for ${CYCLE_VALIDITY[cycle].label}.`,
+      description: "5% fee applies to sales.",
     });
   }
 
@@ -59,31 +58,16 @@ function SellerPlansPage() {
           </p>
         </div>
 
-        <div className="mt-5 mx-auto max-w-xs grid grid-cols-3 rounded-full border border-border p-1 bg-card text-[11px] font-semibold">
-          {(["monthly", "semester", "year"] as BillingCycle[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => setCycle(c)}
-              className={`tap rounded-full py-1.5 uppercase tracking-wider transition-colors ${
-                cycle === c ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {c === "monthly" ? "Monthly" : c === "semester" ? "Semester" : "Yearly"}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
           <Clock className="h-3 w-3 text-accent" />
-          Bigger plan, longer access — valid for {CYCLE_VALIDITY[cycle].label}.
+          Each tier has one fixed billing period — no surprise renewals.
         </p>
 
         <div className="mt-6 space-y-3">
           {SELLER_TIERS.map((t) => {
             const active = tier === t.key;
-            const cyclePrice =
-              cycle === "year" ? t.pricing.year : cycle === "semester" ? t.pricing.semester : t.pricing.monthly;
-            const cycleLabel = cycle === "year" ? "/yr" : cycle === "semester" ? "/sem" : "/mo";
-            const price = cyclePrice ?? t.pricing.monthly;
+            const cycleLabel = t.cycle === "year" ? "/yr" : t.cycle === "semester" ? "/sem" : "";
+            const price = t.price;
             return (
               <div
                 key={t.key}
@@ -130,7 +114,7 @@ function SellerPlansPage() {
                 </div>
                 {price > 0 && (
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Valid for {CYCLE_VALIDITY[cycle].label}
+                    Valid for {CYCLE_VALIDITY[t.cycle].label}
                   </p>
                 )}
                 {active && daysLeft !== null && (
