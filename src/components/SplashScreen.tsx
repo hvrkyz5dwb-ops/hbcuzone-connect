@@ -136,7 +136,24 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
 
   return (
     <div className="spl-root fixed inset-0 z-[100] overflow-hidden bg-black" aria-hidden="true">
-      {/* The monument — reveal → power-build sway → strike shake → zoom through the P */}
+      {/* Ambient gold dust — floating from the first frame */}
+      {GOLD_DUST.map((p, i) => (
+        <span
+          key={`d${i}`}
+          className="spl-dust"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.s,
+            height: p.s,
+            animationDelay: p.d,
+            ["--dx" as string]: p.dx,
+            ["--o" as string]: p.o,
+          }}
+        />
+      ))}
+
+      {/* The monument — reveal → strike shake → 105% spring → brand hold */}
       <div className="spl-stage absolute inset-0">
         <img
           src={monumentDark.url}
@@ -156,16 +173,13 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
           decoding="async"
           draggable={false}
         />
-        {/* Lens bloom during the zoom-through (static blurred layer, opacity only) */}
-        <img
-          src={monumentLit.url}
-          alt=""
-          className="spl-zoombloom absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: "50% 40%", filter: "blur(18px) saturate(1.3)", transform: "scale(1.15)" }}
-          decoding="async"
-          draggable={false}
-        />
       </div>
+
+      {/* Dark-gold horizon illumination once power is on (screen blend) */}
+      <div className="spl-goldbg" />
+
+      {/* Polished-metal shimmer sweeping across the lit logo */}
+      <div className="spl-shimmer" />
 
       {/* Lightning bolt + branches striking the U */}
       <svg className="spl-bolt" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
