@@ -246,6 +246,7 @@ export const createPlanCheckoutSession = createServerFn({ method: "POST" })
       planKey: z.string().min(3).max(120),
       successUrl: z.string().url(),
       cancelUrl: z.string().url(),
+      promoCode: z.string().trim().min(2).max(40).optional(),
     }).parse(v),
   )
   .handler(async ({ data, context }) => {
@@ -257,9 +258,32 @@ export const createPlanCheckoutSession = createServerFn({ method: "POST" })
     const plan = resolvePlanKey(data.planKey);
     if (!plan) throw new Error("That plan is no longer available.");
 
+    // Promo codes apply to seller subscriptions only. The code is
+    // re-validated server-side (active, expiry, redemption limits) and
+    // the discount is computed here — the client never sets the amount.
+    let unitAmount = plan.unitAmountCents;
+    let promo: { id: string; code: string; percent: number } | null = null;
+    if (data.promoCode) {
+      if (plan.kind !== "membership") {
+        throw new Error("Promo codes can only be applied to seller subscriptions.");
+      }
+      const { data: v, error } = await context.supabase.rpc("validate_promo_code", {
+        _code: data.promoCode,
+        _user_id: context.userId,
+      });
+      const res = v as unknown as {
+        valid: boolean; message?: string; code_id?: string; code?: string; discount_percent?: number;
+      } | null;
+      if (error || !res?.valid || !res.code_id || !res.discount_percent) {
+        throw new Error(res?.message ?? "That promo code can't be applied right now.");
+      }
+      promo = { id: res.code_id, code: res.code ?? data.promoCode, percent: res.discount_percent };
+      unitAmount = Math.max(50, Math.round((plan.unitAmountCents * (100 - promo.percent)) / 100));
+    }
+
     const session = await stripeFetch<{ id: string; url: string }>("/checkout/sessions", {
       method: "POST",
-      idempotencyKey: `plan_${context.userId}_${plan.key}`,
+      idempotencyKey: `plan_${context.userId}_${plan.key}${promo ? `_${promo.id}` : ""}`,
       body: {
         mode: "payment",
         success_url: data.successUrl,
@@ -268,11 +292,21 @@ export const createPlanCheckoutSession = createServerFn({ method: "POST" })
           quantity: 1,
           price_data: {
             currency: "usd",
-            unit_amount: plan.unitAmountCents,
-            product_data: { name: plan.name },
+            unit_amount: unitAmount,
+            product_data: { name: promo ? `${plan.name} (${promo.percent}% off — ${promo.code})` : plan.name },
           },
         }],
-        metadata: { plugu_plan_key: plan.key, plugu_user_id: context.userId },
+        metadata: {
+          plugu_plan_key: plan.key,
+          plugu_user_id: context.userId,
+          ...(promo
+            ? {
+                plugu_promo_code_id: promo.id,
+                plugu_promo_code: promo.code,
+                plugu_original_cents: String(plan.unitAmountCents),
+              }
+            : {}),
+        },
       },
     });
 
