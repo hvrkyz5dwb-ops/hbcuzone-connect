@@ -136,10 +136,10 @@ export function CampusPulse() {
                 {weather?.blurb ?? (weatherQ.isPending ? "Checking sky…" : "Campus weather")}
               </p>
             </div>
-            <button aria-label="Notifications" className="relative h-10 w-10 grid place-items-center rounded-full bg-secondary border border-border">
+            <Link to="/notifications" aria-label="Notifications" className="relative h-10 w-10 grid place-items-center rounded-full bg-secondary border border-border">
               <Bell className="h-4 w-4" />
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>

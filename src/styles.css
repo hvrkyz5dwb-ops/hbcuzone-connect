@@ -1099,11 +1099,14 @@ img, video { content-visibility: auto; }
   to { opacity: 1; }
 }
 /* Skip pressed — everything cuts to a short, smooth fade */
-.spl-root.spl-skipping,
 .spl-root.spl-skipping * {
   animation-play-state: paused;
 }
 .spl-root.spl-skipping {
+  /* Clear the spl-exit keyframes first — CSS animations override transitions
+     in the cascade, so without this the Skip fade never runs and the splash
+     hard-cuts instead of dissolving. */
+  animation: none;
   opacity: 0;
   transition: opacity 0.24s ease;
 }

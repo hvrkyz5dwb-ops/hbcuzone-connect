@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   AlertTriangle, Phone, MapPin, ShieldCheck, GraduationCap, Heart,
   Car, BookOpen, Home, Calendar, Tag, Bell, Search, Mail
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { toast } from "sonner";
 import { lostAndFound, rideBoard, studyGroups, housingBoard, studentDeals, events } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/safety")({
@@ -26,6 +27,17 @@ const TABS = [
 function SafetyHub() {
   const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("verify");
   const [sos, setSos] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState("");
+
+  function sendVerification() {
+    const email = verifyEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.edu$/.test(email)) {
+      toast.error("Enter a valid .edu email address");
+      return;
+    }
+    toast.success(`Verification link sent to ${email}`);
+    setVerifyEmail("");
+  }
 
   return (
     <AppShell title="SAFETY & TOOLS">
@@ -83,9 +95,20 @@ function SafetyHub() {
             </p>
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary border border-border">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <input placeholder="you@school.edu" className="bg-transparent flex-1 text-sm outline-none" />
+              <input
+                type="email"
+                value={verifyEmail}
+                onChange={(e) => setVerifyEmail(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") sendVerification(); }}
+                placeholder="you@school.edu"
+                aria-label="School email"
+                className="bg-transparent flex-1 text-sm outline-none"
+              />
             </div>
-            <button className="w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+            <button
+              onClick={sendVerification}
+              className="tap w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
+            >
               Send verification link
             </button>
           </div>
@@ -186,6 +209,7 @@ function SafetyHub() {
 }
 
 function Listing({ items, cta }: { items: { title: string; meta: string }[]; cta: string }) {
+  const navigate = useNavigate();
   return (
     <>
       <ul className="rounded-2xl bg-card border border-border divide-y divide-border">
@@ -196,7 +220,10 @@ function Listing({ items, cta }: { items: { title: string; meta: string }[]; cta
           </li>
         ))}
       </ul>
-      <button className="mt-3 w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+      <button
+        onClick={() => navigate({ to: "/community" })}
+        className="tap mt-3 w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
+      >
         {cta}
       </button>
     </>

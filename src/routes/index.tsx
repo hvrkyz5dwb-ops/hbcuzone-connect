@@ -5,6 +5,7 @@ import {
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CommunityBoard } from "@/components/CommunityBoard";
+import { CampusFeed } from "@/components/CampusFeed";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
@@ -147,6 +148,9 @@ function Home() {
       <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
 
       <VerificationBanner />
+
+      {/* Campus feed — "See what's popping" */}
+      <CampusFeed />
 
       {/* Marketplace categories */}
       <section className="mt-6">

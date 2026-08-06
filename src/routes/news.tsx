@@ -28,6 +28,7 @@ function NewsCenter() {
   const [tab, setTab] = useState<NewsTab>("Campus");
   const [filters, setFilters] = useState<Set<NewsFilter>>(new Set());
   const [q, setQ] = useState("");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [saved, setSaved] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
     try {
@@ -182,6 +183,7 @@ function NewsCenter() {
           <ul className="px-5 space-y-3">
             {list.map((a) => {
               const isSaved = saved.has(a.id);
+              const isOpen = expanded.has(a.id);
               return (
                 <li key={a.id} className="rounded-2xl border border-border bg-card overflow-hidden">
                   <div className="flex gap-3 p-3">
@@ -203,7 +205,7 @@ function NewsCenter() {
                         <span className="text-[10px] text-muted-foreground truncate">· {a.source} · {a.time}</span>
                       </div>
                       <p className="mt-0.5 text-sm font-semibold leading-snug">{a.headline}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{a.summary}</p>
+                      <p className={`text-xs text-muted-foreground mt-0.5 ${isOpen ? "" : "line-clamp-2"}`}>{a.summary}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border/60 px-3 py-2">
@@ -225,8 +227,19 @@ function NewsCenter() {
                         <Share2 className="h-3.5 w-3.5" /> Share
                       </button>
                     </div>
-                    <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                      Read more <ArrowRight className="h-3 w-3" />
+                    <button
+                      onClick={() =>
+                        setExpanded((prev) => {
+                          const next = new Set(prev);
+                          next.has(a.id) ? next.delete(a.id) : next.add(a.id);
+                          return next;
+                        })
+                      }
+                      aria-expanded={isOpen}
+                      className="tap inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+                    >
+                      {isOpen ? "Read less" : "Read more"}{" "}
+                      <ArrowRight className={`h-3 w-3 transition-transform ${isOpen ? "-rotate-90" : ""}`} />
                     </button>
                   </div>
                 </li>
