@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowRight, CalendarDays, GraduationCap, MapPin, Quote, Star, TrendingUp,
+  ArrowRight, BadgeCheck, CalendarDays, GraduationCap, MapPin, Quote, Star, Store, TrendingUp,
 } from "lucide-react";
 import { useMarketplace } from "@/hooks/use-listings";
 import { useCampusEvents } from "@/hooks/use-campus";
+import { useFeaturedPromotions } from "@/hooks/use-featured";
 import { opportunities } from "@/lib/opportunities-data";
 
 const GOLD = "var(--plugu-gold)";
@@ -27,7 +28,7 @@ function centsToPrice(cents: number) {
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
 
-const SLIDE_COUNT = 5;
+const SLIDE_COUNT = 6;
 
 function Slide({
   tint, icon, eyebrow, children, cta,
@@ -118,6 +119,9 @@ export function HeroCarousel() {
         </p>
       )}
     </Slide>,
+
+    // 2 — Featured businesses & events (Pro / KingPin promotions)
+    <FeaturedSlide key="featured" />,
 
     // 2 — Campus events
     <Slide
@@ -214,7 +218,7 @@ export function HeroCarousel() {
     <section className="mt-3 px-5" aria-label="Highlights">
       <div
         className="relative overflow-hidden rounded-3xl border border-border bg-card"
-        style={i === 4 ? {
+        style={i === 5 ? {
           background:
             "linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.1) 55%), radial-gradient(ellipse 90% 70% at 50% 115%, color-mix(in oklab, var(--plugu-gold) 45%, transparent), transparent 70%)",
         } : undefined}
@@ -258,5 +262,92 @@ export function HeroCarousel() {
         ))}
       </div>
     </section>
+  );
+}
+
+/**
+ * "Businesses & Events You Should Know" — the single promotional slot on
+ * Home. Shows featured sellers/events from the featured_promotions RPC,
+ * which already filters by the viewer's campus and each seller's promo
+ * scope. Auto-rotates through the targeted set.
+ */
+function FeaturedSlide() {
+  const { data } = useFeaturedPromotions();
+  const items = data ?? [];
+  const [n, setN] = useState(0);
+
+  useEffect(() => {
+    if (items.length < 2) return;
+    const t = setInterval(() => setN((x) => (x + 1) % items.length), 4000);
+    return () => clearInterval(t);
+  }, [items.length]);
+
+  if (items.length === 0) {
+    return (
+      <Slide
+        tint={GOLD}
+        icon={<Store className="h-3 w-3" />}
+        eyebrow="Businesses & Events You Should Know"
+        cta={<Cta to="/upgrade" tint={GOLD}>Get featured</Cta>}
+      >
+        <p className="mt-2 text-[13px] text-muted-foreground">
+          Featured campus businesses and events appear here. Sellers on Verified Pro and KingPin get showcased to students on their campus.
+        </p>
+      </Slide>
+    );
+  }
+
+  const f = items[n % items.length];
+  const accent = f.tier === "kingpin" ? "#f4c96a" : "#c9c9c9";
+  const to = f.kind === "event" ? "/campus" : f.username ? `/u/${f.username}` : "/market";
+
+  return (
+    <Slide
+      tint={GOLD}
+      icon={<Store className="h-3 w-3" />}
+      eyebrow="Businesses & Events You Should Know"
+      cta={<Cta to={to} tint={GOLD}>{f.kind === "event" ? "View Event" : "View Business"}</Cta>}
+    >
+      <div className="mt-2 flex items-center gap-3">
+        <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl border border-border bg-black/40">
+          {f.image_url ? (
+            <img src={f.image_url} alt="" className="h-full w-full object-cover" loading="lazy" />
+          ) : (
+            <Store className="h-5 w-5 text-muted-foreground" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1 text-[13px] font-semibold">
+            <span className="truncate">{f.name}</span>
+            {f.verified && <BadgeCheck className="h-3.5 w-3.5 shrink-0" style={{ color: GOLD }} />}
+          </p>
+          <p className="truncate text-[10px] uppercase tracking-wider" style={{ color: accent }}>
+            {f.tier === "kingpin" ? "KingPin" : "Verified Pro"}
+            {" · "}
+            {f.category ?? (f.kind === "event" ? "Event" : "Business")}
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">
+            {f.description}
+            {f.campus ? `${f.description ? " · " : ""}${f.campus}` : ""}
+          </p>
+        </div>
+      </div>
+      {items.length > 1 && (
+        <div className="mt-1.5 flex gap-1" aria-hidden="true">
+          {items.slice(0, 8).map((_, idx) => (
+            <span
+              key={idx}
+              className="h-1 rounded-full transition-all"
+              style={{
+                width: idx === n % items.length ? 10 : 4,
+                background: idx === n % items.length
+                  ? GOLD
+                  : "color-mix(in oklab, var(--foreground) 20%, transparent)",
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </Slide>
   );
 }
