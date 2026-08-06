@@ -504,122 +504,257 @@ img, video { content-visibility: auto; }
   }
 }
 
-/* ===== Cinematic splash ===== */
-@keyframes splash-stage-rotate {
-  0%   { transform: scale(1.18) translateX(2%) rotate(0.0deg); }
-  100% { transform: scale(1.12) translateX(-2%) rotate(-1.2deg); }
-}
-@keyframes splash-statue-reveal {
-  0%   { filter: brightness(0.05) contrast(1.4) saturate(0.4); opacity: 0; }
-  25%  { opacity: 1; filter: brightness(0.15) contrast(1.35) saturate(0.5); }
-  100% { filter: brightness(0.85) contrast(1.05) saturate(1); opacity: 1; }
-}
-@keyframes splash-keylight-in {
-  0%   { opacity: 0; }
-  60%  { opacity: 0.9; }
-  100% { opacity: 0.75; }
-}
-@keyframes splash-fade-up {
-  from { opacity: 0; transform: translateY(8px); letter-spacing: 0.55em; }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes splash-plug-pulse {
-  0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
-  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.18); }
-}
-@keyframes splash-particle-travel {
-  0%   { opacity: 0; transform: translate(-50%, 20px) scale(0.6); }
-  20%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -90px) scale(1.1); }
+/* =====================================================
+   PlugU Launch Splash — "The Monument Powers On" (2.6s)
+   Timeline: darkness → reveal → power builds → lightning
+   strikes the U → energy wave → P ignites → power surge →
+   camera zooms through the P into the app.
+   Only transform/opacity animate (compositor-friendly).
+   ===================================================== */
+
+.spl-root {
+  contain: strict;
 }
 
-.splash-stage {
-  animation: splash-stage-rotate 3s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transform-origin: 50% 55%;
+/* Scene 1 + 4 + 6 — reveal, strike shake, zoom through the P */
+@keyframes spl-stage {
+  0%    { opacity: 0; transform: scale(1.06); }
+  16%   { opacity: 1; transform: scale(1.02); }
+  34%   { transform: scale(1); }
+  47%   { transform: translate(0, 0); }
+  50%   { transform: translate(1.5px, -1px); }
+  52%   { transform: translate(-1.5px, 1px); }
+  54%   { transform: translate(1px, 1px); }
+  56%   { transform: translate(-0.5px, -0.5px); }
+  60%   { transform: translate(0, 0); }
+  74%   { transform: scale(1.03); }
+  88%   { transform: scale(1.1); opacity: 1; }
+  100%  { transform: scale(7.5); opacity: 0; }
 }
-.splash-statue {
-  animation: splash-statue-reveal 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.splash-keylight {
-  background:
-    radial-gradient(40% 30% at 50% 38%, rgba(180, 210, 255, 0.18), transparent 70%),
-    radial-gradient(55% 45% at 50% 60%, color-mix(in oklab, var(--plugu-gold) 22%, transparent), transparent 75%),
-    linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.85) 100%);
-  animation: splash-keylight-in 2.2s ease-out both;
+.spl-stage {
+  animation: spl-stage 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: 50% 33%; /* zoom centers on the P bowl */
+  will-change: transform, opacity;
 }
 
-.splash-plug {
+/* Scene 5 — powered-on plate cross-fades in as energy floods the P */
+@keyframes spl-lit {
+  0%, 54%  { opacity: 0; }
+  62%      { opacity: 0.55; }
+  70%, 100% { opacity: 1; }
+}
+.spl-lit {
+  opacity: 0;
+  animation: spl-lit 2.6s linear both;
+}
+
+/* Lens bloom that fades in as the camera passes through the P.
+   The blur is static — only opacity animates. */
+@keyframes spl-zoombloom {
+  0%, 84%  { opacity: 0; }
+  93%      { opacity: 0.65; }
+  100%     { opacity: 0; }
+}
+.spl-zoombloom {
+  opacity: 0;
+  animation: spl-zoombloom 2.6s linear both;
+}
+
+/* Scene 4 — the bolt draws down onto the U, holds, then dies */
+@keyframes spl-bolt-draw {
+  0%, 47.5% { opacity: 0; stroke-dashoffset: 100; }
+  49.5%     { opacity: 1; }
+  54%       { opacity: 1; stroke-dashoffset: 0; }
+  60%       { opacity: 0.85; }
+  70%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+.spl-bolt {
   position: absolute;
-  left: 50%;
-  top: 46%;
-  width: 0;
-  height: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
-.splash-plug-core {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 10px; height: 10px;
-  border-radius: 9999px;
-  background: radial-gradient(circle, #eaf6ff 0%, #7cc4ff 55%, transparent 75%);
-  box-shadow: 0 0 18px 4px rgba(140, 200, 255, 0.85);
-  transform: translate(-50%, -50%);
-  animation: splash-plug-pulse 1.6s ease-in-out 0.6s infinite;
+.spl-bolt path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: spl-bolt-draw 2.6s cubic-bezier(0.3, 0.7, 0.3, 1) both;
 }
-.splash-plug-halo {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 90px; height: 90px;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(120, 190, 255, 0.35), transparent 65%);
-  transform: translate(-50%, -50%);
-  animation: splash-plug-pulse 2.4s ease-in-out 0.4s infinite;
-  filter: blur(2px);
+.spl-bolt .spl-branch {
+  animation-delay: 0.045s;
 }
-.splash-particle {
+
+/* Residual arcs dancing around the U just after the strike */
+@keyframes spl-arcs-op {
+  0%, 51%   { opacity: 0; }
+  52.5%     { opacity: 0.9; }
+  54%       { opacity: 0.2; }
+  55.5%     { opacity: 0.85; }
+  59%, 100% { opacity: 0; }
+}
+.spl-arcs {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  animation: spl-arcs-op 2.6s linear both;
+}
+.spl-arcs path {
+  fill: none;
+  stroke: #fff3cf;
+  stroke-width: 0.45;
+  stroke-linecap: round;
+}
+
+/* Full-screen strike flash — double flicker, then gone */
+@keyframes spl-flash {
+  0%, 48%   { opacity: 0; }
+  50%       { opacity: 0.95; }
+  52%       { opacity: 0.15; }
+  53.5%     { opacity: 0.5; }
+  62%, 100% { opacity: 0; }
+}
+.spl-flash {
+  background: radial-gradient(90% 70% at 55% 45%, rgba(255, 246, 220, 0.95), rgba(190, 220, 255, 0.5) 60%, transparent 100%);
+  opacity: 0;
+  animation: spl-flash 2.6s linear both;
+}
+
+/* Warm backlight bloom behind the P once the monument is lit */
+@keyframes spl-bloom {
+  0%, 56%  { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  66%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+  76%      { opacity: 0.55; }
+  82%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.12); } /* surge */
+  90%      { opacity: 0.6; }
+  100%     { opacity: 0.75; transform: translate(-50%, -50%) scale(1.05); }
+}
+.spl-bloom {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: min(85vmin, 700px);
+  height: min(85vmin, 700px);
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(246, 210, 122, 0.5) 0%, rgba(246, 210, 122, 0.16) 42%, transparent 70%);
+  opacity: 0;
+  animation: spl-bloom 2.6s ease-out both;
+  will-change: opacity, transform;
+}
+
+/* Scene 5 — gold energy wave sweeps from the U up past the P */
+@keyframes spl-sweep {
+  0%, 51%   { opacity: 0; transform: translateX(-50%) translateY(60%); }
+  56%       { opacity: 0.9; }
+  66%       { opacity: 0.7; transform: translateX(-50%) translateY(-60%); }
+  72%, 100% { opacity: 0; transform: translateX(-50%) translateY(-60%); }
+}
+.spl-sweep {
+  position: absolute;
+  left: 50%;
   top: 50%;
-  width: 3px; height: 3px;
+  width: 130%;
+  height: 34%;
+  transform: translateX(-50%) translateY(60%);
+  background: linear-gradient(180deg, transparent, rgba(246, 210, 122, 0.34) 45%, rgba(255, 240, 194, 0.55) 50%, rgba(246, 210, 122, 0.34) 55%, transparent);
+  opacity: 0;
+  animation: spl-sweep 2.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Scene 6 — shockwave rings off the impact point */
+@keyframes spl-shock {
+  0%, 49.5% { opacity: 0; transform: translate(-50%, -50%) scale(0.12); }
+  51%       { opacity: 0.85; }
+  68%       { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  100%      { opacity: 0; }
+}
+.spl-shock {
+  position: absolute;
+  left: 66%;
+  top: 63.5%;
+  width: 42vmin;
+  height: 42vmin;
   border-radius: 9999px;
-  background: #d6ecff;
-  box-shadow: 0 0 8px 2px rgba(180, 220, 255, 0.9);
-  animation: splash-particle-travel 1.8s ease-out infinite;
+  border: 2px solid rgba(246, 210, 122, 0.75);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: spl-shock 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+.spl-shock-2 {
+  width: 30vmin;
+  height: 30vmin;
+  border-width: 1px;
+  border-color: rgba(255, 240, 194, 0.55);
+  animation-delay: 0.16s;
 }
 
-.splash-logo {
-  animation: splash-fade-up 1s ease-out 1.4s both;
-  filter: drop-shadow(0 0 18px rgba(255, 220, 140, 0.45));
+/* Scenes 2-3 + 6 — gold sparks rising around the plug prongs */
+@keyframes spl-spark-rise {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  12%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 6px), -64px) scale(1); }
 }
-.splash-wordmark {
-  animation: splash-fade-up 1s ease-out 1.65s both;
-}
-.splash-slogan {
-  animation: splash-fade-up 1s ease-out 1.95s both;
+.spl-spark {
+  width: 3px;
+  height: 3px;
+  background: radial-gradient(circle, #fff3cf 0%, rgba(246, 210, 122, 0.9) 45%, transparent 75%);
+  box-shadow: 0 0 8px 2px rgba(246, 210, 122, 0.65);
+  opacity: 0;
+  animation: spl-spark-rise 0.85s ease-out both;
+  will-change: transform, opacity;
 }
 
-/* === Login Transition === */
-@keyframes login-flash {
-  0% { opacity: 0; }
-  20% { opacity: 1; }
-  60% { opacity: 0.4; }
-  100% { opacity: 0; }
+/* Scene 4 — radial spark burst when the bolt lands on the U */
+@keyframes spl-burst {
+  0%, 50% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  52%     { opacity: 1; }
+  72%     { opacity: 0; transform: translate(calc(-50% + var(--bx, 20px)), calc(-50% + var(--by, -30px))) scale(1); }
+  100%    { opacity: 0; }
 }
-@keyframes login-zoom {
-  0% { transform: scale(1); filter: brightness(1); }
-  60% { transform: scale(1.6); filter: brightness(1.15); }
-  100% { transform: scale(3.2); filter: brightness(1.4); }
+.spl-burst {
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #ffffff 0%, rgba(246, 210, 122, 0.9) 40%, transparent 75%);
+  box-shadow: 0 0 10px 2px rgba(246, 210, 122, 0.7);
+  opacity: 0;
+  animation: spl-burst 2.6s ease-out both;
+  will-change: transform, opacity;
 }
-@keyframes login-fade-out {
-  0%, 70% { opacity: 1; }
-  100% { opacity: 0; }
+
+/* Scene 6 — whiteout as the camera passes through the P */
+@keyframes spl-whiteout {
+  0%, 86% { opacity: 0; }
+  94%     { opacity: 0.92; }
+  100%    { opacity: 1; }
 }
-@keyframes login-vignette {
-  0% { opacity: 0.5; }
-  100% { opacity: 1; }
+.spl-whiteout {
+  background: radial-gradient(100% 80% at 50% 40%, #fff6dd 0%, #f4e4bc 55%, #e8cf9a 100%);
+  opacity: 0;
+  animation: spl-whiteout 2.6s ease-in both;
 }
-.login-transition { animation: login-fade-out 2.4s ease-in forwards; }
-.login-zoom { animation: login-zoom 2.4s cubic-bezier(0.5, 0, 0.75, 0) forwards; transform-origin: 50% 42%; }
-.login-flash { animation: login-flash 0.7s ease-out forwards; }
+
+/* One-time welcome card after account creation */
+@keyframes plugu-welcome-in {
+  0%   { opacity: 0; transform: translateY(16px) scale(0.94); }
+  60%  { opacity: 1; transform: translateY(0) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes plugu-welcome-out {
+  to { opacity: 0; transform: translateY(-10px) scale(0.97); }
+}
+.plugu-welcome-card {
+  animation:
+    plugu-welcome-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both,
+    plugu-welcome-out 0.3s ease-in 1.7s both;
+}
 
 @keyframes plugu-ticker {
   0%   { transform: translateX(0); }
