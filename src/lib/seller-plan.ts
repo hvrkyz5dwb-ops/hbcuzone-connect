@@ -49,7 +49,7 @@ export const SELLER_TIERS: {
     tagline: "For hustlers who ship every week.",
     badge: "Verified Pro",
     accent: "#c9c9c9",
-    roi: "Sell just 2\u20133 extra items each month and this membership typically pays for itself.",
+    roi: "A couple of extra sales each month typically covers the entire semester.",
     perks: [
       "2% transaction fee",
       "Verified Pro badge",
