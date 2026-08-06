@@ -1,6 +1,6 @@
 // Synthesized cinematic SFX for the launch splash — no audio files.
 // Everything is generated with WebAudio so it stays tiny and instant.
-// Timed to the splash scene clock (2.6s). Fails silently when the
+// Timed to the splash scene clock (3.3s). Fails silently when the
 // browser blocks autoplay (cold launch before any user gesture).
 
 type AudioContextCtor = typeof AudioContext;
@@ -50,19 +50,19 @@ export function playSplashAudio(): () => void {
   };
 
   try {
-    // 1) Deep thunder rumble — swells as the monument appears (0–2.4s)
+    // 1) Deep thunder rumble — swells as the monument appears (0–3.1s)
     const thunder = ctx.createBufferSource();
-    thunder.buffer = brownNoise(2.6);
+    thunder.buffer = brownNoise(3.3);
     const thunderLp = ctx.createBiquadFilter();
     thunderLp.type = "lowpass";
     thunderLp.frequency.value = 120;
     const thunderGain = ctx.createGain();
     thunderGain.gain.setValueAtTime(0.0001, t0);
-    thunderGain.gain.linearRampToValueAtTime(0.55, t0 + 0.4);
-    thunderGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.4);
+    thunderGain.gain.linearRampToValueAtTime(0.55, t0 + 0.5);
+    thunderGain.gain.exponentialRampToValueAtTime(0.001, t0 + 3.1);
     thunder.connect(thunderLp).connect(thunderGain).connect(master);
     thunder.start(t0);
-    thunder.stop(t0 + 2.6);
+    thunder.stop(t0 + 3.3);
 
     // Sub-bass bed under everything
     const sub = ctx.createOscillator();
@@ -70,13 +70,13 @@ export function playSplashAudio(): () => void {
     sub.frequency.value = 42;
     const subGain = ctx.createGain();
     subGain.gain.setValueAtTime(0.12, t0);
-    subGain.gain.exponentialRampToValueAtTime(0.001, t0 + 2.3);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t0 + 3.0);
     sub.connect(subGain).connect(master);
     sub.start(t0);
-    sub.stop(t0 + 2.4);
+    sub.stop(t0 + 3.1);
 
-    // 2) Electrical crackle — sparks while power builds (0.9–2.1s)
-    const crackleAt = [0.92, 1.02, 1.1, 1.18, 1.27, 1.66, 1.74, 1.83, 1.92, 2.0];
+    // 2) Electrical crackle — sparks while power builds and ignites
+    const crackleAt = [0.92, 1.02, 1.1, 1.22, 1.3, 1.58, 1.68, 1.8, 1.92, 2.04, 2.16];
     for (const offset of crackleAt) {
       const start = t0 + offset;
       const crack = ctx.createBufferSource();
@@ -92,8 +92,8 @@ export function playSplashAudio(): () => void {
       crack.stop(start + 0.06);
     }
 
-    // 3) Bass impact on the lightning strike (1.3s)
-    const impactAt = t0 + 1.3;
+    // 3) Bass impact on the lightning strike (1.2s)
+    const impactAt = t0 + 1.2;
     const impact = ctx.createOscillator();
     impact.type = "sine";
     impact.frequency.setValueAtTime(68, impactAt);
@@ -119,8 +119,8 @@ export function playSplashAudio(): () => void {
     snap.start(impactAt);
     snap.stop(impactAt + 0.25);
 
-    // 4) Metallic power-up sweep as the P ignites (1.6s)
-    const powerAt = t0 + 1.6;
+    // 4) Metallic power-up sweep as the P ignites (1.5s)
+    const powerAt = t0 + 1.5;
     for (const [from, to] of [[180, 520], [272, 786]] as const) {
       const osc = ctx.createOscillator();
       osc.type = "triangle";
@@ -139,7 +139,7 @@ export function playSplashAudio(): () => void {
       osc.stop(powerAt + 0.6);
     }
 
-    // 5) Soft digital startup chime during the transition (2.12s)
+    // 5) Soft digital startup chime as the final pulse lands (2.82s)
     const chime = (freq: number, at: number, dur: number, vol: number) => {
       const start = t0 + at;
       const osc = ctx.createOscillator();
@@ -152,8 +152,8 @@ export function playSplashAudio(): () => void {
       osc.start(start);
       osc.stop(start + dur + 0.02);
     };
-    chime(659.25, 2.12, 0.16, 0.13); // E5
-    chime(880.0, 2.26, 0.24, 0.11); // A5
+    chime(659.25, 2.82, 0.16, 0.13); // E5
+    chime(880.0, 2.96, 0.26, 0.11); // A5
   } catch {
     // Any scheduling error → silence, never break the splash.
   }
