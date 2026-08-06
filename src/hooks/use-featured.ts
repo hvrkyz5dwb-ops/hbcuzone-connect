@@ -29,7 +29,7 @@ export function useFeaturedPromotions() {
     staleTime: 60_000,
     queryFn: async (): Promise<FeaturedPromotion[]> => {
       const { data, error } = await supabase.rpc("featured_promotions", {
-        _viewer_school_id: schoolId,
+        _viewer_school_id: schoolId ?? undefined,
       });
       if (error) throw error;
       return (data ?? []) as unknown as FeaturedPromotion[];
