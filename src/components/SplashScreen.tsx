@@ -4,26 +4,30 @@ import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
 import { playSplashAudio } from "@/lib/splash-audio";
 
 /**
- * PlugU launch splash — "The Monument Powers On" (2.6s).
+ * PlugU launch splash — "Power On" (3.3s).
  *
- * Scene clock (matches the storyboard):
- *   0.00–0.45s  Darkness → the obsidian monument reveals out of black
- *   0.45–1.25s  Power builds — gold sparks rise around the plug prongs
- *   1.30s       Lightning strikes the U at the base (bolt + flash + shake)
- *   1.35–1.60s  A gold energy wave sweeps up the pedestal
- *   1.55–1.90s  The whole monument powers on (lit plate cross-fades in)
- *   1.90–2.20s  Power surges — radial shockwave, bigger burst, brightness
- *   2.25–2.60s  Camera zooms through the P straight into the app
+ * Scene clock:
+ *   0.00–0.40s  Pure black → ambient gold dust begins floating
+ *   0.40–1.15s  The obsidian monument reveals out of darkness, rumble builds
+ *   1.20s       Lightning crashes from the sky onto the U (bolt + soft flash)
+ *   1.22–1.70s  The U burns hotter than everything else, pulsing with
+ *               electricity while a gold energy wave climbs the P
+ *   1.55–2.30s  The whole monument powers on; a polished-metal shimmer
+ *               sweeps the logo; sparks fly; dark gold horizon glows
+ *   2.20–2.90s  The logo springs to ~105% and settles back; brand hold
+ *   3.00–3.30s  One final pulse — a gold ring expands across the screen
+ *               and the splash crossfades into the app (already loaded
+ *               underneath), like the app itself powered on.
  *
  * SFX are synthesized with WebAudio (thunder, crackle, bass impact,
  * power-up, startup chime) — zero audio files.
  *
- * Perf: only transform/opacity animate on compositor layers; one static
- * blurred layer fades in during the final zoom. `contain: strict`
- * isolates paint from the app behind it. Both plates are preloaded
- * from __root.tsx. Reduced-motion users get a 1.2s static power-on.
+ * Perf: only transform/opacity animate on compositor layers; blend-mode
+ * layers are static and fade by opacity only. `contain: strict` isolates
+ * paint from the app behind it. Both plates are preloaded from
+ * __root.tsx. Reduced-motion users get a 1.2s static power-on.
  */
-const TOTAL_MS = 2600;
+const TOTAL_MS = 3300;
 const REDUCED_MS = 1200;
 
 // Bolt runs from the storm sky down onto the U (66%, 64% of the art).
