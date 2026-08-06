@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Check, Crown, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck, Calculator } from "lucide-react";
+import { Check, Crown, PlugZap, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck, Calculator } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
-import { SELLER_TIERS, setSellerPlan, getSellerPlanState, CYCLE_VALIDITY, type BillingCycle, type SellerTier } from "@/lib/seller-plan";
+import { SELLER_TIERS, setSellerPlan, getSellerPlanState, CYCLE_VALIDITY, type SellerTier } from "@/lib/seller-plan";
 import { saveSelectedPlan } from "@/lib/plan-storage";
 
 export const Route = createFileRoute("/upgrade")({
@@ -109,14 +109,12 @@ function BreakEven({
 function Upgrade() {
   const navigate = useNavigate();
   const [currentTier, setCurrentTier] = useState<SellerTier>("free");
-  const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [pending, setPending] = useState<SellerTier | null>(null);
   const { avg, setAvg } = useAvgSale();
 
   useEffect(() => {
     const { plan, expired } = getSellerPlanState();
     setCurrentTier(plan.tier);
-    if (plan.cycle) setCycle(plan.cycle);
     if (expired) {
       toast("Membership expired", { description: "Your paid plan ran out — you're back on Free Seller." });
     }
@@ -128,9 +126,9 @@ function Upgrade() {
     if (tier === "free") {
       setPending(tier);
       try {
-        setSellerPlan(tier, cycle);
+        setSellerPlan(tier, meta.cycle);
         setCurrentTier(tier);
-        saveSelectedPlan({ key: `seller_${tier}_${cycle}`, name: `${meta.name} · ${cycle}`, price: 0 });
+        saveSelectedPlan({ key: `seller_${tier}_${meta.cycle}`, name: `${meta.name} · ${meta.cycle}`, price: 0 });
         toast.success("Switched to Free Seller", { description: `${meta.fee}% fee applies` });
       } catch {
         toast.error("Couldn't switch plan", { description: "Please try again in a moment." });
@@ -140,11 +138,8 @@ function Upgrade() {
     }
     // Paid memberships activate only after a confirmed Stripe payment —
     // checkout verifies the session before unlocking the tier.
-    navigate({ to: "/checkout", search: { plan: `seller_${tier}_${cycle}` } });
+    navigate({ to: "/checkout", search: { plan: `seller_${tier}_${meta.cycle}` } });
   }
-
-  const cycleLabel = cycle === "year" ? "/yr" : cycle === "semester" ? "/sem" : "/mo";
-  const cycleMonths = cycle === "year" ? 12 : cycle === "semester" ? 5 : 1;
 
   return (
     <AppShell title="UPGRADE">
@@ -238,7 +233,7 @@ function Upgrade() {
                   <span className="text-[34px] leading-none font-black tracking-tight">
                     {price === 0 ? "Free" : money(price)}
                   </span>
-                  {price > 0 && <span className="text-xs text-muted-foreground">{cycleLabel}</span>}
+                  {price > 0 && <span className="text-xs text-muted-foreground">{perLabel}</span>}
                 </div>
                 {price > 0 && t.monthlyEquiv > 0 && (
                   <p className="mt-1 text-[11px] text-muted-foreground">
@@ -286,6 +281,43 @@ function Upgrade() {
               </div>
             );
           })}
+        </div>
+
+        {/* Don't Run off on the Plug */}
+        <div
+          className="relative mt-6 overflow-hidden rounded-3xl p-5"
+          style={{
+            background: "linear-gradient(160deg, rgba(24,24,24,0.95), rgba(9,9,9,0.96))",
+            border: "1px solid color-mix(in oklab, var(--plugu-gold) 38%, transparent)",
+            boxShadow: "0 0 46px -18px var(--plugu-gold)",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute -top-14 -right-14 h-40 w-40 rounded-full opacity-30 blur-3xl"
+            style={{ background: "var(--plugu-gold)" }}
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.24em] uppercase" style={{ color: "var(--plugu-gold)" }}>
+              <PlugZap className="h-3.5 w-3.5" /> Don't Run off on the Plug
+            </div>
+            <div className="mt-3 space-y-2.5 text-[12.5px] leading-relaxed text-foreground/90">
+              <p>PlugU was built to help student entrepreneurs turn their skills into real businesses.</p>
+              <p>Our goal isn't just to help you make money—we want to help you learn how to build, manage, and grow a business that lasts.</p>
+              <p>When you invest in your business, you're investing in yourself and your future.</p>
+              <p className="text-muted-foreground">
+                As our community grows, members may become eligible for exclusive opportunities, educational resources, promotional campaigns, and future PlugU initiatives designed to support student entrepreneurs.
+              </p>
+              <p className="font-semibold" style={{ color: "var(--plugu-gold)" }}>
+                Stay consistent. Build your brand. Don't Run off on the Plug.
+              </p>
+            </div>
+            <Link
+              to="/hub"
+              className="tap mt-4 inline-flex items-center gap-1.5 rounded-2xl bg-[image:var(--gradient-bronze)] px-4 py-2.5 text-xs font-semibold text-primary-foreground"
+            >
+              Learn More <ArrowRightIcon />
+            </Link>
+          </div>
         </div>
       </section>
 
