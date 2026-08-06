@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Star, ShoppingBag, DollarSign, CalendarDays, LineChart, Loader2 } from "lucide-react";
+import { Star, ShoppingBag, DollarSign, CalendarDays, LineChart } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
@@ -106,7 +107,13 @@ function SellerAnalytics() {
         </div>
 
         {q.isPending ? (
-          <div className="mt-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          <PageLoader message="Crunching your numbers…" />
+        ) : q.isError ? (
+          <ErrorState
+            title="Analytics didn't load"
+            description="We couldn't reach your sales stats. Check your connection and try again."
+            onRetry={() => void q.refetch()}
+          />
         ) : stats.totalCount === 0 ? (
           <div className="mt-6 rounded-2xl border border-border bg-card p-6 text-center">
             <ShoppingBag className="h-6 w-6 text-primary mx-auto" />

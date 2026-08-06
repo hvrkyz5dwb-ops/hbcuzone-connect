@@ -7,7 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useMyBusiness } from "@/hooks/use-business";
 import { AppShell, SectionHeader } from "@/components/AppShell";
-import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Loader2, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle, BarChart3, Users, Repeat } from "lucide-react";
+import { PageLoader } from "@/components/QueryStates";
+import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle, BarChart3, Users, Repeat } from "lucide-react";
 import { getStripeStatus, getMyPayoutAccount, createSellerOnboardingLink, syncPayoutAccount } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/seller/")({
@@ -58,7 +59,7 @@ function SellerDashboard() {
   if (loading) {
     return (
       <AppShell title="SELLER">
-        <div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <PageLoader message="Loading your dashboard…" />
       </AppShell>
     );
   }
