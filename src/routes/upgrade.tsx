@@ -315,7 +315,7 @@ function Upgrade() {
               to="/hub"
               className="tap mt-4 inline-flex items-center gap-1.5 rounded-2xl bg-[image:var(--gradient-bronze)] px-4 py-2.5 text-xs font-semibold text-primary-foreground"
             >
-              Learn More <ArrowRightIcon />
+              Learn More <TrendingUp className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
