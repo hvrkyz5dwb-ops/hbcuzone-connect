@@ -1152,6 +1152,95 @@ export type Database = {
           },
         ]
       }
+      promo_code_redemptions: {
+        Row: {
+          code_id: string
+          created_at: string
+          discount_cents: number
+          final_cents: number
+          id: string
+          original_cents: number
+          plan_key: string
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          created_at?: string
+          discount_cents: number
+          final_cents: number
+          id?: string
+          original_cents: number
+          plan_key: string
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          created_at?: string
+          discount_cents?: number
+          final_cents?: number
+          id?: string
+          original_cents?: number
+          plan_key?: string
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promo_codes: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          per_account_limit: number
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percent: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          per_account_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          per_account_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
@@ -1307,6 +1396,7 @@ export type Database = {
           current_period_end: string | null
           id: string
           plan_code: string
+          promo_scope: string
           status: string
           updated_at: string
           user_id: string
@@ -1316,6 +1406,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           plan_code: string
+          promo_scope?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -1325,6 +1416,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           plan_code?: string
+          promo_scope?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -1749,6 +1841,22 @@ export type Database = {
         }
         Returns: string
       }
+      featured_promotions: {
+        Args: { _viewer_school_id?: string }
+        Returns: {
+          campus: string
+          category: string
+          description: string
+          id: string
+          image_url: string
+          kind: string
+          name: string
+          starts_at: string
+          tier: string
+          username: string
+          verified: boolean
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1763,6 +1871,13 @@ export type Database = {
       is_suspended: { Args: { _user_id: string }; Returns: boolean }
       mark_all_notifications_read: { Args: never; Returns: number }
       mark_notification_read: { Args: { _id: string }; Returns: undefined }
+      seller_plan_ranks: {
+        Args: { _seller_ids: string[] }
+        Returns: {
+          plan_code: string
+          user_id: string
+        }[]
+      }
       transition_booking_status: {
         Args: { _booking_id: string; _next: string; _reason: string }
         Returns: undefined
@@ -1770,6 +1885,10 @@ export type Database = {
       transition_order_status: {
         Args: { _next: string; _note: string; _order_id: string }
         Returns: undefined
+      }
+      validate_promo_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
       }
     }
     Enums: {
