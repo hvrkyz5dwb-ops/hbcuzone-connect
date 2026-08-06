@@ -79,7 +79,7 @@ export function CampusFeed() {
           <p className="text-[10px] font-bold tracking-[0.22em] uppercase" style={{ color: "var(--plugu-gold)" }}>
             Campus Feed
           </p>
-          <h2 className="text-xl font-black leading-tight">What's poppin today</h2>
+          <h2 className="text-xl font-black leading-tight">See what's popping</h2>
         </div>
         <Link to="/messages" className="tap text-[11px] font-medium text-muted-foreground hover:text-foreground">
           Inbox →

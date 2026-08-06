@@ -30,6 +30,9 @@ import { playSplashAudio } from "@/lib/splash-audio";
  */
 const TOTAL_MS = 3300;
 const REDUCED_MS = 1200;
+// Let the spl-exit crossfade fully paint before React unmounts the splash —
+// firing the timer at exactly 3.3s can clip the final fade frame (hard cut).
+const EXIT_BUFFER_MS = 140;
 
 // Bolt runs from the storm sky down onto the U (66%, 64% of the art).
 const BOLT_MAIN = "M46,-2 L52,7 L45,13 L55,21 L49,29 L58,35 L51,43 L60,49 L55,55 L64,59 L66,64";
@@ -128,7 +131,7 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
         setGone(true);
         onDoneRef.current?.();
       },
-      prefersReduced ? REDUCED_MS : TOTAL_MS,
+      prefersReduced ? REDUCED_MS : TOTAL_MS + EXIT_BUFFER_MS,
     );
     return () => {
       window.clearTimeout(mainTimer.current);
