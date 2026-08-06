@@ -44,7 +44,7 @@ const SLIDES: Slide[] = [
     id: "trust",
     eyebrow: "Our mission",
     title: "Don't Run Off on the Plug.",
-    body: "PlugU was created to help students earn while learning how to build real businesses. Every verified purchase helps create opportunities for students. Members who actively build their businesses may become eligible for future PlugU programs, grants, rewards, and community initiatives as they become available.",
+    body: "Help students earn while building real businesses. Every verified purchase helps create opportunities for students. Members who actively build their businesses may become eligible for future PlugU programs, grants, rewards, and community initiatives as they become available.",
     scene: "trust",
   },
 ];
@@ -74,11 +74,11 @@ function SceneCampus() {
   return (
     <svg viewBox="0 0 320 210" className="ob-float w-full max-w-[320px]" aria-hidden="true">
       {/* campus silhouette */}
-      <g opacity="0.9">
-        <rect x="24" y="120" width="52" height="70" rx="4" fill="#141414" stroke="rgba(244,201,106,0.25)" />
-        <rect x="92" y="96" width="66" height="94" rx="4" fill="#101010" stroke="rgba(244,201,106,0.3)" />
-        <rect x="176" y="112" width="48" height="78" rx="4" fill="#141414" stroke="rgba(244,201,106,0.25)" />
-        <rect x="240" y="132" width="56" height="58" rx="4" fill="#0d0d0d" stroke="rgba(244,201,106,0.2)" />
+      <g opacity="0.95">
+        <rect x="24" y="120" width="52" height="70" rx="4" fill="#1c1c1c" stroke="rgba(244,201,106,0.4)" />
+        <rect x="92" y="96" width="66" height="94" rx="4" fill="#181818" stroke="rgba(244,201,106,0.5)" />
+        <rect x="176" y="112" width="48" height="78" rx="4" fill="#1c1c1c" stroke="rgba(244,201,106,0.4)" />
+        <rect x="240" y="132" width="56" height="58" rx="4" fill="#151515" stroke="rgba(244,201,106,0.32)" />
         {[110, 126, 142].map((y) => (
           <g key={y}>
             <rect x="104" y={y} width="8" height="6" rx="1" fill="rgba(244,201,106,0.55)" />
