@@ -37,18 +37,40 @@ const ARCS = ["M59,67 L63,65 L67,68 L71,66", "M61,59 L64,61 L69,60"];
 
 // Gold sparks rising around the plug prongs (P bowl at ~52%, 30%).
 const PRONG_SPARKS = [
-  { left: "50.5%", top: "31%", d: "0.90s", dx: "-7px" },
-  { left: "53%", top: "29%", d: "0.98s", dx: "6px" },
-  { left: "55%", top: "31.5%", d: "1.06s", dx: "-4px" },
-  { left: "52%", top: "33%", d: "1.15s", dx: "8px" },
-  { left: "56.5%", top: "29.5%", d: "1.24s", dx: "-9px" },
-  { left: "51%", top: "28.5%", d: "1.33s", dx: "5px" },
-  { left: "54%", top: "32%", d: "1.42s", dx: "-6px" },
-  { left: "49%", top: "30%", d: "1.62s", dx: "9px" },
-  { left: "55.5%", top: "30.5%", d: "1.70s", dx: "-8px" },
-  { left: "52.5%", top: "27.5%", d: "1.78s", dx: "4px" },
-  { left: "50%", top: "32.5%", d: "1.88s", dx: "-5px" },
-  { left: "56%", top: "28%", d: "1.96s", dx: "7px" },
+  // Power build — anticipation before the strike
+  { left: "50.5%", top: "31%", d: "0.82s", dx: "-7px" },
+  { left: "53%", top: "29%", d: "0.90s", dx: "6px" },
+  { left: "55%", top: "31.5%", d: "0.98s", dx: "-4px" },
+  { left: "52%", top: "33%", d: "1.06s", dx: "8px" },
+  { left: "56.5%", top: "29.5%", d: "1.14s", dx: "-9px" },
+  // Ignition — sparks flying off while the logo is lit
+  { left: "51%", top: "28.5%", d: "1.58s", dx: "5px" },
+  { left: "54%", top: "32%", d: "1.68s", dx: "-6px" },
+  { left: "49%", top: "30%", d: "1.80s", dx: "9px" },
+  { left: "55.5%", top: "30.5%", d: "1.92s", dx: "-8px" },
+  { left: "52.5%", top: "27.5%", d: "2.04s", dx: "4px" },
+  { left: "50%", top: "32.5%", d: "2.16s", dx: "-5px" },
+  { left: "56%", top: "28%", d: "2.30s", dx: "7px" },
+];
+
+// Ambient gold dust — drifting from the first frame, across the whole sky.
+const GOLD_DUST = [
+  { left: "10%", top: "74%", s: 2.5, d: "0.02s", dx: "14px", o: 0.5 },
+  { left: "18%", top: "58%", s: 2, d: "0.24s", dx: "-10px", o: 0.45 },
+  { left: "26%", top: "82%", s: 3, d: "0.10s", dx: "8px", o: 0.6 },
+  { left: "33%", top: "64%", s: 1.8, d: "0.42s", dx: "-14px", o: 0.4 },
+  { left: "41%", top: "76%", s: 2.4, d: "0.18s", dx: "12px", o: 0.55 },
+  { left: "48%", top: "60%", s: 1.6, d: "0.55s", dx: "-8px", o: 0.4 },
+  { left: "56%", top: "80%", s: 2.8, d: "0.08s", dx: "10px", o: 0.6 },
+  { left: "63%", top: "66%", s: 2, d: "0.36s", dx: "-12px", o: 0.45 },
+  { left: "70%", top: "78%", s: 2.4, d: "0.16s", dx: "16px", o: 0.55 },
+  { left: "77%", top: "58%", s: 1.7, d: "0.62s", dx: "-10px", o: 0.4 },
+  { left: "84%", top: "72%", s: 2.6, d: "0.28s", dx: "12px", o: 0.5 },
+  { left: "90%", top: "84%", s: 2, d: "0.05s", dx: "-16px", o: 0.45 },
+  { left: "14%", top: "88%", s: 1.8, d: "0.78s", dx: "10px", o: 0.4 },
+  { left: "59%", top: "90%", s: 2.2, d: "0.90s", dx: "-12px", o: 0.45 },
+  { left: "88%", top: "62%", s: 1.6, d: "1.05s", dx: "8px", o: 0.35 },
+  { left: "37%", top: "90%", s: 2, d: "1.18s", dx: "-8px", o: 0.4 },
 ];
 
 // Radial burst from the impact point (the U).
