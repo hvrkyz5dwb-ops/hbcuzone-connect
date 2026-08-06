@@ -230,7 +230,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
         <AchievementBurst />
 
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
+        <nav
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe"
+          style={
+            keyboardOffset
+              ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+              : undefined
+          }
+        >
           <div
             className="mx-3 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
             style={{
