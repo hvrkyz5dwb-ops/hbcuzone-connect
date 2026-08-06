@@ -123,12 +123,14 @@ export function getSellerPlanState(): { plan: SellerPlan; expired: boolean } {
   return { plan, expired: false };
 }
 
-export function setSellerPlan(tier: SellerTier, cycle: BillingCycle = "monthly"): SellerPlan {
+export function setSellerPlan(tier: SellerTier, cycle?: BillingCycle): SellerPlan {
+  const meta = SELLER_TIERS.find((t) => t.key === tier);
+  const resolvedCycle = cycle ?? meta?.cycle ?? "monthly";
   const now = Date.now();
-  const { days } = CYCLE_VALIDITY[cycle];
+  const { days } = CYCLE_VALIDITY[resolvedCycle];
   const plan: SellerPlan = {
     tier,
-    cycle,
+    cycle: resolvedCycle,
     since: new Date(now).toISOString(),
     ...(tier === "free" ? {} : { validUntil: new Date(now + days * 86_400_000).toISOString() }),
   };

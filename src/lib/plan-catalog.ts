@@ -39,13 +39,14 @@ export function resolvePlanKey(raw: string): ResolvedPlan | null {
   if (seller) {
     const tier = SELLER_TIERS.find((t) => t.key === seller[1]);
     const cycle = seller[2] as "monthly" | "semester" | "year";
-    const price =
-      cycle === "year" ? tier?.pricing.year : cycle === "semester" ? tier?.pricing.semester : tier?.pricing.monthly;
-    const p = price ?? tier?.pricing.monthly ?? 0;
+    // Each paid tier has exactly one fixed billing cycle (Pro = semester,
+    // KingPin = annual). Keys for any other cycle are invalid.
+    if (!tier || cycle !== tier.cycle) return null;
+    const p = tier.price;
     if (!tier || p <= 0) return null;
     return {
       key,
-      name: `${tier.name} · ${cycle === "monthly" ? "Monthly" : cycle === "semester" ? "Semester" : "Yearly"}`,
+      name: `${tier.name} · ${cycle === "semester" ? "Semester" : "Annual"}`,
       unitAmountCents: Math.round(p * 100),
       kind: "membership",
       tier: tier.key,
