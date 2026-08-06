@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 
 /**
- * One-time welcome card shown right after the launch splash when a
- * student has just created their account. Auto-dismisses after ~2s.
- * Rendered pointer-events-none so the Home screen stays interactive.
+ * One-time welcome card shown when the first-launch journey finishes
+ * (or right after account creation). Auto-dismisses after ~2.2s and
+ * dismisses on tap. Rendered pointer-events-none except the card itself
+ * so the Home screen stays interactive underneath.
  */
 export function WelcomeOverlay({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = window.setTimeout(onDone, 2000);
+    const t = window.setTimeout(onDone, 2200);
     return () => window.clearTimeout(t);
   }, [onDone]);
 
@@ -17,8 +18,11 @@ export function WelcomeOverlay({ onDone }: { onDone: () => void }) {
       role="status"
       aria-live="polite"
     >
-      <div
-        className="plugu-welcome-card text-center rounded-3xl px-8 py-6 max-w-xs"
+      <button
+        type="button"
+        onClick={onDone}
+        aria-label="Dismiss welcome message"
+        className="plugu-welcome-card pointer-events-auto text-center rounded-3xl px-8 py-6 max-w-xs"
         style={{
           background: "linear-gradient(180deg, rgba(28,22,12,0.82), rgba(10,8,4,0.88))",
           border: "1px solid color-mix(in oklab, var(--plugu-gold) 45%, transparent)",
@@ -28,15 +32,15 @@ export function WelcomeOverlay({ onDone }: { onDone: () => void }) {
           WebkitBackdropFilter: "blur(20px) saturate(150%)",
         }}
       >
-        <h2 className="text-2xl font-black plugu-antique-wordmark">Welcome to PlugU ⚡</h2>
+        <h2 className="text-2xl font-black plugu-antique-wordmark">👋 Welcome to PlugU.</h2>
         <p className="mt-2 text-[11px] tracking-[0.28em] uppercase text-white/65">
-          Your campus just got connected
+          Let's build something great.
         </p>
         <div
           className="mx-auto mt-4 h-[3px] w-16 rounded-full"
           style={{ background: "var(--plugu-gold)", boxShadow: "0 0 12px var(--plugu-gold)" }}
         />
-      </div>
+      </button>
     </div>
   );
 }
