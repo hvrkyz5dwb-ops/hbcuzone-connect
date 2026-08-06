@@ -115,6 +115,19 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     rows.sort((a, b) => (b.favorite_count ?? 0) - (a.favorite_count ?? 0)); // fallback proxy
   }
 
+  // Category placement: KingPin sellers hold the highest placement and
+  // Verified Pro sellers are pinned near the top. Array.prototype.sort is
+  // stable, so each tier keeps its existing relevance order.
+  if (rows.length > 1) {
+    const sellerIds = [...new Set(rows.map((r) => r.seller_user_id))];
+    const { data: ranks } = await supabase.rpc("seller_plan_ranks", { _seller_ids: sellerIds });
+    const list = (ranks ?? []) as unknown as { user_id: string; plan_code: string }[];
+    if (list.length > 0) {
+      const rankOf = new Map(list.map((r) => [r.user_id, r.plan_code === "kingpin" ? 0 : 1]));
+      rows.sort((a, b) => (rankOf.get(a.seller_user_id) ?? 2) - (rankOf.get(b.seller_user_id) ?? 2));
+    }
+  }
+
   return rows;
 }
 

@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ClipboardList,
+  School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const TABS = [
   { key: "users", label: "Users", icon: Users },
   { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "log", label: "Activity Log", icon: ClipboardList },
+  { key: "promos", label: "Promos", icon: BadgePercent },
 ] as const;
 
 function Admin() {
@@ -89,6 +90,7 @@ function Admin() {
         {tab === "users" && <UsersPanel />}
         {tab === "access" && <SchoolAccessPanel />}
         {tab === "log" && <ActivityLog />}
+        {tab === "promos" && <PromosPanel />}
       </section>
     </AppShell>
   );
@@ -413,3 +415,264 @@ function AdminBtn({ children, variant, onClick }: { children: React.ReactNode; v
 
 function Loading() { return <div className="py-10 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>; }
 function Empty({ text }: { text: string }) { return <p className="text-xs text-muted-foreground px-1 py-4">{text}</p>; }
+
+// ================= Promo codes =================
+
+type PromoCodeRow = {
+  id: string;
+  code: string;
+  description: string | null;
+  discount_percent: number;
+  is_active: boolean;
+  expires_at: string | null;
+  max_redemptions: number | null;
+};
+
+function PromosPanel() {
+  const qc = useQueryClient();
+  const codes = useQuery({
+    queryKey: ["admin-promo-codes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("promo_codes")
+        .select("id, code, description, discount_percent, is_active, expires_at, max_redemptions")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as PromoCodeRow[];
+    },
+  });
+  const redemptions = useQuery({
+    queryKey: ["admin-promo-redemptions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("promo_code_redemptions")
+        .select("code_id, discount_cents");
+      if (error) throw error;
+      return (data ?? []) as unknown as { code_id: string; discount_cents: number }[];
+    },
+  });
+
+  const [code, setCode] = useState("");
+  const [pct, setPct] = useState("50");
+  const [max, setMax] = useState("");
+  const [expires, setExpires] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function create() {
+    if (!code.trim() || busy) return;
+    setBusy(true);
+    const { error } = await supabase.from("promo_codes").insert({
+      code: code.trim(),
+      discount_percent: Math.max(1, Math.min(100, Number(pct) || 50)),
+      max_redemptions: max.trim() ? Number(max) : null,
+      expires_at: expires ? new Date(expires).toISOString() : null,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error("Couldn't create code", { description: error.message });
+      return;
+    }
+    toast.success(`Code ${code.trim()} created`);
+    setCode(""); setMax(""); setExpires("");
+    qc.invalidateQueries({ queryKey: ["admin-promo-codes"] });
+  }
+
+  async function toggle(c: PromoCodeRow) {
+    const { error } = await supabase.from("promo_codes").update({ is_active: !c.is_active }).eq("id", c.id);
+    if (error) {
+      toast.error("Couldn't update code", { description: error.message });
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["admin-promo-codes"] });
+    toast(c.is_active ? `Code ${c.code} disabled` : `Code ${c.code} enabled`);
+  }
+
+  const countByCode = new Map<string, number>();
+  const savedByCode = new Map<string, number>();
+  for (const r of redemptions.data ?? []) {
+    countByCode.set(r.code_id, (countByCode.get(r.code_id) ?? 0) + 1);
+    savedByCode.set(r.code_id, (savedByCode.get(r.code_id) ?? 0) + r.discount_cents);
+  }
+
+  return (
+    <>
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <p className="text-xs font-semibold flex items-center gap-1.5">
+          <BadgePercent className="h-3.5 w-3.5 text-primary" /> Create promo code
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Code (e.g. Havn$hvt)"
+            maxLength={40}
+            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          <input
+            value={pct}
+            onChange={(e) => setPct(e.target.value)}
+            inputMode="numeric"
+            placeholder="% off"
+            aria-label="Discount percent"
+            className="rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          <input
+            value={max}
+            onChange={(e) => setMax(e.target.value)}
+            inputMode="numeric"
+            placeholder="Max redemptions (blank = unlimited)"
+            aria-label="Max redemptions"
+            className="col-span-2 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          <label className="col-span-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+            Expires (optional)
+            <input
+              type="datetime-local"
+              value={expires}
+              onChange={(e) => setExpires(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </label>
+        </div>
+        <button
+          onClick={create}
+          disabled={busy || !code.trim()}
+          className="tap mt-3 w-full rounded-2xl bg-[image:var(--gradient-bronze)] py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {busy ? "Creating…" : "Create code"}
+        </button>
+        <p className="mt-2 text-[10px] text-muted-foreground">
+          One redemption per account is enforced automatically. Codes apply to seller subscriptions at checkout.
+        </p>
+      </div>
+
+      <div className="mt-3">
+        {codes.isPending ? (
+          <Loading />
+        ) : (codes.data ?? []).length === 0 ? (
+          <Empty text="No promo codes yet." />
+        ) : (
+          <ul className="space-y-2">
+            {(codes.data ?? []).map((c) => {
+              const used = countByCode.get(c.id) ?? 0;
+              const saved = savedByCode.get(c.id) ?? 0;
+              const expired = !!c.expires_at && new Date(c.expires_at).getTime() < Date.now();
+              return (
+                <li key={c.id} className="rounded-xl border border-border bg-card p-3">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold">{c.code}</p>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-primary">
+                      {c.discount_percent}% off
+                    </span>
+                    <span
+                      className={`ml-auto text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        c.is_active && !expired ? "text-primary bg-primary/10" : "text-muted-foreground bg-border/60"
+                      }`}
+                    >
+                      {expired ? "Expired" : c.is_active ? "Active" : "Disabled"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {used} redemption{used === 1 ? "" : "s"}
+                    {c.max_redemptions ? ` / ${c.max_redemptions} max` : ""}
+                    {saved > 0 ? ` · $${(saved / 100).toFixed(2)} saved` : ""}
+                    {c.expires_at ? ` · expires ${new Date(c.expires_at).toLocaleDateString()}` : " · no expiry"}
+                  </p>
+                  <div className="mt-2">
+                    <AdminBtn variant={c.is_active ? "warn" : "ok"} onClick={() => toggle(c)}>
+                      {c.is_active ? "Disable" : "Enable"}
+                    </AdminBtn>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <KingPinTargeting />
+    </>
+  );
+}
+
+/** KingPin sellers are eligible for expanded visibility — set who sees their promotion. */
+function KingPinTargeting() {
+  const qc = useQueryClient();
+  const subs = useQuery({
+    queryKey: ["admin-paid-subs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("seller_subscriptions")
+        .select("id, user_id, plan_code, status, promo_scope, current_period_end")
+        .in("plan_code", ["pro", "kingpin"])
+        .eq("status", "active");
+      if (error) throw error;
+      return (data ?? []) as unknown as {
+        id: string; user_id: string; plan_code: string; promo_scope: string; current_period_end: string | null;
+      }[];
+    },
+  });
+  const users = useQuery({
+    queryKey: ["admin-user-directory"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_user_directory");
+      if (error) throw error;
+      return (data ?? []) as unknown as { id: string; username: string | null; display_name: string | null }[];
+    },
+  });
+
+  async function setScope(id: string, scope: string) {
+    const { error } = await supabase.from("seller_subscriptions").update({ promo_scope: scope }).eq("id", id);
+    if (error) {
+      toast.error("Couldn't update targeting", { description: error.message });
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["admin-paid-subs"] });
+    toast.success("Targeting updated");
+  }
+
+  const nameOf = new Map((users.data ?? []).map((u) => [u.id, u.display_name ?? u.username ?? u.id.slice(0, 8)]));
+
+  return (
+    <section className="mt-5 rounded-2xl border border-border bg-card p-4">
+      <p className="text-xs font-semibold flex items-center gap-1.5">
+        <Star className="h-3.5 w-3.5 text-primary" /> Featured promotion targeting
+      </p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        KingPin sellers are eligible for expanded visibility. Verified Pro sellers are always featured on their own campus.
+      </p>
+      {subs.isPending ? (
+        <Loading />
+      ) : (subs.data ?? []).length === 0 ? (
+        <Empty text="No active Pro or KingPin subscriptions yet." />
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {(subs.data ?? []).map((s) => (
+            <li key={s.id} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{nameOf.get(s.user_id) ?? s.user_id.slice(0, 8)}</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {s.plan_code}
+                  {s.current_period_end ? ` · until ${new Date(s.current_period_end).toLocaleDateString()}` : ""}
+                </p>
+              </div>
+              <select
+                value={s.promo_scope}
+                disabled={s.plan_code !== "kingpin"}
+                onChange={(e) => setScope(s.id, e.target.value)}
+                aria-label="Promotion scope"
+                className="rounded-xl border border-border bg-card px-2 py-1.5 text-xs disabled:opacity-50"
+              >
+                <option value="campus">Campus</option>
+                <option value="nearby">Nearby campuses</option>
+                <option value="state">Statewide</option>
+                <option value="regional">Regional</option>
+                <option value="national">National</option>
+              </select>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
