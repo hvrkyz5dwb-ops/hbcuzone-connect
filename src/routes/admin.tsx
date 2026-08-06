@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star,
+  School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star, History,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -428,6 +428,32 @@ type PromoCodeRow = {
   max_redemptions: number | null;
 };
 
+type RedemptionRow = {
+  id: string;
+  code_id: string;
+  user_id: string;
+  plan_key: string;
+  original_cents: number;
+  discount_cents: number;
+  final_cents: number;
+  stripe_session_id: string | null;
+  created_at: string;
+};
+
+type DirectoryUser = { id: string; email: string | null; username: string | null; display_name: string | null };
+
+/** Admin-gated user directory (email is column-restricted on profiles). */
+function useAdminDirectory() {
+  return useQuery({
+    queryKey: ["admin-user-directory"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_user_directory");
+      if (error) throw error;
+      return (data ?? []) as unknown as DirectoryUser[];
+    },
+  });
+}
+
 function PromosPanel() {
   const qc = useQueryClient();
   const codes = useQuery({
@@ -446,9 +472,11 @@ function PromosPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("promo_code_redemptions")
-        .select("code_id, discount_cents");
+        .select("id, code_id, user_id, plan_key, original_cents, discount_cents, final_cents, stripe_session_id, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300);
       if (error) throw error;
-      return (data ?? []) as unknown as { code_id: string; discount_cents: number }[];
+      return (data ?? []) as unknown as RedemptionRow[];
     },
   });
 
@@ -590,8 +618,101 @@ function PromosPanel() {
         )}
       </div>
 
+      <PromoAuditLog
+        redemptions={redemptions.data ?? []}
+        codes={codes.data ?? []}
+        loading={redemptions.isPending}
+      />
+
       <KingPinTargeting />
     </>
+  );
+}
+
+/** Append-only audit trail: who redeemed which promo code, on what plan,
+ *  for how much, and when. Redemptions are written server-side at checkout
+ *  verification and cannot be edited or deleted by anyone (RLS). */
+function PromoAuditLog({ redemptions, codes, loading }: {
+  redemptions: RedemptionRow[];
+  codes: PromoCodeRow[];
+  loading: boolean;
+}) {
+  const directory = useAdminDirectory();
+  const [term, setTerm] = useState("");
+
+  const codeById = useMemo(() => new Map(codes.map((c) => [c.id, c.code])), [codes]);
+  const userById = useMemo(() => new Map((directory.data ?? []).map((u) => [u.id, u])), [directory.data]);
+
+  const rows = useMemo(() => {
+    const t = term.trim().toLowerCase();
+    if (!t) return redemptions;
+    return redemptions.filter((r) => {
+      const u = userById.get(r.user_id);
+      const hay = [codeById.get(r.code_id), r.plan_key, u?.email, u?.username, u?.display_name, r.stripe_session_id]
+        .filter((v): v is string => typeof v === "string" && v.length > 0)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(t);
+    });
+  }, [term, redemptions, codeById, userById]);
+
+  const totalSaved = redemptions.reduce((sum, r) => sum + r.discount_cents, 0);
+
+  return (
+    <section className="mt-5 rounded-2xl border border-border bg-card p-4">
+      <p className="text-xs font-semibold flex items-center gap-1.5">
+        <History className="h-3.5 w-3.5 text-primary" /> Redemption audit log
+      </p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        Every promo code redemption — who applied it, what plan was purchased, and the exact
+        amounts. Entries are written server-side at payment and cannot be edited or deleted.
+      </p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        {redemptions.length} redemption{redemptions.length === 1 ? "" : "s"}
+        {totalSaved > 0 ? ` · $${(totalSaved / 100).toFixed(2)} total discounts given` : ""}
+      </p>
+      <div className="mt-3">
+        <SearchBar value={term} onChange={setTerm} placeholder="Search code, user, plan, or session" />
+      </div>
+      {loading ? (
+        <Loading />
+      ) : rows.length === 0 ? (
+        <Empty text={term ? "No redemptions match that search." : "No promo redemptions yet."} />
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {rows.map((r) => {
+            const u = userById.get(r.user_id);
+            const who = u?.display_name ?? u?.username ?? u?.email ?? r.user_id.slice(0, 8).toUpperCase();
+            return (
+              <li key={r.id} className="rounded-xl border border-border bg-background p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{who}</p>
+                    {u?.email && (u.display_name || u.username) && (
+                      <p className="text-[11px] text-muted-foreground truncate">{u.email}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                    {codeById.get(r.code_id) ?? "deleted code"}
+                  </span>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Redeemed <span className="font-medium text-foreground">{r.plan_key.replace(/_/g, " ")}</span>
+                  {" · "}${(r.original_cents / 100).toFixed(2)} → ${(r.final_cents / 100).toFixed(2)}
+                  <span className="text-primary"> (saved ${(r.discount_cents / 100).toFixed(2)})</span>
+                </p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  {new Date(r.created_at).toLocaleString()}
+                  {r.stripe_session_id && (
+                    <span className="font-mono"> · {r.stripe_session_id.slice(0, 18)}…</span>
+                  )}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -612,14 +733,7 @@ function KingPinTargeting() {
       }[];
     },
   });
-  const users = useQuery({
-    queryKey: ["admin-user-directory"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("admin_user_directory");
-      if (error) throw error;
-      return (data ?? []) as unknown as { id: string; username: string | null; display_name: string | null }[];
-    },
-  });
+  const users = useAdminDirectory();
 
   async function setScope(id: string, scope: string) {
     const { error } = await supabase.from("seller_subscriptions").update({ promo_scope: scope }).eq("id", id);
