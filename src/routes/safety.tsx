@@ -209,6 +209,7 @@ function SafetyHub() {
 }
 
 function Listing({ items, cta }: { items: { title: string; meta: string }[]; cta: string }) {
+  const navigate = useNavigate();
   return (
     <>
       <ul className="rounded-2xl bg-card border border-border divide-y divide-border">
@@ -219,7 +220,10 @@ function Listing({ items, cta }: { items: { title: string; meta: string }[]; cta
           </li>
         ))}
       </ul>
-      <button className="mt-3 w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+      <button
+        onClick={() => navigate({ to: "/community" })}
+        className="tap mt-3 w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
+      >
         {cta}
       </button>
     </>
