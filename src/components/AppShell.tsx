@@ -14,6 +14,7 @@ import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
+import { useKeyboardOffset } from "@/hooks/use-keyboard-offset";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useMyBusiness } from "@/hooks/use-business";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
@@ -77,6 +78,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const { session, loading: sessionLoading } = useSession();
   const { profile } = useProfile();
   const { business } = useMyBusiness();
+  const keyboardOffset = useKeyboardOffset();
   const isSeller = !!business && business.is_active && business.onboarding_step >= 5;
   const hasDraftBusiness = !!business && !isSeller;
 
@@ -228,7 +230,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
         <AchievementBurst />
 
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe">
+        <nav
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe"
+          style={
+            keyboardOffset
+              ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+              : undefined
+          }
+        >
           <div
             className="mx-3 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
             style={{
@@ -334,7 +343,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             role="dialog"
             aria-label="Quick actions"
             className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 mb-safe"
-            style={{ animation: "plugu-slide-up 0.32s cubic-bezier(0.22,1,0.36,1) both" }}
+            style={{
+              animation: "plugu-slide-up 0.32s cubic-bezier(0.22,1,0.36,1) both",
+              ...(keyboardOffset
+                ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+                : null),
+            }}
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
             <div className="flex items-center justify-between mb-4">
