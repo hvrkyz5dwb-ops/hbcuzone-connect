@@ -11,6 +11,7 @@ import { listings } from "@/lib/mock-data";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { z } from "zod";
+import { toast } from "sonner";
 
 const SEARCH_TYPES: { key: string; label: string; emoji: string; match: string[] }[] = [
   { key: "hair", label: "Hair", emoji: "💈", match: ["hair", "hairstyles"] },
@@ -192,6 +193,22 @@ type Filters = {
 };
 
 function BrowseTab({ type, setType, showFilters, filters, results }: { type: string; setType: (s: string) => void; showFilters: boolean; filters: Filters; results: typeof listings }) {
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+
+  function toggleSave(id: string, title: string) {
+    setSaved((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        toast("Removed from saved");
+      } else {
+        next.add(id);
+        toast.success(`Saved “${title.length > 32 ? title.slice(0, 32) + "…" : title}”`);
+      }
+      return next;
+    });
+  }
+
   return (
     <>
       <section className="px-5 mt-4">
@@ -220,8 +237,13 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
             <div className="relative aspect-square bg-secondary">
               <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
               <span className="absolute bottom-2 left-2 text-[10px] tracking-wider uppercase px-2 py-1 rounded-full bg-background/70 backdrop-blur">{l.category}</span>
-              <button aria-label="Save" className="tap absolute top-2 right-2 h-8 w-8 grid place-items-center rounded-full bg-background/70 backdrop-blur">
-                <Heart className="h-4 w-4" />
+              <button
+                aria-label={saved.has(l.id) ? "Remove from saved" : "Save"}
+                aria-pressed={saved.has(l.id)}
+                onClick={(e) => { e.stopPropagation(); toggleSave(l.id, l.title); }}
+                className="tap absolute top-2 right-2 h-8 w-8 grid place-items-center rounded-full bg-background/70 backdrop-blur"
+              >
+                <Heart className={`h-4 w-4 transition-colors ${saved.has(l.id) ? "fill-primary text-primary" : ""}`} />
               </button>
             </div>
             <div className="p-3">
