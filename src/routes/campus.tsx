@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search, Plus, Calendar, MapPin, Users, Flame, Sparkles, Trophy, Building2,
-  Radio, CheckCircle2, Loader2,
+  Radio, CheckCircle2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { PageLoader } from "@/components/QueryStates";
 import { EventDetailSheet } from "@/components/campus/EventDetailSheet";
 import { CreateEventSheet } from "@/components/campus/CreateEventSheet";
 import { useCampusEvents, useMyRsvps, useOrgFollows, useOrgs, useRsvpToggle } from "@/hooks/use-campus";
@@ -148,9 +149,7 @@ function CampusHub() {
 
       <div key={section} className="view-enter" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         {isLoading ? (
-          <div className="px-5 py-10 grid place-items-center text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </div>
+          <PageLoader message="Loading campus hub…" />
         ) : section === "events" ? (
           <EventsSection events={filtered} goingSet={goingSet} onOpen={setOpenId} onCreate={() => setCreateOpen(true)} />
         ) : section === "pulse" ? (
@@ -453,7 +452,7 @@ function OrgsSection({ query }: { query: string }) {
     : orgs;
 
   if (isLoading) {
-    return <div className="px-5 py-10 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
+    return <PageLoader message="Loading organizations…" />;
   }
 
   if (list.length === 0) {

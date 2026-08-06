@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Send, Shield, Flag, Ban, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { PageLoader } from "@/components/QueryStates";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useConversation } from "@/hooks/use-messages";
 import { useSession } from "@/hooks/use-session";
@@ -58,9 +59,7 @@ function Thread() {
   if (header.isPending || messages.isPending) {
     return (
       <AppShell title="CHAT">
-        <div className="p-8 grid place-items-center text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
+        <PageLoader message="Opening conversation…" />
       </AppShell>
     );
   }

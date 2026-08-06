@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, CalendarClock, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { LoadingList } from "@/components/EmptyState";
+import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { fetchListing } from "@/lib/listings-db";
 import {
   useSellerSlots, useAddSellerSlot, useDeleteSellerSlot,
@@ -66,7 +68,18 @@ function AvailabilityPage() {
   }
 
   if (listingQ.isPending) {
-    return <AppShell title="AVAILABILITY"><div className="p-8 grid place-items-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin"/></div></AppShell>;
+    return <AppShell title="AVAILABILITY"><PageLoader message="Loading availability…" /></AppShell>;
+  }
+  if (listingQ.isError) {
+    return (
+      <AppShell title="AVAILABILITY">
+        <ErrorState
+          title="Availability didn't load"
+          description="We couldn't reach this listing's schedule. Check your connection and try again."
+          onRetry={() => void listingQ.refetch()}
+        />
+      </AppShell>
+    );
   }
   if (!listingQ.data) {
     return (
@@ -145,7 +158,15 @@ function AvailabilityPage() {
 
         <p className="mt-6 text-[10px] tracking-[0.24em] uppercase text-muted-foreground px-1">Upcoming</p>
         {slotsQ.isLoading ? (
-          <div className="mt-3 grid place-items-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/></div>
+          <div className="-mx-5"><LoadingList rows={2} /></div>
+        ) : slotsQ.isError ? (
+          <div className="-mx-5">
+            <ErrorState
+              title="Slots didn't load"
+              description="Check your connection and try again."
+              onRetry={() => void slotsQ.refetch()}
+            />
+          </div>
         ) : upcoming.length === 0 ? (
           <p className="mt-2 text-[11px] text-muted-foreground">No upcoming slots yet.</p>
         ) : (
