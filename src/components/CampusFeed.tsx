@@ -557,7 +557,10 @@ function PostCard({
       {/* Announcement CTA */}
       {isAnnouncement && (
         <div className="px-3 pb-4">
-          <button className="tap w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-border bg-secondary text-sm font-medium">
+          <button
+            onClick={() => toast.success("Marked as read")}
+            className="tap w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-border bg-secondary text-sm font-medium"
+          >
             <AlertTriangle className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} /> Mark as read
           </button>
         </div>
@@ -611,13 +614,22 @@ function Composer({ onClose }: { onClose: () => void }) {
           className="w-full bg-secondary border border-border rounded-2xl p-3 text-sm outline-none placeholder:text-muted-foreground resize-none"
         />
         <div className="mt-3 flex items-center gap-2">
-          <button className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium">
+          <button
+            onClick={() => toast("Photo uploads are on the way")}
+            className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium"
+          >
             <ImagePlus className="h-4 w-4" /> Photo
           </button>
-          <button className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium">
+          <button
+            onClick={() => toast("Video uploads are on the way")}
+            className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium"
+          >
             <Video className="h-4 w-4" /> Video
           </button>
-          <button className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium">
+          <button
+            onClick={() => setText((t) => (t.endsWith("#") || !t ? t + "#" : t + " #"))}
+            className="tap flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary border border-border text-xs font-medium"
+          >
             <Tag className="h-4 w-4" /> Tag
           </button>
         </div>
