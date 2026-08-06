@@ -333,24 +333,63 @@ export const verifyPlanCheckout = createServerFn({ method: "GET" })
       throw new Error("This payment doesn't belong to your account.");
     }
 
-    // Record the promo redemption exactly once per paid session so caps
-    // and per-account limits reflect real purchases only.
-    if (s.payment_status === "paid" && s.metadata?.plugu_promo_code_id) {
+    if (s.payment_status === "paid") {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const original = Number(s.metadata.plugu_original_cents ?? s.amount_total ?? 0);
-      const final = s.amount_total ?? original;
-      await supabaseAdmin.from("promo_code_redemptions").upsert(
-        {
-          code_id: s.metadata.plugu_promo_code_id,
-          user_id: context.userId,
-          plan_key: planKey,
-          original_cents: original,
-          discount_cents: Math.max(0, original - final),
-          final_cents: final,
-          stripe_session_id: s.id,
-        },
-        { onConflict: "stripe_session_id", ignoreDuplicates: true },
-      );
+
+      // Record the promo redemption exactly once per paid session so caps
+      // and per-account limits reflect real purchases only.
+      if (s.metadata?.plugu_promo_code_id) {
+        const original = Number(s.metadata.plugu_original_cents ?? s.amount_total ?? 0);
+        const final = s.amount_total ?? original;
+        await supabaseAdmin.from("promo_code_redemptions").upsert(
+          {
+            code_id: s.metadata.plugu_promo_code_id,
+            user_id: context.userId,
+            plan_key: planKey,
+            original_cents: original,
+            discount_cents: Math.max(0, original - final),
+            final_cents: final,
+            stripe_session_id: s.id,
+          },
+          { onConflict: "stripe_session_id", ignoreDuplicates: true },
+        );
+      }
+
+      // Activate the membership server-side. Category placement, the
+      // featured-promotions feed, and promo targeting all read
+      // seller_subscriptions — localStorage alone is not enough.
+      const { resolvePlanKey } = await import("./plan-catalog");
+      const plan = resolvePlanKey(planKey);
+      if (plan?.kind === "membership" && plan.tier && plan.cycle) {
+        const { CYCLE_VALIDITY } = await import("./seller-plan");
+        const days = CYCLE_VALIDITY[plan.cycle as "monthly" | "semester" | "year"].days;
+        const periodEnd = new Date(Date.now() + days * 86_400_000).toISOString();
+        const { data: existing } = await supabaseAdmin
+          .from("seller_subscriptions")
+          .select("id")
+          .eq("user_id", context.userId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (existing) {
+          await supabaseAdmin
+            .from("seller_subscriptions")
+            .update({
+              plan_code: plan.tier,
+              status: "active",
+              current_period_end: periodEnd,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", existing.id);
+        } else {
+          await supabaseAdmin.from("seller_subscriptions").insert({
+            user_id: context.userId,
+            plan_code: plan.tier,
+            status: "active",
+            current_period_end: periodEnd,
+          });
+        }
+      }
     }
 
     return {
