@@ -1,5 +1,5 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { APPROVED_SCHOOLS, validateStudentEmail, isHbcuDomain } from "@/lib/auth";
 import { ShieldCheck, Mail, GraduationCap, AlertCircle, Loader2 } from "lucide-react";
@@ -17,13 +17,6 @@ export const Route = createFileRoute("/auth")({
     next: typeof s.next === "string" ? s.next : "",
     mode: typeof s.mode === "string" ? s.mode : "",
   }),
-  beforeLoad: async ({ search }) => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      const dest = safeNext(search.next);
-      throw redirect({ href: dest });
-    }
-  },
   component: AuthPage,
 });
 
@@ -41,6 +34,21 @@ type Mode = "sign-in" | "sign-up" | "forgot";
 function AuthPage() {
   const { next, mode: initialMode } = Route.useSearch();
   const navigate = useNavigate();
+
+  // Signed-in students never see this page. Checked post-hydration on
+  // purpose: the session lives in browser storage (invisible to SSR), so
+  // redirecting in beforeLoad made the client render a different route
+  // than the server HTML and React threw a hydration mismatch.
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session) window.location.replace(safeNext(next));
+    });
+    return () => {
+      active = false;
+    };
+  }, [next]);
+
   // Default to create-account. Sign in is only reachable via the small link
   // for returning users on a new device.
   const [mode, setMode] = useState<Mode>(initialMode === "sign-in" ? "sign-in" : "sign-up");

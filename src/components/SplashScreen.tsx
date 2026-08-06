@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
 import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
+import { fpsHudEnabled, startFpsMonitor, type HudStats } from "@/lib/fps-monitor";
 import { playSplashAudio } from "@/lib/splash-audio";
 
 /**
@@ -89,6 +90,7 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [gone, setGone] = useState(false);
   const [reduced, setReduced] = useState(false);
+  const [hud, setHud] = useState<HudStats | null>(null);
 
   useEffect(() => {
     const prefersReduced =
@@ -97,9 +99,20 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
     setReduced(prefersReduced);
     setMounted(true);
 
+    // Frame-rate instrumentation — samples every rAF for the full splash,
+    // then publishes a dropped-frame report (sessionStorage + console).
+    const monitor = startFpsMonitor("splash", { reducedMotion: prefersReduced });
+    let hudTimer: number | undefined;
+    if (fpsHudEnabled()) {
+      hudTimer = window.setInterval(() => setHud(monitor.sample()), 250);
+      setHud(monitor.sample());
+    }
+
     const stopAudio = prefersReduced ? () => {} : playSplashAudio();
     const t = window.setTimeout(
       () => {
+        monitor.stop();
+        if (hudTimer) window.clearInterval(hudTimer);
         setGone(true);
         onDone?.();
       },
@@ -107,6 +120,8 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
     );
     return () => {
       window.clearTimeout(t);
+      window.clearInterval(hudTimer);
+      monitor.abort();
       stopAudio();
     };
   }, [onDone]);
@@ -130,6 +145,7 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
           className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(120% 95% at 50% 42%, transparent 52%, rgba(0,0,0,0.55) 100%)" }}
         />
+        <SplashFpsHud stats={hud} />
       </div>
     );
   }
@@ -242,6 +258,31 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
 
       {/* Final pulse — a gold ring expands across the screen as we crossfade */}
       <span className="spl-finalpulse" />
+
+      <SplashFpsHud stats={hud} />
+    </div>
+  );
+}
+
+/** Live FPS chip — only rendered when ?fps=1 / plugu:fps-hud is set. */
+function SplashFpsHud({ stats }: { stats: HudStats | null }) {
+  if (!stats) return null;
+  // Neutral (gold) until the first real frame sample lands.
+  const warming = stats.fps <= 0;
+  const healthy = warming || stats.fps >= stats.hz - 3;
+  return (
+    <div
+      className="absolute left-3 z-[102] rounded-md px-2 py-1 font-mono text-[10px] leading-tight pointer-events-none"
+      style={{
+        top: "calc(env(safe-area-inset-top, 0px) + 12px)",
+        background: "rgba(0,0,0,0.72)",
+        border: `1px solid ${healthy ? "rgba(212,175,55,0.65)" : "rgba(255,90,60,0.8)"}`,
+        color: healthy ? "var(--plugu-gold, #d4af37)" : "#ff8a66",
+        textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+      }}
+      data-testid="splash-fps-hud"
+    >
+      {warming ? "…" : stats.fps} FPS · {stats.hz}Hz · drop {stats.dropped}
     </div>
   );
 }

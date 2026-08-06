@@ -7,4 +7,6 @@ All signed-out redirects are handled by the global guard in `src/components/AppS
 
 **Why:** 12 routes had duplicate gates that caused hydration failures on every signed-out deep link; removing them fixed the errors and unified behavior with the other 30+ routes.
 
-**Exceptions:** `/auth` keeps its beforeLoad (redirects signed-IN users to their destination — required for OAuth/email-link returns). `[.]lovable.oauth.consent` is platform-managed — never touch.
+**Exceptions:** `[.]lovable.oauth.consent` is platform-managed — never touch.
+
+**Signed-in redirects away from public routes (e.g. /auth → home):** also belong in a component `useEffect`, NOT `beforeLoad`. `/auth` previously kept a beforeLoad signed-in redirect; on hard loads the server (no session cookie, session is localStorage-only) rendered AuthPage while the client redirected before hydration → hydration mismatch + "state update on unmounted component". Fixed by moving the check into `AuthPage`'s `useEffect` with `window.location.replace(safeNext(next))`.
