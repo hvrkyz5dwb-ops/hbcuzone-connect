@@ -14,6 +14,7 @@ import { AchievementBurst } from "@/components/AchievementBurst";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
+import { useKeyboardOffset } from "@/hooks/use-keyboard-offset";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useMyBusiness } from "@/hooks/use-business";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
@@ -77,6 +78,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const { session, loading: sessionLoading } = useSession();
   const { profile } = useProfile();
   const { business } = useMyBusiness();
+  const keyboardOffset = useKeyboardOffset();
   const isSeller = !!business && business.is_active && business.onboarding_step >= 5;
   const hasDraftBusiness = !!business && !isSeller;
 
