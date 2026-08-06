@@ -298,7 +298,9 @@ function PostCard({
   const [slide, setSlide] = useState(0);
   const [commentOpen, setCommentOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [, forceRerender] = useState(0);
+  const navigate = useNavigate();
   const total = post.media.length;
   const CtaIcon = post.vendor ? ctaIcon(post.vendor.cta) : null;
   const badge = typeBadge(post.type);
@@ -345,9 +347,41 @@ function PostCard({
             )}
           </div>
         </div>
-        <button aria-label="More" className="tap h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground">
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
+        <div className="relative">
+          <button
+            aria-label="More"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="tap h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+          {menuOpen && (
+            <>
+              <button aria-label="Close menu" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-10 cursor-default" />
+              <div className="absolute right-0 top-9 z-20 w-44 rounded-2xl border border-border bg-card p-1.5 shadow-[0_18px_50px_-18px_rgba(0,0,0,0.8)]">
+                <button
+                  onClick={() => { onSave(); setMenuOpen(false); }}
+                  className="tap flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium hover:bg-secondary"
+                >
+                  <Bookmark className="h-3.5 w-3.5" /> {saved ? "Remove from saved" : "Save post"}
+                </button>
+                <button
+                  onClick={() => { setMenuOpen(false); navigate({ to: "/messages" }); }}
+                  className="tap flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium hover:bg-secondary"
+                >
+                  <Send className="h-3.5 w-3.5" /> Share in inbox
+                </button>
+                <button
+                  onClick={() => { setMenuOpen(false); navigate({ to: "/report-problem" }); }}
+                  className="tap flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-destructive hover:bg-secondary"
+                >
+                  <AlertTriangle className="h-3.5 w-3.5" /> Report post
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <button
           onClick={onFollow}
           className={`tap ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
