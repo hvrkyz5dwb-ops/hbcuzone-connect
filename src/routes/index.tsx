@@ -34,6 +34,11 @@ function Home() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
   const [lookingOpen, setLookingOpen] = useState(false);
+  // SSR/prerender and the first client render must agree: both paint the
+  // blank shell until hydration, since session/intro state only exists in
+  // the browser. Without this gate React throws a hydration mismatch.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   // Guests never see the app. They either watch the intro (first open)
   // or get bounced to /auth (already saw it). Signed-in users fall through
@@ -43,7 +48,7 @@ function Home() {
     if (hasSeenIntro()) navigate({ to: "/auth", search: { next: "/", mode: "" } });
   }, [loading, session, navigate]);
 
-  if (loading) {
+  if (!hydrated || loading) {
     return <div className="min-h-screen bg-background" aria-hidden="true" />;
   }
   if (!session) {
