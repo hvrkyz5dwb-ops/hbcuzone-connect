@@ -15,6 +15,7 @@ import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
 import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { RouteErrorFallback, RouteNotFoundFallback } from "@/components/QueryStates";
+import { initNative } from "@/lib/native";
 
 function NotFoundComponent() {
   return <RouteNotFoundFallback />;
@@ -113,6 +114,9 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+
+  // Native (iOS/Android) shell bootstrap — no-ops on the web.
+  useEffect(() => { void initNative(); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
