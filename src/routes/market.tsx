@@ -7,6 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { CampusFeed } from "@/components/CampusFeed";
+import { CommunityBoard } from "@/components/CommunityBoard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/QueryStates";
@@ -45,6 +47,7 @@ function Market() {
   const [fulfillment, setFulfillment] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(0);
+  const [tab, setTab] = useState<"shop" | "posts">("shop");
   const PAGE_SIZE = 24;
 
   const filters = useMemo(() => ({
@@ -76,6 +79,31 @@ function Market() {
   return (
     <AppShell title="MARKET">
       <PullToRefresh onRefresh={async () => { await refetch(); }}>
+      <section className="px-5 pt-5">
+        <div className="flex gap-2 p-1 rounded-2xl bg-secondary border border-border">
+          {(["shop", "posts"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`tap flex-1 py-2 text-xs rounded-xl transition-colors ${
+                tab === t
+                  ? "bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {t === "shop" ? "Shop" : "Campus posts"}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {tab === "posts" ? (
+        <div className="pb-6">
+          <CampusFeed />
+          <CommunityBoard />
+        </div>
+      ) : (
+      <>
       <section className="px-5 pt-5 slide-up">
         <div className="flex items-center gap-2">
           <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
@@ -208,6 +236,8 @@ function Market() {
         <div className="px-5 mt-2 flex justify-center">
           <button onClick={() => setPage(0)} className="text-[11px] text-muted-foreground underline underline-offset-4">Back to page 1</button>
         </div>
+      )}
+      </>
       )}
       </PullToRefresh>
 
