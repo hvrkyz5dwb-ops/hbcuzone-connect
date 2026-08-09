@@ -1284,3 +1284,38 @@ img, video { content-visibility: auto; }
     stroke-dashoffset: 0 !important;
   }
 }
+
+/* ---------------------------------------------------------------
+   Native app shell (Capacitor iOS / Android)
+   Applied only when running inside the native wrapper.
+   --------------------------------------------------------------- */
+html.native,
+html.native body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.native {
+  /* Status bar overlays the webview, so lift chrome by the safe inset. */
+  --native-top: env(safe-area-inset-top, 0px);
+}
+
+html.native body {
+  padding-top: var(--native-top);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Text stays selectable where it matters. */
+html.native input,
+html.native textarea,
+html.native [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Kill the tap highlight flash on native. */
+html.native * {
+  -webkit-tap-highlight-color: transparent;
+}
