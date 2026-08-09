@@ -25,8 +25,18 @@ export const Route = createFileRoute("/seller/")({
 function SellerDashboard() {
   const { user } = useSession();
   const { business, loading } = useMyBusiness();
-  const stripeStatusQ = useQuery({ queryKey: ["stripe-status"], queryFn: () => getStripeStatus() });
-  const payoutQ = useQuery({ queryKey: ["payout-account"], queryFn: () => getMyPayoutAccount() });
+  const fetchStripeStatus = useServerFn(getStripeStatus);
+  const fetchPayoutAccount = useServerFn(getMyPayoutAccount);
+  const stripeStatusQ = useQuery({
+    queryKey: ["stripe-status"],
+    queryFn: () => fetchStripeStatus(),
+  });
+  const payoutQ = useQuery({
+    queryKey: ["payout-account", user?.id ?? null],
+    enabled: !!user?.id,
+    retry: false,
+    queryFn: () => fetchPayoutAccount(),
+  });
   const startOnboarding = useServerFn(createSellerOnboardingLink);
   const syncPayout = useServerFn(syncPayoutAccount);
   const [busy, setBusy] = useState(false);
