@@ -4,8 +4,6 @@ import {
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { CommunityBoard } from "@/components/CommunityBoard";
-import { CampusFeed } from "@/components/CampusFeed";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
@@ -149,9 +147,6 @@ function Home() {
 
       <VerificationBanner />
 
-      {/* Campus feed — "See what's popping" */}
-      <CampusFeed />
-
       {/* Marketplace categories */}
       <section className="mt-6">
         <SectionHeader title="Shop by category" action="See all" onAction={() => navigate({ to: "/market" })} />
@@ -191,9 +186,6 @@ function Home() {
       <div className={feedStagger ? "fse fse-d5" : undefined}>
         <SellCta />
       </div>
-
-      {/* Community — student-posted campus updates */}
-      <CommunityBoard />
 
       {/* More — everything else lives behind its own tab */}
       <MoreLinks />
