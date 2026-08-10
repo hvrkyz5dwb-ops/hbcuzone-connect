@@ -7,15 +7,32 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "app.lovable.plugu",
   appName: "PlugU",
-  webDir: "dist",
+  webDir: "native/www",
+  // Sent on every request so the web app can detect the native shell.
+  appendUserAgent: "PlugUApp",
   server: {
     url: "https://hbcuzone-connect.lovable.app",
     cleartext: false,
     androidScheme: "https",
+    // Domains the webview may navigate to in-app (auth, payments, fonts, CDN).
+    allowNavigation: [
+      "hbcuzone-connect.lovable.app",
+      "*.lovable.app",
+      "*.supabase.co",
+      "*.stripe.com",
+      "checkout.stripe.com",
+      "connect.stripe.com",
+      "accounts.google.com",
+      "fonts.googleapis.com",
+      "fonts.gstatic.com",
+    ],
   },
   ios: {
     contentInset: "never",
     backgroundColor: "#0a0a0a",
+    scrollEnabled: true,
+    limitsNavigationsToAppBoundDomains: false,
+    preferredContentMode: "mobile",
   },
   android: {
     backgroundColor: "#0a0a0a",

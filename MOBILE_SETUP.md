@@ -1,53 +1,97 @@
-# PlugU — iOS & Android App Setup
+# PlugU — iOS App Store Submission Guide
 
-PlugU is now wrapped as a native app with Capacitor. The native shell loads the
-live PlugU build, so every future change you publish ships to the apps instantly
-(no app-store resubmission for UI changes).
+PlugU ships as a native iOS app through Capacitor. The native shell (`ios/`) is
+committed to this repository, so you can clone it, open it in Xcode, sign it
+with your Apple Developer account, archive, and upload to App Store Connect.
 
-## One-time setup (on your Mac / PC)
+## What is already configured
 
-1. Push this project to GitHub (**GitHub → Connect** in the top right), then
-   `git clone` it and run `npm install`.
-2. Add the platforms:
-   ```bash
-   npx cap add ios       # macOS + Xcode required
-   npx cap add android   # Android Studio required
-   ```
-3. Sync the config and native plugins:
-   ```bash
-   npm run build
-   npx cap sync
-   ```
-4. Run on a device or simulator:
-   ```bash
-   npx cap run ios
-   npx cap run android
-   ```
+| Item | Value |
+| --- | --- |
+| Bundle ID | `app.lovable.plugu` |
+| App name | PlugU |
+| Version / build | `1.0` / `1` (Xcode → General) |
+| Deployment target | iOS 15.0 |
+| Orientation | Portrait only (iPhone) |
+| Appearance | Forced dark, light status bar, PlugU black `#0a0a0a` |
+| App icon | 1024×1024 gold "P" on black, opaque (no alpha — App Store safe) |
+| Launch screen | Black with centered PlugU mark |
+| Plugins | App, Haptics, Keyboard, Splash Screen, Status Bar (Swift Package Manager) |
+| Encryption | `ITSAppUsesNonExemptEncryption = false` (skips export-compliance prompts) |
+| Privacy strings | Camera, Photos, Photo add, Location (when in use), Microphone |
+| Content | Loads the live PlugU build at `https://hbcuzone-connect.lovable.app` |
+| Offline | Bundled branded fallback page (`native/www`) with auto-retry |
 
-## What's configured
+Because the shell loads the hosted build, every web change you publish from
+Lovable reaches installed apps instantly — no resubmission for UI updates.
 
-- **App ID:** `app.lovable.plugu` · **Name:** PlugU
-- **Loads:** `https://hbcuzone-connect.lovable.app` (edit `server.url` in
-  `capacitor.config.ts` to test against the preview URL instead)
-- **Status bar:** dark, overlaying the webview, PlugU black `#0a0a0a`
-- **Splash:** black background, hidden by the app once the cinematic splash boots
-- **Keyboard:** native insets feed the bottom-nav lift
-- **Android back button:** goes back in history, exits at the root
-- **Haptics:** `tapHaptic()` available from `src/lib/native.ts`
+## Build and upload
 
-## Before store submission
+On a Mac with Xcode 15+ installed:
 
-- iOS: set the bundle ID, signing team, and app icons in Xcode
-  (`ios/App/App/Assets.xcassets`). Add camera/photo usage strings to
-  `Info.plist` only if you add those features.
-- Android: set `applicationId`, version code, and icons in Android Studio.
-- Both stores require a privacy policy URL — use `/privacy`.
-- Payments: Apple requires in-app purchase for digital goods. PlugU subscriptions
-  billed through Stripe may need an IAP path or must be positioned as
-  physical/real-world services (Apple guideline 3.1.3(e) marketplace exemption).
+```bash
+git clone <your-repo-url> plugu && cd plugu
+npm install
+npm run ios:sync      # vite build + npx cap sync ios
+npx cap open ios      # opens ios/App/App.xcodeproj in Xcode
+```
 
-## Testing on a real device
+In Xcode:
 
-Point `server.url` at the preview URL while developing so you get live reload
-against your latest changes, then flip it back to the published URL before you
-build a release.
+1. Select the **App** target → **Signing & Capabilities**.
+2. Check **Automatically manage signing** and pick your Apple Developer Team.
+   Change the bundle identifier if `app.lovable.plugu` is already taken in your
+   account (also update `appId` in `capacitor.config.ts` if you do).
+3. Set the destination to **Any iOS Device (arm64)**.
+4. **Product → Archive**.
+5. In the Organizer: **Distribute App → App Store Connect → Upload**.
+
+Capacitor 8 resolves plugins with Swift Package Manager, so there is no
+CocoaPods step and no `.xcworkspace` — open `App.xcodeproj` directly.
+
+## Pointing at preview vs production
+
+`capacitor.config.ts` → `server.url` controls what the app loads.
+
+- Production (default): `https://hbcuzone-connect.lovable.app`
+- Live-reload against preview: swap in your preview URL, then `npx cap sync ios`
+
+Ship a release build only with the production URL.
+
+## App Store Connect checklist
+
+- **Privacy Policy URL:** `https://hbcuzone-connect.lovable.app/privacy`
+- **Support URL:** `https://hbcuzone-connect.lovable.app/support`
+- **Account deletion:** required by Apple — `/delete-account` is live in the app.
+- **Demo account:** App Review must be able to sign in. Because sign-up requires
+  a `.edu` address, create a reviewer account with a real `.edu` inbox (or a
+  pre-verified test profile) and put the credentials in App Review Notes.
+- **Age rating:** user-generated content + messaging → declare UGC and confirm
+  you have reporting and blocking (PlugU has both: report dialogs and blocks).
+- **Data safety / privacy nutrition labels:** email, name, campus, photos,
+  approximate location, purchase history, user content, identifiers.
+- **Payments (guideline 3.1.1 / 3.1.3):** PlugU sells real-world goods and
+  services between students, which is exempt from in-app purchase. Seller
+  subscriptions (Verified Pro / KingPin) unlock selling tools inside the app —
+  Apple may require in-app purchase for those. Safest launch path: keep the
+  marketplace transactions on Stripe and either (a) gate subscription purchases
+  behind StoreKit, or (b) hide subscription upsell UI on iOS for v1 and enable
+  it after review feedback.
+- **Guideline 4.2 (minimum functionality):** the shell is not a plain website
+  wrapper — it uses native status bar, splash, haptics, keyboard insets, and
+  hardware back handling. Mention this in App Review Notes.
+
+## Screenshots required
+
+6.7" (iPhone 15/16 Pro Max) and 6.5" sets, portrait. Good candidates: cinematic
+splash, Home, Market, Campus Hub map, Messages, Profile.
+
+## After the first release
+
+```bash
+# bump build number in Xcode (CURRENT_PROJECT_VERSION), then
+npm run ios:sync
+```
+
+Only re-archive when you change native config, plugins, icons, or the offline
+shell. Pure web/UI changes go live through Lovable publish.
