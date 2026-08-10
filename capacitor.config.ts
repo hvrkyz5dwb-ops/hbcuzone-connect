@@ -7,7 +7,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "app.lovable.plugu",
   appName: "PlugU",
-  webDir: "dist",
+  webDir: "native/www",
   server: {
     url: "https://hbcuzone-connect.lovable.app",
     cleartext: false,
