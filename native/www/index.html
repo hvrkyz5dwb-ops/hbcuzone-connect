@@ -25,5 +25,14 @@
       <p>Connecting campus. Reconnect to the internet to plug back in.</p>
       <div class="dot"></div>
     </main>
+      <script>
+      // If the device is offline and this fallback loads, hide the native
+      // splash so the user sees a branded screen instead of a frozen launch.
+      window.addEventListener('DOMContentLoaded', function () {
+        var sp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen;
+        if (sp && sp.hide) sp.hide();
+        setTimeout(function () { location.reload(); }, 8000);
+      });
+    </script>
   </body>
 </html>
