@@ -31,10 +31,15 @@ On a Mac with Xcode 15+ installed:
 
 ```bash
 git clone <your-repo-url> plugu && cd plugu
-npm install
-npm run ios:sync      # vite build + npx cap sync ios
+npm install           # REQUIRED — CapApp-SPM resolves plugins from node_modules/@capacitor/*
+npm run ios:sync      # npx cap sync ios
 npx cap open ios      # opens ios/App/App.xcodeproj in Xcode
 ```
+
+> If Xcode reports *"Missing package product 'CapacitorApp'"* or a path under
+> `node_modules/@capacitor/app` that does not exist, `npm install` has not been
+> run in the repo root. Run `npm run ios:bootstrap` (install + sync), then in
+> Xcode: **File → Packages → Reset Package Caches**.
 
 In Xcode:
 
