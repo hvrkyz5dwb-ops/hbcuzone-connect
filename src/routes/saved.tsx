@@ -5,7 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { PageLoader, ErrorState } from "@/components/QueryStates";
 import { fetchSavedListings } from "@/lib/listings-db";
 import { useSession } from "@/hooks/use-session";
-import { money } from "@/lib/format";
+import { formatPrice, type PriceType } from "@/lib/categories";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
@@ -86,7 +86,7 @@ function Saved() {
                 )}
                 <div className="p-3">
                   <p className="text-sm font-medium line-clamp-2">{l.title}</p>
-                  <p className="text-primary font-bold mt-1 text-sm">{money(l.price_cents)}</p>
+                  <p className="text-primary font-bold mt-1 text-sm">{formatPrice(l.price_cents, l.price_type as PriceType)}</p>
                 </div>
               </Link>
             ))}
