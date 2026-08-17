@@ -17,12 +17,35 @@ export function nativePlatform(): "ios" | "android" | "web" {
   return p === "ios" || p === "android" ? p : "web";
 }
 
+/**
+ * Dismiss the native launch screen. Never throws, never hangs: the plugin
+ * call is raced against a short timeout so a wedged bridge can't keep the
+ * app stuck on the splash (App Review: iOS 26 freeze on launch).
+ */
+export async function hideNativeSplash(): Promise<void> {
+  if (!isNativeApp()) return;
+  try {
+    const { SplashScreen } = await import("@capacitor/splash-screen");
+    await Promise.race([
+      SplashScreen.hide(),
+      new Promise((resolve) => setTimeout(resolve, 1200)),
+    ]);
+  } catch {}
+}
+
 export async function initNative(): Promise<void> {
   if (started || !isNativeApp()) return;
   started = true;
 
   const platform = nativePlatform();
   document.documentElement.classList.add("native", `native-${platform}`);
+
+  // Hide FIRST — before any other bridge call — so nothing downstream can
+  // block the handoff from the launch screen to the web app.
+  void hideNativeSplash();
+  // Belt and braces: retry once shortly after in case the bridge wasn't
+  // ready yet on the first attempt.
+  setTimeout(() => { void hideNativeSplash(); }, 1500);
 
   try {
     const { StatusBar, Style } = await import("@capacitor/status-bar");
@@ -31,11 +54,6 @@ export async function initNative(): Promise<void> {
       await StatusBar.setBackgroundColor({ color: "#0a0a0a" });
       await StatusBar.setOverlaysWebView({ overlay: true });
     }
-  } catch {}
-
-  try {
-    const { SplashScreen } = await import("@capacitor/splash-screen");
-    await SplashScreen.hide();
   } catch {}
 
   try {
