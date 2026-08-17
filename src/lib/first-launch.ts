@@ -44,15 +44,21 @@ export function markSplashPlayed() {
   set(SPLASH_RECENT_KEY, String(Date.now()));
 }
 
-/* — Guest intro (pre-auth slides) — */
+/* — Onboarding slides —
+ * The same slide deck serves guests (pre-auth) and new members (post-auth),
+ * so completing it in either place satisfies both gates. Keeping two
+ * independent flags made a new user watch the identical intro twice: once
+ * before signing up and again on their first signed-in home screen. */
 const INTRO_SEEN_KEY = "plugu.intro.seen";
-export function hasSeenIntro(): boolean { return !!get(INTRO_SEEN_KEY); }
-export function markIntroSeen() { set(INTRO_SEEN_KEY, "1"); }
-
-/* — Member onboarding slides — */
 const ONBOARDED_KEY = "plugu.onboarded";
-export function hasOnboarded(): boolean { return !!get(ONBOARDED_KEY); }
-export function markOnboarded() { set(ONBOARDED_KEY, "1"); }
+function markSlidesSeen() {
+  set(INTRO_SEEN_KEY, "1");
+  set(ONBOARDED_KEY, "1");
+}
+export function hasSeenIntro(): boolean { return !!get(INTRO_SEEN_KEY) || !!get(ONBOARDED_KEY); }
+export function markIntroSeen() { markSlidesSeen(); }
+export function hasOnboarded(): boolean { return hasSeenIntro(); }
+export function markOnboarded() { markSlidesSeen(); }
 
 /* — Coach-mark tour — */
 const TOUR_KEY = "plugu.tour.done";
