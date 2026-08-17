@@ -15,7 +15,7 @@ import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
 import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { RouteErrorFallback, RouteNotFoundFallback } from "@/components/QueryStates";
-import { initNative } from "@/lib/native";
+import { initNative, hideNativeSplash } from "@/lib/native";
 
 function NotFoundComponent() {
   return <RouteNotFoundFallback />;
@@ -116,7 +116,14 @@ function RootComponent() {
   }, [router, queryClient]);
 
   // Native (iOS/Android) shell bootstrap — no-ops on the web.
-  useEffect(() => { void initNative(); }, []);
+  // The launch screen is dismissed unconditionally on first paint, even if
+  // the rest of the bootstrap (or any data/auth work) fails or is slow.
+  useEffect(() => {
+    void hideNativeSplash();
+    void initNative();
+    const t = setTimeout(() => { void hideNativeSplash(); }, 3000);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
