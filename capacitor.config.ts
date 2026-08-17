@@ -39,7 +39,12 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchAutoHide: false,
+      // Auto-hide is a safety net: if the web layer never boots (offline,
+      // slow network, JS error) iOS still dismisses the launch screen
+      // instead of freezing on it forever.
+      launchAutoHide: true,
+      launchShowDuration: 2500,
+      launchFadeOutDuration: 300,
       backgroundColor: "#0a0a0a",
       androidSplashResourceName: "splash",
       showSpinner: false,
