@@ -1,0 +1,2 @@
+alter table public.reports drop constraint reports_target_type_chk;
+alter table public.reports add constraint reports_target_type_chk check (target_type = any (array['user','listing','message','review','order','business','event','post','comment']));
