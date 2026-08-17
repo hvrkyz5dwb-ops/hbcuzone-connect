@@ -160,10 +160,26 @@ export type EmailValidation =
   | { ok: true; school: ApprovedSchool; domain: string }
   | { ok: false; reason: string };
 
+/* App Store review access.
+ * Apple's reviewers have no .edu address, so a single documented demo
+ * account is allowed through the students-only gate. It is a normal
+ * member account with no elevated privileges. */
+export const APP_REVIEW_EMAILS = ["appreview@plugu.app"];
+const APP_REVIEW_SCHOOL: ApprovedSchool = {
+  name: "PlugU Demo University",
+  domains: ["plugu.app"],
+};
+export function isAppReviewEmail(email: string): boolean {
+  return APP_REVIEW_EMAILS.includes(email.trim().toLowerCase());
+}
+
 export function validateStudentEmail(email: string, requestedSchool?: string): EmailValidation {
   const trimmed = email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
     return { ok: false, reason: "Enter a valid email address." };
+  }
+  if (isAppReviewEmail(trimmed)) {
+    return { ok: true, school: APP_REVIEW_SCHOOL, domain: "plugu.app" };
   }
   const domain = getDomain(trimmed)!;
   const school = findSchoolByDomain(domain);
