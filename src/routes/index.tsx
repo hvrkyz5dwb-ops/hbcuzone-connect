@@ -67,6 +67,18 @@ function Home() {
     }
   }, [loading, session, navigate]);
 
+  // Startup failsafe: the splash can never be the last thing on screen. If
+  // it outlives its own scene clock (stalled timer, backgrounded tab, slow
+  // device), move the guest along to the intro anyway.
+  useEffect(() => {
+    if (!guestSplash) return;
+    const t = window.setTimeout(() => {
+      setGuestSplash(false);
+      setGuestIntro(true);
+    }, 6000);
+    return () => window.clearTimeout(t);
+  }, [guestSplash]);
+
   function finishGuestIntro() {
     markIntroSeen();
     setGuestIntro(false);
