@@ -35,7 +35,21 @@ function AwardsPage() {
         </div>
       </section>
 
-      <section className="px-5 pt-5 space-y-3">
+      <section className="px-5 pt-4">
+        <div className="rounded-2xl border border-border bg-card p-4 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="font-semibold text-foreground">Official rules</p>
+          <p className="mt-1">
+            PlugU awards, grants and scholarships are sponsored and administered solely by PlugU.
+            Apple is not a sponsor of, and is not involved in, any PlugU award, grant, scholarship or
+            contest in any manner. Open to verified students at participating U.S. colleges who are 18
+            or older; no purchase or payment of any kind is necessary to enter or win, and paying for a
+            membership or boost does not increase your chances of winning. Void where prohibited.
+            Winners are selected from public campus activity scores and notified in-app.
+          </p>
+        </div>
+      </section>
+
+      <section className="px-5 pt-4 space-y-3">
         {top && (
           <AwardCard
             icon={Trophy}

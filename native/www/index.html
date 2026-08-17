@@ -24,6 +24,8 @@
       <h1>PLUGU</h1>
       <p>Connecting campus. Reconnect to the internet to plug back in.</p>
       <div class="dot"></div>
+      <button id="retry" type="button" style="margin-top:22px;padding:12px 26px;border-radius:16px;border:1px solid rgba(244,201,106,.5);background:linear-gradient(140deg,#f4c96a,#b5822f);color:#160d03;font-weight:700;font-size:14px;">Try again</button>
+      <p id="hint" style="margin-top:12px;font-size:11px;opacity:.55;">Check your connection and tap Try again.</p>
     </main>
       <script>
       // If the device is offline and this fallback loads, hide the native
@@ -31,7 +33,13 @@
       window.addEventListener('DOMContentLoaded', function () {
         var sp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen;
         if (sp && sp.hide) sp.hide();
-        setTimeout(function () { location.reload(); }, 8000);
+        var HOME = 'https://hbcuzone-connect.lovable.app/';
+        function retry() { window.location.replace(HOME); }
+        var btn = document.getElementById('retry');
+        if (btn) btn.addEventListener('click', retry);
+        // Auto-retry as soon as connectivity comes back, plus a slow poll.
+        window.addEventListener('online', retry);
+        setInterval(function () { if (navigator.onLine) retry(); }, 6000);
       });
     </script>
   </body>
