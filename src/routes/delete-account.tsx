@@ -1,17 +1,19 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { SupportForm } from "@/components/SupportForm";
 import { useSession } from "@/hooks/use-session";
-import { AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { deleteMyAccount } from "@/lib/account.functions";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/delete-account")({
   head: () => ({
     meta: [
       { title: "Delete Account — PlugU" },
-      { name: "description", content: "Request permanent deletion of your PlugU account and associated data." },
+      { name: "description", content: "Permanently delete your PlugU account and personal data from inside the app." },
       { property: "og:title", content: "Delete your PlugU account" },
-      { property: "og:description", content: "Submit a verified deletion request for your PlugU account." },
+      { property: "og:description", content: "Permanent, in-app account deletion for PlugU students." },
     ],
   }),
   component: DeleteAccount,
@@ -19,7 +21,40 @@ export const Route = createFileRoute("/delete-account")({
 
 function DeleteAccount() {
   const { session } = useSession();
-  const [confirmed, setConfirmed] = useState(false);
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [phrase, setPhrase] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const email = session?.user?.email ?? "";
+  const ready = phrase.trim().toUpperCase() === "DELETE" && password.length > 0;
+
+  async function runDelete() {
+    if (!ready || busy) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      // Reauthenticate: the password must match the signed-in account.
+      const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (authErr) {
+        setErr("That password doesn't match this account.");
+        setBusy(false);
+        return;
+      }
+      await deleteMyAccount();
+      await supabase.auth.signOut({ scope: "global" }).catch(() => {});
+      try {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      } catch {}
+      toast.success("Your account has been permanently deleted.");
+      navigate({ to: "/auth", search: { next: "/", mode: "" } });
+    } catch (e) {
+      setErr((e as Error).message || "We couldn't complete the deletion. Please try again.");
+      setBusy(false);
+    }
+  }
 
   return (
     <AppShell title="DELETE ACCOUNT">
@@ -27,7 +62,10 @@ function DeleteAccount() {
         <header>
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Delete your account</h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            Deletion is permanent. Your profile, listings, messages, and reviews will be removed from PlugU. Some records (orders, payouts, safety reports) may be retained where required by law or to prevent fraud.
+            This is permanent and immediate. Your profile, listings, posts, uploaded media, messages,
+            reviews, saved items and notifications are deleted, and every active session is revoked.
+            Completed order and payout records are kept in de-identified form for the period tax and
+            fraud-prevention law requires; they are no longer linked to your name or contact details.
           </p>
         </header>
 
@@ -47,28 +85,47 @@ function DeleteAccount() {
             Please <Link to="/auth" className="underline text-accent">sign in</Link> so we can verify the request comes from the account owner.
           </div>
         ) : (
-          <>
-            <label className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-sm">
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+            <div>
+              <label className="text-xs text-muted-foreground" htmlFor="del-pass">
+                Confirm your password for {email}
+              </label>
               <input
-                type="checkbox"
-                checked={confirmed}
-                onChange={(e) => setConfirmed(e.target.checked)}
-                className="mt-1"
+                id="del-pass"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm"
+                placeholder="Password"
               />
-              <span>
-                I understand this is a permanent deletion request. PlugU will confirm by email before removing my account.
-              </span>
-            </label>
-            {confirmed && (
-              <SupportForm
-                defaultCategory="delete_account"
-                lockCategory
-                defaultSubject="Account deletion request"
-                defaultDescription="Please permanently delete my PlugU account."
-                cta="Submit deletion request"
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground" htmlFor="del-phrase">
+                Type DELETE to confirm
+              </label>
+              <input
+                id="del-phrase"
+                value={phrase}
+                onChange={(e) => setPhrase(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm tracking-[0.2em]"
+                placeholder="DELETE"
               />
-            )}
-          </>
+            </div>
+            {err && <p className="text-xs text-rose-300">{err}</p>}
+            <button
+              type="button"
+              disabled={!ready || busy}
+              onClick={runDelete}
+              className="tap w-full rounded-2xl bg-rose-600 disabled:opacity-40 px-4 py-3.5 text-sm font-semibold text-white inline-flex items-center justify-center gap-2"
+            >
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+              {busy ? "Deleting…" : "Permanently delete my account"}
+            </button>
+            <p className="text-[11px] text-muted-foreground">
+              You never need to email or call support to delete your account — this button does it.
+            </p>
+          </div>
         )}
       </div>
     </AppShell>

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { resolvePlanKey } from "@/lib/plan-catalog";
 import { createPlanCheckoutSession } from "@/lib/stripe.functions";
 import { validatePromoCode } from "@/lib/promo.functions";
+import { useIsIosNative } from "@/lib/platform";
 
 const search = z.object({ plan: z.string().optional() });
 
@@ -21,6 +22,7 @@ function money(cents: number) {
 
 function Checkout() {
   const { plan } = Route.useSearch();
+  const iosNative = useIsIosNative();
   const resolved = plan ? resolvePlanKey(plan) : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +77,27 @@ function Checkout() {
       setError((e as Error).message);
       setLoading(false);
     }
+  }
+
+  if (iosNative) {
+    return (
+      <AppShell title="CHECKOUT">
+        <section className="px-5 pt-8">
+          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+            <Lock className="mx-auto h-6 w-6 text-primary" />
+            <h1 className="mt-3 text-lg font-bold">Not available in the app</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Seller memberships and promotion boosts can't be purchased inside the iOS app.
+              Everything else in PlugU works exactly the same, and any plan you already have
+              stays active here.
+            </p>
+            <Link to="/" className="mt-5 inline-block rounded-2xl bg-[image:var(--gradient-bronze)] px-6 py-3 text-sm font-medium text-primary-foreground">
+              Back to PlugU
+            </Link>
+          </div>
+        </section>
+      </AppShell>
+    );
   }
 
   if (!resolved) {

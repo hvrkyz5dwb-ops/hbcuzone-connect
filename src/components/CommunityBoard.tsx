@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock, Flag, EyeOff } from "lucide-react";
+import { ReportDialog } from "@/components/ReportDialog";
+import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted } from "@/lib/ugc-safety";
 import { toast } from "sonner";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -40,12 +42,19 @@ export function CommunityBoard() {
   const [visibility, setVisibility] = useState<"campus" | "public">("campus");
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [reportTarget, setReportTarget] = useState<{ id: string; label: string } | null>(null);
+  const [safetyTick, setSafetyTick] = useState(0);
 
   useEffect(() => {
-    const refresh = () => setPosts(listCommunityPosts(school.name));
+    const refresh = () =>
+      setPosts(
+        listCommunityPosts(school.name).filter(
+          (p) => !isPostHidden(p.id) && !isAuthorMuted(p.author),
+        ),
+      );
     refresh();
     return subscribeCommunityPosts(refresh);
-  }, [school.name]);
+  }, [school.name, safetyTick]);
 
   const submit = () => {
     const t = text.trim();
@@ -177,6 +186,39 @@ export function CommunityBoard() {
                         <MessageCircle className="h-3.5 w-3.5" />
                         {p.comments.length}
                       </button>
+                      {!mine && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setReportTarget({ id: p.id, label: p.text.slice(0, 60) })}
+                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
+                          >
+                            <Flag className="h-3.5 w-3.5" /> Report
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              hideCommunityPost(p.id);
+                              setSafetyTick((n) => n + 1);
+                              toast.message("Post hidden", { description: "You won't see this post again." });
+                            }}
+                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
+                          >
+                            <EyeOff className="h-3.5 w-3.5" /> Hide
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              muteAuthor(p.author);
+                              setSafetyTick((n) => n + 1);
+                              toast.message(`Blocked ${p.author}`, { description: "Their posts are hidden for you." });
+                            }}
+                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
+                          >
+                            Block
+                          </button>
+                        </>
+                      )}
                       {mine && (
                         <button
                           type="button"
@@ -225,6 +267,20 @@ export function CommunityBoard() {
           })}
         </ul>
       )}
+
+      <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">
+        By posting you agree to PlugU's Community Guidelines and Terms. Harassment, hate, nudity,
+        illegal items and spam are not allowed. Reported content is reviewed within 24 hours and
+        offending posts and accounts are removed.
+      </p>
+
+      <ReportDialog
+        open={!!reportTarget}
+        onClose={() => setReportTarget(null)}
+        targetType="post"
+        targetId={reportTarget?.id ?? ""}
+        targetLabel={reportTarget?.label}
+      />
     </section>
   );
 }

@@ -14,6 +14,9 @@ const config: CapacitorConfig = {
     url: "https://hbcuzone-connect.lovable.app",
     cleartext: false,
     androidScheme: "https",
+    // If the hosted app can't be reached, load the bundled branded page in
+    // native/www instead of leaving the user on a blank/frozen webview.
+    errorPath: "index.html",
     // Domains the webview may navigate to in-app (auth, payments, fonts, CDN).
     allowNavigation: [
       "hbcuzone-connect.lovable.app",

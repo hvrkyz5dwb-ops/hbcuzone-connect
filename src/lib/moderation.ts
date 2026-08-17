@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type ReportTargetType = "user" | "listing" | "message" | "review" | "order" | "business" | "event";
+export type ReportTargetType = "user" | "listing" | "message" | "review" | "order" | "business" | "event" | "post" | "comment";
 
 export const REPORT_REASONS = [
   { key: "scam_fraud", label: "Scam or fraud" },
