@@ -141,6 +141,17 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     beginFirstLaunch();
   }, [sessionLoading, session, beginFirstLaunch]);
 
+  // Failsafe: the splash must never be able to trap the app. If it is still
+  // mounted well past its own scene clock, tear it down and continue.
+  useEffect(() => {
+    if (!showSplash) return;
+    const t = window.setTimeout(() => {
+      setShowSplash(false);
+      beginFirstLaunch();
+    }, 6000);
+    return () => window.clearTimeout(t);
+  }, [showSplash, beginFirstLaunch]);
+
   // If a sibling tab plays the splash while this tab is open, remember it
   // so a later refresh here doesn't replay. (No re-render needed.)
   useEffect(() => {
