@@ -288,3 +288,43 @@ export async function toggleFavorite(listingId: string): Promise<boolean> {
   if (error) throw error;
   return true;
 }
+/** Listings the signed-in user has saved, newest save first. */
+export async function fetchSavedListings(): Promise<ListingWithExtras[]> {
+  const { data: session } = await supabase.auth.getUser();
+  const userId = session.user?.id;
+  if (!userId) return [];
+
+  const { data: favs, error: favErr } = await supabase
+    .from("favorites")
+    .select("listing_id, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (favErr) throw favErr;
+  const ids = (favs ?? []).map((f) => f.listing_id);
+  if (ids.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("listings")
+    .select(sel(`
+      id, seller_user_id, business_id, school_id, title, description, category, kind,
+      price_cents, price_type, campus_name, fulfillment, quantity, availability,
+      fulfillment_time, cancellation_policy, status, moderation_status,
+      favorite_count, created_at, updated_at,
+      listing_images ( id, url, position )
+    `))
+    .in("id", ids)
+    .returns<Array<DbListing & { listing_images: { id: string; url: string; position: number }[] }>>();
+  if (error) throw error;
+
+  const byId = new Map(
+    (data ?? []).map((r) => {
+      const images = (r.listing_images ?? []).slice().sort((a, b) => a.position - b.position);
+      const { listing_images, ...rest } = r as typeof r & { listing_images?: unknown };
+      void listing_images;
+      return [r.id, { ...rest, images, is_favorited: true } as ListingWithExtras] as const;
+    }),
+  );
+  // Preserve save order, and silently drop listings that were removed.
+  return ids.map((id) => byId.get(id)).filter(Boolean) as ListingWithExtras[];
+}
