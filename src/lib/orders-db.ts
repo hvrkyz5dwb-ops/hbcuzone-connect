@@ -153,7 +153,7 @@ export async function listMyOrders(role: OrderRole = "all"): Promise<OrderWithEx
   const profileMap = new Map<string, { id: string; display_name: string | null; username: string | null; avatar_url: string | null }>();
   if (otherIds.length > 0) {
     const { data: profs } = await supabase
-      .from("profiles")
+      .from("public_profiles")
       .select("id,display_name,username,avatar_url")
       .in("id", otherIds);
     for (const p of (profs ?? []) as Array<{ id: string; display_name: string | null; username: string | null; avatar_url: string | null }>) {
@@ -189,7 +189,7 @@ export async function getOrder(id: string): Promise<OrderWithExtras | null> {
   }
   const { data: b } = await supabase.from("bookings").select("*").eq("order_id", id).maybeSingle();
   const otherId = order.buyer_user_id === me ? order.seller_user_id : order.buyer_user_id;
-  const { data: p } = await supabase.from("profiles").select("id,display_name,username,avatar_url").eq("id", otherId).maybeSingle();
+  const { data: p } = await supabase.from("public_profiles").select("id,display_name,username,avatar_url").eq("id", otherId).maybeSingle();
 
   return {
     ...order,

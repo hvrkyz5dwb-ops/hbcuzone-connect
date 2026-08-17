@@ -147,7 +147,7 @@ export async function listConversations(): Promise<ConversationSummary[]> {
   const profileMap = new Map<string, ConversationMember>();
   if (otherIds.length > 0) {
     const { data: profs } = await supabase
-      .from("profiles")
+      .from("public_profiles")
       .select("id,display_name,username,avatar_url,verification_status")
       .in("id", otherIds);
     for (const p of profs ?? []) {
@@ -262,7 +262,7 @@ export async function getConversation(id: string): Promise<{
   let other: ConversationMember | null = null;
   if (otherId) {
     const { data: p } = await supabase
-      .from("profiles")
+      .from("public_profiles")
       .select("id,display_name,username,avatar_url,verification_status")
       .eq("id", otherId)
       .maybeSingle();
