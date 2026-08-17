@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Check, Crown, PlugZap, Rocket, Sparkles, Star, TrendingUp, Zap, ShieldCheck, Calculator } from "lucide-react";
+import { isIosNative, useIsIosNative } from "@/lib/platform";
 import { AppShell } from "@/components/AppShell";
 import { boostPackages, type BoostPackage } from "@/lib/mock-data";
 import { SELLER_TIERS, setSellerPlan, getSellerPlanState, CYCLE_VALIDITY, type SellerTier } from "@/lib/seller-plan";
@@ -108,6 +109,7 @@ function BreakEven({
 
 function Upgrade() {
   const navigate = useNavigate();
+  const iosNative = useIsIosNative();
   const [currentTier, setCurrentTier] = useState<SellerTier>("free");
   const [pending, setPending] = useState<SellerTier | null>(null);
   const { avg, setAvg } = useAvgSale();
@@ -138,6 +140,13 @@ function Upgrade() {
     }
     // Paid memberships activate only after a confirmed Stripe payment —
     // checkout verifies the session before unlocking the tier.
+    if (iosNative) {
+      toast("Not available in the app", {
+        description: "Seller memberships can't be purchased inside the iOS app.",
+      });
+      setPending(null);
+      return;
+    }
     navigate({ to: "/checkout", search: { plan: `seller_${tier}_${meta.cycle}` } });
   }
 
@@ -152,6 +161,13 @@ function Upgrade() {
           Keep more of every sale with a membership, or pay once to get seen by more students.
         </p>
       </section>
+
+      {iosNative && (
+        <div className="mx-5 mt-5 rounded-2xl border border-border bg-card p-4 text-[12px] leading-relaxed text-muted-foreground">
+          Memberships and boosts aren't sold inside the iOS app. You can keep selling on PlugU with the
+          Free Seller plan, and any plan you already have stays active here.
+        </div>
+      )}
 
       <nav className="mt-5 mx-5 grid grid-cols-2 gap-2">
         <a href="#memberships" className="tap rounded-xl border border-border bg-card px-3 py-2.5 text-center text-xs font-semibold">
@@ -444,6 +460,12 @@ function BoostCard({
         onClick={() => {
           if (!chosen || chosen.price < 0) {
             toast.error("Invalid boost — pick a duration");
+            return;
+          }
+          if (isIosNative()) {
+            toast("Not available in the app", {
+              description: "Promotion boosts can't be purchased inside the iOS app.",
+            });
             return;
           }
           navigate({ to: "/checkout", search: { plan: chosen.key } });
