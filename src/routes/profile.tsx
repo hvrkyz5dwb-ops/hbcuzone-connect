@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap, Gift } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
+import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/hooks/use-profile";
 import { useIsAdmin } from "@/hooks/use-is-admin";
@@ -92,6 +93,7 @@ function ProfileInner() {
         <p className="text-sm text-muted-foreground">{subline}</p>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
           {profile?.verification_status === "verified" && <VerifiedStudentBadge size="sm" />}
+          {profile && <PlugScoreBadge profile={profile} />}
           <span className={`inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border ${isAlumni ? "border-accent/40 text-accent" : "border-primary/40 text-primary"}`}>
             <GraduationCap className="h-3.5 w-3.5" /> {isAlumni ? "Alumni" : "Student"}
           </span>
