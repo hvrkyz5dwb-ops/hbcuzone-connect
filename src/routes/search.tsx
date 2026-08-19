@@ -9,6 +9,8 @@ import { AppShell } from "@/components/AppShell";
 import { ChargingLoader } from "@/components/ChargingLoader";
 import { listings } from "@/lib/mock-data";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
+import { askPlugU } from "@/lib/plugai.functions";
+import type { AskPlugUResult } from "@/lib/plugai-types";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -348,7 +350,10 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (b: boolean) => void 
 // ----------- Ask AI -----------
 
 function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: (s: string) => void }) {
+  const navigate = useNavigate();
   const ask = useServerFn(askAI);
+  const askLive = useServerFn(askPlugU);
+  const [live, setLive] = useState<AskPlugUResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AskAIResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -358,7 +363,17 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
     const question = q.trim();
     if (question.length < 2 || lastRan.current === question) return;
     lastRan.current = question;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true); setError(null); setResult(null); setLive(null);
+    try {
+      // Signed-in students get answers grounded in real campus rows.
+      const r = await askLive({ data: { question } });
+      setLive(r);
+      if (r.error) setError(r.error);
+      setLoading(false);
+      return;
+    } catch {
+      // Guest (401) or live layer unavailable — fall back to the general assistant.
+    }
     try {
       const r = await ask({ data: { question } });
       setResult(r);
@@ -399,7 +414,7 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
         </button>
       </div>
 
-      {!result && !loading && (
+      {!result && !live && !loading && (
         <div className="mt-5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Try asking</p>
           <div className="flex flex-wrap gap-2">
@@ -416,6 +431,68 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
 
       {error && (
         <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200">{error}</div>
+      )}
+
+      {live && (
+        <div className="mt-5 space-y-4 slide-up">
+          {live.answer && (
+            <div className="rounded-2xl bg-card border border-border p-4">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Answer</p>
+              <p className="text-sm text-foreground/90 leading-relaxed">{live.answer}</p>
+            </div>
+          )}
+
+          {live.hits.length > 0 ? (
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 inline-flex items-center gap-1">
+                <BadgeCheck className="h-3 w-3 text-primary" /> Live on your campus
+              </p>
+              <div className="space-y-2">
+                {live.hits.map((h) => (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => {
+                      if (h.listingId) navigate({ to: "/checkout/$listingId", params: { listingId: h.listingId } });
+                      else navigate({ to: "/pulse" });
+                    }}
+                    className="tap w-full text-left rounded-2xl bg-card border border-border p-4 flex items-center gap-3"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground text-sm font-bold">
+                      {h.kind === "drop" ? <Flame className="h-4 w-4" /> : h.title.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{h.title}</p>
+                      <p className="text-[11px] text-muted-foreground truncate inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {h.subtitle}
+                      </p>
+                    </div>
+                    <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-secondary border border-border">{h.category}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-card border border-border p-4 text-sm text-muted-foreground">
+              Nothing live matches that on your campus yet. Try the Browse tab or check Pulse for what's happening now.
+            </div>
+          )}
+
+          {live.links.length > 0 && (
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Around the Web</p>
+              <div className="space-y-2">
+                {live.links.map((l, i) => (
+                  <a key={i} href={l.url} target="_blank" rel="noreferrer noopener" className="tap flex items-center gap-3 rounded-2xl bg-card border border-border p-3">
+                    <SourceIcon source={l.source} />
+                    <span className="text-sm flex-1 truncate">{l.label}</span>
+                    <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {result && (
