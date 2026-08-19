@@ -24,6 +24,7 @@ import { Route as RequestSchoolAccessRouteImport } from './routes/request-school
 import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PromoteRouteImport } from './routes/promote'
 import { Route as ProhibitedItemsRouteImport } from './routes/prohibited-items'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -156,6 +157,11 @@ const RefundsRoute = RefundsRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PulseRoute = PulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PromoteRoute = PromoteRouteImport.update({
@@ -490,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
+  '/pulse': typeof PulseRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -565,6 +572,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRouteWithChildren
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
+  '/pulse': typeof PulseRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -641,6 +649,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
+  '/pulse': typeof PulseRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -718,6 +727,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/prohibited-items'
     | '/promote'
+    | '/pulse'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/prohibited-items'
     | '/promote'
+    | '/pulse'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -868,6 +879,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/prohibited-items'
     | '/promote'
+    | '/pulse'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -944,6 +956,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRouteWithChildren
   ProhibitedItemsRoute: typeof ProhibitedItemsRoute
   PromoteRoute: typeof PromoteRoute
+  PulseRoute: typeof PulseRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
   ReportProblemRoute: typeof ReportProblemRoute
@@ -1080,6 +1093,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pulse': {
+      id: '/pulse'
+      path: '/pulse'
+      fullPath: '/pulse'
+      preLoaderRoute: typeof PulseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/promote': {
@@ -1610,6 +1630,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRouteWithChildren,
   ProhibitedItemsRoute: ProhibitedItemsRoute,
   PromoteRoute: PromoteRoute,
+  PulseRoute: PulseRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
   ReportProblemRoute: ReportProblemRoute,
