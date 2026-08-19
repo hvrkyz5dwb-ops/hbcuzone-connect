@@ -67,6 +67,12 @@ function OrdersPage() {
             <h1 className="text-lg font-bold tracking-tight">Your orders</h1>
             <p className="text-[11px] text-muted-foreground">Every purchase is Protected by PlugU.</p>
           </div>
+          <Link
+            to="/bookings"
+            className="tap ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border border-border bg-card text-muted-foreground"
+          >
+            <Calendar className="h-3.5 w-3.5" /> Schedule
+          </Link>
         </div>
 
         {/* Role toggle */}
