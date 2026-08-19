@@ -1,6 +1,6 @@
 // Live campus data hooks. Realtime listeners are scoped to the viewer's
 // campus and torn down on unmount.
-import { useEffect, useId } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./use-profile";
@@ -20,7 +20,9 @@ function useLiveInvalidation(schoolId: string | null) {
   const qc = useQueryClient();
   // Unique per hook instance: reusing one channel name across mounted
   // components throws "cannot add postgres_changes callbacks after subscribe".
-  const instanceId = useId();
+  const idRef = useRef<string>("");
+  if (!idRef.current) idRef.current = Math.random().toString(36).slice(2, 9);
+  const instanceId = idRef.current;
   useEffect(() => {
     const channel = supabase
       .channel(`pulse-${schoolId ?? "all"}-${instanceId}`)
