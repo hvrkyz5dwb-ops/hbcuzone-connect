@@ -108,6 +108,53 @@ function SellerAnalytics() {
 
   const max = Math.max(1, ...stats.spark);
 
+  // Live-layer performance — drops, flash claims, availability, top listings.
+  const live = useMemo(() => {
+    const nowMs = Date.now();
+    const claimed = drops.reduce((n, d) => n + (d.quantity_claimed ?? 0), 0);
+    const offered = drops.reduce((n, d) => n + (d.quantity_limit ?? 0), 0);
+    const flashCount = drops.filter((d) => d.is_flash).length;
+    const sellThrough = offered > 0 ? Math.round((claimed / offered) * 100) : null;
+    const liveNow = availability.filter(
+      (a) => a.is_active && (!a.available_until || new Date(a.available_until).getTime() > nowMs),
+    );
+
+    const ordersByListing = new Map<string, number>();
+    for (const o of orders) {
+      const paid = o.payment_status === "captured" || o.status === "completed";
+      if (!paid) continue;
+      const key = (o as { listing_id?: string | null }).listing_id;
+      if (key) ordersByListing.set(key, (ordersByListing.get(key) ?? 0) + 1);
+    }
+    const top = myListings
+      .map((l) => ({
+        id: l.id,
+        title: l.title,
+        saves: l.favorite_count ?? 0,
+        sales: ordersByListing.get(l.id) ?? 0,
+        price: (l.price_cents ?? 0) / 100,
+      }))
+      .sort((a, b) => b.sales - a.sales || b.saves - a.saves)
+      .slice(0, 5)
+      .filter((l) => l.sales > 0 || l.saves > 0);
+
+    // Best hour of day for paid orders (real timestamps only).
+    const hours = new Array(24).fill(0);
+    for (const o of orders) {
+      if (o.payment_status === "captured" || o.status === "completed") {
+        hours[new Date(o.created_at).getHours()] += 1;
+      }
+    }
+    const peak = hours.some((h) => h > 0) ? hours.indexOf(Math.max(...hours)) : null;
+    const fmtHour = (h: number) => `${((h + 11) % 12) + 1}${h < 12 ? "am" : "pm"}`;
+
+    return {
+      dropCount: drops.length, flashCount, claimed, offered, sellThrough,
+      liveNowCount: liveNow.length, liveNow, top,
+      peakLabel: peak === null ? null : `${fmtHour(peak)}–${fmtHour((peak + 1) % 24)}`,
+    };
+  }, [drops, availability, myListings, orders]);
+
   const kpis = [
     { label: "Monthly earnings", value: `$${stats.monthly.toFixed(2)}`, Icon: DollarSign },
     { label: "Year to date", value: `$${stats.yearly.toFixed(2)}`, Icon: CalendarDays },
