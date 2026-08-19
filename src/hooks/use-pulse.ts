@@ -7,7 +7,7 @@ import { useProfile } from "./use-profile";
 import { useSession } from "./use-session";
 import {
   fetchAvailability, fetchDrops, fetchMyAvailability, fetchMyDrops, fetchSellers,
-  fetchCampusActivity, fetchMyClaims, type AvailabilityRow, type DropRow, type SellerLite,
+  fetchCampusActivity, fetchMyClaims, fetchZones, type AvailabilityRow, type DropRow, type SellerLite,
 } from "@/lib/pulse-db";
 
 export function useCampusId(): string | null {
@@ -102,5 +102,14 @@ export function useCampusActivity() {
     queryKey: ["campus-activity", schoolId],
     staleTime: 30_000,
     queryFn: () => fetchCampusActivity(schoolId),
+  });
+}
+
+export function useCampusZones() {
+  const schoolId = useCampusId();
+  return useQuery({
+    queryKey: ["campus-zones", schoolId],
+    staleTime: 5 * 60_000,
+    queryFn: () => fetchZones(schoolId),
   });
 }
