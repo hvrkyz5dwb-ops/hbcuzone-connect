@@ -1,6 +1,6 @@
 // Live campus data hooks. Realtime listeners are scoped to the viewer's
 // campus and torn down on unmount.
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./use-profile";
@@ -18,9 +18,12 @@ export function useCampusId(): string | null {
 /** Refetches Pulse queries whenever availability or drops change on this campus. */
 function useLiveInvalidation(schoolId: string | null) {
   const qc = useQueryClient();
+  // Unique per hook instance: reusing one channel name across mounted
+  // components throws "cannot add postgres_changes callbacks after subscribe".
+  const instanceId = useId();
   useEffect(() => {
     const channel = supabase
-      .channel(`pulse-${schoolId ?? "all"}`)
+      .channel(`pulse-${schoolId ?? "all"}-${instanceId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "seller_availability" }, () => {
         qc.invalidateQueries({ queryKey: ["availability"] });
         qc.invalidateQueries({ queryKey: ["campus-activity"] });
@@ -33,7 +36,7 @@ function useLiveInvalidation(schoolId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [qc, schoolId]);
+  }, [qc, schoolId, instanceId]);
 }
 
 export type AvailabilityWithSeller = AvailabilityRow & { seller: SellerLite | null };
