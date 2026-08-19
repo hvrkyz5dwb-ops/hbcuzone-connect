@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search, Plus, Calendar, MapPin, Users, Flame, Sparkles, Trophy, Building2,
@@ -532,6 +532,13 @@ function RanksSection({ events }: { events: CampusEvent[] }) {
         <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Most active campus</p>
         <p className="mt-1 text-lg font-bold">{profile?.school_name ?? "Your campus"}</p>
         <p className="text-xs text-muted-foreground">{events.length} events · {totalRsvps} RSVPs</p>
+        <Link
+          to="/rankings"
+          className="tap mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold text-primary-foreground"
+          style={{ background: "var(--gradient-bronze)" }}
+        >
+          <Trophy className="h-3.5 w-3.5" /> Seller leaderboard
+        </Link>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-4">
