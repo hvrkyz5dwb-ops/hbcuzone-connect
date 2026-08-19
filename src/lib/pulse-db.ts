@@ -224,7 +224,7 @@ export type ZoneActivity = {
 };
 
 export async function fetchCampusActivity(schoolId: string | null) {
-  const { data, error } = await supabase.rpc("campus_activity_summary", { _school_id: schoolId });
+  const { data, error } = await supabase.rpc("campus_activity_summary", { _school_id: schoolId as string });
   if (error) throw error;
   return (data ?? []) as unknown as ZoneActivity[];
 }
