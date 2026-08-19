@@ -1,22 +1,8 @@
 // Server-only helpers for Ask PlugU. Grounds the assistant in real marketplace rows.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type PlugUHit = {
-  kind: "listing" | "available" | "drop";
-  id: string;
-  listingId: string | null;
-  title: string;
-  subtitle: string;
-  category: string;
-  priceCents: number | null;
-};
-
-export type AskPlugUResult = {
-  answer: string;
-  hits: PlugUHit[];
-  links: { label: string; url: string; source: "instagram" | "tiktok" | "youtube" | "web" }[];
-  error?: string;
-};
+import type { AskPlugUResult, PlugUHit } from "./plugai-types";
+export type { AskPlugUResult, PlugUHit };
 
 const money = (c: number | null | undefined) =>
   typeof c === "number" ? `$${(c / 100).toFixed(c % 100 === 0 ? 0 : 2)}` : "Ask price";
