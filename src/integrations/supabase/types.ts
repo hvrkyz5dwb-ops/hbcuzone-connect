@@ -2113,6 +2113,29 @@ export type Database = {
           zone_name: string
         }[]
       }
+      campus_rankings: {
+        Args: {
+          _category?: string
+          _days?: number
+          _limit?: number
+          _school_id?: string
+        }
+        Returns: {
+          avatar_url: string
+          completed_orders: number
+          completed_transactions: number
+          display_name: string
+          member_since: string
+          rating_avg: number
+          rating_count: number
+          school_id: string
+          school_name: string
+          top_category: string
+          user_id: string
+          username: string
+          verification_status: string
+        }[]
+      }
       claim_flash_drop: {
         Args: { _drop_id: string }
         Returns: {

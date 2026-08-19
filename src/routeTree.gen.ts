@@ -24,6 +24,7 @@ import { Route as RequestSchoolAccessRouteImport } from './routes/request-school
 import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PromoteRouteImport } from './routes/promote'
 import { Route as ProhibitedItemsRouteImport } from './routes/prohibited-items'
@@ -56,6 +57,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CampusRouteImport } from './routes/campus'
 import { Route as BusinessRouteImport } from './routes/business'
+import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
@@ -157,6 +159,11 @@ const RefundsRoute = RefundsRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingsRoute = RankingsRouteImport.update({
+  id: '/rankings',
+  path: '/rankings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PulseRoute = PulseRouteImport.update({
@@ -319,6 +326,11 @@ const BusinessRoute = BusinessRouteImport.update({
   path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AwardsRoute = AwardsRouteImport.update({
   id: '/awards',
   path: '/awards',
@@ -465,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -497,6 +510,7 @@ export interface FileRoutesByFullPath {
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
+  '/rankings': typeof RankingsRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -541,6 +555,7 @@ export interface FileRoutesByTo {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -573,6 +588,7 @@ export interface FileRoutesByTo {
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
+  '/rankings': typeof RankingsRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -618,6 +634,7 @@ export interface FileRoutesById {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
   '/checkout': typeof CheckoutRouteWithChildren
@@ -650,6 +667,7 @@ export interface FileRoutesById {
   '/prohibited-items': typeof ProhibitedItemsRoute
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
+  '/rankings': typeof RankingsRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -696,6 +714,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/bookings'
     | '/business'
     | '/campus'
     | '/checkout'
@@ -728,6 +747,7 @@ export interface FileRouteTypes {
     | '/prohibited-items'
     | '/promote'
     | '/pulse'
+    | '/rankings'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -772,6 +792,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/bookings'
     | '/business'
     | '/campus'
     | '/checkout'
@@ -804,6 +825,7 @@ export interface FileRouteTypes {
     | '/prohibited-items'
     | '/promote'
     | '/pulse'
+    | '/rankings'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -848,6 +870,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/bookings'
     | '/business'
     | '/campus'
     | '/checkout'
@@ -880,6 +903,7 @@ export interface FileRouteTypes {
     | '/prohibited-items'
     | '/promote'
     | '/pulse'
+    | '/rankings'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -925,6 +949,7 @@ export interface RootRouteChildren {
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
   AuthRoute: typeof AuthRoute
   AwardsRoute: typeof AwardsRoute
+  BookingsRoute: typeof BookingsRoute
   BusinessRoute: typeof BusinessRoute
   CampusRoute: typeof CampusRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
@@ -957,6 +982,7 @@ export interface RootRouteChildren {
   ProhibitedItemsRoute: typeof ProhibitedItemsRoute
   PromoteRoute: typeof PromoteRoute
   PulseRoute: typeof PulseRoute
+  RankingsRoute: typeof RankingsRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
   ReportProblemRoute: typeof ReportProblemRoute
@@ -1093,6 +1119,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rankings': {
+      id: '/rankings'
+      path: '/rankings'
+      fullPath: '/rankings'
+      preLoaderRoute: typeof RankingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pulse': {
@@ -1317,6 +1350,13 @@ declare module '@tanstack/react-router' {
       path: '/business'
       fullPath: '/business'
       preLoaderRoute: typeof BusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/awards': {
@@ -1599,6 +1639,7 @@ const rootRouteChildren: RootRouteChildren = {
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
   AuthRoute: AuthRoute,
   AwardsRoute: AwardsRoute,
+  BookingsRoute: BookingsRoute,
   BusinessRoute: BusinessRoute,
   CampusRoute: CampusRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
@@ -1631,6 +1672,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProhibitedItemsRoute: ProhibitedItemsRoute,
   PromoteRoute: PromoteRoute,
   PulseRoute: PulseRoute,
+  RankingsRoute: RankingsRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
   ReportProblemRoute: ReportProblemRoute,
