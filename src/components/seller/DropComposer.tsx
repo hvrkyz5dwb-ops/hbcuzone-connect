@@ -8,7 +8,6 @@ import { useMyDrops } from "@/hooks/use-pulse";
 import { useMyListings } from "@/hooks/use-listings";
 import { createDrop, deleteDrop, countdown } from "@/lib/pulse-db";
 import { ZONE_SUGGESTIONS } from "./AvailableNowControl";
-import { containsProhibited } from "@/lib/ugc-safety";
 
 const FLASH_WINDOWS = [
   { label: "30 min", mins: 30 },
@@ -39,10 +38,6 @@ export function DropComposer() {
     if (!user?.id) return;
     const text = body.trim();
     if (text.length < 3) { toast.error("Say what's dropping"); return; }
-    if (containsProhibited(text)) {
-      toast.error("That drop breaks PlugU's marketplace rules");
-      return;
-    }
     setBusy(true);
     try {
       const linked = listings?.find((l) => l.id === listingId) ?? null;
