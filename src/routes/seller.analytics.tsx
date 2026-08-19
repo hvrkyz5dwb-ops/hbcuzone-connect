@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Star, ShoppingBag, DollarSign, CalendarDays, LineChart } from "lucide-react";
+import { Star, ShoppingBag, DollarSign, CalendarDays, LineChart, Zap, Radio, Heart, Clock } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ErrorState, PageLoader } from "@/components/QueryStates";
+import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
@@ -25,7 +26,8 @@ function SellerAnalytics() {
     staleTime: 30_000,
     queryFn: async () => {
       const uid = user!.id;
-      const [ordersRes, listingsRes] = await Promise.all([
+      const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+      const [ordersRes, listingsRes, myListingsRes, dropsRes, availRes] = await Promise.all([
         supabase
           .from("orders")
           .select("id,status,payment_status,total_cents,platform_fee_cents,processing_fee_cents,created_at,buyer_user_id")
@@ -36,18 +38,42 @@ function SellerAnalytics() {
           .from("listings")
           .select("id,status", { count: "exact", head: true })
           .eq("seller_user_id", uid),
+        supabase
+          .from("listings")
+          .select("id,title,price_cents,favorite_count,status")
+          .eq("seller_user_id", uid)
+          .limit(100),
+        supabase
+          .from("drops")
+          .select("id,body,is_flash,quantity_limit,quantity_claimed,expires_at,created_at")
+          .eq("seller_user_id", uid)
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase
+          .from("seller_availability")
+          .select("id,service_label,zone_name,is_active,available_until,updated_at")
+          .eq("seller_user_id", uid)
+          .order("updated_at", { ascending: false })
+          .limit(20),
       ]);
       if (ordersRes.error) throw ordersRes.error;
       if (listingsRes.error) throw listingsRes.error;
       return {
         orders: ordersRes.data ?? [],
         listingCount: listingsRes.count ?? 0,
+        listings: myListingsRes.data ?? [],
+        drops: dropsRes.data ?? [],
+        availability: availRes.data ?? [],
       };
     },
   });
 
   const orders = q.data?.orders ?? [];
   const listingCount = q.data?.listingCount ?? 0;
+  const myListings = q.data?.listings ?? [];
+  const drops = q.data?.drops ?? [];
+  const availability = q.data?.availability ?? [];
 
   const stats = useMemo(() => {
     const paid = orders.filter((o) => o.payment_status === "captured" || o.status === "completed");
