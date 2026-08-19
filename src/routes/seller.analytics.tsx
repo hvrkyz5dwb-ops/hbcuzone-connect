@@ -30,7 +30,7 @@ function SellerAnalytics() {
       const [ordersRes, listingsRes, myListingsRes, dropsRes, availRes] = await Promise.all([
         supabase
           .from("orders")
-          .select("id,status,payment_status,total_cents,platform_fee_cents,processing_fee_cents,created_at,buyer_user_id")
+          .select("id,listing_id,status,payment_status,total_cents,platform_fee_cents,processing_fee_cents,created_at,buyer_user_id")
           .eq("seller_user_id", uid)
           .order("created_at", { ascending: false })
           .limit(500),
