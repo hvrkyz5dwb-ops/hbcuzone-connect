@@ -11,6 +11,7 @@ import { listings } from "@/lib/mock-data";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
 import { askPlugU } from "@/lib/plugai.functions";
 import type { AskPlugUResult } from "@/lib/plugai-types";
+import { useSession } from "@/hooks/use-session";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -353,6 +354,7 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
   const navigate = useNavigate();
   const ask = useServerFn(askAI);
   const askLive = useServerFn(askPlugU);
+  const { user } = useSession();
   const [live, setLive] = useState<AskPlugUResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AskAIResult | null>(null);
@@ -364,15 +366,17 @@ function AskAITab({ initialQuery, setQuery }: { initialQuery: string; setQuery: 
     if (question.length < 2 || lastRan.current === question) return;
     lastRan.current = question;
     setLoading(true); setError(null); setResult(null); setLive(null);
-    try {
-      // Signed-in students get answers grounded in real campus rows.
-      const r = await askLive({ data: { question } });
-      setLive(r);
-      if (r.error) setError(r.error);
-      setLoading(false);
-      return;
-    } catch {
-      // Guest (401) or live layer unavailable — fall back to the general assistant.
+    if (user) {
+      try {
+        // Signed-in students get answers grounded in real campus rows.
+        const r = await askLive({ data: { question } });
+        setLive(r);
+        if (r.error) setError(r.error);
+        setLoading(false);
+        return;
+      } catch {
+        // Live layer unavailable — fall back to the general assistant.
+      }
     }
     try {
       const r = await ask({ data: { question } });
