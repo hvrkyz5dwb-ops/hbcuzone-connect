@@ -261,6 +261,7 @@ function SellerAnalytics() {
             <Star className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
             <p className="text-xs font-semibold">Verified rating</p>
           </div>
+          {profile && <div className="mt-2"><PlugScoreBadge profile={profile} /></div>}
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-3xl font-black">
               {profile && profile.rating_count > 0 ? profile.rating_avg.toFixed(1) : "—"}
@@ -273,6 +274,69 @@ function SellerAnalytics() {
             Ratings are pulled from buyers who completed a paid order or booking with you.
           </p>
         </div>
+
+        {/* Live layer — Available Now + Drops performance */}
+        <div className="mt-4 rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2">
+            <Radio className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
+            <p className="text-xs font-semibold">Live layer — last 30 days</p>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl border border-border/60 p-2.5">
+              <p className="text-lg font-bold">{live.dropCount}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Drops posted</p>
+            </div>
+            <div className="rounded-xl border border-border/60 p-2.5">
+              <p className="text-lg font-bold">{live.claimed}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Claims</p>
+            </div>
+            <div className="rounded-xl border border-border/60 p-2.5">
+              <p className="text-lg font-bold">{live.sellThrough === null ? "—" : `${live.sellThrough}%`}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Sell-through</p>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1">
+              <Zap className="h-3 w-3" style={{ color: "var(--plugu-gold)" }} /> {live.flashCount} flash drop{live.flashCount === 1 ? "" : "s"}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1">
+              <Radio className="h-3 w-3" style={{ color: "var(--plugu-gold)" }} />
+              {live.liveNowCount > 0 ? `${live.liveNowCount} live now` : "Not live right now"}
+            </span>
+            {live.peakLabel && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1">
+                <Clock className="h-3 w-3" style={{ color: "var(--plugu-gold)" }} /> Peak {live.peakLabel}
+              </span>
+            )}
+          </div>
+          {live.dropCount === 0 && (
+            <Link to="/seller" className="mt-3 inline-flex text-[11px] font-semibold text-primary">
+              Go live or post a drop →
+            </Link>
+          )}
+        </div>
+
+        {/* Top performing listings */}
+        {live.top.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
+              <p className="text-xs font-semibold">Top listings</p>
+            </div>
+            <ul className="mt-3 space-y-2">
+              {live.top.map((l) => (
+                <li key={l.id} className="flex items-center justify-between gap-3">
+                  <Link to="/listing/$id" params={{ id: l.id }} className="min-w-0 flex-1 truncate text-sm">
+                    {l.title}
+                  </Link>
+                  <span className="shrink-0 text-[11px] text-muted-foreground">
+                    {l.sales} sold · {l.saves} saved
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         </>
         )}
       </section>
