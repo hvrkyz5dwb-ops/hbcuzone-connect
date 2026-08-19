@@ -151,6 +151,11 @@ function SellerDashboard() {
           <StatCard icon={Repeat} label="Repeat" value={stats.data?.repeat ?? 0} />
         </div>
 
+        <div className="-mx-5 mt-4 space-y-3">
+          <AvailableNowControl />
+          <DropComposer />
+        </div>
+
         <SectionHeader title="Payouts" />
         <StripePayoutCard
           configured={!!stripeStatusQ.data?.configured}
