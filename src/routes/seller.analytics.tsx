@@ -326,7 +326,7 @@ function SellerAnalytics() {
             <ul className="mt-3 space-y-2">
               {live.top.map((l) => (
                 <li key={l.id} className="flex items-center justify-between gap-3">
-                  <Link to="/listing/$id" params={{ id: l.id }} className="min-w-0 flex-1 truncate text-sm">
+                  <Link to="/checkout/$listingId" params={{ listingId: l.id }} className="min-w-0 flex-1 truncate text-sm">
                     {l.title}
                   </Link>
                   <span className="shrink-0 text-[11px] text-muted-foreground">
