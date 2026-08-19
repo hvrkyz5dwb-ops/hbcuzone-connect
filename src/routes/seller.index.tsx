@@ -10,6 +10,8 @@ import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
 import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle, BarChart3, Users, Repeat } from "lucide-react";
 import { getStripeStatus, getMyPayoutAccount, createSellerOnboardingLink, syncPayoutAccount } from "@/lib/stripe.functions";
+import { AvailableNowControl } from "@/components/seller/AvailableNowControl";
+import { DropComposer } from "@/components/seller/DropComposer";
 
 export const Route = createFileRoute("/seller/")({
   ssr: false,
@@ -149,6 +151,11 @@ function SellerDashboard() {
           <StatCard icon={Star} label="Rating" value={(business as unknown as { rating_avg?: number }).rating_avg ?? "—"} />
           <StatCard icon={Users} label="Buyers" value={stats.data?.buyers ?? 0} />
           <StatCard icon={Repeat} label="Repeat" value={stats.data?.repeat ?? 0} />
+        </div>
+
+        <div className="-mx-5 mt-4 space-y-3">
+          <AvailableNowControl />
+          <DropComposer />
         </div>
 
         <SectionHeader title="Payouts" />

@@ -380,6 +380,47 @@ export type Database = {
           },
         ]
       }
+      campus_zones: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          school_id: string | null
+          sort: number
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          school_id?: string | null
+          sort?: number
+          x?: number
+          y?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          school_id?: string | null
+          sort?: number
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_zones_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_members: {
         Row: {
           conversation_id: string
@@ -478,6 +519,130 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drop_claims: {
+        Row: {
+          created_at: string
+          drop_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          drop_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          drop_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drop_claims_drop_id_fkey"
+            columns: ["drop_id"]
+            isOneToOne: false
+            referencedRelation: "drops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drops: {
+        Row: {
+          body: string
+          business_id: string | null
+          category: string | null
+          created_at: string
+          cta: string
+          discount_cents: number | null
+          discount_percent: number | null
+          event_id: string | null
+          expires_at: string
+          id: string
+          image_url: string | null
+          is_flash: boolean
+          listing_id: string | null
+          price_cents: number | null
+          quantity_claimed: number
+          quantity_limit: number | null
+          school_id: string | null
+          seller_user_id: string
+          zone_name: string | null
+        }
+        Insert: {
+          body: string
+          business_id?: string | null
+          category?: string | null
+          created_at?: string
+          cta?: string
+          discount_cents?: number | null
+          discount_percent?: number | null
+          event_id?: string | null
+          expires_at?: string
+          id?: string
+          image_url?: string | null
+          is_flash?: boolean
+          listing_id?: string | null
+          price_cents?: number | null
+          quantity_claimed?: number
+          quantity_limit?: number | null
+          school_id?: string | null
+          seller_user_id: string
+          zone_name?: string | null
+        }
+        Update: {
+          body?: string
+          business_id?: string | null
+          category?: string | null
+          created_at?: string
+          cta?: string
+          discount_cents?: number | null
+          discount_percent?: number | null
+          event_id?: string | null
+          expires_at?: string
+          id?: string
+          image_url?: string | null
+          is_flash?: boolean
+          listing_id?: string | null
+          price_cents?: number | null
+          quantity_claimed?: number
+          quantity_limit?: number | null
+          school_id?: string | null
+          seller_user_id?: string
+          zone_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drops_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "campus_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drops_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drops_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
             referencedColumns: ["id"]
           },
         ]
@@ -751,6 +916,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_preferences: {
+        Row: {
+          bookings: boolean
+          events: boolean
+          favorite_sellers: boolean
+          flash_drops: boolean
+          marketing: boolean
+          max_promos_per_day: number
+          messages: boolean
+          nearby_availability: boolean
+          orders: boolean
+          rankings: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bookings?: boolean
+          events?: boolean
+          favorite_sellers?: boolean
+          flash_drops?: boolean
+          marketing?: boolean
+          max_promos_per_day?: number
+          messages?: boolean
+          nearby_availability?: boolean
+          orders?: boolean
+          rankings?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bookings?: boolean
+          events?: boolean
+          favorite_sellers?: boolean
+          flash_drops?: boolean
+          marketing?: boolean
+          max_promos_per_day?: number
+          messages?: boolean
+          nearby_availability?: boolean
+          orders?: boolean
+          rankings?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -1390,6 +1600,72 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_availability: {
+        Row: {
+          available_until: string | null
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          listing_id: string | null
+          note: string | null
+          price_from_cents: number | null
+          school_id: string | null
+          seller_user_id: string
+          service_label: string | null
+          slots_remaining: number | null
+          updated_at: string
+          zone_name: string | null
+        }
+        Insert: {
+          available_until?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          listing_id?: string | null
+          note?: string | null
+          price_from_cents?: number | null
+          school_id?: string | null
+          seller_user_id: string
+          service_label?: string | null
+          slots_remaining?: number | null
+          updated_at?: string
+          zone_name?: string | null
+        }
+        Update: {
+          available_until?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          listing_id?: string | null
+          note?: string | null
+          price_from_cents?: number | null
+          school_id?: string | null
+          seller_user_id?: string
+          service_label?: string | null
+          slots_remaining?: number | null
+          updated_at?: string
+          zone_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_availability_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_availability_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_subscriptions: {
         Row: {
           created_at: string
@@ -1825,6 +2101,24 @@ export type Database = {
           school_name: string
           username: string
           verification_status: string
+        }[]
+      }
+      campus_activity_summary: {
+        Args: { _school_id: string }
+        Returns: {
+          available_count: number
+          drop_count: number
+          event_count: number
+          total: number
+          zone_name: string
+        }[]
+      }
+      claim_flash_drop: {
+        Args: { _drop_id: string }
+        Returns: {
+          claimed: boolean
+          reason: string
+          remaining: number
         }[]
       }
       create_booking_secure: {
