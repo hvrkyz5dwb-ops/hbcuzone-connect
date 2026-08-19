@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
-  Bell, type LucideIcon,
+  Bell, type LucideIcon, Radio,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
