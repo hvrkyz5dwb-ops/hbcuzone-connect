@@ -92,6 +92,7 @@ function ProfileInner() {
         <p className="text-sm text-muted-foreground">{subline}</p>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
           {profile?.verification_status === "verified" && <VerifiedStudentBadge size="sm" />}
+          {profile && <PlugScoreBadge profile={profile} />}
           <span className={`inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-3 py-1 rounded-full border ${isAlumni ? "border-accent/40 text-accent" : "border-primary/40 text-primary"}`}>
             <GraduationCap className="h-3.5 w-3.5" /> {isAlumni ? "Alumni" : "Student"}
           </span>
