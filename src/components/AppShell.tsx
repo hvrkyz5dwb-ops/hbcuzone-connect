@@ -65,6 +65,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   // Only surface actions the current user can actually use.
   const quickActions: QuickAction[] = [];
+  quickActions.push({
+    to: "/pulse", label: "See what's live", icon: Radio,
+    hint: "Who's available now, flash drops, events tonight.",
+  });
   if (isSeller) {
     quickActions.push({
       to: "/seller/listings", label: "Create listing", icon: Plus,
