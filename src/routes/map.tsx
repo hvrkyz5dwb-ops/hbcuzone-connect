@@ -29,6 +29,7 @@ import mapImg from "@/assets/campus-map.jpg";
 import statue from "@/assets/plugu-statue.jpg.asset.json";
 import { getRouteEstimate, type RouteEstimate } from "@/lib/campus-intel.functions";
 import { ChargingLoader } from "@/components/ChargingLoader";
+import { LiveHeatOverlay, LiveHeatPanel } from "@/components/campus/LiveHeatMap";
 
 export const Route = createFileRoute("/map")({
   head: () => ({
@@ -318,20 +319,8 @@ function MapPage() {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
 
-          {/* Heat map overlay */}
-          {heatmap && (
-            <div
-              className="absolute inset-0 pointer-events-none mix-blend-screen"
-              style={{
-                background:
-                  "radial-gradient(18% 14% at 50% 45%, rgba(255,80,40,0.75), transparent 70%)," +
-                  "radial-gradient(14% 11% at 32% 38%, rgba(255,160,40,0.65), transparent 70%)," +
-                  "radial-gradient(12% 10% at 68% 44%, rgba(255,60,160,0.55), transparent 70%)," +
-                  "radial-gradient(16% 12% at 48% 50%, rgba(255,220,40,0.55), transparent 70%)," +
-                  "radial-gradient(10% 8% at 82% 80%, rgba(255,120,40,0.5), transparent 70%)",
-              }}
-            />
-          )}
+          {/* Live heat map overlay — real availability, drops and events */}
+          {heatmap && <LiveHeatOverlay onSelect={(z) => toast(`${z.name} — ${z.total} live now`)} />}
 
           {/* "You are here" */}
           <div
@@ -375,6 +364,12 @@ function MapPage() {
           </div>
         </div>
       </section>
+
+      {heatmap && (
+        <section className="px-5 mt-4">
+          <LiveHeatPanel />
+        </section>
+      )}
 
       {/* AI Campus Layout — verified students see it live for their campus */}
       <section id="ai-campus-layout" className="px-5 mt-6">

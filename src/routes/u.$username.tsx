@@ -8,6 +8,7 @@ import { ErrorState, PageLoader } from "@/components/QueryStates";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Flag, Ban } from "lucide-react";
 import { ReviewsList } from "@/components/ReviewsList";
+import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { ReportDialog } from "@/components/ReportDialog";
 import { blockUser } from "@/lib/moderation";
 import { useSession } from "@/hooks/use-session";
@@ -121,6 +122,9 @@ function PublicProfile() {
           {displayName}
           {p.verification_status === "verified" && <VerifiedStudentBadge size="xs" iconOnly />}
         </h1>
+        <div className="mt-2 flex justify-center">
+          <PlugScoreBadge profile={p} />
+        </div>
         {p.username && <p className="text-xs text-muted-foreground">@{p.username}</p>}
 
         <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 text-[11px]">
