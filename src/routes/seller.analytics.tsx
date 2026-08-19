@@ -187,7 +187,7 @@ function SellerAnalytics() {
             description="We couldn't reach your sales stats. Check your connection and try again."
             onRetry={() => void q.refetch()}
           />
-        ) : stats.totalCount === 0 ? (
+        ) : stats.totalCount === 0 && drops.length === 0 && availability.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-border bg-card p-6 text-center">
             <ShoppingBag className="h-6 w-6 text-primary mx-auto" />
             <p className="mt-2 text-sm font-semibold">No sales yet</p>
