@@ -10,6 +10,8 @@ import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
 import { Store, Rocket, Plus, Pencil, ExternalLink, ShoppingBag, Star, Sparkles, BadgeCheck, CircleDollarSign, AlertTriangle, BarChart3, Users, Repeat } from "lucide-react";
 import { getStripeStatus, getMyPayoutAccount, createSellerOnboardingLink, syncPayoutAccount } from "@/lib/stripe.functions";
+import { AvailableNowControl } from "@/components/seller/AvailableNowControl";
+import { DropComposer } from "@/components/seller/DropComposer";
 
 export const Route = createFileRoute("/seller/")({
   ssr: false,
