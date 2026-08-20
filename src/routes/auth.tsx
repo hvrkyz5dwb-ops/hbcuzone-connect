@@ -5,6 +5,7 @@ import { validateStudentEmail, isHbcuDomain } from "@/lib/auth";
 import { SchoolPicker } from "@/components/SchoolPicker";
 import { ShieldCheck, Mail, AlertCircle, Loader2 } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -101,7 +102,7 @@ function AuthPage() {
       } else if (/invalid login credentials/i.test(error.message)) {
         setErr("That email and password don't match. Try again or reset your password.");
       } else {
-        setErr(error.message);
+        setErr(friendlyError(error));
       }
       return;
     }
@@ -141,7 +142,7 @@ function AuthPage() {
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyError(error));
       return;
     }
     if (!data.session) {
@@ -176,7 +177,7 @@ function AuthPage() {
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyError(error));
       return;
     }
     setMsg("If an account exists for that email, we sent a password reset link.");
@@ -193,7 +194,7 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin + "/auth" },
     });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) setErr(friendlyError(error));
     else setMsg("Verification email resent. Check your inbox.");
   }
 

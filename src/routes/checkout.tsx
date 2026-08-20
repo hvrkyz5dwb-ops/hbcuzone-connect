@@ -7,6 +7,7 @@ import { resolvePlanKey } from "@/lib/plan-catalog";
 import { createPlanCheckoutSession } from "@/lib/stripe.functions";
 import { validatePromoCode } from "@/lib/promo.functions";
 import { useIsIosNative } from "@/lib/platform";
+import { friendlyError } from "@/lib/friendly-errors";
 
 const search = z.object({ plan: z.string().optional() });
 
@@ -74,7 +75,7 @@ function Checkout() {
       });
       window.location.assign(url);
     } catch (e) {
-      setError((e as Error).message);
+      setError(friendlyError(e));
       setLoading(false);
     }
   }

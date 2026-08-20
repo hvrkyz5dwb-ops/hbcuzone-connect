@@ -11,6 +11,7 @@ import { ChargingLoader } from "@/components/ChargingLoader";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { adminPerform, type AdminAction } from "@/lib/moderation";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -340,7 +341,7 @@ function SchoolAccessPanel() {
     const { data: sess } = await supabase.auth.getSession();
     const { error } = await supabase.from("school_access_requests")
       .update({ status, reviewed_by: sess.session?.user.id ?? null, reviewed_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     qc.invalidateQueries({ queryKey: ["admin-school-access"] });
   }
   if (q.isPending) return <Loading/>;
@@ -498,7 +499,7 @@ function PromosPanel() {
     });
     setBusy(false);
     if (error) {
-      toast.error("Couldn't create code", { description: error.message });
+      toast.error("Couldn't create code", { description: friendlyError(error) });
       return;
     }
     toast.success(`Code ${code.trim()} created`);
@@ -509,7 +510,7 @@ function PromosPanel() {
   async function toggle(c: PromoCodeRow) {
     const { error } = await supabase.from("promo_codes").update({ is_active: !c.is_active }).eq("id", c.id);
     if (error) {
-      toast.error("Couldn't update code", { description: error.message });
+      toast.error("Couldn't update code", { description: friendlyError(error) });
       return;
     }
     qc.invalidateQueries({ queryKey: ["admin-promo-codes"] });
@@ -739,7 +740,7 @@ function KingPinTargeting() {
   async function setScope(id: string, scope: string) {
     const { error } = await supabase.from("seller_subscriptions").update({ promo_scope: scope }).eq("id", id);
     if (error) {
-      toast.error("Couldn't update targeting", { description: error.message });
+      toast.error("Couldn't update targeting", { description: friendlyError(error) });
       return;
     }
     qc.invalidateQueries({ queryKey: ["admin-paid-subs"] });

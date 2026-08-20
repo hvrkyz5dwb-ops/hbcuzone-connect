@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -52,7 +53,7 @@ function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyError(error));
       return;
     }
     setMsg("Password updated. Signing you in…");
