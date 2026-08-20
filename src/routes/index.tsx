@@ -255,24 +255,33 @@ function EmptyRow({ icon, text, cta, to }: { icon: React.ReactNode; text: string
 
 function ListingCard({ l }: { l: ListingWithExtras }) {
   const cover = l.images[0]?.url;
+  const sellerName = l.seller?.display_name ?? l.seller?.username ?? "Student seller";
+  const initial = sellerName[0]?.toUpperCase() ?? "?";
   return (
     <Link
       to="/checkout/$listingId"
       params={{ listingId: l.id }}
-      className="tap min-w-[160px] w-40 shrink-0 rounded-2xl border border-border bg-card overflow-hidden"
+      className="tap min-w-[176px] w-44 shrink-0 overflow-hidden rounded-3xl border border-border bg-card"
     >
-      <div className="h-24 bg-black/40 relative">
+      <div className="relative h-32 bg-black/40">
         {cover ? (
-          <img src={cover} alt="" className="h-full w-full object-cover" />
+          <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full grid place-items-center text-2xl opacity-60">🛍️</div>
         )}
+        <div className="absolute inset-x-0 top-0 flex items-center gap-1.5 bg-gradient-to-b from-black/75 to-transparent px-2 py-1.5">
+          <span className="grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/50 bg-black/60 text-[10px] font-bold text-primary">
+            {l.seller?.avatar_url ? (
+              <img src={l.seller.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : initial}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[10px] font-semibold text-primary-foreground">{sellerName}</span>
+          {l.seller?.username && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />}
+        </div>
       </div>
       <div className="p-2.5">
         <p className="text-xs font-semibold truncate">{l.title}</p>
-        <p className="text-[10px] text-muted-foreground truncate">
-          {l.seller?.display_name ?? l.seller?.username ?? "Student seller"}
-        </p>
+        <p className="text-[10px] text-muted-foreground truncate">{l.campus_name ?? l.seller?.school_name ?? "On campus"}</p>
         <p className="mt-1 text-xs font-bold" style={{ color: "var(--plugu-gold)" }}>
           {centsToPrice(l.price_cents)}
         </p>
@@ -286,11 +295,11 @@ function TrendingListings() {
   const { data, isLoading } = useMarketplace({ sort: "popular", limit: 8 });
   return (
     <section className="mt-7" data-tour="events">
-      <SectionHeader title="Trending on PlugU" action="See all" onAction={() => navigate({ to: "/market" })} />
+      <SectionHeader title="Trending Near You" action="See all" onAction={() => navigate({ to: "/market" })} />
       {isLoading ? (
         <div className="px-5 flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[160px] w-40 h-44 rounded-2xl bg-card border border-border animate-pulse" />
+            <div key={i} className="min-w-[176px] w-44 h-52 rounded-3xl bg-card border border-border animate-pulse" />
           ))}
         </div>
       ) : data && data.length > 0 ? (
