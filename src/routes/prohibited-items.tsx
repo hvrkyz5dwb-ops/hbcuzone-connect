@@ -22,8 +22,6 @@ function Prohibited() {
         <header>
           <h1 className="text-2xl font-bold" style={{ color: "var(--plugu-gold)" }}>Prohibited Items Policy</h1>
           <p className="text-xs text-muted-foreground mt-1">Maintained by PlugU. Last updated: {new Date().toLocaleDateString()}.</p>
-          <p className="text-xs text-amber-300">
-          </p>
         </header>
 
         <p>
