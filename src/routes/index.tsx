@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
-  Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone,
+  Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone, BadgeCheck,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
