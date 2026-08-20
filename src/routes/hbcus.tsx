@@ -34,7 +34,7 @@ import {
   Flame,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { AiNewsFeed } from "@/components/AiNewsFeed";
+import { LiveNewsRail } from "@/components/LiveNewsRail";
 import { MiniCampusLayout } from "@/components/MiniCampusLayout";
 import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
@@ -44,7 +44,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { detectHbcuSchool, isHbcuDomain, getDomain } from "@/lib/auth";
 import { ShieldCheck, Pencil } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { getCampusWeather } from "@/lib/campus-intel.functions";
+import { getLiveWeather, getLiveNews, getHbcuSports, type LiveGame } from "@/lib/live-feeds.functions";
 import {
   hbcuNewsFilters,
   hbcuLiveNews,
@@ -585,12 +585,27 @@ function VerificationWall({
 function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s: HbcusHomeSection) => void }) {
   const quote = useMemo(() => dailyMotivation[new Date().getDate() % dailyMotivation.length], []);
   const homecoming = homecomingCountdowns.find((h) => h.school === activeSchool) ?? homecomingCountdowns[0];
-  const liveGame = liveScores[0];
+  const sportsQ = useQuery({
+    queryKey: ["hbcu-sports"],
+    queryFn: () => getHbcuSports(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const breakingQ = useQuery({
+    queryKey: ["hbcus-breaking"],
+    queryFn: () => getLiveNews({ data: { topic: "All HBCUs", count: 8 } }),
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const breaking = breakingQ.data?.items ?? [];
+  const featuredGame =
+    sportsQ.data?.live[0] ?? sportsQ.data?.upcoming[0] ?? sportsQ.data?.final[0] ?? null;
+  const gameLive = featuredGame?.state === "in";
   const profile = schoolProfiles.find((s) => s.name === activeSchool);
   const weatherQ = useQuery({
     queryKey: ["hbcus-weather", activeSchool],
-    queryFn: () => getCampusWeather({ data: { school: activeSchool, city: profile?.city, state: profile?.state } }),
-    staleTime: 15 * 60_000,
+    queryFn: () => getLiveWeather({ data: { school: activeSchool, city: profile?.city, state: profile?.state } }),
+    staleTime: 10 * 60_000,
     refetchOnWindowFocus: false,
   });
   const weather = weatherQ.data;
@@ -638,7 +653,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
               Campus events, leadership wins, and culture shaping the next generation.
             </p>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] text-primary-foreground/60">Updated live · {breakingNews.length} stories</span>
+              <span className="text-[10px] text-primary-foreground/60">Updated live · {breaking.length || breakingNews.length} stories</span>
               <span className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
                 Open briefing <ChevronRight className="h-3.5 w-3.5" />
               </span>
@@ -656,22 +671,33 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
           <button onClick={() => onJump("News")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>See all →</button>
         </div>
         <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {breakingNews.map((b) => (
-            <button
+          {breakingQ.isPending &&
+            [0, 1, 2].map((i) => (
+              <div key={i} className="shrink-0 w-52 h-28 rounded-2xl border border-border bg-card animate-pulse" />
+            ))}
+          {breaking.map((b) => (
+            <a
               key={b.id}
-              onClick={() => onJump("News")}
+              href={b.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="tap shrink-0 w-52 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-3 text-left"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.school.slice(0, 2).toUpperCase()}</span>
+                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.emoji}</span>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
                 </span>
               </div>
-              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.title}</p>
-              <p className="mt-1.5 text-[10px] text-muted-foreground">{b.school} · {b.time}</p>
-            </button>
+              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.headline}</p>
+              <p className="mt-1.5 truncate text-[10px] text-muted-foreground">{b.source} · {b.time} ago</p>
+            </a>
           ))}
+          {!breakingQ.isPending && breaking.length === 0 && (
+            <div className="shrink-0 w-64 rounded-2xl border border-border bg-card p-3 text-[12px] text-muted-foreground">
+              The news wire is quiet right now — check back shortly.
+            </div>
+          )}
         </div>
       </div>
 
@@ -683,30 +709,45 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
           </p>
           <button onClick={() => onJump("Sports")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>View all →</button>
         </div>
-        <button
-          onClick={() => onJump("Sports")}
-          className="tap w-full rounded-3xl border border-border bg-card p-4 text-left"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1 text-center">
-              <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{liveGame.home}</p>
-              <p className="mt-1 text-3xl font-black">{liveGame.homeScore}</p>
+        {sportsQ.isPending ? (
+          <div className="h-28 w-full rounded-3xl border border-border bg-card animate-pulse" />
+        ) : featuredGame ? (
+          <button
+            onClick={() => onJump("Sports")}
+            className="tap w-full rounded-3xl border border-border bg-card p-4 text-left"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1 text-center">
+                <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{featuredGame.home.short || featuredGame.home.name}</p>
+                <p className="mt-1 text-3xl font-black">{featuredGame.state === "pre" ? "–" : featuredGame.home.score}</p>
+              </div>
+              <div className="shrink-0 text-center">
+                {gameLive ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
+                  </span>
+                ) : (
+                  <span className="inline-flex rounded-full bg-secondary px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    {featuredGame.state === "pre" ? "Next up" : "Final"}
+                  </span>
+                )}
+                <p className="mt-1.5 text-[11px] text-muted-foreground">{featuredGame.status}</p>
+              </div>
+              <div className="min-w-0 flex-1 text-center">
+                <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{featuredGame.away.short || featuredGame.away.name}</p>
+                <p className="mt-1 text-3xl font-black">{featuredGame.state === "pre" ? "–" : featuredGame.away.score}</p>
+              </div>
             </div>
-            <div className="shrink-0 text-center">
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
-              </span>
-              <p className="mt-1.5 text-[11px] text-muted-foreground">{liveGame.status}</p>
-            </div>
-            <div className="min-w-0 flex-1 text-center">
-              <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{liveGame.away}</p>
-              <p className="mt-1 text-3xl font-black">{liveGame.awayScore}</p>
-            </div>
-          </div>
-          <p className="mt-3 border-t border-border pt-2 text-[11px] text-muted-foreground">
-            {liveGame.sport} · Live from the yard
-          </p>
-        </button>
+            <p className="mt-3 border-t border-border pt-2 text-[11px] text-muted-foreground">
+              {featuredGame.sport} · {featuredGame.broadcast ?? featuredGame.venue ?? "ESPN wire"}
+            </p>
+          </button>
+        ) : (
+          <button onClick={() => onJump("Sports")} className="tap w-full rounded-3xl border border-border bg-card p-4 text-left">
+            <p className="text-sm font-semibold">No HBCU games on the board</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Scores appear here the moment the wire goes live.</p>
+          </button>
+        )}
       </div>
 
       {/* Spotlight + Greek life */}
@@ -761,35 +802,30 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Bot className="h-4 w-4 text-accent" />
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Live · Powered by PlugU AI</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Live · Real newsroom wires</p>
           </div>
           <button onClick={() => onJump("News")} className="text-[11px] text-accent tap">See all →</button>
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div>
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5 text-yellow-300" /> HBCU Sports & Scores</p>
-            <AiNewsFeed category="HBCU sports scores rankings" school={activeSchool} count={4} compact />
+            <LiveNewsRail topic="Sports" count={4} />
           </div>
           <div>
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-accent" /> Black Excellence & Alumni Wins</p>
-            <AiNewsFeed category="Black excellence alumni wins culture" school={activeSchool} count={4} compact />
+            <LiveNewsRail topic="Culture" count={4} />
           </div>
           <div>
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-emerald-300" /> Scholarships & Internships</p>
-            <AiNewsFeed category="Scholarships internships for Black college students with deadlines" school={activeSchool} count={4} compact />
+            <LiveNewsRail topic="Careers" count={4} />
           </div>
           <div>
             <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-pink-300" /> Events on the Yard & Nationally</p>
-            <AiNewsFeed category="HBCU campus events homecomings career fairs conferences" school={activeSchool} count={4} compact />
+            <LiveNewsRail topic="Campus" count={4} />
           </div>
           <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Flame className="h-3.5 w-3.5 text-orange-300" /> Campus Buzz · Fizz · IG · TikTok</p>
-            <AiNewsFeed
-              category={`Trending posts, viral moments, memes, and student chatter from Fizz, Instagram Reels, TikTok, YouTube and Twitter about ${activeSchool} and its students right now — parties, professors, dorms, dining, greek life, sports, drama`}
-              school={activeSchool}
-              count={5}
-              compact
-            />
+            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Flame className="h-3.5 w-3.5 text-orange-300" /> {activeSchool} in the news</p>
+            <LiveNewsRail topic="All HBCUs" school={activeSchool} count={5} />
           </div>
         </div>
       </div>
@@ -798,10 +834,17 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
       <div className="grid grid-cols-2 gap-3">
         <button onClick={() => onJump("Sports")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
           <p className="text-[10px] uppercase tracking-widest text-rose-400 inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live · {liveGame.sport}
+            {gameLive && <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" />}
+            {featuredGame ? `${gameLive ? "Live · " : ""}${featuredGame.sport}` : "Sports"}
           </p>
-          <p className="mt-2 text-sm font-semibold">{liveGame.home} {liveGame.homeScore} — {liveGame.awayScore} {liveGame.away}</p>
-          <p className="text-[11px] text-muted-foreground">{liveGame.status}</p>
+          <p className="mt-2 text-sm font-semibold">
+            {featuredGame
+              ? featuredGame.state === "pre"
+                ? `${featuredGame.away.short || featuredGame.away.name} @ ${featuredGame.home.short || featuredGame.home.name}`
+                : `${featuredGame.home.short || featuredGame.home.name} ${featuredGame.home.score} — ${featuredGame.away.score} ${featuredGame.away.short || featuredGame.away.name}`
+              : "Scores on the wire"}
+          </p>
+          <p className="text-[11px] text-muted-foreground">{featuredGame?.status ?? "Nothing scheduled right now"}</p>
         </button>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-widest text-primary">Homecoming</p>
@@ -811,13 +854,23 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-widest text-primary">Campus Weather</p>
           <p className="mt-2 text-2xl font-bold flex items-center gap-2">
-            <span>{weather?.emoji ?? "☀️"}</span> {weather ? `${weather.tempF}°` : (weatherQ.isPending ? "…" : "72°")}
+            <span>{weather?.emoji ?? "🌡️"}</span>{" "}
+            {weather && !weather.error ? `${weather.tempF}°` : weatherQ.isPending ? "…" : "—"}
           </p>
           <p className="text-[11px] text-muted-foreground truncate">
-            {weather ? `${weather.condition} · H${weather.high}° L${weather.low}°` : "Live campus forecast"}
+            {weather && !weather.error
+              ? `${weather.condition} · H${weather.high}° L${weather.low}°`
+              : weatherQ.isPending
+                ? "Loading live conditions…"
+                : "Live weather unavailable"}
           </p>
           {weather?.blurb && (
             <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5">{weather.blurb}</p>
+          )}
+          {weather && !weather.error && (
+            <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">
+              {weather.place} · 💨 {weather.windMph} mph · 💧 {weather.humidity}% · ☔ {weather.precipChance}%
+            </p>
           )}
         </div>
         <button onClick={() => onJump("Scholarships")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
@@ -1193,24 +1246,92 @@ function RankingsPanel() {
 ============================================================ */
 function NewsPanel({ activeSchool }: { activeSchool: string }) {
   const [filter, setFilter] = useState<(typeof hbcuNewsFilters)[number]>("All HBCUs");
+  const isMine = filter === "My School";
+  const newsQ = useQuery({
+    queryKey: ["hbcus-live-news", filter, isMine ? activeSchool : ""],
+    queryFn: () =>
+      getLiveNews({
+        data: {
+          topic: isMine ? "All HBCUs" : String(filter),
+          school: isMine ? activeSchool : undefined,
+          count: 12,
+        },
+      }),
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const items = newsQ.data?.items ?? [];
 
   return (
     <div className="space-y-4">
-      <SectionHeader icon={Radio} title="Live HBCU News" subtitle="Real-time across the Yard" live />
+      <SectionHeader icon={Radio} title="Live HBCU News" subtitle="Real headlines from real outlets" live />
       <FilterChips
         values={hbcuNewsFilters as readonly string[]}
         active={filter}
         onChange={(v) => setFilter(v as typeof filter)}
       />
-      <AiNewsFeed
-        category={`HBCU News — ${filter}`}
-        school={filter === "My School" ? activeSchool : undefined}
-        count={10}
-        fallback={hbcuLiveNews.map((n) => ({
-          id: n.id, headline: n.title, summary: n.summary,
-          source: n.school, time: n.time, tag: n.tag, emoji: "📰",
-        }))}
-      />
+
+      {newsQ.isPending && (
+        <ul className="space-y-2">
+          {[0, 1, 2, 3].map((i) => (
+            <li key={i} className="h-24 rounded-2xl border border-border bg-card animate-pulse" />
+          ))}
+        </ul>
+      )}
+
+      {!newsQ.isPending && items.length === 0 && (
+        <div className="rounded-2xl border border-border bg-card p-5 text-center">
+          <p className="text-sm font-semibold">No live stories right now</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            We pull directly from national and HBCU newsrooms. Try another filter or refresh.
+          </p>
+          <button
+            onClick={() => newsQ.refetch()}
+            className="tap mt-3 rounded-full border border-accent/40 px-4 py-1.5 text-[11px] uppercase tracking-widest text-accent"
+          >
+            Refresh
+          </button>
+        </div>
+      )}
+
+      <ul className="space-y-2">
+        {items.map((n) => (
+          <li key={n.id} className="rounded-2xl border border-border bg-card p-4 slide-up">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
+              <span className="text-primary">{n.emoji} {n.tag}</span>
+              <span className="text-muted-foreground">{n.time} ago</span>
+            </div>
+            <a
+              href={n.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tap mt-2 block text-[15px] font-semibold leading-snug hover:underline"
+            >
+              {n.headline}
+            </a>
+            {n.summary ? (
+              <p className="mt-1 text-[12px] leading-snug text-muted-foreground line-clamp-3">{n.summary}</p>
+            ) : null}
+            <div className="mt-2 flex items-center justify-between text-[11px]">
+              <span className="text-muted-foreground">{n.source}</span>
+              <a
+                href={n.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tap font-semibold text-accent"
+              >
+                Read story →
+              </a>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {items.length > 0 && (
+        <p className="text-center text-[10px] uppercase tracking-widest text-muted-foreground">
+          Live wire · updated {new Date(newsQ.data!.fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+        </p>
+      )}
     </div>
   );
 }
@@ -1249,13 +1370,115 @@ function ArticleActions() {
    SPORTS
 ============================================================ */
 function SportsPanel() {
+  return <SportsPanelInner />;
+}
+
+function SportsList({
+  games,
+  pending,
+  emptyTitle,
+  emptyBody,
+  live,
+  notify,
+  onNotify,
+}: {
+  games: LiveGame[];
+  pending: boolean;
+  emptyTitle: string;
+  emptyBody: string;
+  live?: boolean;
+  notify?: Set<string>;
+  onNotify?: (g: LiveGame) => void;
+}) {
+  if (pending) {
+    return (
+      <ul className="space-y-2">
+        {[0, 1, 2].map((i) => (
+          <li key={i} className="h-24 rounded-2xl border border-border bg-card animate-pulse" />
+        ))}
+      </ul>
+    );
+  }
+  if (!games.length) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5 text-center">
+        <p className="text-sm font-semibold">{emptyTitle}</p>
+        <p className="mt-1 text-[12px] text-muted-foreground">{emptyBody}</p>
+      </div>
+    );
+  }
+  return (
+    <ul className="space-y-2">
+      {games.map((g) => {
+        const when = new Date(g.startsAt);
+        return (
+          <li key={g.id} className="rounded-2xl border border-border bg-card p-4 slide-up">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
+              <span className={live ? "inline-flex items-center gap-1 text-rose-400" : "text-primary"}>
+                {live && <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" />}
+                {live ? "LIVE · " : ""}
+                {g.sport}
+              </span>
+              <span className="text-muted-foreground">
+                {g.status ||
+                  when.toLocaleString([], { weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })}
+              </span>
+            </div>
+            {[g.away, g.home].map((t, i) => (
+              <div key={i} className="mt-2 flex items-center gap-2">
+                {t.logo && <img src={t.logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />}
+                <span className={`flex-1 truncate text-sm ${t.hbcu ? "font-bold" : "font-medium text-muted-foreground"}`}>
+                  {t.name}
+                  {t.record ? <span className="ml-1.5 text-[10px] text-muted-foreground">({t.record})</span> : null}
+                </span>
+                {g.state !== "pre" && <span className="text-sm font-black tabular-nums">{t.score}</span>}
+              </div>
+            ))}
+            <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+              <span className="truncate">
+                {[g.broadcast, g.venue].filter(Boolean).join(" · ") || "Details TBA"}
+              </span>
+              {onNotify ? (
+                <button
+                  onClick={() => onNotify(g)}
+                  className={`tap shrink-0 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-widest ${
+                    notify?.has(g.id) ? "border-emerald-500/40 text-emerald-300" : "border-accent/40 text-accent"
+                  }`}
+                >
+                  {notify?.has(g.id) ? "Notifying" : "Notify"}
+                </button>
+              ) : g.link ? (
+                <a href={g.link} target="_blank" rel="noopener noreferrer" className="tap shrink-0 font-semibold text-accent">
+                  Box score →
+                </a>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function SportsPanelInner() {
   const [tab, setTab] = useState<(typeof sportsTabs)[number]>("Live");
   const [league, setLeague] = useState<(typeof sportLeagues)[number] | "All">("All");
   const [notify, setNotify] = useState<Set<string>>(new Set());
+  const sportsQ = useQuery({
+    queryKey: ["hbcu-sports"],
+    queryFn: () => getHbcuSports(),
+    staleTime: 60_000,
+    refetchInterval: 90_000,
+  });
+  const matches = (g: LiveGame) =>
+    league === "All" || g.sport.toLowerCase().includes(String(league).toLowerCase().split(" ")[0]);
+  const live = (sportsQ.data?.live ?? []).filter(matches);
+  const upcoming = (sportsQ.data?.upcoming ?? []).filter(matches).slice(0, 20);
+  const finals = (sportsQ.data?.final ?? []).filter(matches).slice(0, 20);
 
   return (
     <div className="space-y-4">
-      <SectionHeader icon={Trophy} title="Sports Center" subtitle="HBCU scores, standings, and stars" />
+      <SectionHeader icon={Trophy} title="Sports Center" subtitle="Live HBCU scores from the ESPN wire" />
 
       <FilterChips values={sportsTabs as readonly string[]} active={tab} onChange={(v) => setTab(v as typeof tab)} />
       <div className="-mt-1">
@@ -1268,66 +1491,44 @@ function SportsPanel() {
       </div>
 
       {tab === "Live" && (
-        <ul className="space-y-2">
-          {liveScores
-            .filter((g) => league === "All" || g.sport === league)
-            .map((g) => (
-              <li key={g.id} className="p-4 rounded-2xl bg-card border border-border slide-up">
-                <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
-                  <span className="inline-flex items-center gap-1 text-rose-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> LIVE · {g.sport}
-                  </span>
-                  <span className="text-muted-foreground">{g.status}</span>
-                </div>
-                <div className="mt-3 grid grid-cols-3 items-center">
-                  <ScoreSide name={g.home} score={g.homeScore} />
-                  <div className="text-center text-xs text-muted-foreground">vs</div>
-                  <ScoreSide name={g.away} score={g.awayScore} right />
-                </div>
-              </li>
-            ))}
-        </ul>
+        <SportsList
+          games={live}
+          pending={sportsQ.isPending}
+          emptyTitle="No HBCU games in progress"
+          emptyBody="Nothing is live on the wire right now. Check Upcoming for the next kickoff or tip-off."
+          live
+        />
       )}
 
       {tab === "Upcoming" && (
-        <ul className="space-y-2">
-          {upcomingGames
-            .filter((g) => league === "All" || g.sport === league)
-            .map((g) => (
-              <li key={g.id} className="p-4 rounded-2xl bg-card border border-border flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] tracking-widest uppercase text-primary">{g.sport} · {g.network}</p>
-                  <p className="font-semibold mt-1">{g.away} @ {g.home}</p>
-                  <p className="text-xs text-muted-foreground">{g.date}</p>
-                </div>
-                <button
-                  onClick={() => {
-                    setNotify((s) => { const n = new Set(s); n.has(g.id) ? n.delete(g.id) : n.add(g.id); return n; });
-                    toast.success(notify.has(g.id) ? "Notification off" : `We'll ping you at ${g.date}`);
-                  }}
-                  className={`text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border tap ${notify.has(g.id) ? "border-emerald-500/40 text-emerald-300" : "border-accent/40 text-accent"}`}
-                >
-                  {notify.has(g.id) ? "Notifying" : "Notify"}
-                </button>
-              </li>
-            ))}
-        </ul>
+        <SportsList
+          games={upcoming}
+          pending={sportsQ.isPending}
+          emptyTitle="No games scheduled"
+          emptyBody="No HBCU matchups on the board for this window."
+          notify={notify}
+          onNotify={(g) => {
+            setNotify((s) => {
+              const n = new Set(s);
+              n.has(g.id) ? n.delete(g.id) : n.add(g.id);
+              return n;
+            });
+            toast.success(
+              notify.has(g.id)
+                ? "Notification off"
+                : `We'll ping you before ${g.away.short || g.away.name} @ ${g.home.short || g.home.name}`,
+            );
+          }}
+        />
       )}
 
       {tab === "Final" && (
-        <ul className="space-y-2">
-          {completedGames.map((g) => (
-            <li key={g.id} className="p-4 rounded-2xl bg-card border border-border">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{g.sport} · Final</p>
-              <div className="mt-2 flex items-center justify-between text-sm font-semibold">
-                <span>{g.home}</span><span>{g.homeScore}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span>{g.away}</span><span>{g.awayScore}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <SportsList
+          games={finals}
+          pending={sportsQ.isPending}
+          emptyTitle="No recent finals"
+          emptyBody="Once HBCU games wrap, the final scores land here automatically."
+        />
       )}
 
       {tab === "Standings" && (
@@ -2044,14 +2245,7 @@ function DailyPanel() {
   return (
     <div className="space-y-4">
       <SectionHeader icon={Sparkles} title="PlugU Daily" subtitle="Curated for college minds, 18–24" />
-      <AiNewsFeed
-        category="PlugU Daily — top stories Black college students should know today"
-        count={10}
-        fallback={pluguDailyTopics.map((t, i) => ({
-          id: `pd${i}`, headline: t.title, summary: "",
-          source: "PlugU", time: t.time, tag: t.tag, emoji: "🔌",
-        }))}
-      />
+      <LiveNewsRail topic="All HBCUs" count={10} />
     </div>
   );
 }
