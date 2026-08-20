@@ -816,10 +816,17 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
       <div className="grid grid-cols-2 gap-3">
         <button onClick={() => onJump("Sports")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
           <p className="text-[10px] uppercase tracking-widest text-rose-400 inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live · {liveGame.sport}
+            {gameLive && <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" />}
+            {featuredGame ? `${gameLive ? "Live · " : ""}${featuredGame.sport}` : "Sports"}
           </p>
-          <p className="mt-2 text-sm font-semibold">{liveGame.home} {liveGame.homeScore} — {liveGame.awayScore} {liveGame.away}</p>
-          <p className="text-[11px] text-muted-foreground">{liveGame.status}</p>
+          <p className="mt-2 text-sm font-semibold">
+            {featuredGame
+              ? featuredGame.state === "pre"
+                ? `${featuredGame.away.short || featuredGame.away.name} @ ${featuredGame.home.short || featuredGame.home.name}`
+                : `${featuredGame.home.short || featuredGame.home.name} ${featuredGame.home.score} — ${featuredGame.away.score} ${featuredGame.away.short || featuredGame.away.name}`
+              : "Scores on the wire"}
+          </p>
+          <p className="text-[11px] text-muted-foreground">{featuredGame?.status ?? "Nothing scheduled right now"}</p>
         </button>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-[10px] uppercase tracking-widest text-primary">Homecoming</p>
