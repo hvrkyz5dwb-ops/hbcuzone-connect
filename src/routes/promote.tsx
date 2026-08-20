@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Megaphone, MapPin, Check, Sparkles, ArrowLeft, Zap } from "lucide-react";
+import { Megaphone, MapPin, Check, Sparkles, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -20,13 +20,8 @@ export const Route = createFileRoute("/promote")({
   component: PromotePage,
 });
 
-// Owner-tunable pricing. Adjust freely.
-const BOOSTS = [
-  { tier: 0, price: 0,  label: "Free · On-campus",      perk: "Pin one on-campus spot. Shows in Tonight & This Week." },
-  { tier: 1, price: 3,  label: "$3 · Featured",         perk: "Bumped to the top of Events for 24h." },
-  { tier: 2, price: 8,  label: "$8 · Home Slide",       perk: "Rotates on the Home slides for 48h." },
-  { tier: 3, price: 20, label: "$20 · Campus Takeover", perk: "Home slide + top of Events for 5 days." },
-];
+// Event promotion is free for students. Paid placement is not sold in the
+// app, so nothing here charges or implies a charge.
 
 function PromotePage() {
   const navigate = useNavigate();
@@ -57,21 +52,16 @@ function PromotePage() {
 
   function submit() {
     if (!canSubmit || !spot) return;
-    const chosen = BOOSTS.find((b) => b.tier === boost)!;
     addUserEvent({
       school: activeSchool,
       title: `${title.trim()}${author ? ` · by ${author}` : ""}`,
       when: when.trim(),
       where: spot.label,
       promoted: true,
-      boost: chosen.tier,
+      boost: 0,
       spot: { x: spot.x + spot.w / 2, y: spot.y + spot.h / 2, label: spot.label },
     });
-    if (chosen.price > 0) {
-      toast.success(`Promoted! ${chosen.label} boost queued.`);
-    } else {
-      toast.success("Live on your campus map & Tonight tab.");
-    }
+    toast.success("Live on your campus map & Tonight tab.");
     navigate({ to: "/events" });
   }
 
@@ -98,7 +88,7 @@ function PromotePage() {
                 On-campus events promote free at {activeSchool}
               </h1>
               <p className="text-[12px] text-muted-foreground mt-1">
-                Pin a spot on your live campus map. Off-campus & business promos require a paid boost.
+                Pin a spot on your live campus map so students can find your event.
               </p>
             </div>
           </div>
@@ -178,44 +168,13 @@ function PromotePage() {
           </div>
         </div>
 
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Boost (optional)</p>
-          <div className="mt-2 space-y-2">
-            {BOOSTS.map((b) => {
-              const active = boost === b.tier;
-              return (
-                <button
-                  key={b.tier}
-                  type="button"
-                  onClick={() => setBoost(b.tier)}
-                  className={`w-full text-left rounded-2xl border p-3 flex items-center gap-3 transition-colors ${
-                    active ? "border-accent bg-accent/10" : "border-border bg-card"
-                  }`}
-                >
-                  <div className="h-9 w-9 grid place-items-center rounded-xl border border-border">
-                    {b.tier === 0 ? <Check className="h-4 w-4 text-accent" /> : <Zap className="h-4 w-4 text-accent" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold">{b.label}</p>
-                    <p className="text-[11px] text-muted-foreground">{b.perk}</p>
-                  </div>
-                  {active && <span className="text-[10px] font-bold uppercase text-accent">Selected</span>}
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">
-            Paid boosts are a demo — checkout can be wired to Lovable Payments later.
-          </p>
-        </div>
-
         <button
           onClick={submit}
           disabled={!canSubmit}
           className="tap w-full py-3.5 rounded-2xl text-sm font-bold text-primary-foreground disabled:opacity-40 mb-8"
           style={{ background: "var(--gradient-bronze)", boxShadow: "var(--shadow-glow)" }}
         >
-          {boost === 0 ? "Promote for free" : `Promote · ${BOOSTS.find((b) => b.tier === boost)!.label}`}
+          Promote for free
         </button>
       </section>
     </AppShell>
