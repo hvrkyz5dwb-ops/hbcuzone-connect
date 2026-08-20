@@ -78,8 +78,6 @@
 	<string>PlugU saves images you download from listings and receipts to your photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>PlugU uses your location to show nearby campus listings, events, and map hotspots while you use the app.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>PlugU may use the microphone if you record audio for a listing or support request.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

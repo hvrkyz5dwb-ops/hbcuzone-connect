@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "profiles_public_read_authenticated" ON public.profiles;

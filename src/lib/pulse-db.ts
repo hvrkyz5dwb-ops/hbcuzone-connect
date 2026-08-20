@@ -66,7 +66,7 @@ const PROFILE_COLS =
 export async function fetchSellers(ids: string[]): Promise<Map<string, SellerLite>> {
   const unique = [...new Set(ids)].filter(Boolean);
   if (unique.length === 0) return new Map();
-  const { data } = await supabase.from("profiles").select(PROFILE_COLS).in("id", unique);
+  const { data } = await supabase.from("public_profiles").select(PROFILE_COLS).in("id", unique);
   return new Map((data ?? []).map((p) => [p.id as string, p as SellerLite]));
 }
 
