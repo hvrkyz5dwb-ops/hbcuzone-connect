@@ -222,9 +222,15 @@ export const getLiveNews = createServerFn({ method: "POST" })
       const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       let headline = rawTitle.trim();
       const srcNorm = norm(source);
-      const cut = headline.lastIndexOf(" - ");
-      if (cut > 20 && srcNorm && norm(headline.slice(cut + 3)).startsWith(srcNorm.slice(0, 6))) {
-        headline = headline.slice(0, cut).trim();
+      for (let i = headline.length; i > 20; i--) {
+        const at = headline.lastIndexOf(" - ", i);
+        if (at <= 20) break;
+        const tail = norm(headline.slice(at + 3));
+        if (tail && srcNorm && (srcNorm.startsWith(tail.slice(0, 8)) || tail.startsWith(srcNorm.slice(0, 8)))) {
+          headline = headline.slice(0, at).trim();
+          break;
+        }
+        i = at;
       }
       const plain = decode(pick("description"))
         .replace(/<[^>]*>/g, " ")
