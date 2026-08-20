@@ -1309,7 +1309,9 @@ function NewsPanel({ activeSchool }: { activeSchool: string }) {
             >
               {n.headline}
             </a>
-            <p className="mt-1 text-[12px] leading-snug text-muted-foreground line-clamp-3">{n.summary}</p>
+            {n.summary ? (
+              <p className="mt-1 text-[12px] leading-snug text-muted-foreground line-clamp-3">{n.summary}</p>
+            ) : null}
             <div className="mt-2 flex items-center justify-between text-[11px]">
               <span className="text-muted-foreground">{n.source}</span>
               <a
