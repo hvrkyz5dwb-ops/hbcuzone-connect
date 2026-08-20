@@ -646,7 +646,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
               Campus events, leadership wins, and culture shaping the next generation.
             </p>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] text-primary-foreground/60">Updated live · {breakingNews.length} stories</span>
+              <span className="text-[10px] text-primary-foreground/60">Updated live · {breaking.length || breakingNews.length} stories</span>
               <span className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
                 Open briefing <ChevronRight className="h-3.5 w-3.5" />
               </span>
@@ -664,22 +664,33 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
           <button onClick={() => onJump("News")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>See all →</button>
         </div>
         <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {breakingNews.map((b) => (
-            <button
+          {breakingQ.isPending &&
+            [0, 1, 2].map((i) => (
+              <div key={i} className="shrink-0 w-52 h-28 rounded-2xl border border-border bg-card animate-pulse" />
+            ))}
+          {breaking.map((b) => (
+            <a
               key={b.id}
-              onClick={() => onJump("News")}
+              href={b.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="tap shrink-0 w-52 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-3 text-left"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.school.slice(0, 2).toUpperCase()}</span>
+                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.emoji}</span>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
                 </span>
               </div>
-              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.title}</p>
-              <p className="mt-1.5 text-[10px] text-muted-foreground">{b.school} · {b.time}</p>
-            </button>
+              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.headline}</p>
+              <p className="mt-1.5 truncate text-[10px] text-muted-foreground">{b.source} · {b.time} ago</p>
+            </a>
           ))}
+          {!breakingQ.isPending && breaking.length === 0 && (
+            <div className="shrink-0 w-64 rounded-2xl border border-border bg-card p-3 text-[12px] text-muted-foreground">
+              The news wire is quiet right now — check back shortly.
+            </div>
+          )}
         </div>
       </div>
 
