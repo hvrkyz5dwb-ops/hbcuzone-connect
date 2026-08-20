@@ -22,6 +22,7 @@ import {
   consumeFeedStaggerPending,
 } from "@/lib/first-launch";
 import { AVAILABLE_CATEGORIES } from "@/lib/categories";
+import { categoryImage } from "@/lib/category-icons";
 import { useMarketplace } from "@/hooks/use-listings";
 import { useMyBusiness } from "@/hooks/use-business";
 import type { ListingWithExtras } from "@/lib/listings-db";
@@ -169,14 +170,31 @@ function Home() {
               key={c.key}
               to="/market"
               search={{ category: c.key } as never}
-              className="tap flex aspect-square flex-col items-center justify-center gap-1.5 rounded-2xl border bg-card px-1"
+              className="tap group relative flex aspect-square flex-col items-end justify-end overflow-hidden rounded-2xl border"
               style={{
                 borderColor: "color-mix(in oklab, var(--plugu-gold) 28%, transparent)",
-                background: "linear-gradient(160deg, color-mix(in oklab, var(--plugu-gold) 6%, transparent), transparent 70%)",
+                background: "#08080a",
               }}
             >
-              <span className="text-2xl">{c.emoji}</span>
-              <span className="text-[10px] text-muted-foreground text-center leading-tight">{c.label}</span>
+              <img
+                src={categoryImage(c.key)}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                width={512}
+                height={512}
+                className="absolute inset-0 h-full w-full object-cover opacity-90"
+              />
+              <span
+                className="absolute inset-0"
+                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 22%, rgba(0,0,0,0.15) 62%, transparent)" }}
+              />
+              <span
+                className="relative w-full px-1.5 pb-1.5 text-center text-[10px] font-semibold leading-tight"
+                style={{ color: "var(--plugu-gold)" }}
+              >
+                {c.label}
+              </span>
             </Link>
           ))}
         </div>

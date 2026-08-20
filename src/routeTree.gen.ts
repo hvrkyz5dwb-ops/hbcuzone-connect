@@ -24,6 +24,7 @@ import { Route as RequestSchoolAccessRouteImport } from './routes/request-school
 import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as ReadRouteImport } from './routes/read'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PromoteRouteImport } from './routes/promote'
@@ -160,6 +161,11 @@ const RefundsRoute = RefundsRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadRoute = ReadRouteImport.update({
+  id: '/read',
+  path: '/read',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RankingsRoute = RankingsRouteImport.update({
@@ -517,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
   '/rankings': typeof RankingsRoute
+  '/read': typeof ReadRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -596,6 +603,7 @@ export interface FileRoutesByTo {
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
   '/rankings': typeof RankingsRoute
+  '/read': typeof ReadRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -676,6 +684,7 @@ export interface FileRoutesById {
   '/promote': typeof PromoteRoute
   '/pulse': typeof PulseRoute
   '/rankings': typeof RankingsRoute
+  '/read': typeof ReadRoute
   '/referrals': typeof ReferralsRoute
   '/refunds': typeof RefundsRoute
   '/report-problem': typeof ReportProblemRoute
@@ -757,6 +766,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/pulse'
     | '/rankings'
+    | '/read'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -836,6 +846,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/pulse'
     | '/rankings'
+    | '/read'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -915,6 +926,7 @@ export interface FileRouteTypes {
     | '/promote'
     | '/pulse'
     | '/rankings'
+    | '/read'
     | '/referrals'
     | '/refunds'
     | '/report-problem'
@@ -995,6 +1007,7 @@ export interface RootRouteChildren {
   PromoteRoute: typeof PromoteRoute
   PulseRoute: typeof PulseRoute
   RankingsRoute: typeof RankingsRoute
+  ReadRoute: typeof ReadRoute
   ReferralsRoute: typeof ReferralsRoute
   RefundsRoute: typeof RefundsRoute
   ReportProblemRoute: typeof ReportProblemRoute
@@ -1132,6 +1145,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/read': {
+      id: '/read'
+      path: '/read'
+      fullPath: '/read'
+      preLoaderRoute: typeof ReadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rankings': {
@@ -1693,6 +1713,7 @@ const rootRouteChildren: RootRouteChildren = {
   PromoteRoute: PromoteRoute,
   PulseRoute: PulseRoute,
   RankingsRoute: RankingsRoute,
+  ReadRoute: ReadRoute,
   ReferralsRoute: ReferralsRoute,
   RefundsRoute: RefundsRoute,
   ReportProblemRoute: ReportProblemRoute,
