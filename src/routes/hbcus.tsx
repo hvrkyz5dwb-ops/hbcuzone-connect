@@ -96,6 +96,7 @@ import {
 } from "@/lib/hbcus-data";
 import { launchStatusFor } from "@/lib/launch-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
+import heroImg from "@/assets/plugu-hero.jpg";
 
 export const Route = createFileRoute("/hbcus")({
   head: () => ({
@@ -596,22 +597,164 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
 
   return (
     <div className="space-y-5">
-      <SectionHeader icon={Flame} title="HBC&quot;US&quot; Today" subtitle={`Your ${activeSchool} briefing`} live />
-
-      {/* Breaking */}
-      <div className="rounded-3xl border border-rose-500/40 bg-rose-500/5 p-4">
-        <p className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-rose-300">
-          <Megaphone className="h-3 w-3" /> Breaking
-        </p>
-        <ul className="mt-2 space-y-2">
-          {breakingNews.map((b) => (
-            <li key={b.id} className="flex items-start gap-2 text-sm">
-              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse shrink-0" />
-              <span className="flex-1">{b.title} <span className="text-[10px] text-muted-foreground">· {b.school} · {b.time}</span></span>
-            </li>
-          ))}
-        </ul>
+      {/* Today briefing header */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 text-[22px] font-black leading-none tracking-tight">
+            HBCU Today
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
+            </span>
+          </h2>
+          <p className="mt-1 truncate text-[12px] text-muted-foreground">Your {activeSchool} briefing</p>
+        </div>
+        <span
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold"
+          style={{ border: "1px solid color-mix(in oklab, var(--hbcu-gold) 45%, transparent)", color: "var(--hbcu-gold)" }}
+        >
+          <Sparkles className="h-3.5 w-3.5" /> Powered by PlugU AI
+        </span>
       </div>
+
+      {/* Top story */}
+      <button
+        onClick={() => onJump("News")}
+        className="tap relative block w-full overflow-hidden rounded-3xl border border-border text-left"
+      >
+        <img src={heroImg} alt="" className="h-56 w-full object-cover" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.92) 100%)" }} />
+        <div className="absolute inset-0 flex flex-col justify-between p-4">
+          <span
+            className="w-fit inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
+            style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)" }}
+          >
+            <Trophy className="h-3 w-3" /> Top story
+          </span>
+          <div>
+            <p className="text-[22px] font-black leading-[1.1] text-primary-foreground">
+              The stories moving HBCU culture today
+            </p>
+            <p className="mt-1.5 text-[12px] leading-snug text-primary-foreground/75">
+              Campus events, leadership wins, and culture shaping the next generation.
+            </p>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] text-primary-foreground/60">Updated live · {breakingNews.length} stories</span>
+              <span className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
+                Open briefing <ChevronRight className="h-3.5 w-3.5" />
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      {/* Breaking rail */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.18em] text-rose-400">
+            <Radio className="h-3.5 w-3.5" /> Breaking
+          </p>
+          <button onClick={() => onJump("News")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>See all →</button>
+        </div>
+        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {breakingNews.map((b) => (
+            <button
+              key={b.id}
+              onClick={() => onJump("News")}
+              className="tap shrink-0 w-52 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-3 text-left"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.school.slice(0, 2).toUpperCase()}</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
+                </span>
+              </div>
+              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.title}</p>
+              <p className="mt-1.5 text-[10px] text-muted-foreground">{b.school} · {b.time}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Sports & scores */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="inline-flex items-center gap-1.5 text-[13px] font-bold">
+            <Trophy className="h-4 w-4" style={{ color: "var(--hbcu-gold)" }} /> HBCU Sports &amp; Scores
+          </p>
+          <button onClick={() => onJump("Sports")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>View all →</button>
+        </div>
+        <button
+          onClick={() => onJump("Sports")}
+          className="tap w-full rounded-3xl border border-border bg-card p-4 text-left"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1 text-center">
+              <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{liveGame.home}</p>
+              <p className="mt-1 text-3xl font-black">{liveGame.homeScore}</p>
+            </div>
+            <div className="shrink-0 text-center">
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
+              </span>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">{liveGame.status}</p>
+            </div>
+            <div className="min-w-0 flex-1 text-center">
+              <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{liveGame.away}</p>
+              <p className="mt-1 text-3xl font-black">{liveGame.awayScore}</p>
+            </div>
+          </div>
+          <p className="mt-3 border-t border-border pt-2 text-[11px] text-muted-foreground">
+            {liveGame.sport} · Live from the yard
+          </p>
+        </button>
+      </div>
+
+      {/* Spotlight + Greek life */}
+      <div className="grid grid-cols-2 gap-3">
+        <button onClick={() => onJump("Schools")} className="tap rounded-3xl border border-border bg-card p-4 text-left">
+          <SchoolIcon className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
+          <p className="mt-2 text-[13px] font-bold leading-tight">School Spotlight</p>
+          <p className="mt-1 text-[11px] font-semibold">{schoolProfiles[0].name}</p>
+          <p className="mt-1 line-clamp-3 text-[11px] text-muted-foreground">
+            Explore campus culture, student life and the numbers behind every HBCU.
+          </p>
+          <span className="mt-2 inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--hbcu-gold)" }}>
+            Learn more <ChevronRight className="h-3 w-3" />
+          </span>
+        </button>
+        <button onClick={() => onJump("Greek Life")} className="tap rounded-3xl border border-border bg-card p-4 text-left">
+          <Crown className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
+          <p className="mt-2 text-[13px] font-bold leading-tight">Greek Life</p>
+          <p className="mt-1 text-[11px] font-semibold">Divine 9. Real impact.</p>
+          <p className="mt-1 line-clamp-3 text-[11px] text-muted-foreground">
+            Service, sisterhood, brotherhood, and legacy across every campus.
+          </p>
+          <span className="mt-2 inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--hbcu-gold)" }}>
+            Explore <ChevronRight className="h-3 w-3" />
+          </span>
+        </button>
+      </div>
+
+      {/* Scholarships banner */}
+      <button
+        onClick={() => onJump("Scholarships")}
+        className="tap flex w-full items-center gap-3 rounded-3xl p-4 text-left"
+        style={{
+          border: "1px solid color-mix(in oklab, var(--hbcu-gold) 40%, transparent)",
+          background: "linear-gradient(120deg, color-mix(in oklab, var(--hbcu-gold) 16%, transparent), transparent 65%)",
+        }}
+      >
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ background: "color-mix(in oklab, var(--hbcu-gold) 20%, transparent)" }}>
+          <GraduationCap className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[14px] font-bold">Scholarships &amp; Opportunities</span>
+          <span className="block text-[11px] text-muted-foreground">Find funding, internships, and programs built for you.</span>
+        </span>
+        <span className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
+          Browse <ChevronRight className="h-3.5 w-3.5" />
+        </span>
+      </button>
 
       {/* Live AI feeds (real-world) */}
       <div className="rounded-3xl border border-border bg-card/60 p-4">

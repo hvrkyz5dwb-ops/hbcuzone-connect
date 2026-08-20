@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
-  Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone,
+  Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone, BadgeCheck,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -124,12 +124,13 @@ function Home() {
 
       {/* Hero — primary message + rotating highlights */}
       <section className="px-5 pt-4">
-        <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--plugu-gold)" }}>
+        <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--plugu-gold)" }}>
           Your campus, plugged in
         </p>
-        <h1 className="mt-1.5 text-[20px] font-extrabold leading-[1.2] text-foreground">
-          Buy from students. Book student services.{" "}
-          <span style={{ color: "var(--plugu-gold)" }}>Make money on your campus.</span>
+        <h1 className="mt-2 text-[27px] font-black leading-[1.08] tracking-[-0.02em] text-foreground">
+          Buy from students.<br />
+          Book student services.<br />
+          <span style={{ color: "var(--plugu-gold)" }}>Build your bag.</span>
         </h1>
       </section>
 
@@ -137,22 +138,22 @@ function Home() {
         <HeroCarousel />
       </div>
 
-      {/* Search + Looking For */}
-      <section className="mt-3 flex gap-2 px-5">
+      {/* Search + Post a Request */}
+      <section className="mt-4 flex gap-2 px-5">
         <button
           type="button"
           onClick={() => navigate({ to: "/search" })}
-          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground"
+          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-left text-sm text-muted-foreground"
         >
-          <Search className="h-4 w-4 shrink-0 text-primary" />
-          <span className="truncate">Search haircuts, food, tutors, dorm gear…</span>
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="truncate">Search campus services, food, events…</span>
         </button>
         <button
           type="button"
           onClick={() => setLookingOpen(true)}
-          className="tap flex shrink-0 items-center gap-1.5 rounded-2xl border border-primary/40 bg-primary/10 px-3.5 py-3 text-xs font-semibold text-primary"
+          className="tap flex shrink-0 items-center gap-1.5 rounded-full border border-primary/50 bg-primary/5 px-4 py-3.5 text-xs font-bold text-primary"
         >
-          <Megaphone className="h-4 w-4" /> Looking For
+          <Megaphone className="h-4 w-4" /> Post a Request
         </button>
       </section>
       <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
@@ -162,18 +163,20 @@ function Home() {
       {/* Marketplace categories */}
       <section className="mt-6">
         <SectionHeader title="Shop by category" action="See all" onAction={() => navigate({ to: "/market" })} />
-        <div className="px-5 grid grid-cols-4 gap-3">
+        <div className="px-5 grid grid-cols-4 gap-2.5">
           {AVAILABLE_CATEGORIES.slice(0, 8).map((c) => (
             <Link
               key={c.key}
               to="/market"
               search={{ category: c.key } as never}
-              className="tap flex flex-col items-center gap-2"
+              className="tap flex aspect-square flex-col items-center justify-center gap-1.5 rounded-2xl border bg-card px-1"
+              style={{
+                borderColor: "color-mix(in oklab, var(--plugu-gold) 28%, transparent)",
+                background: "linear-gradient(160deg, color-mix(in oklab, var(--plugu-gold) 6%, transparent), transparent 70%)",
+              }}
             >
-              <div className="h-14 w-14 grid place-items-center rounded-2xl bg-card border border-border text-2xl">
-                {c.emoji}
-              </div>
-              <span className="text-[11px] text-muted-foreground text-center leading-tight">{c.label}</span>
+              <span className="text-2xl">{c.emoji}</span>
+              <span className="text-[10px] text-muted-foreground text-center leading-tight">{c.label}</span>
             </Link>
           ))}
         </div>
@@ -252,24 +255,33 @@ function EmptyRow({ icon, text, cta, to }: { icon: React.ReactNode; text: string
 
 function ListingCard({ l }: { l: ListingWithExtras }) {
   const cover = l.images[0]?.url;
+  const sellerName = l.seller?.display_name ?? l.seller?.username ?? "Student seller";
+  const initial = sellerName[0]?.toUpperCase() ?? "?";
   return (
     <Link
       to="/checkout/$listingId"
       params={{ listingId: l.id }}
-      className="tap min-w-[160px] w-40 shrink-0 rounded-2xl border border-border bg-card overflow-hidden"
+      className="tap min-w-[176px] w-44 shrink-0 overflow-hidden rounded-3xl border border-border bg-card"
     >
-      <div className="h-24 bg-black/40 relative">
+      <div className="relative h-32 bg-black/40">
         {cover ? (
-          <img src={cover} alt="" className="h-full w-full object-cover" />
+          <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full grid place-items-center text-2xl opacity-60">🛍️</div>
         )}
+        <div className="absolute inset-x-0 top-0 flex items-center gap-1.5 bg-gradient-to-b from-black/75 to-transparent px-2 py-1.5">
+          <span className="grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full border border-primary/50 bg-black/60 text-[10px] font-bold text-primary">
+            {l.seller?.avatar_url ? (
+              <img src={l.seller.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : initial}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[10px] font-semibold text-primary-foreground">{sellerName}</span>
+          {l.seller?.username && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />}
+        </div>
       </div>
       <div className="p-2.5">
         <p className="text-xs font-semibold truncate">{l.title}</p>
-        <p className="text-[10px] text-muted-foreground truncate">
-          {l.seller?.display_name ?? l.seller?.username ?? "Student seller"}
-        </p>
+        <p className="text-[10px] text-muted-foreground truncate">{l.campus_name ?? l.seller?.school_name ?? "On campus"}</p>
         <p className="mt-1 text-xs font-bold" style={{ color: "var(--plugu-gold)" }}>
           {centsToPrice(l.price_cents)}
         </p>
@@ -283,11 +295,11 @@ function TrendingListings() {
   const { data, isLoading } = useMarketplace({ sort: "popular", limit: 8 });
   return (
     <section className="mt-7" data-tour="events">
-      <SectionHeader title="Trending on PlugU" action="See all" onAction={() => navigate({ to: "/market" })} />
+      <SectionHeader title="Trending Near You" action="See all" onAction={() => navigate({ to: "/market" })} />
       {isLoading ? (
         <div className="px-5 flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[160px] w-40 h-44 rounded-2xl bg-card border border-border animate-pulse" />
+            <div key={i} className="min-w-[176px] w-44 h-52 rounded-3xl bg-card border border-border animate-pulse" />
           ))}
         </div>
       ) : data && data.length > 0 ? (
