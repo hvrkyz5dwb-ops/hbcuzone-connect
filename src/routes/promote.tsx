@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Megaphone, MapPin, Check, Sparkles, ArrowLeft } from "lucide-react";
+import { Megaphone, MapPin, Sparkles, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/promote")({
   head: () => ({
     meta: [
       { title: "Promote Your Event — PlugU" },
-      { name: "description", content: "Promote your on-campus event for free by pinning it to your campus map. Paid boosts get featured across PlugU." },
+      { name: "description", content: "Promote your on-campus event for free by pinning it to your live campus map." },
     ],
   }),
   component: PromotePage,
@@ -42,7 +42,6 @@ function PromotePage() {
   const [title, setTitle] = useState("");
   const [when, setWhen] = useState("");
   const [spotId, setSpotId] = useState<string | null>(null);
-  const [boost, setBoost] = useState<number>(0);
 
   const spot = useMemo(
     () => layout?.zones.find((z) => z.id === spotId) ?? null,
