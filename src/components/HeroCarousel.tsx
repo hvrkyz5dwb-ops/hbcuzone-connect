@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { hubItems, type HubCategory } from "@/lib/career-money-data";
+import { getLearnTrack } from "@/lib/learn-tracks";
 import scholarshipImg from "@/assets/spotlight-scholarship.jpg";
 import businessImg from "@/assets/spotlight-business.jpg";
 import budgetImg from "@/assets/spotlight-budget.jpg";
@@ -9,14 +10,6 @@ import stocksImg from "@/assets/spotlight-stocks.jpg";
 import heroImg from "@/assets/plugu-hero.jpg";
 
 const GOLD = "var(--plugu-gold)";
-
-const QUOTES = [
-  "Stay down. Your consistency today builds your success tomorrow.",
-  "Every successful entrepreneur started with zero customers.",
-  "Small progress every day beats excuses.",
-  "Success belongs to those who keep showing up.",
-  "Build while everyone else is sleeping.",
-];
 
 function dayOfYear(d = new Date()) {
   const start = new Date(d.getFullYear(), 0, 0);
@@ -35,13 +28,40 @@ type Slide = {
   meta?: string;
   cta: string;
   to: string;
+  params?: Record<string, string>;
   image: string;
+  /** Position inside the card's own deck, e.g. "3 of 7". */
+  step?: string;
 };
+
+/** Builds a rotating slide from a learn track deck so each card is its own
+ *  mini slideshow instead of a static poster. */
+function fromTrack(
+  slug: "business-101" | "investing" | "motivation" | "budget",
+  seed: number,
+  image: string,
+): Slide {
+  const track = getLearnTrack(slug)!;
+  const idx = seed % track.slides.length;
+  const s = track.slides[idx];
+  return {
+    key: slug,
+    title: s.title,
+    subtitle: s.body,
+    meta: `${track.name} · ${s.kicker}`,
+    cta: track.cta,
+    to: "/learn/$track",
+    params: { track: slug },
+    image,
+    step: `${idx + 1} of ${track.slides.length}`,
+  };
+}
 
 function Card({ slide, index, total }: { slide: Slide; index: number; total: number }) {
   return (
     <Link
       to={slide.to as "/hub"}
+      params={slide.params as never}
       className="tap relative block h-[246px] w-[86%] shrink-0 snap-center overflow-hidden rounded-3xl border border-border"
     >
       <img src={slide.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
@@ -71,8 +91,15 @@ function Card({ slide, index, total }: { slide: Slide; index: number; total: num
           {slide.cta} <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </div>
-      <span className="absolute bottom-4 right-4 text-[12px] font-semibold text-foreground/70">
-        {index + 1} / {total}
+      <span className="absolute bottom-4 right-4 flex flex-col items-end gap-1">
+        {slide.step && (
+          <span className="rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-semibold text-foreground/80">
+            {slide.step}
+          </span>
+        )}
+        <span className="text-[12px] font-semibold text-foreground/70">
+          {index + 1} / {total}
+        </span>
       </span>
     </Link>
   );
@@ -92,54 +119,20 @@ export function HeroCarousel() {
   const slides = useMemo<Slide[]>(() => {
     const seed = dayOfYear() + tick;
     const scholarship = pick(["scholarships", "grants"], seed);
-    const business = pick(["small-biz", "side-hustles"], seed);
-    const budget = pick(["literacy", "discounts"], seed);
-    const stocks = pick(["stocks", "business-news"], seed);
     return [
       {
         key: "scholarships",
         title: scholarship?.title ?? "Scholarships You Can Apply For Now",
         subtitle: scholarship?.detail ?? "Fresh opportunities matched to your campus.",
-        meta: scholarship?.meta,
+        meta: scholarship?.meta ?? "Scholarships",
         cta: "View Scholarships",
         to: "/hub",
         image: scholarshipImg,
       },
-      {
-        key: "business",
-        title: business?.title ?? "Turn Your Hustle Into Income",
-        subtitle: business?.detail ?? "Set up your storefront, take bookings, get paid on campus.",
-        meta: business?.meta,
-        cta: "Business 101",
-        to: "/hub",
-        image: businessImg,
-      },
-      {
-        key: "budget",
-        title: budget?.title ?? "Budget Smarter This Semester",
-        subtitle: budget?.detail ?? "Real money habits built for a student schedule.",
-        meta: budget?.meta,
-        cta: "Budget Smarter",
-        to: "/hub",
-        image: budgetImg,
-      },
-      {
-        key: "stocks",
-        title: stocks?.title ?? "Start Investing With What You Have",
-        subtitle: stocks?.detail ?? "Markets, business news and beginner moves, explained.",
-        meta: stocks?.meta,
-        cta: "Stocks & Investing",
-        to: "/hub",
-        image: stocksImg,
-      },
-      {
-        key: "motivation",
-        title: QUOTES[(dayOfYear() + tick) % QUOTES.length],
-        subtitle: "A new one drops every day in Daily.",
-        cta: "Daily Motivation",
-        to: "/daily",
-        image: heroImg,
-      },
+      fromTrack("business-101", seed, businessImg),
+      fromTrack("budget", seed, budgetImg),
+      fromTrack("investing", seed, stocksImg),
+      fromTrack("motivation", seed, heroImg),
     ];
   }, [tick]);
 
