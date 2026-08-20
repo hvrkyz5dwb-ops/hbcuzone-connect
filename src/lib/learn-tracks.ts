@@ -8,11 +8,24 @@ export type LearnSlide = {
   note?: string;
 };
 
+export type QuizQuestion = {
+  q: string;
+  options: string[];
+  answer: number;
+  why: string;
+};
+
+export type GlossaryTerm = { term: string; def: string };
+
 export type LearnTrack = {
   slug: "business-101" | "investing" | "motivation" | "budget";
   name: string;
   tagline: string;
   cta: string;
+  /** Shown as a persistent banner on every slide (used for investing). */
+  disclaimer?: string;
+  glossary?: GlossaryTerm[];
+  quiz?: QuizQuestion[];
   slides: LearnSlide[];
 };
 
@@ -323,6 +336,163 @@ export const learnTracks: LearnTrack[] = [
     ],
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Disclaimers, glossary and end-of-deck quizzes
+// ---------------------------------------------------------------------------
+
+const DISCLAIMERS: Partial<Record<LearnTrack["slug"], string>> = {
+  investing:
+    "Educational content only. PlugU is not a broker, financial advisor or fiduciary. Nothing here is investment advice or a recommendation to buy or sell any security. All investing carries risk, including the possible loss of your entire principal. Past performance never guarantees future results.",
+  "business-101":
+    "Educational content only. PlugU does not provide legal, tax or accounting advice — confirm business registration and tax rules with a licensed professional in your state.",
+  budget:
+    "Educational content only. Prices, benefit rules and eligibility change — always confirm with the provider or your state agency.",
+};
+
+const GLOSSARIES: Partial<Record<LearnTrack["slug"], GlossaryTerm[]>> = {
+  investing: [
+    { term: "Share / Stock", def: "A unit of ownership in a company. Owning one makes you a part-owner of that business." },
+    { term: "Index fund", def: "A fund that holds every company in an index (like the S&P 500) so one purchase spreads your money across hundreds of businesses." },
+    { term: "ETF", def: "Exchange-Traded Fund — a fund that trades on an exchange like a single stock throughout the day." },
+    { term: "Dividend", def: "A cash payment some companies send shareholders out of their profits, usually quarterly." },
+    { term: "Capital gain", def: "The profit you make when you sell an investment for more than you paid. It is only realized once you sell." },
+    { term: "Compound growth", def: "Growth on your growth — returns that get reinvested and then earn returns of their own." },
+    { term: "Dollar-cost averaging", def: "Investing a fixed amount on a fixed schedule so your purchase price averages out over time." },
+    { term: "Diversification", def: "Spreading money across many companies, industries and asset types so one failure can't wipe you out." },
+    { term: "Volatility", def: "How sharply a price swings up and down. Higher volatility means bigger moves in both directions." },
+    { term: "Bear market", def: "A drop of 20% or more from recent highs." },
+    { term: "Bull market", def: "A sustained period of rising prices." },
+    { term: "Expense ratio", def: "The annual percentage a fund charges you. A 1% ratio costs $10 a year on every $1,000 invested." },
+    { term: "Roth IRA", def: "A retirement account funded with money you've already paid tax on; qualified withdrawals later are tax-free." },
+    { term: "401(k)", def: "An employer retirement plan. Many employers match part of what you contribute." },
+    { term: "Brokerage account", def: "A standard taxable investment account with no contribution limits or withdrawal penalties." },
+    { term: "Bond", def: "A loan you make to a government or company in exchange for interest payments." },
+    { term: "REIT", def: "Real Estate Investment Trust — a company that owns income-producing property you can buy shares of." },
+    { term: "Risk tolerance", def: "How much of a drop you can sit through without panic-selling." },
+    { term: "Emergency fund", def: "Cash set aside for surprises, kept out of the market so you never have to sell at a loss." },
+    { term: "Prospectus", def: "The legal document describing a fund's holdings, strategy, risks and fees. Read it before you buy." },
+  ],
+};
+
+const QUIZZES: Record<LearnTrack["slug"], QuizQuestion[]> = {
+  "business-101": [
+    {
+      q: "What's the strongest starting point for a student business?",
+      options: ["A trending idea you saw online", "A problem people already ask you to solve", "Whatever has the least competition", "Whatever needs the least work"],
+      answer: 1,
+      why: "Demand you can already see beats a guess. Start where people are already texting you.",
+    },
+    {
+      q: "How should you price a job?",
+      options: ["Match the cheapest person on campus", "Materials only", "Materials + your time + a profit cushion", "Whatever the customer offers"],
+      answer: 2,
+      why: "Most students forget to pay themselves. Price = supplies + your hours + 20–30% profit.",
+    },
+    {
+      q: "Roughly how much profit should you set aside for taxes?",
+      options: ["0%", "5%", "25–30%", "60%"],
+      answer: 2,
+      why: "Self-employment income isn't withheld for you — bank 25–30% of profit so tax season isn't a crisis.",
+    },
+    {
+      q: "What actually drives your PlugScore as a seller?",
+      options: ["Follower count", "Completed orders and real reviews", "How many listings you post", "How often you log in"],
+      answer: 1,
+      why: "Ten happy customers with reviews beat a thousand followers.",
+    },
+  ],
+  investing: [
+    {
+      q: "What does owning a share of stock mean?",
+      options: ["You lent the company money", "You own a slice of the company", "You're guaranteed a payout", "You control company decisions"],
+      answer: 1,
+      why: "A share is ownership. Lending money is a bond, not a stock.",
+    },
+    {
+      q: "Which one gives you instant diversification?",
+      options: ["One hot tech stock", "A broad index fund", "A single crypto coin", "Your friend's startup"],
+      answer: 1,
+      why: "An S&P 500 or total-market index fund spreads one purchase across hundreds of companies.",
+    },
+    {
+      q: "Dollar-cost averaging means…",
+      options: ["Buying only when prices dip", "Investing a fixed amount on a fixed schedule", "Selling half your position yearly", "Timing the market bottom"],
+      answer: 1,
+      why: "Same amount, same day, every month — it removes emotion and averages your buy price.",
+    },
+    {
+      q: "Before investing, you should first…",
+      options: ["Max out a credit card for leverage", "Build an emergency cash buffer", "Buy the most volatile asset", "Borrow from a payday app"],
+      answer: 1,
+      why: "Cash for surprises means you never have to sell an investment at a loss.",
+    },
+    {
+      q: "A 1% expense ratio means…",
+      options: ["The fund pays you 1%", "You pay $10 a year per $1,000 invested", "A guaranteed 1% return", "A one-time $1 fee"],
+      answer: 1,
+      why: "Fees compound against you the same way returns compound for you.",
+    },
+  ],
+  motivation: [
+    {
+      q: "Which author studied 1,000 Black millionaires in The Wealth Choice?",
+      options: ["Ta-Nehisi Coates", "Dennis Kimbro", "Paris Woods", "Randal Pinkett"],
+      answer: 1,
+      why: "Dennis Kimbro's research found ownership, patience and work — not luck — behind the wealth.",
+    },
+    {
+      q: "Black Faces in White Places is built around…",
+      options: ["Ten strategies for redefining the game", "A budgeting system", "A stock-picking method", "A memoir of the White House"],
+      answer: 0,
+      why: "Pinkett and Robinson lay out ten strategies for redefining rooms you weren't prepared for.",
+    },
+    {
+      q: "Which book is the founding text of the HBCU self-reliance tradition?",
+      options: ["Becoming", "Between the World and Me", "Up From Slavery", "Our Black Year"],
+      answer: 2,
+      why: "Booker T. Washington's Up From Slavery is about skill, self-reliance and building institutions.",
+    },
+    {
+      q: "Our Black Year is an argument for…",
+      options: ["Index investing", "Circulating dollars in Black-owned businesses", "Moving off campus", "Avoiding credit cards"],
+      answer: 1,
+      why: "Maggie Anderson's year of buying Black only is the case for shopping your campus first.",
+    },
+  ],
+  budget: [
+    {
+      q: "In the student 50/30/20 split, what is the 20%?",
+      options: ["Going out", "Rent", "Savings, debt and investing", "Groceries"],
+      answer: 2,
+      why: "Needs 50, wants 30, future 20 — pay the future automatically the day money lands.",
+    },
+    {
+      q: "What's the fastest legit way to cut monthly spend tonight?",
+      options: ["Cancel forgotten subscriptions and downgrade to student tiers", "Skip meals", "Open a new credit card", "Use a cash-advance app"],
+      answer: 0,
+      why: "The average student leaks $40–$80/month on subscriptions they forgot about.",
+    },
+    {
+      q: "Which students may qualify for SNAP?",
+      options: ["Nobody in college", "Only graduate students", "Half-time students with work-study, 20+ hrs/week of work, or a dependent child", "Only students with no income at all"],
+      answer: 2,
+      why: "Eligibility varies by state, but many enrolled students qualify and never apply.",
+    },
+    {
+      q: "The safest borrowing order is…",
+      options: ["Private loans, then federal", "Subsidized federal, unsubsidized federal, then private", "Credit cards first", "Payday loans for the gap"],
+      answer: 1,
+      why: "Grants first, then subsidized federal, unsubsidized federal, and private only as a last resort.",
+    },
+  ],
+};
+
+for (const track of learnTracks) {
+  track.disclaimer = DISCLAIMERS[track.slug];
+  track.glossary = GLOSSARIES[track.slug];
+  track.quiz = QUIZZES[track.slug];
+}
 
 export function getLearnTrack(slug: string): LearnTrack | undefined {
   return learnTracks.find((t) => t.slug === slug);
