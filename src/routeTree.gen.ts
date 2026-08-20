@@ -73,6 +73,7 @@ import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
+import { Route as LearnTrackRouteImport } from './routes/learn.$track'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
@@ -406,6 +407,11 @@ const MessagesIdRoute = MessagesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MessagesRoute,
 } as any)
+const LearnTrackRoute = LearnTrackRouteImport.update({
+  id: '/learn/$track',
+  path: '/learn/$track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LaunchSlugRoute = LaunchSlugRouteImport.update({
   id: '/launch/$slug',
   path: '/launch/$slug',
@@ -531,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -609,6 +616,7 @@ export interface FileRoutesByTo {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -688,6 +696,7 @@ export interface FileRoutesById {
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/launch/$slug': typeof LaunchSlugRoute
+  '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -768,6 +777,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
@@ -846,6 +856,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
@@ -924,6 +935,7 @@ export interface FileRouteTypes {
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
     | '/launch/$slug'
+    | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
@@ -1001,6 +1013,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
+  LearnTrackRoute: typeof LearnTrackRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerListingsRoute: typeof SellerListingsRoute
@@ -1464,6 +1477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesIdRouteImport
       parentRoute: typeof MessagesRoute
     }
+    '/learn/$track': {
+      id: '/learn/$track'
+      path: '/learn/$track'
+      fullPath: '/learn/$track'
+      preLoaderRoute: typeof LearnTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/launch/$slug': {
       id: '/launch/$slug'
       path: '/launch/$slug'
@@ -1692,6 +1712,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LaunchSlugRoute: LaunchSlugRoute,
+  LearnTrackRoute: LearnTrackRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerListingsRoute: SellerListingsRoute,

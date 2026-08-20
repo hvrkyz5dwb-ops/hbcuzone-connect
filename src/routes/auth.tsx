@@ -2,8 +2,16 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { APPROVED_SCHOOLS, validateStudentEmail, isHbcuDomain } from "@/lib/auth";
+import { US_COLLEGES } from "@/lib/us-colleges";
 import { ShieldCheck, Mail, GraduationCap, AlertCircle, Loader2 } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
+
+// Every US college a student can pick from at signup. HBCUs first, then the
+// national directory, de-duplicated. Free text is still accepted — access is
+// gated on the .edu email, not on the name.
+const ALL_SCHOOL_NAMES = Array.from(
+  new Set([...APPROVED_SCHOOLS.map((s) => s.name), ...US_COLLEGES]),
+).sort((a, b) => a.localeCompare(b));
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -258,7 +266,7 @@ function AuthPage() {
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
             </Labeled>
-            <Labeled label="School (any US college)">
+            <Labeled label="School (any US college or university)">
               <div className="relative">
                 <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
@@ -270,8 +278,8 @@ function AuthPage() {
                   className="w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
                 />
                 <datalist id="plugu-schools">
-                  {APPROVED_SCHOOLS.map((s) => (
-                    <option key={s.name} value={s.name} />
+                  {ALL_SCHOOL_NAMES.map((name) => (
+                    <option key={name} value={name} />
                   ))}
                 </datalist>
               </div>
