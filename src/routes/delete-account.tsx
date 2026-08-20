@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { deleteMyAccount } from "@/lib/account.functions";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/delete-account")({
   head: () => ({
@@ -51,7 +52,7 @@ function DeleteAccount() {
       toast.success("Your account has been permanently deleted.");
       navigate({ to: "/auth", search: { next: "/", mode: "" } });
     } catch (e) {
-      setErr((e as Error).message || "We couldn't complete the deletion. Please try again.");
+      setErr(friendlyError(e, "We couldn't complete the deletion. Please try again."));
       setBusy(false);
     }
   }

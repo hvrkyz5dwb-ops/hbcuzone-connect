@@ -7,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
 import { AlertCircle, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/profile/edit")({
   ssr: false,
@@ -75,7 +76,7 @@ function EditProfile() {
       if (/duplicate|unique/i.test(error.message)) {
         setErr("That username is already taken. Try another.");
       } else {
-        setErr(error.message);
+        setErr(friendlyError(error));
       }
       return;
     }

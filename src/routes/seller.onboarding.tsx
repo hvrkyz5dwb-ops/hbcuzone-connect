@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { Loader2, Save, ChevronRight, ChevronLeft, ShieldCheck, AlertCircle, Check } from "lucide-react";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/seller/onboarding")({
   ssr: false,
@@ -146,7 +147,7 @@ function SellerOnboarding() {
     }
     setSaving(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyError(error));
       return false;
     }
     await refetch();

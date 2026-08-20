@@ -8,6 +8,7 @@ import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
 import { getDomain } from "@/lib/auth";
 import { Loader2, CheckCircle2, GraduationCap, AlertCircle } from "lucide-react";
+import { friendlyError } from "@/lib/friendly-errors";
 
 type Row = {
   id: string;
@@ -65,7 +66,7 @@ export function RequestSchoolAccess({ compact }: { compact?: boolean }) {
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyError(error));
       return;
     }
     setNote("");
