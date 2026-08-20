@@ -96,6 +96,7 @@ import {
 } from "@/lib/hbcus-data";
 import { launchStatusFor } from "@/lib/launch-data";
 import statueImg from "@/assets/plugu-statue.jpg.asset.json";
+import heroImg from "@/assets/plugu-hero.jpg";
 
 export const Route = createFileRoute("/hbcus")({
   head: () => ({
