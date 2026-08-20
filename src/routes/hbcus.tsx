@@ -591,6 +591,13 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
     staleTime: 60_000,
     refetchOnWindowFocus: false,
   });
+  const breakingQ = useQuery({
+    queryKey: ["hbcus-breaking"],
+    queryFn: () => getLiveNews({ data: { topic: "All HBCUs", count: 8 } }),
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const breaking = breakingQ.data?.items ?? [];
   const featuredGame =
     sportsQ.data?.live[0] ?? sportsQ.data?.upcoming[0] ?? sportsQ.data?.final[0] ?? null;
   const gameLive = featuredGame?.state === "in";
