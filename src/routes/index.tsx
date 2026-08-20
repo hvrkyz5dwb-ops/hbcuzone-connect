@@ -124,12 +124,13 @@ function Home() {
 
       {/* Hero — primary message + rotating highlights */}
       <section className="px-5 pt-4">
-        <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--plugu-gold)" }}>
+        <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--plugu-gold)" }}>
           Your campus, plugged in
         </p>
-        <h1 className="mt-1.5 text-[20px] font-extrabold leading-[1.2] text-foreground">
-          Buy from students. Book student services.{" "}
-          <span style={{ color: "var(--plugu-gold)" }}>Make money on your campus.</span>
+        <h1 className="mt-2 text-[27px] font-black leading-[1.08] tracking-[-0.02em] text-foreground">
+          Buy from students.<br />
+          Book student services.<br />
+          <span style={{ color: "var(--plugu-gold)" }}>Build your bag.</span>
         </h1>
       </section>
 
@@ -137,22 +138,22 @@ function Home() {
         <HeroCarousel />
       </div>
 
-      {/* Search + Looking For */}
-      <section className="mt-3 flex gap-2 px-5">
+      {/* Search + Post a Request */}
+      <section className="mt-4 flex gap-2 px-5">
         <button
           type="button"
           onClick={() => navigate({ to: "/search" })}
-          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground"
+          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-left text-sm text-muted-foreground"
         >
-          <Search className="h-4 w-4 shrink-0 text-primary" />
-          <span className="truncate">Search haircuts, food, tutors, dorm gear…</span>
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="truncate">Search campus services, food, events…</span>
         </button>
         <button
           type="button"
           onClick={() => setLookingOpen(true)}
-          className="tap flex shrink-0 items-center gap-1.5 rounded-2xl border border-primary/40 bg-primary/10 px-3.5 py-3 text-xs font-semibold text-primary"
+          className="tap flex shrink-0 items-center gap-1.5 rounded-full border border-primary/50 bg-primary/5 px-4 py-3.5 text-xs font-bold text-primary"
         >
-          <Megaphone className="h-4 w-4" /> Looking For
+          <Megaphone className="h-4 w-4" /> Post a Request
         </button>
       </section>
       <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
@@ -162,18 +163,20 @@ function Home() {
       {/* Marketplace categories */}
       <section className="mt-6">
         <SectionHeader title="Shop by category" action="See all" onAction={() => navigate({ to: "/market" })} />
-        <div className="px-5 grid grid-cols-4 gap-3">
+        <div className="px-5 grid grid-cols-4 gap-2.5">
           {AVAILABLE_CATEGORIES.slice(0, 8).map((c) => (
             <Link
               key={c.key}
               to="/market"
               search={{ category: c.key } as never}
-              className="tap flex flex-col items-center gap-2"
+              className="tap flex aspect-square flex-col items-center justify-center gap-1.5 rounded-2xl border bg-card px-1"
+              style={{
+                borderColor: "color-mix(in oklab, var(--plugu-gold) 28%, transparent)",
+                background: "linear-gradient(160deg, color-mix(in oklab, var(--plugu-gold) 6%, transparent), transparent 70%)",
+              }}
             >
-              <div className="h-14 w-14 grid place-items-center rounded-2xl bg-card border border-border text-2xl">
-                {c.emoji}
-              </div>
-              <span className="text-[11px] text-muted-foreground text-center leading-tight">{c.label}</span>
+              <span className="text-2xl">{c.emoji}</span>
+              <span className="text-[10px] text-muted-foreground text-center leading-tight">{c.label}</span>
             </Link>
           ))}
         </div>
