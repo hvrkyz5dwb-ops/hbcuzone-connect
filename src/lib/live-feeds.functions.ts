@@ -219,18 +219,23 @@ export const getLiveNews = createServerFn({ method: "POST" })
       const pub = pick("pubDate");
       const iso = pub ? new Date(pub).toISOString() : fetchedAt;
       const source = pick("source") || "Google News";
-      const headline = rawTitle.replace(/\s*[-–|]\s*[^-–|]{2,40}$/, "").trim() || rawTitle;
       const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      let headline = rawTitle.trim();
+      const srcNorm = norm(source);
+      const cut = headline.lastIndexOf(" - ");
+      if (cut > 20 && srcNorm && norm(headline.slice(cut + 3)).startsWith(srcNorm.slice(0, 6))) {
+        headline = headline.slice(0, cut).trim();
+      }
       const plain = decode(pick("description"))
         .replace(/<[^>]*>/g, " ")
         .replace(/&nbsp;?/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-      const desc = norm(plain).startsWith(norm(headline)) ? "" : plain;
+      const desc = norm(plain).startsWith(norm(headline).slice(0, 40)) ? "" : plain;
       items.push({
         id: link,
         headline,
-        summary: desc.slice(0, 200) || `${source} · ${topic.tag}`,
+        summary: desc.slice(0, 200),
         source,
         url: link,
         publishedAt: iso,
