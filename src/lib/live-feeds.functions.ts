@@ -213,17 +213,24 @@ export const getLiveNews = createServerFn({ method: "POST" })
         const m = b.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
         return m ? decode(m[1]) : "";
       };
-      const headline = pick("title");
+      const rawTitle = pick("title");
       const link = pick("link");
-      if (!headline || !link) continue;
+      if (!rawTitle || !link) continue;
       const pub = pick("pubDate");
       const iso = pub ? new Date(pub).toISOString() : fetchedAt;
       const source = pick("source") || "Google News";
-      const desc = decode(pick("description")).replace(new RegExp(`^${headline}\\s*`), "");
+      const headline = rawTitle.replace(/\s*[-–|]\s*[^-–|]{2,40}$/, "").trim() || rawTitle;
+      const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const plain = decode(pick("description"))
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;?/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const desc = norm(plain).startsWith(norm(headline)) ? "" : plain;
       items.push({
         id: link,
-        headline: headline.replace(new RegExp(`\\s*-\\s*${source}$`), ""),
-        summary: desc.slice(0, 220) || `${source} reports on ${topic.tag.toLowerCase()}.`,
+        headline,
+        summary: desc.slice(0, 200) || `${source} · ${topic.tag}`,
         source,
         url: link,
         publishedAt: iso,
