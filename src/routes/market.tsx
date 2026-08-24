@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ContentMenu } from "@/components/ContentMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { CampusFeed } from "@/components/CampusFeed";
@@ -327,13 +328,13 @@ function ListingCard({
           >
             <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
-          <button
-            aria-label="Report"
-            onClick={() => toast.success("Report received", { description: "Trust & Safety will review this listing." })}
-            className="tap h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border"
-          >
-            <Flag className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+          <ContentMenu
+            targetType="listing"
+            targetId={l.id}
+            targetLabel={l.title}
+            authorUserId={l.seller_user_id}
+            className="h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border"
+          />
         </div>
       </div>
     </article>
