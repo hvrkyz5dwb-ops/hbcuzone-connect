@@ -234,7 +234,7 @@ function HistoryBlock() {
     { id: "TX-2032", item: "Calc III Tutoring (1hr)", amount: "$25.00", date: "Jun 20", status: "Completed" },
     { id: "TX-2018", item: "Soul Food Plate", amount: "$12.00", date: "Jun 18", status: "Refunded" },
     { id: "TX-2001", item: "Ride to ATL Airport", amount: "$40.00", date: "Jun 10", status: "Completed" },
-    { id: "TX-1987", item: "KingPin Pro Subscription", amount: "$32.00", date: "Jun 01", status: "Active" },
+    { id: "TX-1987", item: "Campus Photoshoot (1 hr)", amount: "$32.00", date: "Jun 01", status: "Completed" },
   ];
   return (
     <section className="px-5 mt-3">

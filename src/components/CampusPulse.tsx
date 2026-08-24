@@ -12,7 +12,6 @@ import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
 import { getCampusWeather } from "@/lib/campus-intel.functions";
-import { getSellerPlan } from "@/lib/seller-plan";
 import { liveActivity, businessSpotlight, aiRecommendations } from "@/lib/opportunities-data";
 import { announcements, events as seedEvents, featuredKingpins, listings, hbcuEvents } from "@/lib/mock-data";
 import { listUserEvents, subscribeUserEvents, type UserEvent } from "@/lib/events-storage";
@@ -58,13 +57,9 @@ export function CampusPulse() {
   const [persona] = usePersona();
   const school = useSchool();
   const { profile } = useProfile();
-  const [upgraded, setUpgraded] = useState(false);
-  useEffect(() => {
-    try { setUpgraded(getSellerPlan().tier !== "free"); } catch {}
-  }, []);
-  // Show "Plug" (plain white) until the user upgrades their package.
-  const displayBadge = upgraded ? persona.badge : "Plug";
-  const isUpgraded = upgraded;
+  // Badges are earned, not bought — every student sees their persona badge.
+  const displayBadge = persona.badge;
+  const isUpgraded = true;
   const displayCampus = school.name && school.name !== "Your Campus" ? school.name : persona.campus;
   // Match the Profile tab exactly: full name (first name only for greeting),
   // school, year, and major all come from the signed-in profile row.
