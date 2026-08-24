@@ -13,9 +13,13 @@ export const REPORT_REASONS = [
   { key: "violence", label: "Violence or threats" },
   { key: "drugs", label: "Drugs or illegal activity" },
   { key: "scam_fraud", label: "Scam or fraud" },
+  { key: "prohibited_item", label: "Prohibited item" },
+  { key: "impersonation", label: "Impersonation or fake account" },
+  { key: "privacy", label: "Private information" },
   { key: "spam", label: "Spam" },
   { key: "other", label: "Other" },
 ] as const;
+
 
 export type ReportReason = (typeof REPORT_REASONS)[number]["key"];
 
