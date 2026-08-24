@@ -5,6 +5,7 @@ import {
 import { toast } from "sonner";
 import { ReportDialog } from "@/components/ReportDialog";
 import { useSession } from "@/hooks/use-session";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { useEventComments, useEventMutations, useRsvpToggle } from "@/hooks/use-campus";
 import { calendarUrl, categoryMeta, type CampusEvent } from "@/lib/campus-db";
 
