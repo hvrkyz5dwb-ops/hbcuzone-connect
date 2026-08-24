@@ -93,9 +93,16 @@ function EventsPage() {
       </section>
 
       <SectionHeader title="Upcoming" />
-      <p className="px-5 -mt-1 pb-3 text-[11px] text-muted-foreground">
-        Attendee lists are private — you'll only ever see the total going count and your own RSVPs.
-      </p>
+      <section aria-labelledby="events-privacy-heading" className="px-5 -mt-1 pb-3">
+        <h2 id="events-privacy-heading" className="text-xs font-semibold text-foreground">
+          Attendee lists are private
+        </h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          You'll only ever see the total going count and your own RSVPs. Hosts and campus admins can view the
+          full attendee list for events they manage.
+        </p>
+      </section>
+
       <ul className="px-5 pb-6 space-y-3">
 
         {filteredAll.length === 0 && (
