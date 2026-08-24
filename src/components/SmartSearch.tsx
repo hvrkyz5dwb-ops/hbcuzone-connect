@@ -118,7 +118,10 @@ export function SmartSearch() {
               </button>
             ))}
           </div>
-          <div className="flex-1 overflow-y-auto px-5 py-4 pb-safe">
+          <div
+            className="flex-1 overflow-y-auto px-5 pt-4"
+            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+          >
             {!q.trim() ? (
               <div className="text-center text-xs text-muted-foreground mt-10">
                 Try "Fade God", "BIO 201", "Yard Show", "UNCF", or "Howard".

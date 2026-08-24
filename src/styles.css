@@ -410,9 +410,15 @@ img, video { content-visibility: auto; }
   transform-origin: center;
 }
 
-/* Safe area helpers for fixed bottom nav */
+/* Safe area helpers for fixed bottom nav.
+ * pb-safe/mb-safe set padding/margin directly, so pairing them with pb-28
+ * silently dropped the nav clearance (the later utility wins) and clipped
+ * the last row of every scrollable page behind the tab bar. pb-nav bakes
+ * both values into one declaration so that can't happen again. */
 @utility pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 @utility mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+@utility pb-nav { padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)); }
+
 
 /* === Shiny chrome / silver / gold / diamond wordmarks === */
 @keyframes plugu-chrome-sweep {

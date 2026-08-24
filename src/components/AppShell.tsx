@@ -193,7 +193,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-28 pb-safe">
+      <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-nav">
         <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-background/75 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center -space-x-1">
             <img
@@ -249,7 +249,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe"
           style={
             keyboardOffset
-              ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+              ? {
+                  // Keep the horizontal centering: overriding `transform`
+                  // without translateX(-50%) shoved the tab bar off-screen
+                  // whenever the keyboard opened.
+                  transform: `translate(-50%, -${keyboardOffset}px)`,
+                  marginBottom: 0,
+                }
               : undefined
           }
         >

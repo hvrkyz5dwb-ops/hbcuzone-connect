@@ -494,6 +494,20 @@ for (const track of learnTracks) {
   track.quiz = QUIZZES[track.slug];
 }
 
+// Friendly aliases so shared/typed links land on the right deck instead of 404.
+const SLUG_ALIASES: Record<string, LearnTrack["slug"]> = {
+  business: "business-101",
+  "business101": "business-101",
+  invest: "investing",
+  stocks: "investing",
+  motivate: "motivation",
+  daily: "motivation",
+  budgeting: "budget",
+  "budget-smarter": "budget",
+};
+
 export function getLearnTrack(slug: string): LearnTrack | undefined {
-  return learnTracks.find((t) => t.slug === slug);
+  const key = (slug ?? "").toLowerCase();
+  const resolved = SLUG_ALIASES[key] ?? key;
+  return learnTracks.find((t) => t.slug === resolved);
 }
