@@ -193,7 +193,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-28 pb-safe">
+      <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-nav">
         <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-background/75 backdrop-blur-xl border-b border-border/50">
           <div className="flex items-center -space-x-1">
             <img
