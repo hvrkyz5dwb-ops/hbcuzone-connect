@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock } from "lucide-react";
 import { ContentMenu } from "@/components/ContentMenu";
 import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted, isContentHidden } from "@/lib/ugc-safety";
-import { screenContent } from "@/lib/content-filter";
+import { screenBeforePublish } from "@/lib/screen";
 import { toast } from "sonner";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
