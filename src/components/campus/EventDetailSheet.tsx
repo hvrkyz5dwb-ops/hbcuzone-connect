@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  X, Calendar, MapPin, Users, Share2, Flag, Trash2, CalendarPlus, Send, Loader2, Pencil,
+  X, Calendar, MapPin, Users, Share2, Flag, Trash2, CalendarPlus, Send, Loader2, Pencil, Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ReportDialog } from "@/components/ReportDialog";
