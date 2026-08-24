@@ -19,11 +19,11 @@ function Failed() {
           Your card was declined or the connection dropped. No charge was made.
         </p>
         <div className="mt-6 grid gap-2 max-w-xs mx-auto">
-          <Link to="/checkout" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
-            Try again
+          <Link to="/orders" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+            Back to my orders
           </Link>
-          <Link to="/upgrade" className="py-3 rounded-2xl bg-card border border-border text-sm">
-            Choose a different plan
+          <Link to="/support" className="py-3 rounded-2xl bg-card border border-border text-sm">
+            Contact support
           </Link>
         </div>
       </section>

@@ -14,15 +14,13 @@ function History() {
     <AppShell title="HISTORY">
       <section className="px-5 pt-5">
         <h1 className="text-lg font-semibold">Payment history</h1>
-        <p className="text-xs text-muted-foreground mt-1">All your plan selections in one place.</p>
+        <p className="text-xs text-muted-foreground mt-1">Every marketplace purchase you’ve made, in one place.</p>
 
         {items.length === 0 ? (
           <div className="mt-8 text-center text-sm text-muted-foreground">
             <Receipt className="h-8 w-8 mx-auto mb-2 opacity-60" />
-            No payments yet.
-            <div className="mt-3">
-              <Link to="/upgrade" className="text-primary">Browse plans →</Link>
-            </div>
+            No payments yet. PlugU features are free — payments here only cover
+            goods and services you buy from other students.
           </div>
         ) : (
           <ul className="mt-4 rounded-2xl bg-card border border-border divide-y divide-border">

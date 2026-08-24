@@ -1267,6 +1267,30 @@ export type Database = {
         }
         Relationships: []
       }
+      policy_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          policy_version: string
+          terms_url: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          policy_version: string
+          terms_url?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          policy_version?: string
+          terms_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1451,11 +1475,47 @@ export type Database = {
         }
         Relationships: []
       }
+      public_support_messages: {
+        Row: {
+          category: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
+          details: string | null
           id: string
           reason: string
+          reason_code: string | null
+          reported_user_id: string | null
           reporter_user_id: string
           status: string
           target_id: string
@@ -1464,8 +1524,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          details?: string | null
           id?: string
           reason: string
+          reason_code?: string | null
+          reported_user_id?: string | null
           reporter_user_id: string
           status?: string
           target_id: string
@@ -1474,8 +1537,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          details?: string | null
           id?: string
           reason?: string
+          reason_code?: string | null
+          reported_user_id?: string | null
           reporter_user_id?: string
           status?: string
           target_id?: string

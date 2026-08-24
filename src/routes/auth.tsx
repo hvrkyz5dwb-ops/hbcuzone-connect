@@ -5,6 +5,8 @@ import { validateStudentEmail, isHbcuDomain } from "@/lib/auth";
 import { SchoolPicker } from "@/components/SchoolPicker";
 import { ShieldCheck, Mail, AlertCircle, Loader2 } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
+import { POLICY_CONSENT_TEXT, POLICY_VERSION, recordPolicyAcceptance } from "@/lib/policy";
+
 import { friendlyError } from "@/lib/friendly-errors";
 
 export const Route = createFileRoute("/auth")({
@@ -62,7 +64,7 @@ function AuthPage() {
   const [year, setYear] = useState("Freshman");
   const [major, setMajor] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [agreeMarket, setAgreeMarket] = useState(false);
+  
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -120,8 +122,8 @@ function AuthPage() {
     const check = validateStudentEmail(email, school);
     if (!check.ok) return setErr(check.reason);
     if (password.length < 8) return setErr("Password must be at least 8 characters.");
-    if (!agreeTerms) return setErr("Accept the Terms of Service and Privacy Policy to continue.");
-    if (!agreeMarket) return setErr("Confirm the marketplace acknowledgement to continue.");
+    if (!agreeTerms) return setErr("Accept the Terms of Use, Privacy Policy, and Community Guidelines to continue.");
+
 
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
@@ -137,6 +139,8 @@ function AuthPage() {
           major: major.trim() || "Undeclared",
           is_hbcu_student: isHbcuDomain(check.domain),
           terms_accepted: "true",
+          policy_version: POLICY_VERSION,
+          policy_accepted_at: new Date().toISOString(),
         },
       },
     });
@@ -144,6 +148,10 @@ function AuthPage() {
     if (error) {
       setErr(friendlyError(error));
       return;
+    }
+    if (data.user) {
+      // Ledger the acceptance (user id, policy version, timestamp).
+      try { await recordPolicyAcceptance(data.user.id); } catch {}
     }
     if (!data.session) {
       setMsg(
@@ -158,6 +166,7 @@ function AuthPage() {
     try {
       window.localStorage.setItem("plugu.welcome.pending", "1");
     } catch {}
+
     window.location.href = safeNext(next);
   }
 
@@ -304,22 +313,23 @@ function AuthPage() {
             <p className="text-[10px] text-muted-foreground">Min 8 characters. Leaked passwords are blocked.</p>
 
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                <Link to="/terms" className="underline text-primary">Terms of Use</Link>
+                <Link to="/privacy" className="underline text-primary">Privacy Policy</Link>
+                <Link to="/community-guidelines" className="underline text-primary">Community Guidelines</Link>
+              </div>
               <Check checked={agreeTerms} onChange={setAgreeTerms}>
-                I agree to the{" "}
-                <Link to="/terms" className="underline text-primary">Terms</Link> and{" "}
-                <Link to="/privacy" className="underline text-primary">Privacy Policy</Link>.
-              </Check>
-              <Check checked={agreeMarket} onChange={setAgreeMarket}>
-                I understand PlugU connects students; transactions are between users and PlugU isn't responsible for individual disputes.
+                {POLICY_CONSENT_TEXT}
               </Check>
             </div>
 
             <Feedback err={err} msg={msg} />
             <button
               type="submit"
-              disabled={busy || !(emailCheck && emailCheck.ok) || !agreeTerms || !agreeMarket}
+              disabled={busy || !(emailCheck && emailCheck.ok) || !agreeTerms}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
+
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               {busy ? "Creating account…" : "Create student account"}
             </button>

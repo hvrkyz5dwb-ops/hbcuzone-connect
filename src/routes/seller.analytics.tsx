@@ -170,13 +170,12 @@ function SellerAnalytics() {
             <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">Seller Analytics</p>
             <h1 className="mt-1 text-2xl font-bold plugu-antique-wordmark">Your numbers</h1>
           </div>
-          <Link
-            to="/seller/plans"
-            className="tap text-[10px] tracking-[0.24em] uppercase px-3 py-1.5 rounded-full border border-border bg-card"
+          <span
+            className="text-[10px] tracking-[0.24em] uppercase px-3 py-1.5 rounded-full border border-border bg-card"
             style={{ color: tier.accent }}
           >
             {tier.badge}
-          </Link>
+          </span>
         </div>
 
         {q.isPending ? (

@@ -59,6 +59,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CampusRouteImport } from './routes/campus'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as BlockedRouteImport } from './routes/blocked'
 import { Route as AwardsRouteImport } from './routes/awards'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
@@ -338,6 +339,11 @@ const BookingsRoute = BookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlockedRoute = BlockedRouteImport.update({
+  id: '/blocked',
+  path: '/blocked',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AwardsRoute = AwardsRouteImport.update({
   id: '/awards',
   path: '/awards',
@@ -489,6 +495,7 @@ export interface FileRoutesByFullPath {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/blocked': typeof BlockedRoute
   '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
@@ -569,6 +576,7 @@ export interface FileRoutesByTo {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/blocked': typeof BlockedRoute
   '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
@@ -650,6 +658,7 @@ export interface FileRoutesById {
   '/ambassadors': typeof AmbassadorsRouteWithChildren
   '/auth': typeof AuthRoute
   '/awards': typeof AwardsRoute
+  '/blocked': typeof BlockedRoute
   '/bookings': typeof BookingsRoute
   '/business': typeof BusinessRoute
   '/campus': typeof CampusRoute
@@ -732,6 +741,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/blocked'
     | '/bookings'
     | '/business'
     | '/campus'
@@ -812,6 +822,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/blocked'
     | '/bookings'
     | '/business'
     | '/campus'
@@ -892,6 +903,7 @@ export interface FileRouteTypes {
     | '/ambassadors'
     | '/auth'
     | '/awards'
+    | '/blocked'
     | '/bookings'
     | '/business'
     | '/campus'
@@ -973,6 +985,7 @@ export interface RootRouteChildren {
   AmbassadorsRoute: typeof AmbassadorsRouteWithChildren
   AuthRoute: typeof AuthRoute
   AwardsRoute: typeof AwardsRoute
+  BlockedRoute: typeof BlockedRoute
   BookingsRoute: typeof BookingsRoute
   BusinessRoute: typeof BusinessRoute
   CampusRoute: typeof CampusRoute
@@ -1392,6 +1405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blocked': {
+      id: '/blocked'
+      path: '/blocked'
+      fullPath: '/blocked'
+      preLoaderRoute: typeof BlockedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/awards': {
       id: '/awards'
       path: '/awards'
@@ -1679,6 +1699,7 @@ const rootRouteChildren: RootRouteChildren = {
   AmbassadorsRoute: AmbassadorsRouteWithChildren,
   AuthRoute: AuthRoute,
   AwardsRoute: AwardsRoute,
+  BlockedRoute: BlockedRoute,
   BookingsRoute: BookingsRoute,
   BusinessRoute: BusinessRoute,
   CampusRoute: CampusRoute,

@@ -1,3 +1,4 @@
+import { Ban } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap, Gift } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
@@ -32,7 +33,7 @@ const baseMenu: MenuItem[] = [
   { label: "Orders", icon: ShoppingBag, to: "/orders" },
   { label: "Saved", icon: Heart, to: "/saved" },
   { label: "Payment History", icon: Receipt, to: "/payment-history" },
-  { label: "Manage Plan", icon: CreditCard, to: "/manage-plan" },
+  { label: "Blocked Users", icon: Ban, to: "/blocked" },
   { label: "Referral Center", icon: Gift, to: "/referrals" },
   { label: "Career & Money Hub", icon: Briefcase, to: "/hub" },
   { label: "Trust Center", icon: Scale, to: "/trust" },

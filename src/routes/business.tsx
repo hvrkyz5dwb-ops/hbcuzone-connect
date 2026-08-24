@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import {
   Store, Package, Scissors, Image as ImageIcon, Tag, Calendar,
-  MessageSquare, BarChart3, DollarSign, Rocket, Crown, CreditCard,
+  MessageSquare, BarChart3, DollarSign, CreditCard,
   Plus, X, Upload, ChevronRight, Sparkles, TrendingUp, ArrowRight,
   Receipt,
   type LucideIcon,
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/business")({
   head: () => ({
     meta: [
       { title: "Plug Business Center — PlugU" },
-      { name: "description", content: "Run your hustle: products, services, bookings, orders, messages, analytics, payouts, discounts, boosts, and subscriptions." },
+      { name: "description", content: "Run your hustle: products, services, bookings, orders, messages, analytics and payouts \u2014 all free." },
     ],
   }),
   component: BusinessCenter,
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/business")({
 
 type TabKey =
   | "overview" | "products" | "services" | "orders" | "bookings"
-  | "messages" | "analytics" | "revenue" | "discounts" | "boost" | "plan";
+  | "messages" | "analytics" | "revenue" | "discounts";
 
 const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: "overview", label: "Overview", icon: Sparkles },
@@ -36,8 +36,6 @@ const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: "analytics", label: "Analytics", icon: BarChart3 },
   { key: "revenue", label: "Revenue", icon: DollarSign },
   { key: "discounts", label: "Discounts", icon: Tag },
-  { key: "boost", label: "Boost", icon: Rocket },
-  { key: "plan", label: "Plan", icon: CreditCard },
 ];
 
 /* ---------------- Mock data ---------------- */
@@ -529,67 +527,6 @@ function BusinessCenter() {
           </div>
         )}
 
-        {tab === "boost" && (
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="flex items-center gap-2">
-                <Rocket className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-                <p className="text-sm font-semibold">Boost a listing</p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Push your post to the top of Market and Home feeds on your campus.
-              </p>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {[
-                  { name: "Local", price: "$4", desc: "24 hrs" },
-                  { name: "Campus", price: "$8", desc: "3 days" },
-                  { name: "Takeover", price: "$64", desc: "1 week" },
-                ].map((b) => (
-                  <Link key={b.name} to="/upgrade"
-                    className="rounded-2xl border border-border bg-secondary p-3 text-center hover:border-primary/40 transition-colors">
-                    <p className="text-[10px] tracking-widest uppercase text-muted-foreground">{b.name}</p>
-                    <p className="text-base font-bold mt-0.5" style={{ color: "var(--plugu-gold)" }}>{b.price}</p>
-                    <p className="text-[10px] text-muted-foreground">{b.desc}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <Link to="/upgrade" className="block rounded-2xl border border-primary/40 p-4 relative overflow-hidden">
-              <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-bronze)" }} />
-              <p className="text-[10px] tracking-widest uppercase text-primary-foreground/80">Upgrade</p>
-              <p className="text-sm font-bold text-primary-foreground mt-0.5 flex items-center gap-1">
-                Become a KingPin <Crown className="h-4 w-4" />
-              </p>
-              <p className="text-[11px] text-primary-foreground/85 mt-1">
-                Featured slots, verified badge, deeper analytics & priority payouts.
-              </p>
-            </Link>
-          </div>
-        )}
-
-        {tab === "plan" && (
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-[10px] tracking-widest uppercase text-muted-foreground">Current plan</p>
-              <p className="text-sm font-bold mt-0.5">KingPin Basic · $16/mo</p>
-              <p className="text-[11px] text-muted-foreground mt-1">Renews Nov 14 · Card ending 4242</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Link to="/manage-plan" className="rounded-2xl border border-border bg-card p-3 text-center text-xs font-semibold">
-                Manage plan
-              </Link>
-              <Link to="/payment-history" className="rounded-2xl border border-border bg-card p-3 text-center text-xs font-semibold">
-                Payment history
-              </Link>
-            </div>
-            <Link to="/upgrade" className="block rounded-2xl border border-primary/40 p-4 relative overflow-hidden">
-              <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-bronze)" }} />
-              <p className="text-sm font-bold text-primary-foreground">See all tiers</p>
-              <p className="text-[11px] text-primary-foreground/85 mt-0.5">Local Boost · Campus Featured · KingPin Pro · Network Boost</p>
-            </Link>
-          </div>
-        )}
       </section>
 
       <NewListingSheet open={sheet !== null} onClose={() => setSheet(null)} defaultKind={sheet ?? "product"} />
