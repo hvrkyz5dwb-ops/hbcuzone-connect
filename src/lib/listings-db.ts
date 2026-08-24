@@ -3,6 +3,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { PriceType } from "@/lib/categories";
+import { assertContentAllowed } from "@/lib/content-filter";
 
 export type ListingStatus = "draft" | "active" | "paused" | "sold_out" | "removed";
 export type ModerationStatus = "pending" | "approved" | "rejected";
@@ -205,6 +206,7 @@ export async function createListing(input: ListingInput): Promise<string> {
   const { data: session } = await supabase.auth.getUser();
   const userId = session.user?.id;
   if (!userId) throw new Error("Sign in to publish a listing");
+  assertContentAllowed(`${input.title}\n${input.description ?? ""}`);
 
   const { data: row, error } = await supabase
     .from("listings")
@@ -238,6 +240,7 @@ export async function createListing(input: ListingInput): Promise<string> {
 }
 
 export async function updateListing(id: string, patch: Partial<ListingInput>): Promise<void> {
+  assertContentAllowed(`${patch.title ?? ""}\n${patch.description ?? ""}`);
   const { images: _img, ...rest } = patch;
   void _img;
   if (Object.keys(rest).length > 0) {
