@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Star, ShieldCheck, Flag, Trash2, Loader2 } from "lucide-react";
+import { Star, ShieldCheck, Trash2, Loader2 } from "lucide-react";
+import { ContentMenu } from "@/components/ContentMenu";
 import { toast } from "sonner";
-import { fetchReviewsForUser, reportReview, adminDeleteReview, type VerifiedReview } from "@/lib/reviews-db";
+import { fetchReviewsForUser, adminDeleteReview, type VerifiedReview } from "@/lib/reviews-db";
 import { ErrorState } from "@/components/QueryStates";
 
 export function ReviewsList({ userId, isAdmin = false }: { userId: string; isAdmin?: boolean }) {
@@ -45,14 +46,6 @@ function ReviewCard({ review, isAdmin, onChanged }: { review: VerifiedReview; is
   const [busy, setBusy] = useState(false);
   const label = review.verification_kind === "verified_booking" ? "Verified booking" : "Verified purchase";
 
-  async function onReport() {
-    const reason = window.prompt("Why are you reporting this review?");
-    if (!reason) return;
-    setBusy(true);
-    try { await reportReview(review.id, reason); toast.success("Report submitted"); }
-    catch (err) { toast.error("Couldn't report", { description: (err as Error).message }); }
-    finally { setBusy(false); }
-  }
   async function onDelete() {
     if (!window.confirm("Remove this review?")) return;
     setBusy(true);
@@ -78,9 +71,12 @@ function ReviewCard({ review, isAdmin, onChanged }: { review: VerifiedReview; is
       <div className="mt-2 flex items-center justify-between">
         <p className="text-[10px] text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</p>
         <div className="flex items-center gap-3">
-          <button onClick={onReport} disabled={busy} className="tap inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-accent">
-            <Flag className="h-3 w-3"/> Report
-          </button>
+          <ContentMenu
+            targetType="review"
+            targetId={review.id}
+            targetLabel={review.body ?? `${review.rating}-star review`}
+            authorUserId={review.reviewer_user_id}
+          />
           {isAdmin && (
             <button onClick={onDelete} disabled={busy} className="tap inline-flex items-center gap-1 text-[10px] text-accent">
               <Trash2 className="h-3 w-3"/> Remove

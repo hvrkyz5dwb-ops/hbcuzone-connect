@@ -1,17 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
+import { hideContent } from "@/lib/ugc-safety";
 
-export type ReportTargetType = "user" | "listing" | "message" | "review" | "order" | "business" | "event" | "post" | "comment";
+export type ReportTargetType =
+  | "user" | "listing" | "message" | "review" | "order" | "business"
+  | "event" | "post" | "comment" | "image";
 
+// Reason set required by App Review.
 export const REPORT_REASONS = [
+  { key: "harassment", label: "Harassment or bullying" },
+  { key: "hate_speech", label: "Hate speech" },
+  { key: "sexual", label: "Sexual or inappropriate content" },
+  { key: "violence", label: "Violence or threats" },
+  { key: "drugs", label: "Drugs or illegal activity" },
   { key: "scam_fraud", label: "Scam or fraud" },
-  { key: "harassment", label: "Harassment" },
-  { key: "prohibited_item", label: "Prohibited item" },
-  { key: "inappropriate", label: "Inappropriate content" },
-  { key: "fake_account", label: "Fake account" },
-  { key: "unsafe", label: "Unsafe behavior" },
-  { key: "non_delivery", label: "Non-delivery" },
-  { key: "wrong_item", label: "Incorrect item or service" },
-  { key: "payment", label: "Payment issue" },
+  { key: "spam", label: "Spam" },
   { key: "other", label: "Other" },
 ] as const;
 
@@ -32,41 +34,79 @@ export const PROHIBITED_ITEMS = [
   "Any illegal product or service",
 ] as const;
 
+export class DuplicateReportError extends Error {
+  constructor() {
+    super("You already reported this. Our safety team is reviewing it.");
+    this.name = "DuplicateReportError";
+  }
+}
+
+async function currentUserId() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+export async function hasReported(targetType: ReportTargetType, targetId: string) {
+  const uid = await currentUserId();
+  if (!uid) return false;
+  const { data } = await supabase
+    .from("reports")
+    .select("id")
+    .eq("reporter_user_id", uid)
+    .eq("target_type", targetType)
+    .eq("target_id", targetId)
+    .maybeSingle();
+  return !!data;
+}
+
 export async function submitReport(input: {
   targetType: ReportTargetType;
   targetId: string;
   reason: ReportReason;
   details?: string;
+  reportedUserId?: string | null;
 }) {
-  const { data: sess } = await supabase.auth.getSession();
-  const uid = sess.session?.user.id;
+  const uid = await currentUserId();
   if (!uid) throw new Error("Sign in to report");
   const label = REPORT_REASONS.find((r) => r.key === input.reason)?.label ?? input.reason;
-  const reason = [label, (input.details ?? "").trim()].filter(Boolean).join(" — ").slice(0, 1000);
-  const { error } = await supabase.from("reports").insert({
+  const details = (input.details ?? "").trim().slice(0, 800);
+  const reason = [label, details].filter(Boolean).join(" — ").slice(0, 1000);
+
+  const { error } = await (supabase as any).from("reports").insert({
     reporter_user_id: uid,
+    reported_user_id: input.reportedUserId ?? null,
     target_type: input.targetType,
     target_id: input.targetId,
     reason,
+    reason_code: input.reason,
+    details: details || null,
     status: "open",
   });
-  if (error) throw error;
+
+  if (error) {
+    if ((error as { code?: string }).code === "23505") throw new DuplicateReportError();
+    throw error;
+  }
+
+  // Hide the reported content from the reporter immediately.
+  hideContent(input.targetType, input.targetId);
 }
 
 export async function blockUser(otherUserId: string) {
-  const { data: sess } = await supabase.auth.getSession();
-  const uid = sess.session?.user.id;
+  const uid = await currentUserId();
   if (!uid) throw new Error("Sign in to block");
   if (uid === otherUserId) throw new Error("You can't block yourself");
   const { error } = await supabase
     .from("blocked_users")
-    .upsert({ blocker_user_id: uid, blocked_user_id: otherUserId }, { onConflict: "blocker_user_id,blocked_user_id" });
+    .upsert(
+      { blocker_user_id: uid, blocked_user_id: otherUserId },
+      { onConflict: "blocker_user_id,blocked_user_id" },
+    );
   if (error) throw error;
 }
 
 export async function unblockUser(otherUserId: string) {
-  const { data: sess } = await supabase.auth.getSession();
-  const uid = sess.session?.user.id;
+  const uid = await currentUserId();
   if (!uid) throw new Error("Sign in required");
   const { error } = await supabase
     .from("blocked_users")
@@ -74,6 +114,52 @@ export async function unblockUser(otherUserId: string) {
     .eq("blocker_user_id", uid)
     .eq("blocked_user_id", otherUserId);
   if (error) throw error;
+}
+
+export type BlockedUser = {
+  user_id: string;
+  created_at: string;
+  username: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+export async function fetchBlockedUserIds(): Promise<string[]> {
+  const uid = await currentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from("blocked_users")
+    .select("blocked_user_id")
+    .eq("blocker_user_id", uid);
+  if (error) return [];
+  return (data ?? []).map((r) => r.blocked_user_id as string);
+}
+
+export async function fetchBlockedUsers(): Promise<BlockedUser[]> {
+  const uid = await currentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from("blocked_users")
+    .select("blocked_user_id, created_at")
+    .eq("blocker_user_id", uid)
+    .order("created_at", { ascending: false });
+  if (error || !data?.length) return [];
+  const ids = data.map((r) => r.blocked_user_id as string);
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url")
+    .in("id", ids);
+  const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+  return data.map((r) => {
+    const p = byId.get(r.blocked_user_id as string) as any;
+    return {
+      user_id: r.blocked_user_id as string,
+      created_at: r.created_at as string,
+      username: p?.username ?? null,
+      display_name: p?.display_name ?? null,
+      avatar_url: p?.avatar_url ?? null,
+    };
+  });
 }
 
 export type AdminAction =

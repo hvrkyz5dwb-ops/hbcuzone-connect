@@ -108,11 +108,20 @@ function SettingsPage() {
         </div>
       </section>
 
-      {/* Billing & Trust */}
+      {/* Privacy & Safety */}
       <section className="mt-5 px-5">
-        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Billing & Trust</h2>
+        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Privacy & Safety</h2>
         <div className="rounded-2xl bg-card border border-border divide-y divide-border">
-          <LinkRow to="/manage-plan" icon={CreditCard} label="Manage plan" />
+          <LinkRow to="/blocked" icon={Ban} label="Blocked users" />
+          <LinkRow to="/community-guidelines" icon={FileText} label="Community Guidelines" />
+          <LinkRow to="/report-problem" icon={FileWarning} label="Report content or a user" />
+        </div>
+      </section>
+
+      {/* Purchases & Trust */}
+      <section className="mt-5 px-5">
+        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Purchases & Trust</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
           <LinkRow to="/payment-history" icon={CreditCard} label="Payment history" />
           <LinkRow to="/trust" icon={Scale} label="Trust Center" />
           <LinkRow to="/safety" icon={ShieldAlert} label="Safety & tools" />

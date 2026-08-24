@@ -13,6 +13,8 @@ import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { OnboardingExperience } from "@/components/OnboardingExperience";
 import { CoachMarks } from "@/components/CoachMarks";
 import { AchievementBurst } from "@/components/AchievementBurst";
+import { TermsGate } from "@/components/TermsGate";
+
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
 import { useProfile } from "@/hooks/use-profile";
@@ -80,7 +82,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     });
     quickActions.push({
       to: "/promote", label: "Promote an event", icon: Megaphone,
-      hint: "Pin it to the campus map. Boost to feature it.",
+      hint: "Pin it to the campus map — free for every student.",
     });
     quickActions.push({
       to: "/seller", label: "Open seller dashboard", icon: LayoutDashboard,
@@ -102,7 +104,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     });
     quickActions.push({
       to: "/promote", label: "Promote an event", icon: Megaphone,
-      hint: "Pin it to the campus map. Boost to feature it.",
+      hint: "Pin it to the campus map — free for every student.",
     });
   }
   // AI-style HBCU detection: trust the stored flag, but always re-derive from
@@ -173,7 +175,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     if (typeof window === "undefined") return;
     if (sessionLoading) return;
     // Public surfaces that anyone can see. Everything else requires a session.
-    const publicRoutes = ["/", "/auth", "/reset-password", "/terms", "/privacy"];
+    // Public surfaces that must work without a login (App Review 1.5).
+    const publicRoutes = [
+      "/", "/auth", "/login", "/signup", "/reset-password",
+      "/terms", "/privacy", "/community-guidelines", "/prohibited-items",
+      "/support", "/safety", "/refunds", "/seller-agreement",
+    ];
+
     const isPublic =
       publicRoutes.includes(pathname) ||
       pathname.startsWith("/api/") ||
@@ -408,7 +416,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         </div>
       )}
 
+      <TermsGate />
       <Toaster position="top-center" />
+
       {showSplash && (
         <SplashScreen
           onDone={() => {

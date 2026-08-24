@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock, Flag, EyeOff } from "lucide-react";
-import { ReportDialog } from "@/components/ReportDialog";
-import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted } from "@/lib/ugc-safety";
+import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock } from "lucide-react";
+import { ContentMenu } from "@/components/ContentMenu";
+import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted, isContentHidden } from "@/lib/ugc-safety";
+import { screenContent } from "@/lib/content-filter";
 import { toast } from "sonner";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -42,14 +43,16 @@ export function CommunityBoard() {
   const [visibility, setVisibility] = useState<"campus" | "public">("campus");
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
-  const [reportTarget, setReportTarget] = useState<{ id: string; label: string } | null>(null);
   const [safetyTick, setSafetyTick] = useState(0);
 
   useEffect(() => {
     const refresh = () =>
       setPosts(
         listCommunityPosts(school.name).filter(
-          (p) => !isPostHidden(p.id) && !isAuthorMuted(p.author),
+          (p) =>
+            !isPostHidden(p.id) &&
+            !isContentHidden("post", p.id) &&
+            !isAuthorMuted(p.author),
         ),
       );
     refresh();
@@ -60,6 +63,11 @@ export function CommunityBoard() {
     const t = text.trim();
     if (!t) return;
     if (t.length > MAX_POST) { toast.error(`Keep it under ${MAX_POST} characters`); return; }
+    const screened = screenContent(t);
+    if (!screened.ok) {
+      toast.error(`Post blocked — ${screened.category}`, { description: screened.reason });
+      return;
+    }
     addCommunityPost({ school: school.name, author: authorName, text: t, visibility });
     setText("");
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
@@ -69,6 +77,11 @@ export function CommunityBoard() {
     const t = (commentDrafts[postId] || "").trim();
     if (!t) return;
     if (t.length > MAX_COMMENT) { toast.error(`Comment under ${MAX_COMMENT} chars`); return; }
+    const screened = screenContent(t);
+    if (!screened.ok) {
+      toast.error(`Comment blocked — ${screened.category}`, { description: screened.reason });
+      return;
+    }
     addComment(postId, authorName, t);
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
   };
@@ -187,37 +200,23 @@ export function CommunityBoard() {
                         {p.comments.length}
                       </button>
                       {!mine && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setReportTarget({ id: p.id, label: p.text.slice(0, 60) })}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            <Flag className="h-3.5 w-3.5" /> Report
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              hideCommunityPost(p.id);
-                              setSafetyTick((n) => n + 1);
-                              toast.message("Post hidden", { description: "You won't see this post again." });
-                            }}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            <EyeOff className="h-3.5 w-3.5" /> Hide
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              muteAuthor(p.author);
-                              setSafetyTick((n) => n + 1);
-                              toast.message(`Blocked ${p.author}`, { description: "Their posts are hidden for you." });
-                            }}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            Block
-                          </button>
-                        </>
+                        <ContentMenu
+                          targetType="post"
+                          targetId={p.id}
+                          targetLabel={p.text.slice(0, 60)}
+                          authorLabel={p.author}
+                          onHidden={() => setSafetyTick((n) => n + 1)}
+                          extraActions={[
+                            {
+                              label: `Block ${p.author}`,
+                              onSelect: () => {
+                                hideCommunityPost(p.id);
+                                muteAuthor(p.author);
+                                toast.message(`Blocked ${p.author}`, { description: "Their posts are hidden for you." });
+                              },
+                            },
+                          ]}
+                        />
                       )}
                       {mine && (
                         <button
@@ -274,13 +273,7 @@ export function CommunityBoard() {
         offending posts and accounts are removed.
       </p>
 
-      <ReportDialog
-        open={!!reportTarget}
-        onClose={() => setReportTarget(null)}
-        targetType="post"
-        targetId={reportTarget?.id ?? ""}
-        targetLabel={reportTarget?.label}
-      />
+
     </section>
   );
 }

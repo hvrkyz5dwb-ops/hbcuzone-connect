@@ -1,18 +1,26 @@
 import { useState } from "react";
 import { X, Flag, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { REPORT_REASONS, submitReport, type ReportReason, type ReportTargetType } from "@/lib/moderation";
+import {
+  REPORT_REASONS,
+  submitReport,
+  DuplicateReportError,
+  type ReportReason,
+  type ReportTargetType,
+} from "@/lib/moderation";
 
 export function ReportDialog({
-  open, onClose, targetType, targetId, targetLabel,
+  open, onClose, targetType, targetId, targetLabel, reportedUserId, onReported,
 }: {
   open: boolean;
   onClose: () => void;
   targetType: ReportTargetType;
   targetId: string;
   targetLabel?: string;
+  reportedUserId?: string | null;
+  onReported?: () => void;
 }) {
-  const [reason, setReason] = useState<ReportReason>("scam_fraud");
+  const [reason, setReason] = useState<ReportReason>("harassment");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -20,14 +28,24 @@ export function ReportDialog({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
     try {
-      await submitReport({ targetType, targetId, reason, details });
-      toast.success("Report submitted", { description: "Our team will review shortly." });
+      await submitReport({ targetType, targetId, reason, details, reportedUserId });
+      toast.success("Report received", {
+        description: "Our safety team will review it. This content is now hidden from you.",
+      });
+      onReported?.();
       onClose();
       setDetails("");
     } catch (err) {
-      toast.error("Couldn't send report", { description: (err as Error).message });
+      if (err instanceof DuplicateReportError) {
+        toast("Already reported", { description: err.message });
+        onReported?.();
+        onClose();
+      } else {
+        toast.error("Couldn't send report", { description: (err as Error).message });
+      }
     } finally {
       setBusy(false);
     }
@@ -38,7 +56,7 @@ export function ReportDialog({
       <form
         onSubmit={onSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-3xl border border-border bg-card p-5 space-y-4"
+        className="w-full max-w-md rounded-3xl border border-border bg-card p-5 space-y-4 max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-start justify-between">
           <div>
@@ -48,7 +66,7 @@ export function ReportDialog({
             <h2 className="mt-1 text-lg font-bold capitalize">Report this {targetType}</h2>
             {targetLabel && <p className="text-xs text-muted-foreground truncate">{targetLabel}</p>}
           </div>
-          <button type="button" onClick={onClose} className="tap p-1 text-muted-foreground"><X className="h-5 w-5"/></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="tap p-1 text-muted-foreground"><X className="h-5 w-5"/></button>
         </div>
 
         <div>
@@ -59,6 +77,7 @@ export function ReportDialog({
                 key={r.key}
                 type="button"
                 onClick={() => setReason(r.key)}
+                aria-pressed={reason === r.key}
                 className={`px-3 py-1.5 rounded-full text-[11px] border ${
                   reason === r.key
                     ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
@@ -94,7 +113,7 @@ export function ReportDialog({
         </button>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          Reports are confidential. Abuse of the reporting system may result in suspension.
+          Reports are confidential and reviewed by our safety team. Abuse of the reporting system may result in suspension.
         </p>
       </form>
     </div>

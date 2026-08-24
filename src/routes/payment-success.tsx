@@ -121,8 +121,8 @@ function Success() {
 
         <div className="mt-6 grid gap-2 max-w-xs mx-auto">
           {(state === "unpaid" || state === "error") && (
-            <Link to="/upgrade" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
-              Back to plans
+            <Link to="/orders" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+              Back to my orders
             </Link>
           )}
           {state === "error" && (
@@ -131,8 +131,8 @@ function Success() {
             </Link>
           )}
           {(state === "paid" || state === "idle") && (
-            <Link to="/manage-plan" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
-              View my plan
+            <Link to="/orders" className="py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium">
+              View my orders
             </Link>
           )}
           <Link to="/" className="py-3 rounded-2xl bg-card border border-border text-sm">

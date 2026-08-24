@@ -1,6 +1,7 @@
 // PlugU Pulse data layer — live campus activity built from real rows only.
 // Availability, Drops / Flash Drops, campus zones and aggregated heat data.
 import { supabase } from "@/integrations/supabase/client";
+import { assertContentAllowed } from "@/lib/content-filter";
 
 export type AvailabilityRow = {
   id: string;
@@ -171,6 +172,7 @@ export type DropInput = {
 };
 
 export async function createDrop(userId: string, schoolId: string | null, input: DropInput) {
+  assertContentAllowed(input.body ?? "");
   const { data, error } = await supabase
     .from("drops")
     .insert({
