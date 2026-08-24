@@ -19,10 +19,12 @@ type Props = {
   /** Called after report/block/hide so the parent can drop the item locally. */
   onHidden?: () => void;
   className?: string;
+  /** Extra menu entries (e.g. mute a local author). */
+  extraActions?: { label: string; onSelect: () => void }[];
 };
 
 export function ContentMenu({
-  targetType, targetId, targetLabel, authorUserId, authorLabel, onHidden, className,
+  targetType, targetId, targetLabel, authorUserId, authorLabel, onHidden, className, extraActions,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -99,6 +101,16 @@ export function ContentMenu({
           >
             <EyeOff className="h-4 w-4 text-muted-foreground" /> Hide this
           </button>
+          {(extraActions ?? []).map((a) => (
+            <button
+              key={a.label}
+              type="button"
+              onClick={() => { setOpen(false); a.onSelect(); onHidden?.(); }}
+              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm hover:bg-secondary border-t border-border"
+            >
+              <Ban className="h-4 w-4 text-muted-foreground" /> {a.label}
+            </button>
+          ))}
           {authorUserId && !isSelf && (
             <button
               type="button"
