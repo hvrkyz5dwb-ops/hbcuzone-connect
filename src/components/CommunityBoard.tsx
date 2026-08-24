@@ -43,7 +43,6 @@ export function CommunityBoard() {
   const [visibility, setVisibility] = useState<"campus" | "public">("campus");
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
-  const [reportTarget, setReportTarget] = useState<{ id: string; label: string } | null>(null);
   const [safetyTick, setSafetyTick] = useState(0);
 
   useEffect(() => {
@@ -201,37 +200,23 @@ export function CommunityBoard() {
                         {p.comments.length}
                       </button>
                       {!mine && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setReportTarget({ id: p.id, label: p.text.slice(0, 60) })}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            <Flag className="h-3.5 w-3.5" /> Report
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              hideCommunityPost(p.id);
-                              setSafetyTick((n) => n + 1);
-                              toast.message("Post hidden", { description: "You won't see this post again." });
-                            }}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            <EyeOff className="h-3.5 w-3.5" /> Hide
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              muteAuthor(p.author);
-                              setSafetyTick((n) => n + 1);
-                              toast.message(`Blocked ${p.author}`, { description: "Their posts are hidden for you." });
-                            }}
-                            className="tap inline-flex items-center gap-1 text-xs text-muted-foreground"
-                          >
-                            Block
-                          </button>
-                        </>
+                        <ContentMenu
+                          targetType="post"
+                          targetId={p.id}
+                          targetLabel={p.text.slice(0, 60)}
+                          authorLabel={p.author}
+                          onHidden={() => setSafetyTick((n) => n + 1)}
+                          extraActions={[
+                            {
+                              label: `Block ${p.author}`,
+                              onSelect: () => {
+                                hideCommunityPost(p.id);
+                                muteAuthor(p.author);
+                                toast.message(`Blocked ${p.author}`, { description: "Their posts are hidden for you." });
+                              },
+                            },
+                          ]}
+                        />
                       )}
                       {mine && (
                         <button
@@ -288,13 +273,7 @@ export function CommunityBoard() {
         offending posts and accounts are removed.
       </p>
 
-      <ReportDialog
-        open={!!reportTarget}
-        onClose={() => setReportTarget(null)}
-        targetType="post"
-        targetId={reportTarget?.id ?? ""}
-        targetLabel={reportTarget?.label}
-      />
+
     </section>
   );
 }
