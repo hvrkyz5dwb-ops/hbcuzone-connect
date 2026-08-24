@@ -69,12 +69,15 @@ export async function submitReport(input: {
   reason: ReportReason;
   details?: string;
   reportedUserId?: string | null;
+  /** Copy of the reported content, stored so moderators can act even if it is edited or deleted. */
+  snapshot?: string | null;
 }) {
   const uid = await currentUserId();
   if (!uid) throw new Error("Sign in to report");
   const label = REPORT_REASONS.find((r) => r.key === input.reason)?.label ?? input.reason;
   const details = (input.details ?? "").trim().slice(0, 800);
   const reason = [label, details].filter(Boolean).join(" — ").slice(0, 1000);
+  const snapshot = (input.snapshot ?? "").trim().slice(0, 4000) || null;
 
   const { error } = await (supabase as any).from("reports").insert({
     reporter_user_id: uid,
@@ -84,17 +87,29 @@ export async function submitReport(input: {
     reason,
     reason_code: input.reason,
     details: details || null,
+    content_snapshot: snapshot,
     status: "open",
   });
 
   if (error) {
-    if ((error as { code?: string }).code === "23505") throw new DuplicateReportError();
+    if ((error as { code?: string }).code === "23505") {
+      // Let the student add new information to the report they already filed.
+      await (supabase as any)
+        .from("reports")
+        .update({ reason, details: details || null, content_snapshot: snapshot })
+        .eq("reporter_user_id", uid)
+        .eq("target_type", input.targetType)
+        .eq("target_id", input.targetId);
+      hideContent(input.targetType, input.targetId);
+      throw new DuplicateReportError();
+    }
     throw error;
   }
 
   // Hide the reported content from the reporter immediately.
   hideContent(input.targetType, input.targetId);
 }
+
 
 export async function blockUser(otherUserId: string) {
   const uid = await currentUserId();
