@@ -60,6 +60,14 @@ function EditProfile() {
       return;
     }
     setSaving(true);
+    try {
+      await screenBeforePublish("profile", `${displayName}\n${username}\n${bio}`, profile.id);
+    } catch (e) {
+      setErr((e as Error).message);
+      setSaving(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("profiles")
       .update({
