@@ -202,15 +202,17 @@ function PublicSupportForm({ defaultSubject }: { defaultSubject: string }) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [ticket, setTicket] = useState<string | null>(null);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sending) return;
     setSending(true);
     try {
-      await submitPublicSupportMessage({
+      const res = await submitPublicSupportMessage({
         data: { name: name.trim(), email: email.trim(), category, subject: subject.trim(), message: message.trim() },
       });
+      setTicket(res?.ticketCode ?? null);
       setSent(true);
       setName(""); setEmail(""); setSubject(""); setMessage("");
       toast.success("Support request sent");
@@ -265,7 +267,8 @@ function PublicSupportForm({ defaultSubject }: { defaultSubject: string }) {
       </button>
       {sent && (
         <p className="text-xs text-emerald-300 inline-flex items-center gap-1">
-          <CheckCircle2 className="h-3.5 w-3.5" /> Request received. We'll reply by email {SUPPORT_RESPONSE_TIME}.
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Request received{ticket ? ` — ticket ${ticket}` : ""}. We'll reply by email {SUPPORT_RESPONSE_TIME}.
         </p>
       )}
     </form>
