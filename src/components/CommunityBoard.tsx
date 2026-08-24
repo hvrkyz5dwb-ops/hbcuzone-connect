@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock, Flag, EyeOff } from "lucide-react";
-import { ReportDialog } from "@/components/ReportDialog";
-import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted } from "@/lib/ugc-safety";
+import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock } from "lucide-react";
+import { ContentMenu } from "@/components/ContentMenu";
+import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted, isContentHidden } from "@/lib/ugc-safety";
+import { screenContent } from "@/lib/content-filter";
 import { toast } from "sonner";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
@@ -49,7 +50,10 @@ export function CommunityBoard() {
     const refresh = () =>
       setPosts(
         listCommunityPosts(school.name).filter(
-          (p) => !isPostHidden(p.id) && !isAuthorMuted(p.author),
+          (p) =>
+            !isPostHidden(p.id) &&
+            !isContentHidden("post", p.id) &&
+            !isAuthorMuted(p.author),
         ),
       );
     refresh();
@@ -60,6 +64,11 @@ export function CommunityBoard() {
     const t = text.trim();
     if (!t) return;
     if (t.length > MAX_POST) { toast.error(`Keep it under ${MAX_POST} characters`); return; }
+    const screened = screenContent(t);
+    if (!screened.ok) {
+      toast.error(`Post blocked — ${screened.category}`, { description: screened.reason });
+      return;
+    }
     addCommunityPost({ school: school.name, author: authorName, text: t, visibility });
     setText("");
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
@@ -69,6 +78,11 @@ export function CommunityBoard() {
     const t = (commentDrafts[postId] || "").trim();
     if (!t) return;
     if (t.length > MAX_COMMENT) { toast.error(`Comment under ${MAX_COMMENT} chars`); return; }
+    const screened = screenContent(t);
+    if (!screened.ok) {
+      toast.error(`Comment blocked — ${screened.category}`, { description: screened.reason });
+      return;
+    }
     addComment(postId, authorName, t);
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
   };
