@@ -4,6 +4,7 @@
 // consumers can subscribe for live updates.
 
 import { supabase } from "@/integrations/supabase/client";
+import { assertContentAllowed } from "@/lib/content-filter";
 
 export type DbMessage = {
   id: string;
