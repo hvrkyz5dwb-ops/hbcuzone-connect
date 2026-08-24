@@ -24,6 +24,8 @@ export function EventDetailSheet({
   const comments = useEventComments(event.id);
   const [body, setBody] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
+  const [showMyRsvp, setShowMyRsvp] = useState(false);
+  const { isAdmin } = useIsAdmin();
   const mine = user?.id === event.creator_user_id;
 
   async function share() {
