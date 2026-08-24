@@ -123,6 +123,16 @@ export function EventDetailSheet({
               <Pencil className="h-3 w-3" /> You host this event — only you can edit or delete it.
             </p>
           )}
+          <p className="mt-3 flex items-start gap-2 rounded-2xl border border-border bg-secondary/50 p-3 text-[11px] leading-relaxed text-muted-foreground">
+            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <span>
+              <span className="font-semibold text-foreground">Attendee lists are private.</span>{" "}
+              {mine
+                ? "Only you as the host can see who RSVP'd. Everyone else sees just the total going count."
+                : "Nobody can see who else RSVP'd — only the total going count is public. Your own RSVP stays visible to you and the host, and you can review or cancel it anytime."}
+            </span>
+          </p>
+
 
           <h3 className="mt-6 text-sm font-semibold">Comments</h3>
           <ul className="mt-2 space-y-2">
