@@ -5,6 +5,7 @@ import {
 import { toast } from "sonner";
 import { ReportDialog } from "@/components/ReportDialog";
 import { useSession } from "@/hooks/use-session";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { useEventComments, useEventMutations, useRsvpToggle } from "@/hooks/use-campus";
 import { calendarUrl, categoryMeta, type CampusEvent } from "@/lib/campus-db";
 
@@ -24,6 +25,8 @@ export function EventDetailSheet({
   const comments = useEventComments(event.id);
   const [body, setBody] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
+  const [showMyRsvp, setShowMyRsvp] = useState(false);
+  const { isAdmin } = useIsAdmin();
   const mine = user?.id === event.creator_user_id;
 
   async function share() {
@@ -123,15 +126,54 @@ export function EventDetailSheet({
               <Pencil className="h-3 w-3" /> You host this event — only you can edit or delete it.
             </p>
           )}
-          <p className="mt-3 flex items-start gap-2 rounded-2xl border border-border bg-secondary/50 p-3 text-[11px] leading-relaxed text-muted-foreground">
-            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-            <span>
-              <span className="font-semibold text-foreground">Attendee lists are private.</span>{" "}
-              {mine
-                ? "Only you as the host can see who RSVP'd. Everyone else sees just the total going count."
-                : "Nobody can see who else RSVP'd — only the total going count is public. Your own RSVP stays visible to you and the host, and you can review or cancel it anytime."}
-            </span>
-          </p>
+          <section
+            aria-labelledby="rsvp-privacy-heading"
+            className="mt-3 rounded-2xl border border-border bg-secondary/60 p-3"
+          >
+            <h3 id="rsvp-privacy-heading" className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <Lock className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+              Attendee lists are private
+            </h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+              Only the total going count is public. Nobody can see who else RSVP'd.
+            </p>
+
+            {(mine || isAdmin) && (
+              <p className="mt-2 rounded-xl border border-primary/40 bg-primary/10 p-2.5 text-xs leading-relaxed text-foreground">
+                <span className="font-semibold">{mine ? "Host access" : "Admin access"}:</span>{" "}
+                you can view the full attendee list for this event. Keep it confidential — don't share or
+                republish attendee names.
+              </p>
+            )}
+
+            {going && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowMyRsvp((v) => !v)}
+                  aria-expanded={showMyRsvp}
+                  aria-controls="my-rsvp-details"
+                  className="tap mt-2 inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-primary underline underline-offset-4"
+                >
+                  {showMyRsvp ? "Hide my RSVP" : "View my RSVP"}
+                </button>
+                <div
+                  id="my-rsvp-details"
+                  hidden={!showMyRsvp}
+                  className="mt-1 rounded-xl border border-border bg-background/70 p-3 text-xs leading-relaxed text-foreground"
+                >
+                  <p className="font-semibold">You're going to {event.title}</p>
+                  <p className="mt-1 text-muted-foreground">{fmt(event.starts_at)}</p>
+                  <p className="text-muted-foreground">{event.location || "Location TBA"}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Visible only to you{event.host_name ? ` and the host (${event.host_name})` : " and the host"}.
+                    You can cancel it anytime with “Remove RSVP”.
+                  </p>
+                </div>
+              </>
+            )}
+          </section>
+
 
 
           <h3 className="mt-6 text-sm font-semibold">Comments</h3>
