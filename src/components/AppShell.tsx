@@ -249,7 +249,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 mb-safe"
           style={
             keyboardOffset
-              ? { transform: `translateY(-${keyboardOffset}px)`, marginBottom: 0 }
+              ? {
+                  // Keep the horizontal centering: overriding `transform`
+                  // without translateX(-50%) shoved the tab bar off-screen
+                  // whenever the keyboard opened.
+                  transform: `translate(-50%, -${keyboardOffset}px)`,
+                  marginBottom: 0,
+                }
               : undefined
           }
         >
