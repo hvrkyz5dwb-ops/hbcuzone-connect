@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { assertContentAllowed } from "@/lib/content-filter";
+import { screenBeforePublish } from "@/lib/screen";
 
 export type VerifiedReview = {
   id: string;
@@ -47,7 +47,7 @@ export async function submitReview(input: {
   if (!uid) throw new Error("Sign in to leave a review");
   const rating = Math.max(1, Math.min(5, Math.round(input.rating)));
   const body = (input.body ?? "").trim().slice(0, 1000);
-  assertContentAllowed(body);
+  await screenBeforePublish("review", body, input.orderId);
   const { data, error } = await supabase
     .from("reviews")
     .upsert(

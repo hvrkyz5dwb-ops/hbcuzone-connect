@@ -10,7 +10,7 @@ import {
 } from "@/lib/moderation";
 
 export function ReportDialog({
-  open, onClose, targetType, targetId, targetLabel, reportedUserId, onReported,
+  open, onClose, targetType, targetId, targetLabel, reportedUserId, snapshot, onReported,
 }: {
   open: boolean;
   onClose: () => void;
@@ -18,6 +18,7 @@ export function ReportDialog({
   targetId: string;
   targetLabel?: string;
   reportedUserId?: string | null;
+  snapshot?: string | null;
   onReported?: () => void;
 }) {
   const [reason, setReason] = useState<ReportReason>("harassment");
@@ -31,7 +32,7 @@ export function ReportDialog({
     if (busy) return;
     setBusy(true);
     try {
-      await submitReport({ targetType, targetId, reason, details, reportedUserId });
+      await submitReport({ targetType, targetId, reason, details, reportedUserId, snapshot: snapshot ?? targetLabel ?? null });
       toast.success("Report received", {
         description: "Our safety team will review it. This content is now hidden from you.",
       });

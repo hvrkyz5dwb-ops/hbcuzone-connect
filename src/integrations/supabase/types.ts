@@ -917,6 +917,51 @@ export type Database = {
           },
         ]
       }
+      moderation_queue: {
+        Row: {
+          author_user_id: string | null
+          category: string
+          content_id: string | null
+          content_text: string
+          content_type: string
+          created_at: string
+          decision: string
+          id: string
+          reviewed_at: string | null
+          reviewer_note: string | null
+          reviewer_user_id: string | null
+          status: string
+        }
+        Insert: {
+          author_user_id?: string | null
+          category: string
+          content_id?: string | null
+          content_text: string
+          content_type: string
+          created_at?: string
+          decision?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewer_note?: string | null
+          reviewer_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          author_user_id?: string | null
+          category?: string
+          content_id?: string | null
+          content_text?: string
+          content_type?: string
+          created_at?: string
+          decision?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewer_note?: string | null
+          reviewer_user_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           bookings: boolean
@@ -1485,6 +1530,7 @@ export type Database = {
           name: string
           status: string
           subject: string
+          ticket_code: string | null
         }
         Insert: {
           category?: string
@@ -1495,6 +1541,7 @@ export type Database = {
           name: string
           status?: string
           subject: string
+          ticket_code?: string | null
         }
         Update: {
           category?: string
@@ -1505,44 +1552,57 @@ export type Database = {
           name?: string
           status?: string
           subject?: string
+          ticket_code?: string | null
         }
         Relationships: []
       }
       reports: {
         Row: {
+          content_snapshot: string | null
           created_at: string
           details: string | null
           id: string
+          moderation_note: string | null
           reason: string
           reason_code: string | null
           reported_user_id: string | null
           reporter_user_id: string
+          resolved_at: string | null
+          resolved_by: string | null
           status: string
           target_id: string
           target_type: string
           updated_at: string
         }
         Insert: {
+          content_snapshot?: string | null
           created_at?: string
           details?: string | null
           id?: string
+          moderation_note?: string | null
           reason: string
           reason_code?: string | null
           reported_user_id?: string | null
           reporter_user_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
           target_id: string
           target_type: string
           updated_at?: string
         }
         Update: {
+          content_snapshot?: string | null
           created_at?: string
           details?: string | null
           id?: string
+          moderation_note?: string | null
           reason?: string
           reason_code?: string | null
           reported_user_id?: string | null
           reporter_user_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
           target_id?: string
           target_type?: string
@@ -2210,6 +2270,10 @@ export type Database = {
           remaining: number
         }[]
       }
+      conversation_has_block: {
+        Args: { _conversation_id: string; _uid: string }
+        Returns: boolean
+      }
       create_booking_secure: {
         Args: { _note: string; _slot_id: string }
         Returns: string
@@ -2247,6 +2311,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_blocked_between: { Args: { _a: string; _b: string }; Returns: boolean }
       is_conversation_member: {
         Args: { _conv: string; _user: string }
         Returns: boolean

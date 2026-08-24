@@ -1,3 +1,4 @@
+import { screenBeforePublish } from "@/lib/screen";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,6 +61,14 @@ function EditProfile() {
       return;
     }
     setSaving(true);
+    try {
+      await screenBeforePublish("profile", `${displayName}\n${username}\n${bio}`, profile.id);
+    } catch (e) {
+      setErr((e as Error).message);
+      setSaving(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("profiles")
       .update({

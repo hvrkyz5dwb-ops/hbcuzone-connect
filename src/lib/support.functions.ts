@@ -14,7 +14,7 @@ export const submitPublicSupportMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => schema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any)
+    const { data: row, error } = await (supabaseAdmin as any)
       .from("public_support_messages")
       .insert({
         name: data.name,
@@ -23,7 +23,10 @@ export const submitPublicSupportMessage = createServerFn({ method: "POST" })
         subject: data.subject,
         message: data.message,
         status: "open",
-      });
+      })
+      .select("ticket_code")
+      .single();
     if (error) throw new Error("We couldn't send that right now. Please email support@plugu.app.");
-    return { ok: true as const };
+    return { ok: true as const, ticketCode: (row?.ticket_code as string | null) ?? null };
   });
+

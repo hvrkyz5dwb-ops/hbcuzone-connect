@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ClipboardList, BadgePercent, Star, History,
+  School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, Star, History,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ChargingLoader } from "@/components/ChargingLoader";
@@ -22,12 +22,89 @@ export const Route = createFileRoute("/admin")({
 const TABS = [
   { key: "listings", label: "Listings", icon: ScrollText },
   { key: "reports", label: "Reports", icon: Flag },
+  { key: "filtered", label: "Filtered", icon: ShieldAlert },
   { key: "disputes", label: "Disputes", icon: AlertTriangle },
   { key: "users", label: "Users", icon: Users },
   { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "log", label: "Activity Log", icon: ClipboardList },
   { key: "promos", label: "Promos", icon: BadgePercent },
 ] as const;
+
+function FilteredPanel() {
+  const qc = useQueryClient();
+  const [status, setStatus] = useState<"open" | "reviewed">("open");
+  const q = useQuery({
+    queryKey: ["admin-moderation-queue", status],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("moderation_queue")
+        .select("*")
+        .eq("status", status)
+        .order("created_at", { ascending: false })
+        .limit(150);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+
+  const markReviewed = async (id: string) => {
+    const { error } = await (supabase as any)
+      .from("moderation_queue")
+      .update({ status: "reviewed", reviewed_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success("Marked reviewed");
+    qc.invalidateQueries({ queryKey: ["admin-moderation-queue"] });
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[11px] text-muted-foreground">
+        Content the automated filter blocked before it was published. Review it to spot repeat
+        offenders and tune enforcement.
+      </p>
+      <div className="flex gap-1.5">
+        {(["open", "reviewed"] as const).map((s) => (
+          <button key={s} onClick={() => setStatus(s)}
+            className={`px-3 py-1 rounded-full text-[11px] border capitalize ${status===s?"bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary":"bg-secondary text-muted-foreground border-border"}`}>{s}</button>
+        ))}
+      </div>
+      {q.isPending ? <Loading/> : (q.data?.length ?? 0) === 0 ? <Empty text="Nothing blocked here."/> : (
+        <ul className="space-y-2">
+          {q.data!.map((m) => (
+            <li key={m.id} className="rounded-2xl border border-border bg-card p-3">
+              <p className="text-sm font-medium capitalize">
+                {String(m.content_type).replace(/_/g, " ")}
+                <span className="ml-2 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-full border border-destructive/50 text-destructive">
+                  {m.category}
+                </span>
+              </p>
+              <blockquote className="mt-1.5 rounded-xl border border-border bg-background/60 p-2 text-[11px] whitespace-pre-wrap break-words line-clamp-6">
+                {m.content_text}
+              </blockquote>
+              <p className="mt-1 text-[10px] text-muted-foreground font-mono">
+                Author: {String(m.author_user_id ?? "").slice(0, 8).toUpperCase()} · {new Date(m.created_at).toLocaleString()}
+              </p>
+              {m.status === "open" && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <AdminBtn variant="ok" onClick={() => markReviewed(m.id)}><Check className="h-3 w-3"/> Mark reviewed</AdminBtn>
+                  {m.author_user_id && (
+                    <AdminBtn variant="bad" onClick={() => {
+                      const note = window.prompt("Reason for suspension?") ?? "";
+                      adminPerform({ action: "user.suspend", targetType: "user", targetId: m.author_user_id, note })
+                        .then(() => { toast.success("User suspended"); qc.invalidateQueries({ queryKey: ["admin-users"] }); })
+                        .catch((e) => toast.error(friendlyError(e)));
+                    }}><Ban className="h-3 w-3"/> Suspend author</AdminBtn>
+                  )}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function Admin() {
   const { session } = useSession();
@@ -88,6 +165,7 @@ function Admin() {
       <section className="px-5 mt-3 pb-8 space-y-3">
         {tab === "listings" && <ListingsPanel />}
         {tab === "reports" && <ReportsPanel />}
+        {tab === "filtered" && <FilteredPanel />}
         {tab === "disputes" && <DisputesPanel />}
         {tab === "users" && <UsersPanel />}
         {tab === "access" && <SchoolAccessPanel />}
@@ -209,6 +287,12 @@ function ReportsPanel() {
                   {(r as any).details && (
                     <p className="mt-1 text-[11px] text-foreground/80 whitespace-pre-wrap break-words">{(r as any).details}</p>
                   )}
+                  {(r as any).content_snapshot && (
+                    <blockquote className="mt-1.5 rounded-xl border border-border bg-background/60 p-2 text-[11px] text-foreground/80 whitespace-pre-wrap break-words line-clamp-6">
+                      {(r as any).content_snapshot}
+                    </blockquote>
+                  )}
+
                   {(r as any).reported_user_id && (
                     <p className="text-[10px] text-muted-foreground font-mono">
                       Reported user: {String((r as any).reported_user_id).slice(0, 8).toUpperCase()}
