@@ -1,7 +1,7 @@
 // Campus Hub data layer — real Supabase reads/writes for campus events,
 // RSVPs, comments, recaps and student organizations.
 import { supabase } from "@/integrations/supabase/client";
-import { assertContentAllowed } from "@/lib/content-filter";
+import { screenBeforePublish } from "@/lib/screen";
 
 export type EventCategory =
   | "free_food" | "party" | "greek" | "business" | "sports" | "service"
@@ -90,7 +90,7 @@ export async function fetchMyEvents(userId: string) {
 }
 
 export async function createEvent(input: EventInput, userId: string) {
-  assertContentAllowed(`${input.title ?? ""}\n${input.description ?? ""}`);
+  await screenBeforePublish("event", `${input.title ?? ""}\n${input.description ?? ""}`);
   const { data, error } = await supabase
     .from("campus_events")
     .insert({ ...input, creator_user_id: userId })
@@ -141,7 +141,7 @@ export async function fetchComments(eventId: string) {
 }
 
 export async function addComment(eventId: string, userId: string, body: string) {
-  assertContentAllowed(body);
+  await screenBeforePublish("comment", body, eventId);
   const { error } = await supabase.from("event_comments").insert({ event_id: eventId, user_id: userId, body });
   if (error) throw error;
 }

@@ -4,7 +4,7 @@
 // consumers can subscribe for live updates.
 
 import { supabase } from "@/integrations/supabase/client";
-import { assertContentAllowed } from "@/lib/content-filter";
+import { screenBeforePublish } from "@/lib/screen";
 
 export type DbMessage = {
   id: string;
@@ -323,7 +323,7 @@ export async function sendMessage(conversationId: string, body: string): Promise
   const trimmed = body.trim();
   if (!trimmed) throw new Error("Message can't be empty");
   if (trimmed.length > 2000) throw new Error("Message is too long (2000 max)");
-  assertContentAllowed(trimmed);
+  await screenBeforePublish("message", trimmed);
 
   const { data, error } = await supabase
     .from("messages")
