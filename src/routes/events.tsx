@@ -93,7 +93,11 @@ function EventsPage() {
       </section>
 
       <SectionHeader title="Upcoming" />
+      <p className="px-5 -mt-1 pb-3 text-[11px] text-muted-foreground">
+        Attendee lists are private — you'll only ever see the total going count and your own RSVPs.
+      </p>
       <ul className="px-5 pb-6 space-y-3">
+
         {filteredAll.length === 0 && (
           <li className="rounded-2xl border border-dashed border-border bg-card/60 p-6 text-center">
             <p className="text-sm font-semibold">No events yet at {activeSchool}</p>
