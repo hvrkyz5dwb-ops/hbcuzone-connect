@@ -197,8 +197,23 @@ function ReportsPanel() {
             <li key={r.id} className="rounded-2xl border border-border bg-card p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium capitalize">Report · {r.target_type}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{r.reason}</p>
+                  <p className="text-sm font-medium capitalize">
+                    Report · {r.target_type}
+                    {(r as any).reason_code && (
+                      <span className="ml-2 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-full border border-accent/50 text-accent">
+                        {String((r as any).reason_code).replace(/_/g, " ")}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">{r.reason}</p>
+                  {(r as any).details && (
+                    <p className="mt-1 text-[11px] text-foreground/80 whitespace-pre-wrap break-words">{(r as any).details}</p>
+                  )}
+                  {(r as any).reported_user_id && (
+                    <p className="text-[10px] text-muted-foreground font-mono">
+                      Reported user: {String((r as any).reported_user_id).slice(0, 8).toUpperCase()}
+                    </p>
+                  )}
                   <p className="text-[10px] text-muted-foreground font-mono">Target: {r.target_id.slice(0,8).toUpperCase()} · {new Date(r.created_at).toLocaleString()}</p>
                 </div>
                 <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-border text-muted-foreground">{r.status}</span>
@@ -212,6 +227,12 @@ function ReportsPanel() {
                   )}
                   {r.target_type === "listing" && (
                     <AdminBtn variant="bad" onClick={() => perform({ action:"listing.remove", targetType:"listing", targetId:r.target_id, invalidate:["admin-reports","admin-listings"] })}><Trash2 className="h-3 w-3"/> Remove listing</AdminBtn>
+                  )}
+                  {(r as any).reported_user_id && r.target_type !== "user" && (
+                    <AdminBtn variant="bad" onClick={() => {
+                      const note = window.prompt("Suspension reason?") ?? "";
+                      perform({ action:"user.suspend", targetType:"user", targetId:String((r as any).reported_user_id), note, invalidate:["admin-reports","admin-users"] });
+                    }}><Ban className="h-3 w-3"/> Suspend author</AdminBtn>
                   )}
                   {r.target_type === "user" && (
                     <AdminBtn variant="bad" onClick={() => {
