@@ -209,6 +209,12 @@ function ReportsPanel() {
                   {(r as any).details && (
                     <p className="mt-1 text-[11px] text-foreground/80 whitespace-pre-wrap break-words">{(r as any).details}</p>
                   )}
+                  {(r as any).content_snapshot && (
+                    <blockquote className="mt-1.5 rounded-xl border border-border bg-background/60 p-2 text-[11px] text-foreground/80 whitespace-pre-wrap break-words line-clamp-6">
+                      {(r as any).content_snapshot}
+                    </blockquote>
+                  )}
+
                   {(r as any).reported_user_id && (
                     <p className="text-[10px] text-muted-foreground font-mono">
                       Reported user: {String((r as any).reported_user_id).slice(0, 8).toUpperCase()}
