@@ -59,13 +59,15 @@ export function CommunityBoard() {
     return subscribeCommunityPosts(refresh);
   }, [school.name, safetyTick]);
 
-  const submit = () => {
+  const submit = async () => {
     const t = text.trim();
     if (!t) return;
     if (t.length > MAX_POST) { toast.error(`Keep it under ${MAX_POST} characters`); return; }
-    const screened = screenContent(t);
-    if (!screened.ok) {
-      toast.error(`Post blocked — ${screened.category}`, { description: screened.reason });
+    try {
+      await screenBeforePublish("community_post", t);
+    } catch (err) {
+      const e = err as Error & { category?: string };
+      toast.error(`Post blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
     addCommunityPost({ school: school.name, author: authorName, text: t, visibility });
@@ -73,18 +75,21 @@ export function CommunityBoard() {
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
   };
 
-  const submitComment = (postId: string) => {
+  const submitComment = async (postId: string) => {
     const t = (commentDrafts[postId] || "").trim();
     if (!t) return;
     if (t.length > MAX_COMMENT) { toast.error(`Comment under ${MAX_COMMENT} chars`); return; }
-    const screened = screenContent(t);
-    if (!screened.ok) {
-      toast.error(`Comment blocked — ${screened.category}`, { description: screened.reason });
+    try {
+      await screenBeforePublish("community_comment", t, postId);
+    } catch (err) {
+      const e = err as Error & { category?: string };
+      toast.error(`Comment blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
     addComment(postId, authorName, t);
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
   };
+
 
   return (
     <section className="mt-7 px-5">
