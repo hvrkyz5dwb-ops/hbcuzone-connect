@@ -14,6 +14,8 @@ type Props = {
   targetType: ReportTargetType;
   targetId: string;
   targetLabel?: string;
+  /** Copy of the reported content stored with the report for moderators. */
+  snapshot?: string | null;
   authorUserId?: string | null;
   authorLabel?: string;
   /** Called after report/block/hide so the parent can drop the item locally. */
@@ -24,7 +26,7 @@ type Props = {
 };
 
 export function ContentMenu({
-  targetType, targetId, targetLabel, authorUserId, authorLabel, onHidden, className, extraActions,
+  targetType, targetId, targetLabel, snapshot, authorUserId, authorLabel, onHidden, className, extraActions,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -165,6 +167,7 @@ export function ContentMenu({
         targetType={targetType}
         targetId={targetId}
         targetLabel={targetLabel}
+        snapshot={snapshot}
         reportedUserId={authorUserId ?? null}
         onReported={onHidden}
       />
