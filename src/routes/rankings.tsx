@@ -126,7 +126,21 @@ function RankingsPage() {
           ))}
         </div>
 
-        {q.isPending ? (
+        {!sessionLoading && !signedIn ? (
+          <div className="mt-8 rounded-3xl border border-dashed border-border p-8 text-center">
+            <Crown className="mx-auto h-8 w-8 text-muted-foreground" />
+            <p className="mt-3 text-sm font-semibold">Sign in to see campus rankings</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Leaderboards are for verified students. Sign in with your .edu email to see who's ranking on your campus.
+            </p>
+            <Link
+              to="/auth"
+              className="mt-4 inline-block tap px-4 py-2 rounded-full text-[11px] font-semibold bg-[image:var(--gradient-bronze)] text-primary-foreground"
+            >
+              Sign in
+            </Link>
+          </div>
+        ) : q.isPending ? (
           <div className="mt-5"><LoadingList rows={5} /></div>
         ) : q.isError ? (
           <ErrorState
