@@ -73,6 +73,7 @@ export function addCommunityPost(input: {
   author: string;
   text: string;
   visibility?: "campus" | "public";
+  tag?: PostTag;
 }): CommunityPost {
   const post: CommunityPost = {
     id: `cp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
