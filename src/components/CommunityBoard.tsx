@@ -258,13 +258,113 @@ export function CommunityBoard() {
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+          aria-controls="post-advanced-filters"
+          className={`tap shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold border transition-colors ${
+            showFilters || advancedCount
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-border text-muted-foreground"
+          }`}
+        >
+          <SlidersHorizontal className="h-3 w-3" /> Filters{advancedCount ? ` (${advancedCount})` : ""}
+        </button>
       </div>
+
+      {showFilters && (
+        <div id="post-advanced-filters" className="mt-2 rounded-2xl border border-border bg-card p-3">
+          <label htmlFor="post-search" className="sr-only">Search campus posts</label>
+          <div className="flex items-center gap-2 rounded-xl border border-border px-2.5">
+            <Search className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <input
+              id="post-search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search posts and people"
+              className="min-h-10 flex-1 bg-transparent text-xs outline-none"
+            />
+            {q && (
+              <button type="button" onClick={() => setQ("")} aria-label="Clear post search" className="tap p-1.5">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          <fieldset className="mt-3">
+            <legend className="text-[10px] uppercase tracking-widest text-muted-foreground">Audience</legend>
+            <div className="mt-1.5 flex gap-1.5">
+              {([["all", "Everything"], ["campus", `${school.name} only`], ["public", "All PlugU"]] as const).map(
+                ([k, label]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setScope(k)}
+                    className={`tap rounded-full border px-2.5 py-1 text-[10px] font-medium ${
+                      scope === k ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
+          </fieldset>
+
+          <fieldset className="mt-3">
+            <legend className="text-[10px] uppercase tracking-widest text-muted-foreground">Posted</legend>
+            <div className="mt-1.5 flex gap-1.5">
+              {([["all", "Any time"], ["24h", "Last 24h"], ["7d", "This week"]] as const).map(([k, label]) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setWindow(k)}
+                  className={`tap rounded-full border px-2.5 py-1 text-[10px] font-medium ${
+                    window_ === k ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="mt-3 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setWithComments((v) => !v)}
+              aria-pressed={withComments}
+              className={`tap rounded-full border px-2.5 py-1 text-[10px] font-medium ${
+                withComments ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+              }`}
+            >
+              💬 Has replies
+            </button>
+            <button
+              type="button"
+              onClick={() => { setQ(""); setScope("all"); setWindow("all"); setWithComments(false); setFilter("all"); }}
+              className="tap text-[10px] underline text-muted-foreground"
+            >
+              Reset filters
+            </button>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground" role="status">
+            Showing {visible.length} of {posts.length} posts
+          </p>
+        </div>
+      )}
 
       {visible.length === 0 ? (
         <div className="mt-3 rounded-2xl border border-dashed border-border p-5 text-center">
-          <p className="text-sm font-semibold">{posts.length === 0 ? "No posts yet" : "Nothing under this tag yet"}</p>
-          <p className="text-xs text-muted-foreground mt-1">Be the first Plug to put {school.name} on.</p>
+          <p className="text-sm font-semibold">{posts.length === 0 ? "No posts yet" : "No posts match these filters"}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {posts.length === 0
+              ? `Be the first Plug to put ${school.name} on.`
+              : "Try clearing a filter or switching back to All."}
+          </p>
         </div>
+
       ) : (
         <ul className="mt-3 space-y-2">
           {visible.map((p) => {
