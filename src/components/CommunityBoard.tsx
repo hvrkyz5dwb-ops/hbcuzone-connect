@@ -206,14 +206,48 @@ export function CommunityBoard() {
         </div>
       </div>
 
-      {posts.length === 0 ? (
+      <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex shrink-0 rounded-full border border-border p-0.5">
+          {(["hot", "new"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSort(s)}
+              className={`tap rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${
+                sort === s ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {s === "hot" ? "🔥 Hot" : "🕒 New"}
+            </button>
+          ))}
+        </div>
+        {(["all", ...TAGS.map((t) => t.key)] as const).map((k) => {
+          const label = k === "all" ? "All" : `${tagDef(k).emoji} ${tagDef(k).label}`;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setFilter(k)}
+              className={`tap shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium border transition-colors ${
+                filter === k
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {visible.length === 0 ? (
         <div className="mt-3 rounded-2xl border border-dashed border-border p-5 text-center">
-          <p className="text-sm font-semibold">No posts yet</p>
+          <p className="text-sm font-semibold">{posts.length === 0 ? "No posts yet" : "Nothing under this tag yet"}</p>
           <p className="text-xs text-muted-foreground mt-1">Be the first Plug to put {school.name} on.</p>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">
-          {posts.map((p) => {
+          {visible.map((p) => {
             const mine = p.author === authorName;
             const commentsOpen = !!openComments[p.id];
             return (
