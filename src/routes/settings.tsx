@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { NotificationCategories, LocationPrivacy } from "@/components/settings/PrivacyAndNotifications";
+
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
