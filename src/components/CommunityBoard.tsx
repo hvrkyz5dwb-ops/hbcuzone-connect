@@ -64,6 +64,17 @@ export function CommunityBoard() {
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [safetyTick, setSafetyTick] = useState(0);
+  const [tag, setTag] = useState<PostTag>("chatter");
+  const [filter, setFilter] = useState<"all" | PostTag>("all");
+  const [sort, setSort] = useState<"hot" | "new">("hot");
+
+  const visible = useMemo(() => {
+    const list = filter === "all" ? posts : posts.filter((p) => p.tag === filter);
+    return [...list].sort((a, b) =>
+      sort === "new" ? b.createdAt - a.createdAt : hotness(b) - hotness(a),
+    );
+  }, [posts, filter, sort]);
+
 
   useEffect(() => {
     const refresh = () =>
