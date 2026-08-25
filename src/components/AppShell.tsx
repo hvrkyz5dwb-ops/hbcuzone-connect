@@ -14,6 +14,7 @@ import { OnboardingExperience } from "@/components/OnboardingExperience";
 import { CoachMarks } from "@/components/CoachMarks";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { TermsGate } from "@/components/TermsGate";
+import { RealtimeStatusBar } from "@/components/RealtimeStatusBar";
 
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
