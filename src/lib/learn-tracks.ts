@@ -503,6 +503,46 @@ const GLOSSARIES: Partial<Record<LearnTrack["slug"], GlossaryTerm[]>> = {
 };
 
 const QUIZZES: Record<LearnTrack["slug"], QuizQuestion[]> = {
+  plug: [
+    {
+      q: "What actually makes someone 'the Plug' on campus?",
+      options: ["The most followers", "Reliability on the thing people already ask you for", "The lowest price", "Posting the most listings"],
+      answer: 1,
+      why: "Plugs get repeat business from showing up on time at a fair price — not from follower count.",
+    },
+    {
+      q: "What moves your PlugScore?",
+      options: ["Completed orders and real reviews", "How often you log in", "How many photos you post", "Referral links"],
+      answer: 0,
+      why: "PlugScore is built from real completed transactions, reviews and response time.",
+    },
+    {
+      q: "Fastest way to find a Plug when you need something now?",
+      options: ["Post on social media", "Live Map — see who's active near you", "Wait for a text back", "Email your school"],
+      answer: 1,
+      why: "Live Map and Available Now show who's actually working right now.",
+    },
+  ],
+  indeed: [
+    {
+      q: "What belongs in your Indeed headline?",
+      options: ["The job you want plus your strongest skill", "A motivational quote", "Your GPA", "Your hobbies"],
+      answer: 0,
+      why: "The headline is searchable — write the role and the skill recruiters filter for.",
+    },
+    {
+      q: "After uploading a resume to Indeed you should…",
+      options: ["Nothing, it's perfect", "Review and correct every parsed field", "Delete your profile details", "Hide your profile"],
+      answer: 1,
+      why: "Indeed's resume parser regularly mangles dates, titles and school names.",
+    },
+    {
+      q: "Can your PlugU business count as work experience?",
+      options: ["No, it's not a real job", "Yes — list it as Owner/Operator with real numbers", "Only if you had employees", "Only after graduation"],
+      answer: 1,
+      why: "Self-employment is experience. Quantify orders, repeat customers and revenue.",
+    },
+  ],
   "business-101": [
     {
       q: "What's the strongest starting point for a student business?",
