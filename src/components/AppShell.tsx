@@ -44,7 +44,6 @@ const tabs: Tab[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/map", label: "Live Map", icon: Map },
   { to: "/market", label: "Market", icon: Store },
-  { to: "/hbcus", label: "HBCUS", icon: Sparkles },
   { to: "/me", label: "Me", icon: User },
 ];
 
