@@ -258,7 +258,7 @@ function YourActivity() {
 
 /* --------------------------------- Renderer ----------------------------------- */
 
-const RENDERERS: Record<HomeSectionKey, () => React.ReactElement> = {
+const RENDERERS: Record<HomeSectionKey, React.ComponentType> = {
   right_now: () => <RightNowRail />,
   around_you: AroundYou,
   tonight: Tonight,
