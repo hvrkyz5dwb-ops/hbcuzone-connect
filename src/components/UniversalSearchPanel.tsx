@@ -4,14 +4,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, Clock, Star, Loader2 } from "lucide-react";
+import { Search, X, Clock, Star, Loader2, Pencil, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { useActiveCampus, useCampusPlaces } from "@/hooks/use-campus-os";
 import {
   categoryShape, matchPlace, recordSearch, fetchRecentSearches, clearRecentSearches,
-  fetchSavedSearches, saveSearch, deleteSavedSearch, PLACE_CATEGORY_LABEL,
+  fetchSavedSearches, saveSearch, deleteSavedSearch, renameSavedSearch,
+  removeRecentSearch, PLACE_CATEGORY_LABEL,
 } from "@/lib/campus-os";
 import { fetchMarketplace } from "@/lib/listings-db";
 import { opportunities } from "@/lib/opportunities-data";
@@ -278,9 +279,33 @@ export function UniversalSearchPanel({ query, setQuery }: { query: string; setQu
               </div>
               <ul className="mt-2 divide-y divide-border rounded-2xl border border-border bg-card">
                 {recent.data!.map((r) => (
-                  <li key={r}>
-                    <button onClick={() => setQuery(r)} className="tap flex min-h-11 w-full items-center gap-2 px-4 py-3 text-left text-sm">
+                  <li key={r} className="flex items-center">
+                    <button
+                      onClick={() => setQuery(r)}
+                      aria-label={`Search again for ${r}`}
+                      className="tap flex min-h-11 flex-1 items-center gap-2 px-4 py-3 text-left text-sm"
+                    >
                       <Clock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" /> {r}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await saveSearch(r, r);
+                          await savedSearches.refetch();
+                          toast.success("Saved");
+                        } catch (e) { toast.error((e as Error).message); }
+                      }}
+                      aria-label={`Save the search ${r}`}
+                      className="tap min-h-11 px-2 text-muted-foreground"
+                    >
+                      <Star className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={async () => { await removeRecentSearch(r); await recent.refetch(); }}
+                      aria-label={`Remove ${r} from recent searches`}
+                      className="tap min-h-11 px-3 text-muted-foreground"
+                    >
+                      <X className="h-4 w-4" />
                     </button>
                   </li>
                 ))}
@@ -296,8 +321,29 @@ export function UniversalSearchPanel({ query, setQuery }: { query: string; setQu
               <ul className="mt-2 divide-y divide-border rounded-2xl border border-border bg-card">
                 {savedSearches.data!.map((s) => (
                   <li key={s.id} className="flex items-center">
-                    <button onClick={() => setQuery(s.query)} className="tap min-h-11 flex-1 px-4 py-3 text-left text-sm">
-                      {s.label}
+                    <button
+                      onClick={() => setQuery(s.query)}
+                      aria-label={`Reopen saved search ${s.label}`}
+                      className="tap min-h-11 flex-1 px-4 py-3 text-left"
+                    >
+                      <span className="block truncate text-sm font-semibold">{s.label}</span>
+                      {s.label !== s.query && (
+                        <span className="block truncate text-[11px] text-muted-foreground">{s.query}</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const next = window.prompt("Rename this saved search", s.label);
+                        if (!next?.trim()) return;
+                        try {
+                          await renameSavedSearch(s.id, next.trim());
+                          await savedSearches.refetch();
+                        } catch (e) { toast.error((e as Error).message); }
+                      }}
+                      aria-label={`Rename saved search ${s.label}`}
+                      className="tap min-h-11 px-2 text-muted-foreground"
+                    >
+                      <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       onClick={async () => { await deleteSavedSearch(s.id); await savedSearches.refetch(); }}
