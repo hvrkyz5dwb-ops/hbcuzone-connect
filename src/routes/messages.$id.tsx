@@ -225,34 +225,85 @@ function Thread() {
         })}
       </div>
 
-      <form onSubmit={onSend} className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-30">
-        {showOffPlatformWarn && (
-          <div className="mb-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[11px] text-accent inline-flex items-start gap-2">
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span>
-              Keep payments and contact info on PlugU — off-platform deals aren't covered by escrow or dispute support.
-            </span>
+      {isBlocked ? (
+        <div className="fixed bottom-24 left-1/2 z-30 w-full max-w-md -translate-x-1/2 px-4">
+          <div className="rounded-2xl border border-border bg-card px-4 py-3 text-center">
+            <p className="text-sm font-semibold">You blocked {otherName}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Neither of you can send messages. Unblock in Settings → Privacy &amp; Safety → Blocked users.
+            </p>
           </div>
-        )}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-full border border-border bg-card px-2 py-2 shadow-[var(--shadow-elegant)]">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={`Message ${otherName}…`}
-            maxLength={2000}
-            className="min-w-0 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground"
-          />
-          <button
-            type="submit"
-            disabled={!trimmed || sending}
-            aria-label="Send"
-            className="tap h-10 w-10 grid place-items-center rounded-full text-black disabled:opacity-40"
-            style={{ background: "var(--plugu-gold)" }}
-          >
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </button>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={onSend} className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-30">
+          {showOffPlatformWarn && (
+            <div className="mb-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[11px] text-accent inline-flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              <span>
+                Keep payments and contact info on PlugU — off-platform deals aren't covered by escrow or dispute support.
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-full border border-border bg-card px-2 py-2 shadow-[var(--shadow-elegant)]">
+            <input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={`Message ${otherName}…`}
+              maxLength={2000}
+              className="min-w-0 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              disabled={!trimmed || sending}
+              aria-label="Send"
+              className="tap h-10 w-10 grid place-items-center rounded-full text-black disabled:opacity-40"
+              style={{ background: "var(--plugu-gold)" }}
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {confirmBlock && other && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setConfirmBlock(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-sm rounded-3xl border border-border bg-card p-5">
+            <h3 className="text-base font-bold">Block {otherName}?</h3>
+            <p className="mt-2 text-xs text-muted-foreground">
+              You won't see their posts, listings or messages anywhere in PlugU, and neither of you
+              can contact the other. You can unblock them in Settings → Privacy &amp; Safety → Blocked users.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setConfirmBlock(false)} className="tap rounded-2xl border border-border bg-secondary py-3 text-sm">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onBlock}
+                disabled={blocking}
+                className="tap inline-flex items-center justify-center gap-2 rounded-2xl bg-destructive py-3 text-sm font-semibold text-destructive-foreground disabled:opacity-60"
+              >
+                {blocking && <Loader2 className="h-4 w-4 animate-spin" />} Block
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {other && (
+        <ReportDialog
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          targetType="user"
+          targetId={other.user_id}
+          targetLabel={otherName}
+          reportedUserId={other.user_id}
+          snapshot={(messages.data ?? [])
+            .slice(-10)
+            .map((m) => `${m.sender_user_id === user?.id ? "me" : otherName}: ${m.body}`)
+            .join("\n")}
+        />
+      )}
     </AppShell>
   );
 }
