@@ -2213,6 +2213,7 @@ function NetworkingPanel() {
   return (
     <div className="space-y-4">
       <SectionHeader icon={Users} title="Networking" subtitle="Mentors, founders, athletes, investors" />
+      <AiMatchmaker />
       <FilterChips values={networkingFilters as readonly string[]} active={filter} onChange={setFilter} />
       <ul className="space-y-2">
         {items.map((p) => (
