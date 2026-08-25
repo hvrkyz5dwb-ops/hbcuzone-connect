@@ -131,9 +131,10 @@ function Tonight() {
     <section className="mt-7" aria-labelledby="home-tonight">
       <SectionHeader title="Tonight" />
       <h2 id="home-tonight" className="sr-only">Tonight</h2>
+      {/* Reserved height so the skeleton, rail and empty state all occupy the same space. */}
+      <div className="min-h-[112px]">
       {q.isPending ? (
         <Skeleton n={2} rail />
-
       ) : (q.data ?? []).length ? (
         <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {q.data!.map((e) => (
@@ -153,6 +154,8 @@ function Tonight() {
       ) : (
         <Empty text="Nothing verified on the calendar for tonight." cta="Browse all events" to="/events" />
       )}
+      </div>
+
     </section>
   );
 }
