@@ -25,7 +25,8 @@ export function useLiveZones() {
 
   return {
     zones,
-    loading: zonesQ.isPending || actQ.isPending,
+    // actQ is disabled for guests, so treat "not fetching" as settled.
+    loading: zonesQ.isPending || (actQ.isPending && actQ.isFetching),
     error: (zonesQ.error ?? actQ.error) as Error | null,
     totalLive: zones.reduce((sum, z) => sum + (z.total ?? 0), 0),
   };
