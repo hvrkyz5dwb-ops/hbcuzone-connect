@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { NotificationCategories, LocationPrivacy } from "@/components/settings/PrivacyAndNotifications";
+
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -108,6 +110,10 @@ function SettingsPage() {
         </div>
       </section>
 
+      <NotificationCategories />
+
+      <LocationPrivacy />
+
       {/* Privacy & Safety */}
       <section className="mt-5 px-5">
         <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Privacy & Safety</h2>
@@ -117,6 +123,7 @@ function SettingsPage() {
           <LinkRow to="/report-problem" icon={FileWarning} label="Report content or a user" />
         </div>
       </section>
+
 
       {/* Purchases & Trust */}
       <section className="mt-5 px-5">

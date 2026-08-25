@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { RightNowRail } from "@/components/home/RightNowRail";
+import { PersonalizedHome } from "@/components/home/HomeSections";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
@@ -162,7 +162,7 @@ function Home() {
 
       <VerificationBanner />
 
-      <RightNowRail />
+      <PersonalizedHome />
 
       {/* Marketplace categories */}
       <section className="mt-6">
@@ -206,16 +206,6 @@ function Home() {
       {/* Trending real listings */}
       <div className={feedStagger ? "fse fse-d2" : undefined}>
         <TrendingListings />
-      </div>
-
-      {/* Nearby campus services */}
-      <div className={feedStagger ? "fse fse-d3" : undefined}>
-        <NearbyServices />
-      </div>
-
-      {/* Upcoming campus events */}
-      <div className={feedStagger ? "fse fse-d4" : undefined}>
-        <UpcomingEvents />
       </div>
 
       {/* Sell on PlugU */}
@@ -329,83 +319,6 @@ function TrendingListings() {
         </div>
       ) : (
         <EmptyRow icon={<Sparkles className="h-4 w-4" />} text="No listings yet — be the first to post." cta="Start selling" to="/seller/onboarding" />
-      )}
-    </section>
-  );
-}
-
-function NearbyServices() {
-  const navigate = useNavigate();
-  const { profile } = useProfile();
-  const { data, isLoading } = useMarketplace({
-    school_id: profile?.school_id ?? undefined,
-    campus_scope: profile?.school_id ? "mine" : "all",
-    sort: "newest",
-    limit: 8,
-  });
-  const services = (data ?? []).filter((l) => l.kind === "service").slice(0, 6);
-  return (
-    <section className="mt-7">
-      <SectionHeader title="Nearby campus services" action="See all" onAction={() => navigate({ to: "/market" })} />
-      {isLoading ? (
-        <div className="px-5 space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-2xl bg-card border border-border animate-pulse" />
-          ))}
-        </div>
-      ) : services.length > 0 ? (
-        <ul className="px-5 space-y-2">
-          {services.map((s) => (
-            <li key={s.id}>
-              <Link to="/checkout/$listingId" params={{ listingId: s.id }} className="tap flex items-center gap-3 p-3 rounded-2xl bg-card border border-border">
-                <div className="h-11 w-11 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
-                  {s.title[0]?.toUpperCase() ?? "?"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{s.title}</p>
-                  <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {s.campus_name ?? s.seller?.school_name ?? "Nearby"} · {centsToPrice(s.price_cents)}
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyRow icon={<MapPin className="h-4 w-4" />} text="No services listed on your campus yet." cta="Offer a service" to="/seller/onboarding" />
-      )}
-    </section>
-  );
-}
-
-function UpcomingEvents() {
-  const navigate = useNavigate();
-  const { data, isLoading } = useMarketplace({ category: "events", sort: "newest", limit: 6 });
-  return (
-    <section className="mt-7">
-      <SectionHeader title="Upcoming campus events" action="See all" onAction={() => navigate({ to: "/events" })} />
-      {isLoading ? (
-        <div className="px-5 flex gap-3 overflow-x-auto pb-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="min-w-[220px] h-24 rounded-2xl bg-card border border-border animate-pulse" />
-          ))}
-        </div>
-      ) : data && data.length > 0 ? (
-        <div className="px-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {data.map((e) => (
-            <Link key={e.id} to="/checkout/$listingId" params={{ listingId: e.id }} className="tap min-w-[220px] w-56 rounded-2xl border border-border bg-card p-3">
-              <div className="flex items-center gap-1.5 text-[10px] tracking-widest uppercase" style={{ color: "var(--plugu-gold)" }}>
-                <CalendarDays className="h-3 w-3" /> Event
-              </div>
-              <p className="mt-1.5 text-sm font-semibold truncate">{e.title}</p>
-              <p className="text-[11px] text-muted-foreground truncate">{e.campus_name ?? e.seller?.school_name ?? "Campus"}</p>
-              <p className="mt-1 text-xs font-bold" style={{ color: "var(--plugu-gold)" }}>{centsToPrice(e.price_cents)}</p>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <EmptyRow icon={<CalendarDays className="h-4 w-4" />} text="No campus events posted yet." cta="Promote an event" to="/seller/onboarding" />
       )}
     </section>
   );
