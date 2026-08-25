@@ -38,12 +38,14 @@ import {
 
 type Tab = { to: string; label: string; icon: LucideIcon };
 
+// Exactly five primary destinations. Everything else lives inside one of
+// them — the floating "P" is an action, not a sixth tab.
 const tabs: Tab[] = [
   { to: "/", label: "Home", icon: Home },
+  { to: "/map", label: "Live Map", icon: Map },
   { to: "/market", label: "Market", icon: Store },
-  { to: "/map", label: "Map", icon: Map }, // center replaced by Plug button
-  { to: "/messages", label: "Inbox", icon: MessageSquare },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/hbcus", label: "HBCUS", icon: Sparkles },
+  { to: "/me", label: "Me", icon: User },
 ];
 
 type QuickAction = { to: string; label: string; icon: LucideIcon; hint: string };
