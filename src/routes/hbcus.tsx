@@ -2140,6 +2140,66 @@ function MarketplacePanel() {
 /* ============================================================
    NETWORKING
 ============================================================ */
+function AiMatchmaker() {
+  const [interest, setInterest] = useState("");
+  const [q, setQ] = useState<string | null>(null);
+  const run = useServerFn(suggestConnections);
+  const { data, isFetching } = useQuery({
+    queryKey: ["network-matches", q],
+    queryFn: () => run({ data: { interest: q ?? undefined } }),
+    enabled: q !== null,
+    staleTime: 5 * 60_000,
+  });
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4">
+      <p className="text-sm font-semibold flex items-center gap-1.5">
+        <Sparkles className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} /> AI connection matches
+      </p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">
+        Uses your school and major to pair you with people and Indeed searches worth your time.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <input
+          value={interest}
+          onChange={(e) => setInterest(e.target.value)}
+          placeholder="What field? e.g. marketing, nursing, finance"
+          className="flex-1 min-w-0 rounded-xl bg-secondary border border-border px-3 py-2 text-sm"
+        />
+        <button
+          onClick={() => setQ(interest.trim() || "")}
+          disabled={isFetching}
+          className="tap rounded-xl px-3.5 py-2 text-[12px] font-bold disabled:opacity-60"
+          style={{ background: "var(--plugu-gold)", color: "#0b0b0b" }}
+        >
+          {isFetching ? "Matching…" : "Match me"}
+        </button>
+      </div>
+      {data?.error && <p className="mt-2 text-[11px] text-muted-foreground">{data.error}</p>}
+      {!!data?.matches?.length && (
+        <ul className="mt-3 space-y-2">
+          {data.matches.map((m, idx) => (
+            <li key={`${m.name}-${idx}`} className="rounded-xl border border-border bg-background/40 p-3">
+              <p className="text-sm font-semibold">{m.name}</p>
+              <p className="text-[11px] text-muted-foreground">{[m.role, m.company].filter(Boolean).join(" @ ")}</p>
+              {m.why && <p className="mt-1 text-[12px] text-muted-foreground">{m.why}</p>}
+              <a
+                href={m.indeedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold"
+                style={{ color: "var(--plugu-gold)" }}
+              >
+                {m.indeedLabel} ↗
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function NetworkingPanel() {
   const [filter, setFilter] = useState<string>("All");
   const navigate = useNavigate();
