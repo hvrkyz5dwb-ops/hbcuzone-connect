@@ -16,7 +16,27 @@ import {
   toggleLikeCommunityPost,
   type CommunityPost,
   type Comment,
+  type PostTag,
 } from "@/lib/community-storage";
+
+const TAGS: { key: PostTag; label: string; emoji: string }[] = [
+  { key: "chatter", label: "Chatter", emoji: "💬" },
+  { key: "selling", label: "Selling", emoji: "🏷️" },
+  { key: "looking", label: "Looking for", emoji: "🔎" },
+  { key: "hiring", label: "Hiring", emoji: "💼" },
+  { key: "event", label: "Event", emoji: "🎉" },
+  { key: "heads_up", label: "Heads up", emoji: "⚡" },
+];
+
+function tagDef(key: PostTag) {
+  return TAGS.find((t) => t.key === key) ?? TAGS[0];
+}
+
+/** Fizz-style hotness: engagement decayed over time so fresh buzz floats up. */
+function hotness(p: CommunityPost) {
+  const hours = (Date.now() - p.createdAt) / 3_600_000;
+  return (p.likes * 2 + p.comments.length * 3 + 1) / Math.pow(hours + 2, 1.3);
+}
 
 function relative(ts: number) {
   const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
@@ -44,6 +64,17 @@ export function CommunityBoard() {
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [safetyTick, setSafetyTick] = useState(0);
+  const [tag, setTag] = useState<PostTag>("chatter");
+  const [filter, setFilter] = useState<"all" | PostTag>("all");
+  const [sort, setSort] = useState<"hot" | "new">("hot");
+
+  const visible = useMemo(() => {
+    const list = filter === "all" ? posts : posts.filter((p) => p.tag === filter);
+    return [...list].sort((a, b) =>
+      sort === "new" ? b.createdAt - a.createdAt : hotness(b) - hotness(a),
+    );
+  }, [posts, filter, sort]);
+
 
   useEffect(() => {
     const refresh = () =>
@@ -70,7 +101,7 @@ export function CommunityBoard() {
       toast.error(`Post blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
-    addCommunityPost({ school: school.name, author: authorName, text: t, visibility });
+    addCommunityPost({ school: school.name, author: authorName, text: t, visibility, tag });
     setText("");
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
   };
@@ -130,7 +161,25 @@ export function CommunityBoard() {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-end gap-2 border-t border-border pt-2">
+        <div className="mt-2 flex items-center gap-1.5 overflow-x-auto border-t border-border pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <span className="text-[10px] text-muted-foreground shrink-0 mr-0.5">Tag:</span>
+          {TAGS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTag(t.key)}
+              className={`tap shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium border transition-colors ${
+                tag === t.key
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-2 flex items-center justify-end gap-2 border-t border-border pt-2">
           <span className="text-[10px] text-muted-foreground mr-1">Visible to:</span>
           <button
             type="button"
@@ -157,14 +206,48 @@ export function CommunityBoard() {
         </div>
       </div>
 
-      {posts.length === 0 ? (
+      <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex shrink-0 rounded-full border border-border p-0.5">
+          {(["hot", "new"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSort(s)}
+              className={`tap rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${
+                sort === s ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {s === "hot" ? "🔥 Hot" : "🕒 New"}
+            </button>
+          ))}
+        </div>
+        {(["all", ...TAGS.map((t) => t.key)] as const).map((k) => {
+          const label = k === "all" ? "All" : `${tagDef(k).emoji} ${tagDef(k).label}`;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setFilter(k)}
+              className={`tap shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium border transition-colors ${
+                filter === k
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {visible.length === 0 ? (
         <div className="mt-3 rounded-2xl border border-dashed border-border p-5 text-center">
-          <p className="text-sm font-semibold">No posts yet</p>
+          <p className="text-sm font-semibold">{posts.length === 0 ? "No posts yet" : "Nothing under this tag yet"}</p>
           <p className="text-xs text-muted-foreground mt-1">Be the first Plug to put {school.name} on.</p>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">
-          {posts.map((p) => {
+          {visible.map((p) => {
             const mine = p.author === authorName;
             const commentsOpen = !!openComments[p.id];
             return (
@@ -178,6 +261,12 @@ export function CommunityBoard() {
                       <p className="text-sm font-semibold truncate">{p.author}</p>
                       <span className="text-[10px] text-muted-foreground">· {relative(p.createdAt)}</span>
                       {mine && <span className="text-[9px] tracking-widest uppercase text-primary">You</span>}
+                      <span
+                        className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
+                        style={{ background: "color-mix(in oklab, var(--plugu-gold) 18%, transparent)", color: "var(--plugu-gold)" }}
+                      >
+                        {tagDef(p.tag).emoji} {tagDef(p.tag).label}
+                      </span>
                       <span
                         className="inline-flex items-center gap-0.5 rounded-full border border-border px-1.5 py-0.5 text-[9px] text-muted-foreground"
                         title={p.visibility === "campus" ? "Only visible on this campus" : "Visible to all PlugU students"}

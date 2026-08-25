@@ -105,9 +105,29 @@ export function HeroCarousel() {
     ];
   }, [tick]);
 
+  // Autoplay pauses whenever the student takes control, then resumes after a
+  // short idle window so manual swiping always wins.
+  const [paused, setPaused] = useState(false);
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const holdAutoplay = () => {
+    setPaused(true);
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(() => setPaused(false), 10_000);
+  };
+
   const step = () => {
     const el = scroller.current;
     return el ? el.scrollWidth / slides.length : 0;
+  };
+
+  const goTo = (idx: number) => {
+    const el = scroller.current;
+    if (!el) return;
+    const s = el.scrollWidth / slides.length;
+    const next = (idx + slides.length) % slides.length;
+    el.scrollTo({ left: next * s, behavior: "smooth" });
+    setI(next);
   };
 
   function onScroll() {
@@ -118,6 +138,7 @@ export function HeroCarousel() {
   }
 
   useEffect(() => {
+    if (paused) return;
     const el = scroller.current;
     if (!el) return;
     const t = setInterval(() => {
@@ -125,34 +146,65 @@ export function HeroCarousel() {
       if (!s) return;
       const next = (Math.round(el.scrollLeft / s) + 1) % slides.length;
       el.scrollTo({ left: next * s, behavior: "smooth" });
-    }, 6000);
+    }, 7000);
     return () => clearInterval(t);
-  }, [slides.length]);
+  }, [slides.length, paused]);
+
+  useEffect(() => () => { if (resumeTimer.current) clearTimeout(resumeTimer.current); }, []);
 
   return (
-    <section className="mt-4" aria-label="Highlights">
-      <div
-        ref={scroller}
-        onScroll={onScroll}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {slides.map((s) => (
-          <Card key={s.key} slide={s} />
+    <section className="mt-4" aria-label="Highlights" aria-roledescription="carousel">
+      <div className="relative">
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          onPointerDown={holdAutoplay}
+          onTouchStart={holdAutoplay}
+          onWheel={holdAutoplay}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight") { holdAutoplay(); goTo(i + 1); }
+            if (e.key === "ArrowLeft") { holdAutoplay(); goTo(i - 1); }
+          }}
+          tabIndex={0}
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-5 pb-1 outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {slides.map((s) => (
+            <Card key={s.key} slide={s} />
+          ))}
+        </div>
+
+        {[-1, 1].map((dir) => (
+          <button
+            key={dir}
+            type="button"
+            aria-label={dir === -1 ? "Previous slide" : "Next slide"}
+            onClick={() => { holdAutoplay(); goTo(i + dir); }}
+            className="tap absolute top-1/2 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/80 backdrop-blur sm:grid"
+            style={dir === -1 ? { left: 8 } : { right: 8 }}
+          >
+            <ChevronRight className={`h-4 w-4 ${dir === -1 ? "rotate-180" : ""}`} />
+          </button>
         ))}
       </div>
+
       <div className="mt-3 flex items-center justify-center gap-1.5">
         {slides.map((s, idx) => (
           <button
             key={s.key}
             type="button"
             aria-label={`Go to slide ${idx + 1}`}
-            onClick={() => scroller.current?.scrollTo({ left: idx * step(), behavior: "smooth" })}
-            className="h-1.5 rounded-full transition-all"
-            style={{
-              width: idx === i ? 18 : 6,
-              background: idx === i ? GOLD : "color-mix(in oklab, var(--foreground) 25%, transparent)",
-            }}
-          />
+            aria-current={idx === i}
+            onClick={() => { holdAutoplay(); scroller.current?.scrollTo({ left: idx * step(), behavior: "smooth" }); setI(idx); }}
+            className="tap h-6 rounded-full grid place-items-center"
+          >
+            <span
+              className="block h-1.5 rounded-full transition-all"
+              style={{
+                width: idx === i ? 18 : 6,
+                background: idx === i ? GOLD : "color-mix(in oklab, var(--foreground) 25%, transparent)",
+              }}
+            />
+          </button>
         ))}
       </div>
     </section>

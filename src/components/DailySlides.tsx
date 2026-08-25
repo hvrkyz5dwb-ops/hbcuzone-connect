@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Quote, Newspaper, Plug, Megaphone } from "lucide-react";
 
@@ -43,6 +43,9 @@ export function DailySlides() {
   const [today, setToday] = useState("");
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const resume = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startX = useRef<number | null>(null);
 
   useEffect(() => {
     setToday(new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }));
@@ -98,11 +101,25 @@ export function DailySlides() {
     },
   ];
 
-  // Auto-advance every 6s
+  // Auto-advance every 7s, paused for 10s whenever the student swipes or taps.
   useEffect(() => {
-    const t = setInterval(() => setI((n) => (n + 1) % slides.length), 6000);
+    if (paused) return;
+    const t = setInterval(() => setI((n) => (n + 1) % slides.length), 7000);
     return () => clearInterval(t);
-  }, [slides.length]);
+  }, [slides.length, paused]);
+
+  useEffect(() => () => { if (resume.current) clearTimeout(resume.current); }, []);
+
+  const hold = () => {
+    setPaused(true);
+    if (resume.current) clearTimeout(resume.current);
+    resume.current = setTimeout(() => setPaused(false), 10_000);
+  };
+
+  const go = (dir: number) => {
+    hold();
+    setI((n) => (n + dir + slides.length) % slides.length);
+  };
 
   const s = slides[i];
   const Icon = s.icon;
@@ -113,8 +130,14 @@ export function DailySlides() {
         <Link
           key={s.key}
           to={s.to}
+          onTouchStart={(e) => { hold(); startX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            const dx = e.changedTouches[0].clientX - (startX.current ?? 0);
+            if (Math.abs(dx) > 40) { e.preventDefault(); go(dx < 0 ? 1 : -1); }
+            startX.current = null;
+          }}
           className="tap relative block overflow-hidden rounded-3xl border border-border bg-card p-5"
-          style={{ animation: "plugu-fade-up 0.4s ease-out both" }}
+          style={{ animation: "plugu-fade-up 0.4s ease-out both", touchAction: "pan-y" }}
         >
           <div
             className="absolute -top-16 -right-16 h-52 w-52 rounded-full blur-3xl opacity-50"
@@ -152,7 +175,7 @@ export function DailySlides() {
                   key={sl.key}
                   type="button"
                   aria-label={`Show ${sl.eyebrow}`}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setI(idx); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); hold(); setI(idx); }}
                   className="h-1.5 rounded-full transition-all"
                   style={{
                     width: idx === i ? 18 : 6,

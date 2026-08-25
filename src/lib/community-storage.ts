@@ -9,6 +9,9 @@ export type Comment = {
   createdAt: number;
 };
 
+/** Fizz-style intent tags so buyers and sellers can scan the feed fast. */
+export type PostTag = "chatter" | "selling" | "looking" | "hiring" | "event" | "heads_up";
+
 export type CommunityPost = {
   id: string;
   school: string;
@@ -18,6 +21,7 @@ export type CommunityPost = {
   likes: number;
   likedByMe: boolean;
   visibility: "campus" | "public";
+  tag: PostTag;
   comments: Comment[];
 };
 
@@ -33,6 +37,7 @@ function readAll(): CommunityPost[] {
     return parsed.map((p) => ({
       ...p,
       visibility: p.visibility || "campus",
+      tag: p.tag || "chatter",
       comments: p.comments || [],
     }));
   } catch {
@@ -68,6 +73,7 @@ export function addCommunityPost(input: {
   author: string;
   text: string;
   visibility?: "campus" | "public";
+  tag?: PostTag;
 }): CommunityPost {
   const post: CommunityPost = {
     id: `cp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -78,6 +84,7 @@ export function addCommunityPost(input: {
     likes: 0,
     likedByMe: false,
     visibility: input.visibility || "campus",
+    tag: input.tag || "chatter",
     comments: [],
   };
   writeAll([post, ...readAll()]);
