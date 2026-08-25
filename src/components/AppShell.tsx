@@ -310,11 +310,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   />
                 </button>
               </li>
-              {tabs.map((t) => {
+              {tabs.map((t, idx) => {
                 const Icon = t.icon;
                 const active = pathname === t.to;
                 return (
-                  <li key={t.to} className="flex justify-center">
+                  <li key={t.to} className="flex justify-center" style={{ order: idx < 2 ? idx + 1 : idx + 2 }}>
                     <Link
                       to={t.to}
                       aria-current={active ? "page" : undefined}
