@@ -6,9 +6,10 @@ import {
   type OrderRole, type OrderStatus, type BookingStatus,
 } from "@/lib/orders-db";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 
 export function useMyOrders(role: OrderRole = "all") {
+  const instanceId = useId();
   const qc = useQueryClient();
   const key = ["orders", role];
   const q = useQuery({ queryKey: key, queryFn: () => listMyOrders(role) });
@@ -16,24 +17,25 @@ export function useMyOrders(role: OrderRole = "all") {
   // Live invalidate on new / updated orders and bookings.
   useEffect(() => {
     const ch = supabase
-      .channel(`orders-${role}`)
+      .channel(`orders-${role}-${instanceId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => qc.invalidateQueries({ queryKey: key }))
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => qc.invalidateQueries({ queryKey: key }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [qc, role]);
+  }, [qc, role, instanceId]);
 
   return q;
 }
 
 export function useOrder(id: string) {
+  const instanceId = useId();
   const qc = useQueryClient();
   const key = ["order", id];
   const q = useQuery({ queryKey: key, queryFn: () => getOrder(id), enabled: !!id });
   useEffect(() => {
     if (!id) return;
     const ch = supabase
-      .channel(`order-${id}`)
+      .channel(`order-${id}-${instanceId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
         qc.invalidateQueries({ queryKey: key });
         qc.invalidateQueries({ queryKey: ["order-history", id] });
@@ -43,7 +45,7 @@ export function useOrder(id: string) {
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [id, qc]);
+  }, [id, qc, instanceId]);
   return q;
 }
 

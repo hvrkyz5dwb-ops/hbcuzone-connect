@@ -57,8 +57,13 @@ export function RoutePendingFallback() {
   return <ChargingLoader full message="Plugging you in…" />;
 }
 
-export function RouteErrorFallback({ reset }: { error: Error; reset: () => void }) {
+export function RouteErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  const detail = (error as any)?.message ? String((error as any).message) : "";
+  if (typeof window !== "undefined") {
+    // Surface the underlying cause so it shows up in the console, not just the card.
+    console.error("[PlugU route error]", error);
+  }
   return (
     <div className="grid min-h-dvh place-items-center bg-background px-6">
       <div className="w-full max-w-xs rounded-3xl border border-destructive/40 bg-card px-6 py-10 text-center" role="alert">
@@ -69,6 +74,12 @@ export function RouteErrorFallback({ reset }: { error: Error; reset: () => void 
         <p className="mx-auto mt-1 text-xs text-muted-foreground">
           This screen hit an unexpected error. Your data is safe — try reloading it.
         </p>
+        {detail && (
+          <p className="mx-auto mt-2 max-w-[16rem] break-words text-[10px] leading-relaxed text-muted-foreground/70">
+            {detail.slice(0, 220)}
+          </p>
+        )}
+
         <div className="mt-5 flex flex-col gap-2">
           <button
             type="button"
