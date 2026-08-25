@@ -334,6 +334,13 @@ export async function fetchRecentSearches(): Promise<string[]> {
   return out;
 }
 
+export async function removeRecentSearch(query: string) {
+  const { data: s } = await supabase.auth.getSession();
+  const uid = s.session?.user.id;
+  if (!uid) return;
+  await db.from("search_history").delete().eq("user_id", uid).eq("query", query);
+}
+
 export async function clearRecentSearches() {
   const { data: s } = await supabase.auth.getSession();
   const uid = s.session?.user.id;
@@ -354,6 +361,11 @@ export async function saveSearch(label: string, query: string) {
   const uid = s.session?.user.id;
   if (!uid) throw new Error("Sign in to save searches");
   const { error } = await db.from("saved_searches").insert({ user_id: uid, label, query });
+  if (error) throw error;
+}
+
+export async function renameSavedSearch(id: string, label: string) {
+  const { error } = await db.from("saved_searches").update({ label }).eq("id", id);
   if (error) throw error;
 }
 
