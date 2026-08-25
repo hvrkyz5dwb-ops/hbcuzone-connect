@@ -72,6 +72,8 @@ function AroundYou() {
     <section className="mt-7" aria-labelledby="home-around-you">
       <SectionHeader title="Around You" action="Open map" onAction={() => navigate({ to: "/map" })} />
       <h2 id="home-around-you" className="sr-only">Around You</h2>
+      {/* Reserved height matches the skeleton so resolving data never shifts the page. */}
+      <div className="min-h-[208px]">
       {isLoading ? (
         <Skeleton />
       ) : nearby.length ? (
@@ -101,6 +103,8 @@ function AroundYou() {
       ) : (
         <Empty text="No student services listed on your campus yet." cta="Offer a service" to="/seller/onboarding" />
       )}
+      </div>
+
     </section>
   );
 }
