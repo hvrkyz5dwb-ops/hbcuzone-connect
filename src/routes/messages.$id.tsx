@@ -67,6 +67,7 @@ function Thread() {
   const otherName = other?.display_name ?? other?.username ?? "PlugU user";
 
   const trimmed = text.trim();
+  const isBlocked = !!other && (blocked.data ?? []).includes(other.user_id);
   const showOffPlatformWarn = useMemo(() => detectOffPlatformAttempt(text), [text]);
 
   if (header.isPending || messages.isPending) {
