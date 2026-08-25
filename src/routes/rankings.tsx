@@ -42,7 +42,10 @@ function RankingsPage() {
   const [category, setCategory] = useState<string | null>(null);
 
   const schoolId = scope === "campus" ? profile?.school_id ?? null : null;
+  // Leaderboards are student-only data; guests get a sign-in prompt instead of
+  // a permission error from the database.
   const q = useQuery({
+    enabled: !sessionLoading && signedIn,
     queryKey: ["rankings", schoolId, category, period],
     queryFn: () => fetchRankings({ schoolId, category, days: Number(period), limit: 25 }),
     staleTime: 60_000,
