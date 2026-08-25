@@ -9,6 +9,9 @@ export type Comment = {
   createdAt: number;
 };
 
+/** Fizz-style intent tags so buyers and sellers can scan the feed fast. */
+export type PostTag = "chatter" | "selling" | "looking" | "hiring" | "event" | "heads_up";
+
 export type CommunityPost = {
   id: string;
   school: string;
@@ -18,6 +21,7 @@ export type CommunityPost = {
   likes: number;
   likedByMe: boolean;
   visibility: "campus" | "public";
+  tag: PostTag;
   comments: Comment[];
 };
 
