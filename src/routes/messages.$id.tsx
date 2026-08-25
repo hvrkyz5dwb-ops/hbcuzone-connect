@@ -1,20 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Send, Shield, Flag, Ban, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
+import { ReportDialog } from "@/components/ReportDialog";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useConversation } from "@/hooks/use-messages";
 import { useSession } from "@/hooks/use-session";
+import { fetchBlockedUserIds } from "@/lib/moderation";
 import {
   blockUser,
   detectOffPlatformAttempt,
   markConversationRead,
-  reportUser,
   sendMessage,
 } from "@/lib/messages-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
+
 
 export const Route = createFileRoute("/messages/$id")({
   head: () => ({
