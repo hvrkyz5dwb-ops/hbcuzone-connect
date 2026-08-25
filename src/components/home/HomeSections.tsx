@@ -221,6 +221,8 @@ function CampusUpdates() {
     <section className="mt-7" aria-labelledby="home-updates">
       <SectionHeader title="Campus Updates" />
       <h2 id="home-updates" className="sr-only">Campus Updates</h2>
+      {/* Reserved height matches the skeleton so resolving data never shifts the page. */}
+      <div className="min-h-[136px]">
       {q.isPending ? (
         <Skeleton n={2} />
       ) : (q.data ?? []).length ? (
@@ -240,6 +242,8 @@ function CampusUpdates() {
       ) : (
         <Empty text="No official announcements posted right now. Campus information is being verified." />
       )}
+      </div>
+
     </section>
   );
 }
