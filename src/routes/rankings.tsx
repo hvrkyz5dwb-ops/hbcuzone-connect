@@ -7,6 +7,7 @@ import { LoadingList } from "@/components/EmptyState";
 import { ErrorState } from "@/components/QueryStates";
 import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { useProfile } from "@/hooks/use-profile";
+import { useSession } from "@/hooks/use-session";
 import { fetchRankings, type RankingPeriod } from "@/lib/rankings-db";
 import { AVAILABLE_CATEGORIES } from "@/lib/categories";
 
