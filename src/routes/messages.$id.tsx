@@ -106,25 +106,21 @@ function Thread() {
   }
 
   async function onBlock() {
-    if (!other) return;
+    if (!other || blocking) return;
+    setBlocking(true);
     try {
       await blockUser(other.user_id);
-      toast.success("Blocked", { description: `${otherName} can no longer message you.` });
+      await blocked.refetch();
+      setConfirmBlock(false);
+      toast.success("Blocked", { description: `${otherName} can no longer contact you.` });
       navigate({ to: "/messages" });
     } catch (err) {
       toast.error("Couldn't block", { description: (err as Error).message });
+    } finally {
+      setBlocking(false);
     }
   }
 
-  async function onReport() {
-    if (!other) return;
-    try {
-      await reportUser(other.user_id, `Reported from conversation ${id}`);
-      toast.success("Reported", { description: "Trust & Safety will review this conversation." });
-    } catch (err) {
-      toast.error("Couldn't report", { description: (err as Error).message });
-    }
-  }
 
   return (
     <AppShell title="CHAT">
