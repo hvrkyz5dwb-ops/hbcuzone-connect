@@ -44,7 +44,6 @@ const tabs: Tab[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/map", label: "Live Map", icon: Map },
   { to: "/market", label: "Market", icon: Store },
-  { to: "/hbcus", label: "HBCUS", icon: Sparkles },
   { to: "/me", label: "Me", icon: User },
 ];
 
@@ -273,7 +272,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           >
             <ul className="grid grid-cols-5 items-end px-2 py-2 relative">
               {/* Floating action: tap for the Campus Hub, hold for quick actions. */}
-              <li className="pointer-events-none absolute -top-9 right-3 z-10">
+              <li className="order-3 flex justify-center -mt-6 z-10">
                 <button
                   onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
                   onPointerDown={() => {
@@ -311,11 +310,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   />
                 </button>
               </li>
-              {tabs.map((t) => {
+              {tabs.map((t, idx) => {
                 const Icon = t.icon;
                 const active = pathname === t.to;
                 return (
-                  <li key={t.to} className="flex justify-center">
+                  <li key={t.to} className="flex justify-center" style={{ order: idx < 2 ? idx + 1 : idx + 2 }}>
                     <Link
                       to={t.to}
                       aria-current={active ? "page" : undefined}

@@ -18,7 +18,7 @@ export type QuizQuestion = {
 export type GlossaryTerm = { term: string; def: string };
 
 export type LearnTrack = {
-  slug: "business-101" | "investing" | "motivation" | "budget";
+  slug: "plug" | "business-101" | "investing" | "motivation" | "budget" | "indeed";
   name: string;
   tagline: string;
   cta: string;
@@ -30,6 +30,64 @@ export type LearnTrack = {
 };
 
 export const learnTracks: LearnTrack[] = [
+  {
+    slug: "plug",
+    name: "Become The Plug",
+    tagline: "Become the Plug — or find the Plugs already on your campus.",
+    cta: "Become The Plug",
+    slides: [
+      {
+        kicker: "The idea",
+        title: "Become The Plug",
+        body: "A Plug is the person on campus everyone texts when they need something done — hair, plates, rides, photos, tutoring, tickets, tech help.",
+        points: [
+          "Pick the one thing people already come to you for.",
+          "Say yes at a real price, not a favor price.",
+          "Show up on time — reliability is the whole brand.",
+        ],
+      },
+      {
+        kicker: "Set up",
+        title: "Get your Plug profile live today",
+        body: "Your PlugU profile is your storefront. Students buy from profiles that look finished.",
+        points: [
+          "Verify your .edu so you get the student badge.",
+          "Post 3 photos of real work, not stock images.",
+          "Write what you do, your price and your turnaround time.",
+        ],
+      },
+      {
+        kicker: "Find",
+        title: "Find the Plugs around you",
+        body: "Need something instead of selling it? PlugU shows who's available right now near you.",
+        points: [
+          "Use Live Map to see who's active on campus.",
+          "Filter Market by category — food, hair, rides, photo, tutoring.",
+          "Check PlugScore and reviews before you book.",
+        ],
+      },
+      {
+        kicker: "Trust",
+        title: "Build a PlugScore people trust",
+        body: "Your score comes from completed orders and real reviews, not followers.",
+        points: [
+          "Complete every booking inside the app so it counts.",
+          "Ask each customer for a review right after delivery.",
+          "Answer messages fast — response time moves your rank.",
+        ],
+      },
+      {
+        kicker: "Scale",
+        title: "Turn regulars into recurring money",
+        body: "The money is in repeat customers, not new ones.",
+        points: [
+          "Offer a standing weekly or biweekly slot.",
+          "Bundle two services at a small discount.",
+          "Post a flash drop when your calendar looks empty.",
+        ],
+      },
+    ],
+  },
   {
     slug: "business-101",
     name: "Business 101",
@@ -335,6 +393,75 @@ export const learnTracks: LearnTrack[] = [
       },
     ],
   },
+  {
+    slug: "indeed",
+    name: "Build Your Indeed Profile",
+    tagline: "Create an Indeed profile that actually gets you interviews.",
+    cta: "Build Your Indeed Profile",
+    slides: [
+      {
+        kicker: "Step 1",
+        title: "Create the account with your real name",
+        body: "Go to indeed.com, tap Sign in, then Create account. Use a professional email — firstname.lastname@ — not your childhood gamertag.",
+        points: [
+          "Use your legal name exactly as it appears on your resume.",
+          "Add your city and state so local jobs surface first.",
+          "Keep your .edu handy — some employers filter for current students.",
+        ],
+      },
+      {
+        kicker: "Step 2",
+        title: "Upload a resume, then fix what it imports",
+        body: "Indeed parses your uploaded resume into profile fields — the parse is never perfect.",
+        points: [
+          "Upload a PDF, then open Profile and correct every section.",
+          "Fix dates, job titles and school name by hand.",
+          "Keep one master resume and tailor copies per role.",
+        ],
+      },
+      {
+        kicker: "Step 3",
+        title: "Write a headline recruiters search for",
+        body: "Your headline is a search field. Write the job you want plus your strongest skill.",
+        points: [
+          "Good: 'Marketing Student · Social Media & Content'.",
+          "Bad: 'Hard worker looking for opportunities'.",
+          "Add 8–12 skills — recruiters filter by skill tags.",
+        ],
+      },
+      {
+        kicker: "Step 4",
+        title: "Turn your PlugU hustle into experience",
+        body: "Running a business on PlugU is real work experience. List it.",
+        points: [
+          "Title: Owner/Operator — then your service.",
+          "Use numbers: orders completed, repeat customers, revenue.",
+          "Mention scheduling, pricing, customer service and marketing.",
+        ],
+      },
+      {
+        kicker: "Step 5",
+        title: "Make yourself visible and set alerts",
+        body: "A hidden profile gets no messages.",
+        points: [
+          "Set profile visibility to Public so employers can find you.",
+          "Turn on job alerts for 3–5 target titles near campus.",
+          "Enable Ready to work / Open to work.",
+        ],
+      },
+      {
+        kicker: "Step 6",
+        title: "Apply like it's a numbers game — with quality",
+        body: "Indeed Easy Apply makes volume possible; the shortlist still comes from fit.",
+        points: [
+          "Apply to 5 roles a week, every week.",
+          "Match keywords from the posting into your profile skills.",
+          "Follow up in 5–7 days through the Indeed message thread.",
+        ],
+        note: "PlugU isn't affiliated with Indeed — this is a how-to guide.",
+      },
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -376,6 +503,46 @@ const GLOSSARIES: Partial<Record<LearnTrack["slug"], GlossaryTerm[]>> = {
 };
 
 const QUIZZES: Record<LearnTrack["slug"], QuizQuestion[]> = {
+  plug: [
+    {
+      q: "What actually makes someone 'the Plug' on campus?",
+      options: ["The most followers", "Reliability on the thing people already ask you for", "The lowest price", "Posting the most listings"],
+      answer: 1,
+      why: "Plugs get repeat business from showing up on time at a fair price — not from follower count.",
+    },
+    {
+      q: "What moves your PlugScore?",
+      options: ["Completed orders and real reviews", "How often you log in", "How many photos you post", "Referral links"],
+      answer: 0,
+      why: "PlugScore is built from real completed transactions, reviews and response time.",
+    },
+    {
+      q: "Fastest way to find a Plug when you need something now?",
+      options: ["Post on social media", "Live Map — see who's active near you", "Wait for a text back", "Email your school"],
+      answer: 1,
+      why: "Live Map and Available Now show who's actually working right now.",
+    },
+  ],
+  indeed: [
+    {
+      q: "What belongs in your Indeed headline?",
+      options: ["The job you want plus your strongest skill", "A motivational quote", "Your GPA", "Your hobbies"],
+      answer: 0,
+      why: "The headline is searchable — write the role and the skill recruiters filter for.",
+    },
+    {
+      q: "After uploading a resume to Indeed you should…",
+      options: ["Nothing, it's perfect", "Review and correct every parsed field", "Delete your profile details", "Hide your profile"],
+      answer: 1,
+      why: "Indeed's resume parser regularly mangles dates, titles and school names.",
+    },
+    {
+      q: "Can your PlugU business count as work experience?",
+      options: ["No, it's not a real job", "Yes — list it as Owner/Operator with real numbers", "Only if you had employees", "Only after graduation"],
+      answer: 1,
+      why: "Self-employment is experience. Quantify orders, repeat customers and revenue.",
+    },
+  ],
   "business-101": [
     {
       q: "What's the strongest starting point for a student business?",

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { hubItems, type HubCategory } from "@/lib/career-money-data";
-import { getLearnTrack } from "@/lib/learn-tracks";
-import scholarshipImg from "@/assets/spotlight-scholarship.jpg";
+import { getLearnTrack, type LearnTrack } from "@/lib/learn-tracks";
+import plugImg from "@/assets/spotlight-plug.jpg";
 import businessImg from "@/assets/spotlight-business.jpg";
 import budgetImg from "@/assets/spotlight-budget.jpg";
 import stocksImg from "@/assets/spotlight-stocks.jpg";
+import indeedImg from "@/assets/spotlight-indeed.jpg";
 import heroImg from "@/assets/plugu-hero.jpg";
 
 const GOLD = "var(--plugu-gold)";
@@ -14,11 +14,6 @@ const GOLD = "var(--plugu-gold)";
 function dayOfYear(d = new Date()) {
   const start = new Date(d.getFullYear(), 0, 0);
   return Math.floor((d.getTime() - start.getTime()) / 86_400_000);
-}
-
-function pick(categories: HubCategory[], seed: number) {
-  const pool = hubItems.filter((i) => categories.includes(i.category));
-  return pool.length ? pool[seed % pool.length] : null;
 }
 
 type Slide = {
@@ -30,20 +25,12 @@ type Slide = {
   to: string;
   params?: Record<string, string>;
   image: string;
-  /** Position inside the card's own deck, e.g. "3 of 7". */
-  step?: string;
 };
 
-/** Builds a rotating slide from a learn track deck so each card is its own
- *  mini slideshow instead of a static poster. */
-function fromTrack(
-  slug: "business-101" | "investing" | "motivation" | "budget",
-  seed: number,
-  image: string,
-): Slide {
+/** Builds a rotating slide from a learn track deck so each card stays fresh. */
+function fromTrack(slug: LearnTrack["slug"], seed: number, image: string): Slide {
   const track = getLearnTrack(slug)!;
-  const idx = seed % track.slides.length;
-  const s = track.slides[idx];
+  const s = track.slides[seed % track.slides.length];
   return {
     key: slug,
     title: s.title,
@@ -53,11 +40,10 @@ function fromTrack(
     to: "/learn/$track",
     params: { track: slug },
     image,
-    step: `${idx + 1} of ${track.slides.length}`,
   };
 }
 
-function Card({ slide, index, total }: { slide: Slide; index: number; total: number }) {
+function Card({ slide }: { slide: Slide }) {
   return (
     <Link
       to={slide.to as "/hub"}
@@ -91,16 +77,6 @@ function Card({ slide, index, total }: { slide: Slide; index: number; total: num
           {slide.cta} <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </div>
-      <span className="absolute bottom-4 right-4 flex flex-col items-end gap-1">
-        {slide.step && (
-          <span className="rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-semibold text-foreground/80">
-            {slide.step}
-          </span>
-        )}
-        <span className="text-[12px] font-semibold text-foreground/70">
-          {index + 1} / {total}
-        </span>
-      </span>
     </Link>
   );
 }
@@ -116,20 +92,13 @@ export function HeroCarousel() {
     return () => clearInterval(t);
   }, []);
 
+  // One slideshow, six slides — Become The Plug leads.
   const slides = useMemo<Slide[]>(() => {
     const seed = dayOfYear() + tick;
-    const scholarship = pick(["scholarships", "grants"], seed);
     return [
-      {
-        key: "scholarships",
-        title: scholarship?.title ?? "Scholarships You Can Apply For Now",
-        subtitle: scholarship?.detail ?? "Fresh opportunities matched to your campus.",
-        meta: scholarship?.meta ?? "Scholarships",
-        cta: "View Scholarships",
-        to: "/hub",
-        image: scholarshipImg,
-      },
+      fromTrack("plug", seed, plugImg),
       fromTrack("business-101", seed, businessImg),
+      fromTrack("indeed", seed, indeedImg),
       fromTrack("budget", seed, budgetImg),
       fromTrack("investing", seed, stocksImg),
       fromTrack("motivation", seed, heroImg),
@@ -167,8 +136,8 @@ export function HeroCarousel() {
         onScroll={onScroll}
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {slides.map((s, idx) => (
-          <Card key={s.key} slide={s} index={idx} total={slides.length} />
+        {slides.map((s) => (
+          <Card key={s.key} slide={s} />
         ))}
       </div>
       <div className="mt-3 flex items-center justify-center gap-1.5">
