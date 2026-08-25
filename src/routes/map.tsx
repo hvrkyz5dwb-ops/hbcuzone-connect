@@ -1,564 +1,813 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+// LIVE MAP — three modes: Navigate, Explore, Live.
+// Every campus fact rendered here comes from administrator-verified
+// database records. Nothing is invented, and unverified places are
+// clearly labelled.
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { lazy, Suspense, useMemo, useState } from "react";
 import {
-  Navigation,
-  MapPin,
-  Search,
-  Compass,
-  Layers,
-  Crosshair,
-  X,
-  Phone,
-  Route as RouteIcon,
-  Flame,
-  Footprints,
-  Sparkles,
-  Settings,
+  Navigation, Compass, Radio, MapPin, Search, X, Save, Footprints,
+  ShieldCheck, AlertCircle, Clock, Accessibility, ExternalLink, Flag, Ban, Loader2,
 } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { mapPins, pinFilters, type MapPin as PinType, type PinCategory } from "@/lib/mock-data";
-import { useHomeCampus } from "@/hooks/use-home-campus";
-import { useSchool } from "@/hooks/use-school";
-import { schoolProfiles } from "@/lib/hbcus-data";
-import { CampusLayoutAI } from "@/components/CampusLayoutAI";
-import { CampusWayfinder } from "@/components/CampusWayfinder";
-import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
-import { LoadingList } from "@/components/EmptyState";
 import { toast } from "sonner";
-import mapImg from "@/assets/campus-map.jpg";
-import statue from "@/assets/plugu-statue.jpg.asset.json";
-import { getRouteEstimate, type RouteEstimate } from "@/lib/campus-intel.functions";
-import { ChargingLoader } from "@/components/ChargingLoader";
-import { LiveHeatOverlay, LiveHeatPanel } from "@/components/campus/LiveHeatMap";
+import { AppShell } from "@/components/AppShell";
+import { ReportDialog } from "@/components/ReportDialog";
+import { useSession } from "@/hooks/use-session";
+import {
+  useActiveCampus, useCampusPlaces, useCampusTours, useLivePins, useOptInLocation, useSavedPlaces,
+} from "@/hooks/use-campus-os";
+import {
+  PLACE_CATEGORIES, categoryShape, isVerified, matchPlace, toggleSavedPlace,
+  type CampusPlace, type LivePin,
+} from "@/lib/campus-os";
+import {
+  bearing, compassLabel, formatDistance, haversineMeters, previewPath, walkMinutes,
+  type MarkerInput,
+} from "@/lib/map-service";
+import { useContentVisibility } from "@/hooks/use-blocklist";
+import { blockUser } from "@/lib/moderation";
+
+const CampusMap = lazy(() => import("@/components/campus/CampusMap"));
 
 export const Route = createFileRoute("/map")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Live Campus Map — PlugU" },
-      { name: "description", content: "Your campus survival tool. Find food, events, rides, study spots, safety, and vendor pop-ups near you in real time." },
+      { name: "description", content: "Navigate verified campus destinations, explore a guided virtual tour, and see what's live on campus right now." },
       { property: "og:title", content: "PlugU Live Campus Map" },
-      { property: "og:description", content: "Find food, events, rides, study spots, and safety near you." },
+      { property: "og:description", content: "Navigate, explore and see what's live on your campus." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: MapPage,
 });
 
-const pinColor: Record<PinCategory, string> = {
-  food: "bg-orange-500",
-  event: "bg-pink-500",
-  ride: "bg-sky-500",
-  study: "bg-violet-500",
-  building: "bg-stone-400",
-  dorm: "bg-amber-500",
-  dining: "bg-rose-500",
-  library: "bg-emerald-500",
-  gym: "bg-lime-500",
-  parking: "bg-zinc-400",
-  safety: "bg-red-600",
-  phone: "bg-blue-500",
-  hotspot: "bg-yellow-400",
-  vendor: "bg-fuchsia-500",
-};
+type Mode = "navigate" | "explore" | "live";
+
+const MODES: { key: Mode; label: string; icon: typeof Navigation }[] = [
+  { key: "navigate", label: "Navigate", icon: Navigation },
+  { key: "explore", label: "Explore", icon: Compass },
+  { key: "live", label: "Live", icon: Radio },
+];
 
 function MapPage() {
-  const school = useSchool();
-  const { active: homeCampus, setHomeCampus } = useHomeCampus();
-  const active = school.verified ? school.name : homeCampus;
-  const { verified } = useHbcusVerification();
-  const [filter, setFilter] = useState<PinCategory | "all">("all");
+  const { session } = useSession();
+  const { campus, campusName, loading: campusLoading } = useActiveCampus();
+  const [mode, setMode] = useState<Mode>("navigate");
+  const [selected, setSelected] = useState<CampusPlace | null>(null);
+  const [destination, setDestination] = useState<CampusPlace | null>(null);
+  const [routeStarted, setRouteStarted] = useState(false);
+  const [arrived, setArrived] = useState(false);
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<PinType | null>(null);
-  const [nearMe, setNearMe] = useState(false);
-  const [heatmap, setHeatmap] = useState(false);
-  const [switcherOpen, setSwitcherOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [imgError, setImgError] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState<RouteEstimate | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [accessibleOnly, setAccessibleOnly] = useState(false);
+  const [liveFilter, setLiveFilter] = useState<string | null>(null);
 
-  async function runAiRoute(q: string) {
-    const query = q.trim();
-    if (query.length < 2) return;
-    setAiOpen(true);
-    setAiLoading(true);
-    setAiResult(null);
-    try {
-      const r = await getRouteEstimate({ data: { query, campus: active } });
-      setAiResult(r);
-      if (r.error) toast.error("AI is offline — try again in a moment.");
-    } catch {
-      toast.error("Couldn't reach PlugU AI");
-    } finally {
-      setAiLoading(false);
-    }
-  }
+  const places = useCampusPlaces(campus?.id);
+  const tours = useCampusTours(campus?.id);
+  const pins = useLivePins(campus?.id);
+  const saved = useSavedPlaces(!!session);
+  const { coords, state: locState, request: requestLocation } = useOptInLocation();
+  const canSee = useContentVisibility();
 
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 450);
-    return () => clearTimeout(t);
-  }, []);
+  const center = useMemo(
+    () => ({
+      lat: campus?.center_lat ?? coords?.lat ?? 33.4362,
+      lng: campus?.center_lng ?? coords?.lng ?? -86.1058,
+    }),
+    [campus?.center_lat, campus?.center_lng, coords?.lat, coords?.lng],
+  );
 
-  // Re-sync map when verified school changes (login/logout, .edu change).
-  useEffect(() => {
-    if (school.verified && school.name && school.name !== homeCampus) {
-      setHomeCampus(school.name);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [school.verified, school.name]);
+  const allPlaces = places.data ?? [];
+  const mapped = allPlaces.filter((p) => p.lat != null && p.lng != null);
 
-  const filtered = useMemo(() => {
-    return mapPins.filter((p) => {
-      if (filter !== "all" && p.category !== filter) return false;
-      if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
-      if (nearMe && parseFloat(p.distance) > 0.3) return false;
-      return true;
+  const visiblePlaces = useMemo(() => {
+    return mapped.filter((p) => {
+      if (category && p.category !== category) return false;
+      if (accessibleOnly && !p.accessibility) return false;
+      return matchPlace(p, query);
     });
-  }, [filter, query, nearMe]);
+  }, [mapped, category, accessibleOnly, query]);
 
-  const filterEmoji = (cat: PinCategory) =>
-    pinFilters.find((f) => f.key === cat)?.emoji ?? "📍";
+  const visiblePins = useMemo(
+    () =>
+      (pins.data ?? [])
+        .filter((p) => canSee({ type: "live_pin", id: p.id, authorId: p.owner_user_id }))
+        .filter((p) => (liveFilter ? p.category === liveFilter : true)),
+    [pins.data, liveFilter, canSee],
+  );
+
+  const markers: MarkerInput[] = useMemo(() => {
+    if (mode === "live") {
+      return visiblePins
+        .filter((p) => p.lat != null && p.lng != null)
+        .map((p) => ({
+          id: p.id,
+          lat: p.lat!,
+          lng: p.lng!,
+          label: `${p.title} — live until ${new Date(p.expires_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`,
+          glyph: "◉",
+          tone: "live" as const,
+        }));
+    }
+    const list = mode === "navigate" && destination ? [destination] : visiblePlaces;
+    return list
+      .filter((p) => p.lat != null && p.lng != null)
+      .map((p) => ({
+        id: p.id,
+        lat: p.lat!,
+        lng: p.lng!,
+        label: `${p.name}${isVerified(p) ? " (officially verified)" : " (being verified)"}`,
+        glyph: categoryShape(p.category),
+        tone: isVerified(p) ? ("gold" as const) : ("chrome" as const),
+        onSelect: () => setSelected(p),
+      }));
+  }, [mode, visiblePlaces, visiblePins, destination]);
+
+  const routeMeters =
+    destination?.lat != null && destination?.lng != null && coords
+      ? haversineMeters(coords, { lat: destination.lat, lng: destination.lng })
+      : null;
+
+  const routePath =
+    destination?.lat != null && destination?.lng != null && coords
+      ? previewPath(coords, { lat: destination.lat, lng: destination.lng })
+      : null;
 
   return (
-    <AppShell title="CAMPUS MAP">
-      {loading ? (
-        <>
-          <section className="px-5 pt-5" aria-busy="true" aria-label="Loading map">
-            <div className="rounded-3xl h-40 shimmer border border-border" />
-            <div className="mt-4 h-11 rounded-2xl shimmer" />
-            <div className="mt-4 rounded-3xl aspect-[4/5] shimmer border border-border" />
-          </section>
-          <div className="mt-4"><LoadingList rows={4} /></div>
-        </>
-      ) : (<>
-      {/* Brand hero */}
-      <section className="px-5 pt-5">
-        <div className="relative overflow-hidden rounded-3xl border border-border h-40">
-          <img src={statue.url} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_25%]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
-          <div
-            className="absolute inset-0"
-            style={{ background: "radial-gradient(60% 80% at 100% 0%, color-mix(in oklab, var(--plugu-purple) 35%, transparent), transparent 70%)" }}
-          />
-          <div className="relative h-full flex flex-col justify-end p-4">
-            <h2 className="text-lg font-bold" style={{ color: "var(--plugu-gold)" }}>{active}</h2>
-            <p className="text-[10px] uppercase tracking-widest text-white/70">
-              {school.mascot ? `${school.mascot} · ` : ""}{school.city ?? "Live Campus Map"}{school.state ? `, ${school.state}` : ""}
-            </p>
-            <p className="text-[11px] text-white/80 mt-1 max-w-[240px]">
-              Find vendors, events, buildings, rides, and student hotspots — tuned to your school.
-            </p>
-            <button
-              onClick={() => {
-                setNearMe(true);
-                document.getElementById("ai-campus-layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="mt-3 self-start text-xs font-semibold px-3 py-2 rounded-xl text-black"
-              style={{ background: "var(--plugu-gold)", boxShadow: "var(--shadow-gold)" }}
-            >
-              Open Full Map
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Search + campus */}
+    <AppShell title="LIVE MAP">
       <section className="px-5 pt-4">
-        <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") runAiRoute(query); }}
-              placeholder='Ask PlugU AI: "dorms to the library?"'
-              className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-            />
-            {query && (
-              <button onClick={() => setQuery("")} aria-label="Clear">
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            )}
-            <button
-              onClick={() => runAiRoute(query)}
-              disabled={query.trim().length < 2}
-              className="text-[10px] font-bold px-2.5 py-1 rounded-lg text-black disabled:opacity-40"
-              style={{ background: "var(--plugu-gold)" }}
-              aria-label="Ask PlugU AI for directions"
-            >
-              Ask AI
-            </button>
-          </div>
-          <button
-            onClick={() => setHeatmap((v) => !v)}
-            className={`h-11 w-11 grid place-items-center rounded-2xl border tap ${heatmap ? "bg-[image:var(--gradient-bronze)] border-primary text-primary-foreground" : "bg-card border-border"}`}
-            aria-label="Toggle heat map layer"
-          >
-            <Layers className="h-4 w-4" />
-          </button>
-        </div>
+        <h1 className="sr-only">{campusName || "Campus"} live map</h1>
 
-        {aiOpen && (
-          <div className="mt-3 rounded-2xl border border-primary/40 bg-card overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60">
-              <p className="text-[10px] uppercase tracking-widest text-primary flex items-center gap-1.5">
-                <Compass className="h-3 w-3" /> PlugU AI · Campus Directions
-              </p>
-              <button onClick={() => { setAiOpen(false); setAiResult(null); }} aria-label="Close AI directions">
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </div>
-            <div className="p-4">
-              {aiLoading && (
-                <div className="py-6 flex flex-col items-center gap-3">
-                  <ChargingLoader />
-                  <p className="text-[11px] text-muted-foreground">Routing across {active}…</p>
-                </div>
-              )}
-              {!aiLoading && aiResult && (
-                <>
-                  <p className="text-sm font-semibold leading-snug">
-                    {aiResult.from} <span className="text-muted-foreground">→</span> {aiResult.to}
-                  </p>
-                  <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-                    {[
-                      { l: "Walk", v: `${aiResult.walkMin}m`, i: "🚶" },
-                      { l: "Bike", v: `${aiResult.bikeMin}m`, i: "🚲" },
-                      { l: "Drive", v: `${aiResult.driveMin}m`, i: "🚗" },
-                      { l: "Dist", v: `${aiResult.distanceMi.toFixed(2)}mi`, i: "📏" },
-                    ].map((s) => (
-                      <div key={s.l} className="rounded-xl border border-border bg-background/60 py-2">
-                        <p className="text-base">{s.i}</p>
-                        <p className="text-xs font-bold">{s.v}</p>
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{s.l}</p>
-                      </div>
-                    ))}
-                  </div>
-                  {aiResult.directions.length > 0 && (
-                    <ol className="mt-3 space-y-1.5 text-xs">
-                      {aiResult.directions.map((d, i) => (
-                        <li key={i} className="flex gap-2">
-                          <span className="h-4 w-4 shrink-0 rounded-full bg-primary/20 text-primary grid place-items-center text-[10px] font-bold">{i + 1}</span>
-                          <span className="flex-1">{d}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  )}
-                  {aiResult.tip && (
-                    <p className="mt-3 text-[11px] text-accent flex items-start gap-1.5">
-                      <Sparkles className="h-3 w-3 mt-0.5 shrink-0" /> {aiResult.tip}
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-3 flex items-center justify-between">
-          <button
-            onClick={() => setSwitcherOpen(true)}
-            className="tap inline-flex items-center gap-2 text-xs text-muted-foreground"
-            aria-label="Campus settings"
-          >
-            <MapPin className="h-3.5 w-3.5 text-primary" />
-            <span className="text-foreground">{active}</span>
-            {school.verified
-              ? <span className="text-[9px] uppercase tracking-widest text-accent">Verified</span>
-              : <span className="text-[9px] uppercase tracking-widest">Change</span>}
-            <Settings className="h-3 w-3 ml-0.5" />
-          </button>
-          <button
-            onClick={() => setNearMe((v) => !v)}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] tracking-wide border transition-colors ${
-              nearMe
-                ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
-                : "bg-card text-muted-foreground border-border"
-            }`}
-          >
-            <Crosshair className="h-3 w-3" /> What's near me
-          </button>
-        </div>
-        <div className="mt-2 flex justify-end">
-          <button
-            onClick={() => setHeatmap((v) => !v)}
-            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] tracking-wide border transition-colors ${
-              heatmap
-                ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
-                : "bg-card text-muted-foreground border-border"
-            }`}
-          >
-            <Flame className="h-3 w-3" /> Heat map
-          </button>
-        </div>
-      </section>
-
-      {/* Map canvas */}
-      <section className="px-5 mt-4">
-        <div className="relative rounded-3xl overflow-hidden border border-border aspect-[4/5] bg-black">
-          <img
-            src={mapImg}
-            alt="Live campus map"
-            className="absolute inset-0 w-full h-full object-cover opacity-90"
-            onError={() => { setImgError(true); toast.error("Map tile failed to load"); }}
-            onLoad={() => setImgError(false)}
-          />
-          {imgError && (
-            <div className="absolute inset-0 grid place-items-center bg-background/90">
-              <div className="text-center px-6">
-                <p className="text-sm text-muted-foreground mb-3">Map failed to load</p>
-                <button
-                  onClick={() => { setImgError(false); setLoading(true); setTimeout(() => setLoading(false), 300); }}
-                  className="tap px-4 py-2 rounded-xl text-xs font-semibold text-primary-foreground"
-                  style={{ background: "var(--gradient-bronze)" }}
-                >
-                  Retry
-                </button>
-              </div>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
-
-          {/* Live heat map overlay — real availability, drops and events */}
-          {heatmap && <LiveHeatOverlay onSelect={(z) => toast(`${z.name} — ${z.total} live now`)} />}
-
-          {/* "You are here" */}
-          <div
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: "50%", top: "55%" }}
-            aria-label="Your location"
-          >
-            <span className="absolute inset-0 -m-3 rounded-full bg-primary/30 animate-ping" />
-            <span className="relative block h-4 w-4 rounded-full bg-primary border-2 border-background shadow-[var(--shadow-glow)]" />
-          </div>
-
-          {/* Pins */}
-          {filtered.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setSelected(p)}
-              className="absolute -translate-x-1/2 -translate-y-full group"
-              style={{ left: `${p.x}%`, top: `${p.y}%` }}
-              aria-label={p.name}
-            >
-              <div className={`h-7 w-7 grid place-items-center rounded-full text-xs shadow-lg border-2 border-background ${pinColor[p.category]} group-active:scale-110 transition-transform`}>
-                <span>{filterEmoji(p.category)}</span>
-              </div>
-              <div className="mx-auto h-2 w-2 -mt-0.5 rotate-45 bg-background border-r border-b border-border" />
-            </button>
-          ))}
-
-          {/* FAB recenter */}
-          <button
-            onClick={() => toast.success("Centered on your location")}
-            className="absolute bottom-4 right-4 h-12 w-12 grid place-items-center rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)] tap"
-            aria-label="Recenter"
-          >
-            <Compass className="h-5 w-5" />
-          </button>
-
-          {/* Legend pill */}
-          <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-background/70 backdrop-blur text-[11px] flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            Live · {filtered.length} pins
-          </div>
-        </div>
-      </section>
-
-      {heatmap && (
-        <section className="px-5 mt-4">
-          <LiveHeatPanel />
-        </section>
-      )}
-
-      {/* AI Campus Layout — verified students see it live for their campus */}
-      <section id="ai-campus-layout" className="px-5 mt-6">
-        <div className="rounded-3xl border border-border bg-card p-4"
-             style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.18)" }}>
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>
-                AI Campus Directory
-              </p>
-              <h3 className="text-base font-semibold">{active}</h3>
-            </div>
-            {!verified && (
-              <span className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground">
-                .edu unlocks live
-              </span>
-            )}
-          </div>
-          {verified
-            ? <CampusWayfinder school={active} />
-            : <CampusLayoutAI school={active} city={school.city} mascot={school.mascot} />}
-        </div>
-      </section>
-
-      {/* Filter chips */}
-      <section className="mt-4">
-        <div className="px-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {pinFilters.map((f) => {
-            const isActive = filter === f.key;
+        {/* Mode segmented control */}
+        <div
+          role="tablist"
+          aria-label="Map mode"
+          className="flex rounded-full border border-border bg-card p-1"
+        >
+          {MODES.map((m) => {
+            const Icon = m.icon;
+            const on = mode === m.key;
             return (
               <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border transition-colors ${
-                  isActive
-                    ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border"
+                key={m.key}
+                role="tab"
+                aria-selected={on}
+                onClick={() => setMode(m.key)}
+                className={`tap flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-xs font-semibold transition ${
+                  on ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
-                <span>{f.emoji}</span>
-                {f.label}
+                <Icon className="h-3.5 w-3.5" aria-hidden="true" /> {m.label}
               </button>
             );
           })}
         </div>
+
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {campusLoading
+            ? "Loading your campus…"
+            : campus
+              ? `${campus.name}${campus.verification_status === "verified" ? " · Officially verified" : " · Campus information is being verified"}`
+              : "No campus is linked to your account yet."}
+        </p>
+
+        {/* Map */}
+        <Suspense
+          fallback={<div className="mt-3 h-[320px] animate-pulse rounded-3xl bg-secondary/60" aria-hidden="true" />}
+        >
+          <CampusMap
+            className="mt-3 h-[320px]"
+            ariaLabel={`${campusName || "Campus"} map, ${mode} mode`}
+            center={center}
+            markers={markers}
+            routePath={routePath}
+            userLocation={coords}
+          />
+        </Suspense>
+
+        {locState !== "granted" && (
+          <div className="mt-3 rounded-2xl border border-border bg-card p-3">
+            <p className="text-xs font-semibold">Use your location?</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              PlugU uses your location only while you have the map open, to measure walking time to a
+              destination and show what's nearby. It is never shared with other students.
+            </p>
+            <button
+              onClick={requestLocation}
+              className="tap mt-2 inline-flex min-h-11 items-center rounded-full bg-secondary px-4 text-xs font-semibold"
+            >
+              {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
+            </button>
+            {locState === "denied" && (
+              <p className="mt-2 text-[11px] text-muted-foreground" role="status">
+                Location is off. You can still search and open destinations — walking times just
+                won't be shown.
+              </p>
+            )}
+          </div>
+        )}
+
+        {mode === "navigate" && (
+          <NavigateMode
+            places={mapped}
+            query={query}
+            setQuery={setQuery}
+            accessibleOnly={accessibleOnly}
+            setAccessibleOnly={setAccessibleOnly}
+            destination={destination}
+            setDestination={(p) => {
+              setDestination(p);
+              setRouteStarted(false);
+              setArrived(false);
+            }}
+            coords={coords}
+            meters={routeMeters}
+            started={routeStarted}
+            arrived={arrived}
+            onStart={() => setRouteStarted(true)}
+            onArrive={() => {
+              setArrived(true);
+              setRouteStarted(false);
+            }}
+            loading={places.isPending}
+          />
+        )}
+
+        {mode === "explore" && (
+          <ExploreMode
+            places={visiblePlaces}
+            loading={places.isPending}
+            category={category}
+            setCategory={setCategory}
+            query={query}
+            setQuery={setQuery}
+            tours={tours.data ?? []}
+            onOpen={setSelected}
+            savedIds={saved.data ?? []}
+          />
+        )}
+
+        {mode === "live" && (
+          <LiveMode
+            pins={visiblePins}
+            loading={pins.isPending}
+            filter={liveFilter}
+            setFilter={setLiveFilter}
+          />
+        )}
       </section>
 
-      {/* Nearby list */}
-      <section className="mt-4 px-5 pb-4">
-        <div className="flex items-end justify-between mb-2">
-          <h2 className="text-base font-semibold tracking-tight">
-            {nearMe ? "Right next to you" : "On the map"}
-          </h2>
-          <span className="text-[11px] text-muted-foreground">{filtered.length} results</span>
+      {selected && (
+        <PlaceSheet
+          place={selected}
+          onClose={() => setSelected(null)}
+          saved={(saved.data ?? []).includes(selected.id)}
+          onSaveToggle={async (isSaved) => {
+            try {
+              await toggleSavedPlace(selected.id, isSaved);
+              await saved.refetch();
+              toast.success(isSaved ? "Removed from saved places" : "Saved");
+            } catch (e) {
+              toast.error((e as Error).message);
+            }
+          }}
+          onNavigate={() => {
+            setDestination(selected);
+            setMode("navigate");
+            setSelected(null);
+          }}
+          coords={coords}
+        />
+      )}
+    </AppShell>
+  );
+}
+
+/* ------------------------------- NAVIGATE -------------------------------- */
+
+function NavigateMode({
+  places, query, setQuery, accessibleOnly, setAccessibleOnly, destination, setDestination,
+  coords, meters, started, arrived, onStart, onArrive, loading,
+}: {
+  places: CampusPlace[];
+  query: string;
+  setQuery: (v: string) => void;
+  accessibleOnly: boolean;
+  setAccessibleOnly: (v: boolean) => void;
+  destination: CampusPlace | null;
+  setDestination: (p: CampusPlace | null) => void;
+  coords: { lat: number; lng: number } | null;
+  meters: number | null;
+  started: boolean;
+  arrived: boolean;
+  onStart: () => void;
+  onArrive: () => void;
+  loading: boolean;
+}) {
+  const results = useMemo(
+    () =>
+      places
+        .filter((p) => (accessibleOnly ? !!p.accessibility : true))
+        .filter((p) => matchPlace(p, query))
+        .slice(0, 12),
+    [places, query, accessibleOnly],
+  );
+
+  const entrance = destination?.entrances?.find((e) => (accessibleOnly ? e.accessible : true)) ?? destination?.entrances?.[0];
+  const dir =
+    coords && destination?.lat != null && destination?.lng != null
+      ? compassLabel(bearing(coords, { lat: destination.lat, lng: destination.lng }))
+      : null;
+
+  return (
+    <div className="mt-4">
+      <label htmlFor="dest-search" className="sr-only">Search a campus destination</label>
+      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3">
+        <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        <input
+          id="dest-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Building, department, office or nickname"
+          className="min-h-11 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+        {query && (
+          <button onClick={() => setQuery("")} aria-label="Clear destination search" className="tap p-2">
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 text-xs">
+        <input
+          type="checkbox"
+          checked={accessibleOnly}
+          onChange={(e) => setAccessibleOnly(e.target.checked)}
+          className="h-4 w-4 accent-[var(--plugu-gold)]"
+        />
+        <Accessibility className="h-3.5 w-3.5" aria-hidden="true" />
+        Prefer accessible routes and entrances
+      </label>
+
+      {destination ? (
+        <div className="mt-4 rounded-3xl border border-border bg-card p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-bold">{destination.name}</h2>
+              <VerificationChip place={destination} />
+            </div>
+            <button onClick={() => setDestination(null)} aria-label="Clear destination" className="tap p-1">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+            <div className="rounded-2xl bg-background/60 p-3">
+              <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Walking time</dt>
+              <dd className="mt-0.5 font-semibold">
+                {meters != null ? `${walkMinutes(meters)} min` : "Turn on location"}
+              </dd>
+            </div>
+            <div className="rounded-2xl bg-background/60 p-3">
+              <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">Distance</dt>
+              <dd className="mt-0.5 font-semibold">{meters != null ? formatDistance(meters) : "—"}</dd>
+            </div>
+          </dl>
+
+          <div className="mt-3 rounded-2xl bg-background/60 p-3 text-xs">
+            <p className="font-semibold">Entrance</p>
+            <p className="mt-1 text-muted-foreground">
+              {entrance
+                ? `${entrance.label}${entrance.accessible ? " · step-free" : ""}`
+                : "No verified entrance recorded yet for this building."}
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              Indoor directions are not yet available for this building.
+            </p>
+          </div>
+
+          {started && !arrived && (
+            <ol className="mt-3 space-y-1 rounded-2xl bg-background/60 p-3 text-xs text-muted-foreground">
+              <li>1. Head {dir ?? "toward the campus centre"} on the outdoor path.</li>
+              <li>2. Continue for about {meters != null ? formatDistance(meters) : "the posted distance"}.</li>
+              <li>3. Arrive at {entrance?.label ?? destination.name} and use the marked entrance.</li>
+            </ol>
+          )}
+
+          {arrived ? (
+            <p role="status" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Arrived at {destination.name}
+            </p>
+          ) : started ? (
+            <button onClick={onArrive} className="tap mt-3 min-h-11 w-full rounded-2xl bg-secondary text-sm font-semibold">
+              I've arrived
+            </button>
+          ) : (
+            <button
+              onClick={onStart}
+              className="tap mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground"
+            >
+              <Footprints className="h-4 w-4" aria-hidden="true" /> Start route
+            </button>
+          )}
         </div>
-        <ul className="space-y-2">
-          {filtered.map((p) => (
+      ) : loading ? (
+        <ListSkeleton />
+      ) : results.length === 0 ? (
+        <EmptyCampusData
+          title={query ? "No verified match" : "Campus information is being verified"}
+          body={
+            query
+              ? "We only show destinations an administrator has verified, so nothing matched that search yet."
+              : "Verified buildings, offices and entrances for this campus haven't been published yet."
+          }
+        />
+      ) : (
+        <ul className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
+          {results.map((p) => (
             <li key={p.id}>
               <button
-                onClick={() => setSelected(p)}
-                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border text-left"
+                onClick={() => setDestination(p)}
+                className="tap flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left"
               >
-                <div className={`h-10 w-10 grid place-items-center rounded-xl text-base ${pinColor[p.category]}`}>
-                  {filterEmoji(p.category)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate flex items-center gap-2">
-                    {p.name}
-                    {p.open && (
-                      <span className="text-[10px] tracking-wide uppercase text-emerald-400">Open</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">{p.description}</p>
-                </div>
-                <span className="text-xs text-primary shrink-0">{p.distance}</span>
+                <span aria-hidden="true" className="text-base">{categoryShape(p.category)}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{p.name}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {(p.nicknames ?? []).join(" · ") || p.subcategory || PLACE_CATEGORIES.find((c) => c.key === p.category)?.label}
+                  </span>
+                </span>
+                <Navigation className="h-4 w-4 text-primary" aria-hidden="true" />
               </button>
             </li>
           ))}
-          {filtered.length === 0 && (
-            <li className="text-center text-sm text-muted-foreground py-8">
-              No pins match. Try another filter.
-            </li>
-          )}
         </ul>
-      </section>
-
-      {/* Pin detail sheet */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
-          <button
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSelected(null)}
-            aria-label="Close"
-          />
-          <div className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-8 animate-in slide-in-from-bottom">
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
-            <div className="flex items-start gap-3">
-              <div className={`h-12 w-12 grid place-items-center rounded-xl text-lg ${pinColor[selected.category]}`}>
-                {filterEmoji(selected.category)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg leading-tight">{selected.name}</h3>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {selected.category} · {selected.distance} away
-                </p>
-              </div>
-              <button onClick={() => setSelected(null)} aria-label="Close">
-                <X className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">{selected.description}</p>
-
-            <div className="mt-4 flex items-center gap-2 p-3 rounded-2xl bg-secondary border border-border">
-              <Footprints className="h-4 w-4 text-primary shrink-0" />
-              <div className="text-xs">
-                <p className="font-medium">Walking directions</p>
-                <p className="text-muted-foreground">
-                  {selected.distance} · about {Math.max(1, Math.round(parseFloat(selected.distance) * 20))} min walk
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => toast.success(`Directions to ${selected.name}`, { description: `${selected.distance} · walk it` })}
-                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-medium tap"
-              >
-                <RouteIcon className="h-4 w-4" /> Directions
-              </button>
-              <button
-                onClick={() => toast.success(`Saved ${selected.name} to your spots`)}
-                className="flex items-center justify-center gap-1 py-3 text-sm rounded-2xl bg-secondary border border-border tap"
-              >
-                <Navigation className="h-4 w-4" /> Save spot
-              </button>
-            </div>
-
-            {selected.category === "safety" && (
-              <button
-                onClick={() => toast("Connecting to campus safety…", { description: "This is a demo — no call placed." })}
-                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-red-600 text-white font-medium tap"
-              >
-                <Phone className="h-4 w-4" /> Call Campus Safety
-              </button>
-            )}
-
-            {selected.category === "phone" && (
-              <button
-                onClick={() => toast("Emergency line ready", { description: "Demo mode — no call placed." })}
-                className="mt-2 w-full flex items-center justify-center gap-2 py-3 text-sm rounded-2xl bg-blue-600 text-white font-medium tap"
-              >
-                <Phone className="h-4 w-4" /> One-press Emergency
-              </button>
-            )}
-          </div>
-        </div>
       )}
+    </div>
+  );
+}
 
-      {switcherOpen && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-end sm:place-items-center" onClick={() => setSwitcherOpen(false)}>
-          <div onClick={(e) => e.stopPropagation()} className="w-full sm:max-w-sm bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 max-h-[80dvh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h2 className="text-lg font-bold">Campus settings</h2>
-                {school.verified && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Your .edu locked this to <span className="text-accent">{school.name}</span>. Preview another campus below.
+/* -------------------------------- EXPLORE -------------------------------- */
+
+function ExploreMode({
+  places, loading, category, setCategory, query, setQuery, tours, onOpen, savedIds,
+}: {
+  places: CampusPlace[];
+  loading: boolean;
+  category: string | null;
+  setCategory: (c: string | null) => void;
+  query: string;
+  setQuery: (v: string) => void;
+  tours: { id: string; title: string; description: string | null; duration_min: number | null }[];
+  onOpen: (p: CampusPlace) => void;
+  savedIds: string[];
+}) {
+  return (
+    <div className="mt-4">
+      <label htmlFor="explore-search" className="sr-only">Search campus places</label>
+      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3">
+        <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        <input
+          id="explore-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Explore buildings, dining, athletics…"
+          className="min-h-11 flex-1 bg-transparent text-sm outline-none"
+        />
+      </div>
+
+      <div className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Place category filters">
+        <FilterChip on={!category} onClick={() => setCategory(null)} label="All" glyph="✦" />
+        {PLACE_CATEGORIES.map((c) => (
+          <FilterChip
+            key={c.key}
+            on={category === c.key}
+            onClick={() => setCategory(category === c.key ? null : c.key)}
+            label={c.label}
+            glyph={c.shape}
+          />
+        ))}
+      </div>
+
+      {tours.length > 0 && (
+        <section className="mt-4" aria-labelledby="tours-h">
+          <h2 id="tours-h" className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Guided tours
+          </h2>
+          <ul className="-mx-5 mt-2 flex gap-3 overflow-x-auto px-5 pb-1">
+            {tours.map((t) => (
+              <li key={t.id} className="w-56 shrink-0 rounded-2xl border border-border bg-card p-3">
+                <p className="text-sm font-semibold">{t.title}</p>
+                {t.description && <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{t.description}</p>}
+                {t.duration_min && (
+                  <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <Clock className="h-3 w-3" aria-hidden="true" /> about {t.duration_min} min
                   </p>
                 )}
-              </div>
-              <button onClick={() => setSwitcherOpen(false)} aria-label="Close" className="tap h-8 w-8 grid place-items-center rounded-full bg-secondary"><X className="h-4 w-4" /></button>
-            </div>
-            <ul className="space-y-1">
-              {schoolProfiles.map((s) => (
-                <li key={s.name}>
-                  <button
-                    onClick={() => { setHomeCampus(s.name); setSwitcherOpen(false); toast.success(`Map switched to ${s.name}`); }}
-                    className="tap w-full text-left px-3 py-2.5 rounded-xl hover:bg-secondary flex items-center justify-between"
-                  >
-                    <span className="text-sm">{s.name}</span>
-                    {s.name === active && <span className="text-[10px] uppercase tracking-widest text-accent">Current</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
-      </>)}
-    </AppShell>
+
+      {loading ? (
+        <ListSkeleton />
+      ) : places.length === 0 ? (
+        <EmptyCampusData
+          title="Campus information is being verified"
+          body="Places appear here once an administrator publishes verified details for this campus."
+        />
+      ) : (
+        <ul className="mt-4 grid gap-2">
+          {places.map((p) => (
+            <li key={p.id}>
+              <button
+                onClick={() => onOpen(p)}
+                className="tap flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left"
+              >
+                <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-base">
+                  {categoryShape(p.category)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{p.name}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {PLACE_CATEGORIES.find((c) => c.key === p.category)?.label}
+                    {savedIds.includes(p.id) ? " · Saved" : ""}
+                  </span>
+                </span>
+                <VerificationChip place={p} compact />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------------- LIVE ---------------------------------- */
+
+const LIVE_FILTERS = [
+  { key: "food", label: "Food now" },
+  { key: "service", label: "Services" },
+  { key: "event", label: "Events" },
+  { key: "org", label: "Org tables" },
+  { key: "popup", label: "Pop-ups" },
+];
+
+function LiveMode({
+  pins, loading, filter, setFilter,
+}: {
+  pins: LivePin[];
+  loading: boolean;
+  filter: string | null;
+  setFilter: (f: string | null) => void;
+}) {
+  const [reporting, setReporting] = useState<LivePin | null>(null);
+
+  return (
+    <div className="mt-4">
+      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Live activity filters">
+        <FilterChip on={!filter} onClick={() => setFilter(null)} label="Everything live" glyph="◉" />
+        {LIVE_FILTERS.map((f) => (
+          <FilterChip
+            key={f.key}
+            on={filter === f.key}
+            onClick={() => setFilter(filter === f.key ? null : f.key)}
+            label={f.label}
+            glyph="◉"
+          />
+        ))}
+      </div>
+
+      <p className="mt-3 text-[11px] text-muted-foreground">
+        Live pins are posted intentionally by their owner, use a safe public meetup point, and
+        disappear automatically when they expire. Exact student locations are never shown.
+      </p>
+
+      {loading ? (
+        <ListSkeleton />
+      ) : pins.length === 0 ? (
+        <EmptyCampusData
+          title="Nothing is live right now"
+          body="When students go active with food, services, events or pop-ups, they'll show up here."
+        />
+      ) : (
+        <ul className="mt-3 grid gap-2">
+          {pins.map((p) => (
+            <li key={p.id} className="rounded-2xl border border-border bg-card p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{p.title}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {p.safe_location_label} · live until{" "}
+                    {new Date(p.expires_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                  </p>
+                  <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                    <span>{p.accepting_orders ? "◉ Accepting orders" : "○ Not accepting right now"}</span>
+                    {p.response_time_min != null && <span>Replies in ~{p.response_time_min} min</span>}
+                    {p.price_range && <span>{p.price_range}</span>}
+                    {p.appointment_required && <span>Appointment required</span>}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Link
+                  to="/market"
+                  className="tap inline-flex min-h-11 items-center rounded-full bg-secondary px-3 text-xs font-semibold"
+                >
+                  View profile
+                </Link>
+                <Link
+                  to="/messages"
+                  className="tap inline-flex min-h-11 items-center rounded-full bg-secondary px-3 text-xs font-semibold"
+                >
+                  Message
+                </Link>
+                <button
+                  onClick={() => setReporting(p)}
+                  className="tap inline-flex min-h-11 items-center gap-1 rounded-full bg-secondary px-3 text-xs font-semibold"
+                >
+                  <Flag className="h-3.5 w-3.5" aria-hidden="true" /> Report
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await blockUser(p.owner_user_id);
+                      toast.success("Blocked. Their content is hidden from you.");
+                    } catch (e) {
+                      toast.error((e as Error).message);
+                    }
+                  }}
+                  className="tap inline-flex min-h-11 items-center gap-1 rounded-full bg-secondary px-3 text-xs font-semibold"
+                >
+                  <Ban className="h-3.5 w-3.5" aria-hidden="true" /> Block
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {reporting && (
+        <ReportDialog
+          open
+          onOpenChange={(o) => !o && setReporting(null)}
+          targetType="listing"
+          targetId={reporting.id}
+          reportedUserId={reporting.owner_user_id}
+          contentSnapshot={`${reporting.title} — ${reporting.safe_location_label}`}
+        />
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------- shared --------------------------------- */
+
+function FilterChip({ on, onClick, label, glyph }: { on: boolean; onClick: () => void; label: string; glyph: string }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={on}
+      className={`tap inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold ${
+        on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"
+      }`}
+    >
+      <span aria-hidden="true">{glyph}</span> {label}
+    </button>
+  );
+}
+
+function VerificationChip({ place, compact }: { place: CampusPlace; compact?: boolean }) {
+  const verified = isVerified(place);
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold ${
+        verified ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"
+      }`}
+    >
+      {verified ? <ShieldCheck className="h-3 w-3" aria-hidden="true" /> : <AlertCircle className="h-3 w-3" aria-hidden="true" />}
+      {verified ? "Officially verified" : compact ? "Being verified" : "Campus information is being verified"}
+    </span>
+  );
+}
+
+function EmptyCampusData({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="mt-6 rounded-3xl border border-border bg-card p-6 text-center">
+      <MapPin className="mx-auto h-6 w-6 text-muted-foreground" aria-hidden="true" />
+      <p className="mt-2 text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+
+function ListSkeleton() {
+  return (
+    <div className="mt-4 grid gap-2" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-16 animate-pulse rounded-2xl bg-secondary/60" />
+      ))}
+    </div>
+  );
+}
+
+function PlaceSheet({
+  place, onClose, saved, onSaveToggle, onNavigate, coords,
+}: {
+  place: CampusPlace;
+  onClose: () => void;
+  saved: boolean;
+  onSaveToggle: (saved: boolean) => Promise<void>;
+  onNavigate: () => void;
+  coords: { lat: number; lng: number } | null;
+}) {
+  const [busy, setBusy] = useState(false);
+  const meters =
+    coords && place.lat != null && place.lng != null
+      ? haversineMeters(coords, { lat: place.lat, lng: place.lng })
+      : null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-background/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={place.name}>
+      <button className="absolute inset-0" aria-label="Close place details" onClick={onClose} />
+      <div className="relative max-h-[80dvh] w-full overflow-y-auto rounded-t-3xl border-t border-border bg-card p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold">{place.name}</h2>
+            {(place.nicknames ?? []).length > 0 && (
+              <p className="text-[11px] text-muted-foreground">Also called {place.nicknames.join(", ")}</p>
+            )}
+            <div className="mt-1"><VerificationChip place={place} /></div>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="tap p-1"><X className="h-5 w-5" /></button>
+        </div>
+
+        {place.description && <p className="mt-3 text-sm text-muted-foreground">{place.description}</p>}
+
+        <dl className="mt-3 grid gap-2 text-xs">
+          {place.address && <Row label="Address" value={place.address} />}
+          {meters != null && <Row label="Walking time" value={`${walkMinutes(meters)} min · ${formatDistance(meters)}`} />}
+          {place.hours && <Row label="Hours" value={Object.entries(place.hours).map(([d, h]) => `${d}: ${h}`).join(" · ")} />}
+          {(place.services ?? []).length > 0 && <Row label="Services" value={place.services.join(", ")} />}
+          <Row label="Accessibility" value={place.accessibility || "Not recorded yet"} />
+          <Row
+            label="Verification"
+            value={
+              place.last_verified_at
+                ? `${place.verification_source ?? "Campus administrator"} · last checked ${new Date(place.last_verified_at).toLocaleDateString()}`
+                : "Campus information is being verified"
+            }
+          />
+        </dl>
+
+        {(place.media ?? []).length > 0 && (
+          <ul className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1">
+            {place.media.map((m, i) => (
+              <li key={i}>
+                <img src={m.url} alt={m.caption ?? `${place.name} photo ${i + 1}`} loading="lazy" className="h-24 w-36 rounded-xl object-cover" />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {place.video_url && (
+          <video controls className="mt-3 w-full rounded-2xl" preload="none" aria-label={`${place.name} video tour`}>
+            <source src={place.video_url} />
+            <track kind="captions" />
+          </video>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button onClick={onNavigate} className="tap inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground">
+            <Navigation className="h-4 w-4" aria-hidden="true" /> Navigate here
+          </button>
+          <button
+            onClick={async () => { setBusy(true); await onSaveToggle(saved); setBusy(false); }}
+            className="tap inline-flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-secondary px-4 text-sm font-semibold"
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}
+            {saved ? "Saved" : "Save place"}
+          </button>
+          {place.website && (
+            <a href={place.website} target="_blank" rel="noreferrer" className="tap inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-secondary px-4 text-sm font-semibold">
+              <ExternalLink className="h-4 w-4" aria-hidden="true" /> Website
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-background/60 p-3">
+      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5">{value}</dd>
+    </div>
   );
 }
