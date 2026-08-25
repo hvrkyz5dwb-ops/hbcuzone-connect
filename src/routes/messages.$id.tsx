@@ -1,20 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Send, Shield, Flag, Ban, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
+import { ReportDialog } from "@/components/ReportDialog";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { useConversation } from "@/hooks/use-messages";
 import { useSession } from "@/hooks/use-session";
+import { fetchBlockedUserIds } from "@/lib/moderation";
 import {
   blockUser,
   detectOffPlatformAttempt,
   markConversationRead,
-  reportUser,
   sendMessage,
 } from "@/lib/messages-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
+
 
 export const Route = createFileRoute("/messages/$id")({
   head: () => ({
@@ -38,7 +41,17 @@ function Thread() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [warned, setWarned] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  const blocked = useQuery({
+    queryKey: ["blocked-user-ids", user?.id ?? "anon"],
+    enabled: !!user?.id,
+    queryFn: fetchBlockedUserIds,
+  });
+
 
   useEffect(() => {
     if (!id) return;
@@ -54,6 +67,7 @@ function Thread() {
   const otherName = other?.display_name ?? other?.username ?? "PlugU user";
 
   const trimmed = text.trim();
+  const isBlocked = !!other && (blocked.data ?? []).includes(other.user_id);
   const showOffPlatformWarn = useMemo(() => detectOffPlatformAttempt(text), [text]);
 
   if (header.isPending || messages.isPending) {
@@ -103,25 +117,21 @@ function Thread() {
   }
 
   async function onBlock() {
-    if (!other) return;
+    if (!other || blocking) return;
+    setBlocking(true);
     try {
       await blockUser(other.user_id);
-      toast.success("Blocked", { description: `${otherName} can no longer message you.` });
+      await blocked.refetch();
+      setConfirmBlock(false);
+      toast.success("Blocked", { description: `${otherName} can no longer contact you.` });
       navigate({ to: "/messages" });
     } catch (err) {
       toast.error("Couldn't block", { description: (err as Error).message });
+    } finally {
+      setBlocking(false);
     }
   }
 
-  async function onReport() {
-    if (!other) return;
-    try {
-      await reportUser(other.user_id, `Reported from conversation ${id}`);
-      toast.success("Reported", { description: "Trust & Safety will review this conversation." });
-    } catch (err) {
-      toast.error("Couldn't report", { description: (err as Error).message });
-    }
-  }
 
   return (
     <AppShell title="CHAT">
@@ -153,14 +163,14 @@ function Thread() {
           <div className="flex items-center gap-1 shrink-0">
             <button
               aria-label="Report"
-              onClick={onReport}
+              onClick={() => setReportOpen(true)}
               className="tap h-9 w-9 grid place-items-center rounded-full bg-secondary border border-border"
             >
               <Flag className="h-4 w-4 text-muted-foreground" />
             </button>
             <button
               aria-label="Block"
-              onClick={onBlock}
+              onClick={() => setConfirmBlock(true)}
               className="tap h-9 w-9 grid place-items-center rounded-full bg-secondary border border-border"
             >
               <Ban className="h-4 w-4 text-muted-foreground" />
@@ -216,34 +226,85 @@ function Thread() {
         })}
       </div>
 
-      <form onSubmit={onSend} className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-30">
-        {showOffPlatformWarn && (
-          <div className="mb-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[11px] text-accent inline-flex items-start gap-2">
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span>
-              Keep payments and contact info on PlugU — off-platform deals aren't covered by escrow or dispute support.
-            </span>
+      {isBlocked ? (
+        <div className="fixed bottom-24 left-1/2 z-30 w-full max-w-md -translate-x-1/2 px-4">
+          <div className="rounded-2xl border border-border bg-card px-4 py-3 text-center">
+            <p className="text-sm font-semibold">You blocked {otherName}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Neither of you can send messages. Unblock in Settings → Privacy &amp; Safety → Blocked users.
+            </p>
           </div>
-        )}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-full border border-border bg-card px-2 py-2 shadow-[var(--shadow-elegant)]">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={`Message ${otherName}…`}
-            maxLength={2000}
-            className="min-w-0 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground"
-          />
-          <button
-            type="submit"
-            disabled={!trimmed || sending}
-            aria-label="Send"
-            className="tap h-10 w-10 grid place-items-center rounded-full text-black disabled:opacity-40"
-            style={{ background: "var(--plugu-gold)" }}
-          >
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </button>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={onSend} className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-30">
+          {showOffPlatformWarn && (
+            <div className="mb-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[11px] text-accent inline-flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              <span>
+                Keep payments and contact info on PlugU — off-platform deals aren't covered by escrow or dispute support.
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-full border border-border bg-card px-2 py-2 shadow-[var(--shadow-elegant)]">
+            <input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={`Message ${otherName}…`}
+              maxLength={2000}
+              className="min-w-0 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="submit"
+              disabled={!trimmed || sending}
+              aria-label="Send"
+              className="tap h-10 w-10 grid place-items-center rounded-full text-black disabled:opacity-40"
+              style={{ background: "var(--plugu-gold)" }}
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {confirmBlock && other && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setConfirmBlock(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-sm rounded-3xl border border-border bg-card p-5">
+            <h3 className="text-base font-bold">Block {otherName}?</h3>
+            <p className="mt-2 text-xs text-muted-foreground">
+              You won't see their posts, listings or messages anywhere in PlugU, and neither of you
+              can contact the other. You can unblock them in Settings → Privacy &amp; Safety → Blocked users.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setConfirmBlock(false)} className="tap rounded-2xl border border-border bg-secondary py-3 text-sm">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onBlock}
+                disabled={blocking}
+                className="tap inline-flex items-center justify-center gap-2 rounded-2xl bg-destructive py-3 text-sm font-semibold text-destructive-foreground disabled:opacity-60"
+              >
+                {blocking && <Loader2 className="h-4 w-4 animate-spin" />} Block
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {other && (
+        <ReportDialog
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          targetType="user"
+          targetId={other.user_id}
+          targetLabel={otherName}
+          reportedUserId={other.user_id}
+          snapshot={(messages.data ?? [])
+            .slice(-10)
+            .map((m) => `${m.sender_user_id === user?.id ? "me" : otherName}: ${m.body}`)
+            .join("\n")}
+        />
+      )}
     </AppShell>
   );
 }

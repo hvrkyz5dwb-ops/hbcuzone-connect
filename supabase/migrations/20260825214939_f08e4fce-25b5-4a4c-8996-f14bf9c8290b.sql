@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.guard_report_moderation_fields() FROM PUBLIC, anon, authenticated;
