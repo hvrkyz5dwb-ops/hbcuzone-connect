@@ -209,10 +209,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               {title ?? "PLUGU"}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link
               to="/hbcus"
-              className="tap text-[11px] font-black tracking-[0.22em] transition-colors"
+              className="tap shrink-0 pr-1 text-[11px] font-black tracking-[0.22em] transition-colors"
               aria-label={hbcuStudent ? "Open HBCUS — exclusive HBCU network" : "HBCUS — HBCU students only"}
             >
               <span className="text-muted-foreground">HBC</span>
@@ -261,10 +261,15 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               : undefined
           }
         >
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-28 -z-10"
+            style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.94) 100%)" }}
+          />
           <div
             className="mx-3 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
             style={{
-              background: "linear-gradient(180deg, rgba(23,23,23,0.72), rgba(10,10,10,0.82))",
+              background: "linear-gradient(180deg, rgba(20,20,20,0.94), rgba(6,6,6,0.985))",
               backdropFilter: "blur(28px) saturate(160%)",
               WebkitBackdropFilter: "blur(28px) saturate(160%)",
               boxShadow:

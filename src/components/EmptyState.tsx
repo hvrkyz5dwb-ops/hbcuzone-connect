@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import statue from "@/assets/plugu-statue.jpg.asset.json";
 
 export function EmptyState({
   icon: Icon,
@@ -15,13 +14,12 @@ export function EmptyState({
 }) {
   return (
     <div className="relative mx-5 my-8 overflow-hidden rounded-3xl border border-dashed border-border bg-card/50 px-6 py-10 text-center view-enter">
-      <img
-        src={statue.url}
-        alt=""
+      <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 m-auto h-32 w-32 object-contain opacity-[0.06]"
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(120% 80% at 50% 0%, rgba(244,201,106,0.07), transparent 70%)" }}
       />
-      <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground">
+      <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]">
         <Icon className="h-6 w-6" />
       </div>
       <h3 className="relative mt-4 text-base font-semibold tracking-tight">{title}</h3>
