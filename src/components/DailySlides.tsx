@@ -175,7 +175,7 @@ export function DailySlides() {
                   key={sl.key}
                   type="button"
                   aria-label={`Show ${sl.eyebrow}`}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setI(idx); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); hold(); setI(idx); }}
                   className="h-1.5 rounded-full transition-all"
                   style={{
                     width: idx === i ? 18 : 6,
