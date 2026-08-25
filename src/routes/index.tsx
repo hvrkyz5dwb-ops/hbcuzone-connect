@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { RightNowRail } from "@/components/home/RightNowRail";
+import { PersonalizedHome } from "@/components/home/HomeSections";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
@@ -162,7 +162,7 @@ function Home() {
 
       <VerificationBanner />
 
-      <RightNowRail />
+      <PersonalizedHome />
 
       {/* Marketplace categories */}
       <section className="mt-6">
@@ -206,16 +206,6 @@ function Home() {
       {/* Trending real listings */}
       <div className={feedStagger ? "fse fse-d2" : undefined}>
         <TrendingListings />
-      </div>
-
-      {/* Nearby campus services */}
-      <div className={feedStagger ? "fse fse-d3" : undefined}>
-        <NearbyServices />
-      </div>
-
-      {/* Upcoming campus events */}
-      <div className={feedStagger ? "fse fse-d4" : undefined}>
-        <UpcomingEvents />
       </div>
 
       {/* Sell on PlugU */}
