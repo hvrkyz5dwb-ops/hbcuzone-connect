@@ -161,6 +161,8 @@ function Home() {
 
       <VerificationBanner />
 
+      <RightNowRail />
+
       {/* Marketplace categories */}
       <section className="mt-6">
         <SectionHeader title="Shop by category" action="See all" onAction={() => navigate({ to: "/market" })} />
