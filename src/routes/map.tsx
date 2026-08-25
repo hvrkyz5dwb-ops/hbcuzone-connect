@@ -27,6 +27,7 @@ import { useContentVisibility } from "@/hooks/use-blocklist";
 import { blockUser } from "@/lib/moderation";
 
 const CampusMap = lazy(() => import("@/components/campus/CampusMap"));
+const GuidedTourPlayer = lazy(() => import("@/components/campus/GuidedTourPlayer"));
 
 export const Route = createFileRoute("/map")({
   ssr: false,
@@ -63,6 +64,7 @@ function MapPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
   const [liveFilter, setLiveFilter] = useState<string | null>(null);
+  const [activeTour, setActiveTour] = useState<{ id: string; title: string; description: string | null; duration_min: number | null } | null>(null);
 
   const places = useCampusPlaces(campus?.id);
   const tours = useCampusTours(campus?.id);
@@ -244,6 +246,7 @@ function MapPage() {
             query={query}
             setQuery={setQuery}
             tours={tours.data ?? []}
+            onStartTour={setActiveTour}
             onOpen={setSelected}
             savedIds={saved.data ?? []}
           />
@@ -258,6 +261,23 @@ function MapPage() {
           />
         )}
       </section>
+
+      {activeTour && (
+        <Suspense fallback={null}>
+          <GuidedTourPlayer
+            tour={activeTour}
+            onClose={() => setActiveTour(null)}
+            onOpenPlace={(p) => { setActiveTour(null); setSelected(p); }}
+            onNavigatePlace={(p) => {
+              setActiveTour(null);
+              setDestination(p);
+              setRouteStarted(false);
+              setArrived(false);
+              setMode("navigate");
+            }}
+          />
+        </Suspense>
+      )}
 
       {selected && (
         <PlaceSheet
@@ -452,7 +472,7 @@ function NavigateMode({
 /* -------------------------------- EXPLORE -------------------------------- */
 
 function ExploreMode({
-  places, loading, category, setCategory, query, setQuery, tours, onOpen, savedIds,
+  places, loading, category, setCategory, query, setQuery, tours, onStartTour, onOpen, savedIds,
 }: {
   places: CampusPlace[];
   loading: boolean;
@@ -461,6 +481,7 @@ function ExploreMode({
   query: string;
   setQuery: (v: string) => void;
   tours: { id: string; title: string; description: string | null; duration_min: number | null }[];
+  onStartTour: (t: { id: string; title: string; description: string | null; duration_min: number | null }) => void;
   onOpen: (p: CampusPlace) => void;
   savedIds: string[];
 }) {
@@ -498,14 +519,24 @@ function ExploreMode({
           </h2>
           <ul className="-mx-5 mt-2 flex gap-3 overflow-x-auto px-5 pb-1">
             {tours.map((t) => (
-              <li key={t.id} className="w-56 shrink-0 rounded-2xl border border-border bg-card p-3">
-                <p className="text-sm font-semibold">{t.title}</p>
-                {t.description && <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{t.description}</p>}
-                {t.duration_min && (
-                  <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Clock className="h-3 w-3" aria-hidden="true" /> about {t.duration_min} min
-                  </p>
-                )}
+              <li key={t.id} className="w-56 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onStartTour(t)}
+                  aria-label={`Start guided tour: ${t.title}`}
+                  className="tap h-full w-full rounded-2xl border border-border bg-card p-3 text-left"
+                >
+                  <p className="text-sm font-semibold">{t.title}</p>
+                  {t.description && <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{t.description}</p>}
+                  <span className="mt-2 flex items-center justify-between">
+                    {t.duration_min ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Clock className="h-3 w-3" aria-hidden="true" /> about {t.duration_min} min
+                      </span>
+                    ) : <span />}
+                    <span className="text-[11px] font-semibold text-primary">Start tour →</span>
+                  </span>
+                </button>
               </li>
             ))}
           </ul>
