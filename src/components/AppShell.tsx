@@ -272,7 +272,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           >
             <ul className="grid grid-cols-5 items-end px-2 py-2 relative">
               {/* Floating action: tap for the Campus Hub, hold for quick actions. */}
-              <li className="pointer-events-none absolute -top-9 right-3 z-10">
+              <li className="order-3 flex justify-center -mt-6 z-10">
                 <button
                   onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
                   onPointerDown={() => {
