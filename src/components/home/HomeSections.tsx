@@ -1,5 +1,6 @@
 // Personalized Home — the six Campus OS sections, each self-contained so the
 // student can reorder or hide them. All reads are public/own-user data only.
+import type React from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -257,7 +258,7 @@ function YourActivity() {
 
 /* --------------------------------- Renderer ----------------------------------- */
 
-const RENDERERS: Record<HomeSectionKey, () => JSX.Element> = {
+const RENDERERS: Record<HomeSectionKey, () => React.ReactElement> = {
   right_now: () => <RightNowRail />,
   around_you: AroundYou,
   tonight: Tonight,
