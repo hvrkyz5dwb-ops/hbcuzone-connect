@@ -101,7 +101,7 @@ export function CommunityBoard() {
       toast.error(`Post blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
-    addCommunityPost({ school: school.name, author: authorName, text: t, visibility });
+    addCommunityPost({ school: school.name, author: authorName, text: t, visibility, tag });
     setText("");
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
   };
