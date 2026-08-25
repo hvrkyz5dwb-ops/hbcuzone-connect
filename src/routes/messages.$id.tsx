@@ -41,7 +41,17 @@ function Thread() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [warned, setWarned] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  const blocked = useQuery({
+    queryKey: ["blocked-user-ids", user?.id ?? "anon"],
+    enabled: !!user?.id,
+    queryFn: fetchBlockedUserIds,
+  });
+
 
   useEffect(() => {
     if (!id) return;
