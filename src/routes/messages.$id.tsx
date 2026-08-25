@@ -162,14 +162,14 @@ function Thread() {
           <div className="flex items-center gap-1 shrink-0">
             <button
               aria-label="Report"
-              onClick={onReport}
+              onClick={() => setReportOpen(true)}
               className="tap h-9 w-9 grid place-items-center rounded-full bg-secondary border border-border"
             >
               <Flag className="h-4 w-4 text-muted-foreground" />
             </button>
             <button
               aria-label="Block"
-              onClick={onBlock}
+              onClick={() => setConfirmBlock(true)}
               className="tap h-9 w-9 grid place-items-center rounded-full bg-secondary border border-border"
             >
               <Ban className="h-4 w-4 text-muted-foreground" />
