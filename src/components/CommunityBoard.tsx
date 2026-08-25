@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, Users, Globe, Lock, SlidersHorizontal, Search, X } from "lucide-react";
 import { ContentMenu } from "@/components/ContentMenu";
 import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted, isContentHidden } from "@/lib/ugc-safety";
 import { screenBeforePublish } from "@/lib/screen";
@@ -66,14 +66,34 @@ export function CommunityBoard() {
   const [safetyTick, setSafetyTick] = useState(0);
   const [tag, setTag] = useState<PostTag>("chatter");
   const [filter, setFilter] = useState<"all" | PostTag>("all");
-  const [sort, setSort] = useState<"hot" | "new">("hot");
+  const [sort, setSort] = useState<"hot" | "new" | "top">("hot");
+  const [showFilters, setShowFilters] = useState(false);
+  const [q, setQ] = useState("");
+  const [scope, setScope] = useState<"all" | "campus" | "public">("all");
+  const [window_, setWindow] = useState<"all" | "24h" | "7d">("all");
+  const [withComments, setWithComments] = useState(false);
+
+  const advancedCount =
+    (q.trim() ? 1 : 0) + (scope !== "all" ? 1 : 0) + (window_ !== "all" ? 1 : 0) + (withComments ? 1 : 0);
 
   const visible = useMemo(() => {
-    const list = filter === "all" ? posts : posts.filter((p) => p.tag === filter);
-    return [...list].sort((a, b) =>
-      sort === "new" ? b.createdAt - a.createdAt : hotness(b) - hotness(a),
-    );
-  }, [posts, filter, sort]);
+    const needle = q.trim().toLowerCase();
+    const cutoff =
+      window_ === "24h" ? Date.now() - 86_400_000 : window_ === "7d" ? Date.now() - 7 * 86_400_000 : 0;
+    const list = posts.filter((p) => {
+      if (filter !== "all" && p.tag !== filter) return false;
+      if (scope !== "all" && p.visibility !== scope) return false;
+      if (cutoff && p.createdAt < cutoff) return false;
+      if (withComments && p.comments.length === 0) return false;
+      if (needle && !`${p.text} ${p.author}`.toLowerCase().includes(needle)) return false;
+      return true;
+    });
+    return [...list].sort((a, b) => {
+      if (sort === "new") return b.createdAt - a.createdAt;
+      if (sort === "top") return (b.likes + b.comments.length) - (a.likes + a.comments.length);
+      return hotness(b) - hotness(a);
+    });
+  }, [posts, filter, sort, q, scope, window_, withComments]);
 
 
   useEffect(() => {
@@ -208,7 +228,7 @@ export function CommunityBoard() {
 
       <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex shrink-0 rounded-full border border-border p-0.5">
-          {(["hot", "new"] as const).map((s) => (
+          {(["hot", "new", "top"] as const).map((s) => (
             <button
               key={s}
               type="button"
@@ -217,7 +237,7 @@ export function CommunityBoard() {
                 sort === s ? "bg-primary text-primary-foreground" : "text-muted-foreground"
               }`}
             >
-              {s === "hot" ? "🔥 Hot" : "🕒 New"}
+              {s === "hot" ? "🔥 Hot" : s === "new" ? "🕒 New" : "⭐ Top"}
             </button>
           ))}
         </div>
