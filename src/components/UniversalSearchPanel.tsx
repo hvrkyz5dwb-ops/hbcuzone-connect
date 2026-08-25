@@ -360,6 +360,23 @@ export function UniversalSearchPanel({ query, setQuery }: { query: string; setQu
         </>
       )}
 
+      {query.trim().length >= 2 && !!(savedSearches.data ?? []).length && (
+        <div className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Reopen a saved search">
+          <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Saved:
+          </span>
+          {savedSearches.data!.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setQuery(s.query)}
+              className="tap shrink-0 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-medium"
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {groups.map((g) => (
         <section key={g.key} className="mt-5" aria-labelledby={`grp-${g.key}`}>
           <h2 id={`grp-${g.key}`} className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">
@@ -388,8 +405,10 @@ export function UniversalSearchPanel({ query, setQuery }: { query: string; setQu
       {groups.length > 0 && session && (
         <button
           onClick={async () => {
+            const label = window.prompt("Name this saved search", debounced)?.trim();
+            if (!label) return;
             try {
-              await saveSearch(debounced, debounced);
+              await saveSearch(label, debounced);
               await savedSearches.refetch();
               toast.success("Search saved");
             } catch (e) {
