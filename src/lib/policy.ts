@@ -15,6 +15,9 @@ export async function recordPolicyAcceptance(userId?: string) {
     uid = data.session?.user.id;
   }
   if (!uid) throw new Error("Sign in required");
+  // ON CONFLICT DO NOTHING (ignoreDuplicates) — the table only grants INSERT,
+  // so a DO UPDATE upsert would fail with a permission error and trap the user
+  // behind the acceptance gate.
   const { error } = await (supabase as any)
     .from("policy_acceptances")
     .upsert(
@@ -23,7 +26,7 @@ export async function recordPolicyAcceptance(userId?: string) {
         policy_version: POLICY_VERSION,
         terms_url: typeof window !== "undefined" ? `${window.location.origin}/terms` : null,
       },
-      { onConflict: "user_id,policy_version" },
+      { onConflict: "user_id,policy_version", ignoreDuplicates: true },
     );
   if (error) throw error;
   await supabase
