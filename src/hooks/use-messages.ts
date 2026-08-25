@@ -1,5 +1,5 @@
 // React Query wrappers + realtime subscriptions for messaging.
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -13,6 +13,7 @@ import {
 import { useSession } from "./use-session";
 
 export function useConversations() {
+  const instanceId = useId();
   const { user } = useSession();
   const qc = useQueryClient();
 
@@ -27,7 +28,7 @@ export function useConversations() {
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
-      .channel(`inbox-${user.id}`)
+      .channel(`inbox-${user.id}-${instanceId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
         qc.invalidateQueries({ queryKey: ["conversations", user.id] });
         qc.invalidateQueries({ queryKey: ["unread-total", user.id] });
@@ -39,12 +40,13 @@ export function useConversations() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, qc]);
+  }, [user?.id, qc, instanceId]);
 
   return query;
 }
 
 export function useUnreadCount() {
+  const instanceId = useId();
   const { user } = useSession();
   const qc = useQueryClient();
 
@@ -58,7 +60,7 @@ export function useUnreadCount() {
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
-      .channel(`unread-${user.id}`)
+      .channel(`unread-${user.id}-${instanceId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
         qc.invalidateQueries({ queryKey: ["unread-total", user.id] });
       })
@@ -72,6 +74,7 @@ export function useUnreadCount() {
 }
 
 export function useConversation(id: string | undefined) {
+  const instanceId = useId();
   const { user } = useSession();
   const qc = useQueryClient();
 
@@ -93,7 +96,7 @@ export function useConversation(id: string | undefined) {
   useEffect(() => {
     if (!id || !user?.id) return;
     const channel = supabase
-      .channel(`conv-${id}`)
+      .channel(`conv-${id}-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },

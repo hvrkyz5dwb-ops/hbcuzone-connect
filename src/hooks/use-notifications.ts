@@ -31,7 +31,7 @@ export function useNotifications(): { list: NotifRow[]; unread: number; loading:
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [uid, qc]);
+  }, [uid, qc, instanceId]);
 
   const list = q.data ?? [];
   const unread = list.filter((n) => !n.read_at).length;
