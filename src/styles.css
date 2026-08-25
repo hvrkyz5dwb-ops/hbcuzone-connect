@@ -916,14 +916,18 @@ img, video { content-visibility: auto; }
 .hbcus-theme-bg::before {
   content: "";
   position: absolute;
-  top: -20%; left: 50%; transform: translateX(-50%);
-  width: 120%; height: 60%;
+  top: -120px; left: 50%; transform: translateX(-50%);
+  /* Fixed px size: percentage sizing re-flowed as async content grew the page,
+     which registered as cumulative layout shift on the HBCUS screen. */
+  width: 120%; height: 460px;
   background: radial-gradient(60% 60% at 50% 50%,
     color-mix(in oklab, var(--hbcu-gold) 28%, transparent) 0%,
     transparent 65%);
   filter: blur(40px);
+  will-change: transform;
   animation: hbcus-orb-drift 14s ease-in-out infinite alternate;
 }
+
 .hbcus-theme-bg::after {
   content: "";
   position: absolute; inset: 0;
