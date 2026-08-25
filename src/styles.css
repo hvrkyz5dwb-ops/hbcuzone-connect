@@ -88,7 +88,6 @@
   /* Kept the name --gradient-bronze so existing components keep working. It is
      the champagne-gold CTA fill: it is always paired with `text-primary-foreground`
      (near-black), so it must stay light enough for legible dark text. */
-  
   --gradient-bronze: linear-gradient(135deg, #F7D98C 0%, #F4C96A 45%, #D9A94B 100%);
   --gradient-champagne: linear-gradient(135deg, #F4C96A 0%, #FFF0C2 50%, #C9A24A 100%);
   --gradient-surface: linear-gradient(180deg, oklch(0.16 0.003 270), oklch(0.10 0.002 270));

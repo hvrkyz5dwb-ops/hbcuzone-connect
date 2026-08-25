@@ -19,7 +19,7 @@ export function EmptyState({
         className="pointer-events-none absolute inset-0"
         style={{ background: "radial-gradient(120% 80% at 50% 0%, rgba(244,201,106,0.07), transparent 70%)" }}
       />
-      <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-primary/30 bg-[image:var(--gradient-bronze)] text-primary">
+      <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]">
         <Icon className="h-6 w-6" />
       </div>
       <h3 className="relative mt-4 text-base font-semibold tracking-tight">{title}</h3>
