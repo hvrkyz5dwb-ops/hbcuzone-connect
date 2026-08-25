@@ -94,7 +94,7 @@ export function useConversation(id: string | undefined) {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
-        (payload) => {
+        (payload: any) => {
           const row = payload.new as DbMessage;
           qc.setQueryData<DbMessage[]>(["conversation-messages", id], (prev) => {
             if (!prev) return [row];
@@ -103,11 +103,8 @@ export function useConversation(id: string | undefined) {
           });
         },
       )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [id, user?.id, qc]);
+    );
+  }, [id, user?.id, qc, instanceId]);
 
   return { header, messages };
 }
