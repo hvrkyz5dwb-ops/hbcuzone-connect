@@ -229,7 +229,7 @@ function CampusUpdates() {
 
 function YourActivity() {
   const orders = useMyOrders("all");
-  const unread = useUnreadCount().data ?? 0;
+  const unread = useUnreadCount() ?? 0;
   const open = (orders.data ?? []).filter((o: any) => !["completed", "cancelled", "refunded"].includes(o.status)).length;
 
   const tiles = [
