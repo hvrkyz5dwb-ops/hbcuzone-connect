@@ -654,11 +654,12 @@ function LiveMode({
       {reporting && (
         <ReportDialog
           open
-          onOpenChange={(o) => !o && setReporting(null)}
+          onClose={() => setReporting(null)}
           targetType="listing"
           targetId={reporting.id}
+          targetLabel={reporting.title}
           reportedUserId={reporting.owner_user_id}
-          contentSnapshot={`${reporting.title} — ${reporting.safe_location_label}`}
+          snapshot={`${reporting.title} — ${reporting.safe_location_label}`}
         />
       )}
     </div>
