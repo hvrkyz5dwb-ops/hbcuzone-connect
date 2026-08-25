@@ -262,6 +262,12 @@ export function CommunityBoard() {
                       <span className="text-[10px] text-muted-foreground">· {relative(p.createdAt)}</span>
                       {mine && <span className="text-[9px] tracking-widest uppercase text-primary">You</span>}
                       <span
+                        className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
+                        style={{ background: "color-mix(in oklab, var(--plugu-gold) 18%, transparent)", color: "var(--plugu-gold)" }}
+                      >
+                        {tagDef(p.tag).emoji} {tagDef(p.tag).label}
+                      </span>
+                      <span
                         className="inline-flex items-center gap-0.5 rounded-full border border-border px-1.5 py-0.5 text-[9px] text-muted-foreground"
                         title={p.visibility === "campus" ? "Only visible on this campus" : "Visible to all PlugU students"}
                       >
