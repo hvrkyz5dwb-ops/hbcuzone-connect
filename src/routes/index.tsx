@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { RightNowRail } from "@/components/home/RightNowRail";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
@@ -160,6 +161,8 @@ function Home() {
       <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
 
       <VerificationBanner />
+
+      <RightNowRail />
 
       {/* Marketplace categories */}
       <section className="mt-6">

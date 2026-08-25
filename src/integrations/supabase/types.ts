@@ -380,6 +380,443 @@ export type Database = {
           },
         ]
       }
+      campus_floors: {
+        Row: {
+          accessibility: string | null
+          created_at: string
+          floor_number: number
+          id: string
+          label: string | null
+          place_id: string
+          plan_url: string | null
+          rooms: Json
+          services: string[]
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          accessibility?: string | null
+          created_at?: string
+          floor_number: number
+          id?: string
+          label?: string | null
+          place_id: string
+          plan_url?: string | null
+          rooms?: Json
+          services?: string[]
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          accessibility?: string | null
+          created_at?: string
+          floor_number?: number
+          id?: string
+          label?: string | null
+          place_id?: string
+          plan_url?: string | null
+          rooms?: Json
+          services?: string[]
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_floors_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_live_pins: {
+        Row: {
+          accepting_orders: boolean
+          appointment_required: boolean
+          business_id: string | null
+          campus_id: string | null
+          category: string | null
+          created_at: string
+          event_id: string | null
+          expires_at: string
+          id: string
+          kind: string
+          lat: number | null
+          listing_id: string | null
+          lng: number | null
+          moderation_status: string
+          note: string | null
+          owner_user_id: string
+          place_id: string | null
+          price_range: string | null
+          response_time_min: number | null
+          safe_location_label: string
+          school_id: string | null
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accepting_orders?: boolean
+          appointment_required?: boolean
+          business_id?: string | null
+          campus_id?: string | null
+          category?: string | null
+          created_at?: string
+          event_id?: string | null
+          expires_at: string
+          id?: string
+          kind?: string
+          lat?: number | null
+          listing_id?: string | null
+          lng?: number | null
+          moderation_status?: string
+          note?: string | null
+          owner_user_id: string
+          place_id?: string | null
+          price_range?: string | null
+          response_time_min?: number | null
+          safe_location_label: string
+          school_id?: string | null
+          starts_at?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accepting_orders?: boolean
+          appointment_required?: boolean
+          business_id?: string | null
+          campus_id?: string | null
+          category?: string | null
+          created_at?: string
+          event_id?: string | null
+          expires_at?: string
+          id?: string
+          kind?: string
+          lat?: number | null
+          listing_id?: string | null
+          lng?: number | null
+          moderation_status?: string
+          note?: string | null
+          owner_user_id?: string
+          place_id?: string | null
+          price_range?: string | null
+          response_time_min?: number | null
+          safe_location_label?: string
+          school_id?: string | null
+          starts_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_live_pins_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_live_pins_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_live_pins_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "campus_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_live_pins_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_live_pins_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_live_pins_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_places: {
+        Row: {
+          accessibility: string | null
+          address: string | null
+          approved_by: string | null
+          boundary: Json | null
+          campus_id: string
+          category: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          entrances: Json
+          hours: Json | null
+          id: string
+          is_published: boolean
+          last_verified_at: string | null
+          lat: number | null
+          lng: number | null
+          media: Json
+          name: string
+          nicknames: string[]
+          services: string[]
+          subcategory: string | null
+          submitted_by: string | null
+          updated_at: string
+          verification_source: string | null
+          verification_status: string
+          video_url: string | null
+          website: string | null
+        }
+        Insert: {
+          accessibility?: string | null
+          address?: string | null
+          approved_by?: string | null
+          boundary?: Json | null
+          campus_id: string
+          category?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          entrances?: Json
+          hours?: Json | null
+          id?: string
+          is_published?: boolean
+          last_verified_at?: string | null
+          lat?: number | null
+          lng?: number | null
+          media?: Json
+          name: string
+          nicknames?: string[]
+          services?: string[]
+          subcategory?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+          verification_source?: string | null
+          verification_status?: string
+          video_url?: string | null
+          website?: string | null
+        }
+        Update: {
+          accessibility?: string | null
+          address?: string | null
+          approved_by?: string | null
+          boundary?: Json | null
+          campus_id?: string
+          category?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          entrances?: Json
+          hours?: Json | null
+          id?: string
+          is_published?: boolean
+          last_verified_at?: string | null
+          lat?: number | null
+          lng?: number | null
+          media?: Json
+          name?: string
+          nicknames?: string[]
+          services?: string[]
+          subcategory?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+          verification_source?: string | null
+          verification_status?: string
+          video_url?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_places_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_routes: {
+        Row: {
+          campus_id: string
+          created_at: string
+          distance_m: number | null
+          duration_min: number | null
+          from_place_id: string | null
+          id: string
+          is_accessible: boolean
+          path: Json
+          route_type: string
+          to_place_id: string | null
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          campus_id: string
+          created_at?: string
+          distance_m?: number | null
+          duration_min?: number | null
+          from_place_id?: string | null
+          id?: string
+          is_accessible?: boolean
+          path?: Json
+          route_type?: string
+          to_place_id?: string | null
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          campus_id?: string
+          created_at?: string
+          distance_m?: number | null
+          duration_min?: number | null
+          from_place_id?: string | null
+          id?: string
+          is_accessible?: boolean
+          path?: Json
+          route_type?: string
+          to_place_id?: string | null
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_routes_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_routes_from_place_id_fkey"
+            columns: ["from_place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_routes_to_place_id_fkey"
+            columns: ["to_place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_tour_stops: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          place_id: string
+          sort: number
+          tour_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          place_id: string
+          sort?: number
+          tour_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          place_id?: string
+          sort?: number
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_tour_stops_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campus_tour_stops_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "campus_tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_tours: {
+        Row: {
+          audience: string
+          campus_id: string
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          duration_min: number | null
+          id: string
+          is_published: boolean
+          sort: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          campus_id: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          is_published?: boolean
+          sort?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          campus_id?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          is_published?: boolean
+          sort?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_tours_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campus_zones: {
         Row: {
           created_at: string
@@ -414,6 +851,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "campus_zones_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campuses: {
+        Row: {
+          boundary: Json | null
+          center_lat: number | null
+          center_lng: number | null
+          city: string | null
+          created_at: string
+          id: string
+          is_hbcu: boolean
+          is_published: boolean
+          map_style: string
+          name: string
+          school_id: string | null
+          state: string | null
+          type: string
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          boundary?: Json | null
+          center_lat?: number | null
+          center_lng?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_hbcu?: boolean
+          is_published?: boolean
+          map_style?: string
+          name: string
+          school_id?: string | null
+          state?: string | null
+          type?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          boundary?: Json | null
+          center_lat?: number | null
+          center_lng?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_hbcu?: boolean
+          is_published?: boolean
+          map_style?: string
+          name?: string
+          school_id?: string | null
+          state?: string | null
+          type?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campuses_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
@@ -766,6 +1265,27 @@ export type Database = {
           },
         ]
       }
+      home_layout_prefs: {
+        Row: {
+          hidden_sections: string[]
+          section_order: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          hidden_sections?: string[]
+          section_order?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          hidden_sections?: string[]
+          section_order?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_images: {
         Row: {
           created_at: string
@@ -884,6 +1404,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      location_settings: {
+        Row: {
+          live_business_availability: boolean
+          mode: string
+          temporary_share_until: string | null
+          temporary_share_with: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          live_business_availability?: boolean
+          mode?: string
+          temporary_share_until?: string | null
+          temporary_share_with?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          live_business_availability?: boolean
+          mode?: string
+          temporary_share_until?: string | null
+          temporary_share_with?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -1651,6 +2198,56 @@ export type Database = {
           },
         ]
       }
+      saved_places: {
+        Row: {
+          created_at: string
+          place_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          place_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          place_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "campus_places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          query: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       school_access_requests: {
         Row: {
           created_at: string
@@ -1723,6 +2320,27 @@ export type Database = {
           state?: string | null
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: string
+          user_id?: string
         }
         Relationships: []
       }
