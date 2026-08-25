@@ -361,7 +361,7 @@ export function UniversalSearchPanel({ query, setQuery }: { query: string; setQu
       )}
 
       {query.trim().length >= 2 && !!(savedSearches.data ?? []).length && (
-        <div className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Reopen a saved search">
+        <div tabIndex={0} className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Reopen a saved search">
           <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Saved:
           </span>

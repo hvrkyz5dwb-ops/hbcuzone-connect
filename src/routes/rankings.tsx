@@ -104,7 +104,7 @@ function RankingsPage() {
           ))}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             onClick={() => setCategory(null)}
             className={`tap shrink-0 px-3.5 py-1.5 rounded-full text-[11px] border ${

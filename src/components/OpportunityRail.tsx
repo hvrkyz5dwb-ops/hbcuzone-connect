@@ -9,7 +9,7 @@ export function OpportunityRail() {
   return (
     <section className="mt-7">
       <SectionHeader title="Opportunities for you" action="See all" />
-      <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {ORDER.flatMap((k) =>
           opportunities.filter((o) => o.kind === k).slice(0, 1).map((o) => {
             const meta = opportunityMeta[o.kind];

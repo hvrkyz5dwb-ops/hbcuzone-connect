@@ -91,7 +91,7 @@ function OrdersPage() {
         </div>
 
         {/* Status filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {STATUS_FILTERS.map((t) => (
             <button
               key={t.key}
@@ -105,8 +105,11 @@ function OrdersPage() {
           ))}
         </div>
 
+        {/* Reserved height keeps the page from jumping when orders resolve. */}
+        <div className="min-h-[420px]">
         {isPending ? (
           <div className="mt-6"><LoadingList rows={5} /></div>
+
         ) : isError ? (
           <ErrorState
             title="Orders didn't load"
@@ -170,6 +173,9 @@ function OrdersPage() {
             })}
           </ul>
         )}
+        </div>
+
+
 
         <p className="mt-6 text-[10px] tracking-[0.25em] uppercase text-center text-muted-foreground inline-flex items-center gap-1 w-full justify-center">
           <ShieldCheck className="h-3 w-3" /> Protected by PlugU

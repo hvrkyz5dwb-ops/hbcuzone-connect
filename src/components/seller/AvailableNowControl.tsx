@@ -160,7 +160,7 @@ export function AvailableNowControl() {
               />
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {AVAILABLE_CATEGORIES.map((c) => (
                 <button
                   key={c.key}
@@ -208,7 +208,7 @@ export function AvailableNowControl() {
                 placeholder="Student Center area"
                 className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
-              <div className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div tabIndex={0} className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {ZONE_SUGGESTIONS.map((z) => (
                   <button
                     key={z}

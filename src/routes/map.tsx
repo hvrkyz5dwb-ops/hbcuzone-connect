@@ -499,7 +499,7 @@ function ExploreMode({
         />
       </div>
 
-      <div className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Place category filters">
+      <div tabIndex={0} className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Place category filters">
         <FilterChip on={!category} onClick={() => setCategory(null)} label="All" glyph="✦" />
         {PLACE_CATEGORIES.map((c) => (
           <FilterChip
@@ -517,7 +517,7 @@ function ExploreMode({
           <h2 id="tours-h" className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Guided tours
           </h2>
-          <ul className="-mx-5 mt-2 flex gap-3 overflow-x-auto px-5 pb-1">
+          <ul tabIndex={0} className="-mx-5 mt-2 flex gap-3 overflow-x-auto px-5 pb-1">
             {tours.map((t) => (
               <li key={t.id} className="w-56 shrink-0">
                 <button
@@ -600,7 +600,7 @@ function LiveMode({
 
   return (
     <div className="mt-4">
-      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Live activity filters">
+      <div tabIndex={0} className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" role="group" aria-label="Live activity filters">
         <FilterChip on={!filter} onClick={() => setFilter(null)} label="Everything live" glyph="◉" />
         {LIVE_FILTERS.map((f) => (
           <FilterChip
@@ -797,7 +797,7 @@ function PlaceSheet({
         </dl>
 
         {(place.media ?? []).length > 0 && (
-          <ul className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1">
+          <ul tabIndex={0} className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1">
             {place.media.map((m, i) => (
               <li key={i}>
                 <img src={m.url} alt={m.caption ?? `${place.name} photo ${i + 1}`} loading="lazy" className="h-24 w-36 rounded-xl object-cover" />

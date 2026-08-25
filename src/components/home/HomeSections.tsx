@@ -34,7 +34,17 @@ function Empty({ text, cta, to }: { text: string; cta?: string; to?: string }) {
   );
 }
 
-function Skeleton({ n = 3 }: { n?: number }) {
+function Skeleton({ n = 3, rail = false }: { n?: number; rail?: boolean }) {
+  if (rail) {
+    // Matches the real rail card footprint so swapping in data causes no layout shift.
+    return (
+      <div className="flex gap-3 overflow-hidden px-5 pb-1" aria-hidden="true">
+        {Array.from({ length: n }).map((_, i) => (
+          <div key={i} className="h-[104px] w-[230px] shrink-0 animate-pulse rounded-2xl border border-border bg-card" />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="space-y-2 px-5" aria-hidden="true">
       {Array.from({ length: n }).map((_, i) => (
@@ -43,6 +53,7 @@ function Skeleton({ n = 3 }: { n?: number }) {
     </div>
   );
 }
+
 
 /* --------------------------------- Around You --------------------------------- */
 
@@ -61,6 +72,8 @@ function AroundYou() {
     <section className="mt-7" aria-labelledby="home-around-you">
       <SectionHeader title="Around You" action="Open map" onAction={() => navigate({ to: "/map" })} />
       <h2 id="home-around-you" className="sr-only">Around You</h2>
+      {/* Reserved height matches the skeleton so resolving data never shifts the page. */}
+      <div className="min-h-[208px]">
       {isLoading ? (
         <Skeleton />
       ) : nearby.length ? (
@@ -90,6 +103,8 @@ function AroundYou() {
       ) : (
         <Empty text="No student services listed on your campus yet." cta="Offer a service" to="/seller/onboarding" />
       )}
+      </div>
+
     </section>
   );
 }
@@ -120,10 +135,12 @@ function Tonight() {
     <section className="mt-7" aria-labelledby="home-tonight">
       <SectionHeader title="Tonight" />
       <h2 id="home-tonight" className="sr-only">Tonight</h2>
+      {/* Reserved height so the skeleton, rail and empty state all occupy the same space. */}
+      <div className="min-h-[112px]">
       {q.isPending ? (
-        <Skeleton n={2} />
+        <Skeleton n={2} rail />
       ) : (q.data ?? []).length ? (
-        <ul className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {q.data!.map((e) => (
             <li key={e.id} className="w-[230px] shrink-0 snap-start">
               <Link to="/events" className="tap block h-full rounded-2xl border border-border bg-card p-3.5">
@@ -141,6 +158,8 @@ function Tonight() {
       ) : (
         <Empty text="Nothing verified on the calendar for tonight." cta="Browse all events" to="/events" />
       )}
+      </div>
+
     </section>
   );
 }
@@ -154,7 +173,7 @@ function Opportunities() {
     <section className="mt-7" aria-labelledby="home-opps">
       <SectionHeader title="Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
       <h2 id="home-opps" className="sr-only">Opportunities</h2>
-      <ul className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {picks.map((o) => {
           const meta = opportunityMeta[o.kind];
           const Icon = meta.icon;
@@ -202,6 +221,8 @@ function CampusUpdates() {
     <section className="mt-7" aria-labelledby="home-updates">
       <SectionHeader title="Campus Updates" />
       <h2 id="home-updates" className="sr-only">Campus Updates</h2>
+      {/* Reserved height matches the skeleton so resolving data never shifts the page. */}
+      <div className="min-h-[136px]">
       {q.isPending ? (
         <Skeleton n={2} />
       ) : (q.data ?? []).length ? (
@@ -221,6 +242,8 @@ function CampusUpdates() {
       ) : (
         <Empty text="No official announcements posted right now. Campus information is being verified." />
       )}
+      </div>
+
     </section>
   );
 }

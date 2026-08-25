@@ -106,7 +106,7 @@ function NotificationsPage() {
       </section>
 
       {!loading && cats.length > 2 && (
-        <div className="mt-4 flex gap-1.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-4 flex gap-1.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {cats.map((c) => (
             <button
               key={c}

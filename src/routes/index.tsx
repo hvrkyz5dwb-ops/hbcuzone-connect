@@ -308,13 +308,13 @@ function TrendingListings() {
     <section className="mt-7" data-tour="events">
       <SectionHeader title="Trending Near You" action="See all" onAction={() => navigate({ to: "/market" })} />
       {isLoading ? (
-        <div className="px-5 flex gap-3 overflow-x-auto pb-2">
+        <div tabIndex={0} className="px-5 flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="min-w-[176px] w-44 h-52 rounded-3xl bg-card border border-border animate-pulse" />
           ))}
         </div>
       ) : data && data.length > 0 ? (
-        <div className="px-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="px-5 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {data.map((l) => <ListingCard key={l.id} l={l} />)}
         </div>
       ) : (

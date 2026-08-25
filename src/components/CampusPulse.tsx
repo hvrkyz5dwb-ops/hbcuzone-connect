@@ -222,7 +222,7 @@ export function CampusPulse() {
       {/* Trending businesses */}
       <Reveal as="section" index={4} className="mt-7">
         <SectionHeader title="Trending businesses" action="See all" />
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {featuredKingpins.map((k) => (
             <Link
               key={k.handle}
@@ -284,7 +284,7 @@ export function CampusPulse() {
       {/* Upcoming events */}
       <Reveal as="section" index={6} className="mt-7">
         <SectionHeader title="Tonight & this week" action="All events" />
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {upcoming.length === 0 && (
             <Link
               to="/events"

@@ -34,7 +34,7 @@ type Item =
 
 export function PulseFilterBar({ value, onChange }: { value: PulseFilter; onChange: (v: PulseFilter) => void }) {
   return (
-    <div className="flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div tabIndex={0} className="flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {PULSE_FILTERS.map((f) => (
         <button
           key={f.key}
@@ -199,7 +199,7 @@ export function AvailableNowRail() {
   const { data, isLoading } = useAvailability({ limit: 12 });
   if (isLoading) {
     return (
-      <div className="flex gap-3 overflow-x-auto px-5 pb-2">
+      <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="h-40 w-56 shrink-0 animate-pulse rounded-2xl border border-border bg-card" />
         ))}
@@ -208,7 +208,7 @@ export function AvailableNowRail() {
   }
   if (!data || data.length === 0) return null;
   return (
-    <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {data.map((row) => <AvailableNowCard key={row.id} row={row} compact />)}
     </div>
   );
@@ -226,7 +226,7 @@ export function FlashDropsRail() {
   if (isLoading) return null;
   if (!data || data.items.length === 0) return null;
   return (
-    <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {data.items.map((d) => (
         <DropCard key={d.id} drop={d} compact claimed={data.claimed.has(d.id)} onClaim={claim} />
       ))}
@@ -244,7 +244,7 @@ export function EventsTonightRail() {
   });
   if (isLoading || !data || data.length === 0) return null;
   return (
-    <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {data.map((e) => (
         <Link
           key={e.id}

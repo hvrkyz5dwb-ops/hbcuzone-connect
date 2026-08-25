@@ -103,7 +103,7 @@ export function SmartSearch() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="px-5 py-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-border/60">
+          <div tabIndex={0} className="px-5 py-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-border/60">
             {CHIPS.map((c) => (
               <button
                 key={c}

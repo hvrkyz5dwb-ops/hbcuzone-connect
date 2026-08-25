@@ -127,7 +127,7 @@ function CampusHub() {
           />
         </div>
 
-        <nav className="mt-3 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Campus Hub sections">
+        <nav tabIndex={0} className="mt-3 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Campus Hub sections">
           {SECTIONS.map((s) => {
             const Icon = s.icon;
             const active = s.key === section;
@@ -262,7 +262,7 @@ function EventsSection({
 
   return (
     <section className="pb-8">
-      <div className="mt-1 flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-1 flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
           onClick={() => setCat("all")}
           className={`tap shrink-0 px-3 py-1.5 rounded-full text-[11px] border ${cat === "all" ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border"}`}

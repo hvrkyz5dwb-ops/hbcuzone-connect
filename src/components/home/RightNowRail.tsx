@@ -44,7 +44,7 @@ export function RightNowRail() {
         </Link>
       </div>
 
-      <ul className="mt-3 flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul tabIndex={0} className="mt-3 flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {livePins.map((p: any) => (
           <li key={p.id} className="w-[220px] shrink-0 snap-start">
             <Link

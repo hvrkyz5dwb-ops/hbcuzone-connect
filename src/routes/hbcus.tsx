@@ -346,7 +346,7 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
             borderBottom: "1px solid color-mix(in oklab, var(--hbcu-gold) 18%, transparent)",
           }}
         >
-          <div className="px-5 flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div tabIndex={0} className="px-5 flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {hbcusHomeSections.map((key) => {
               const isActive = section === key;
               return (
@@ -672,7 +672,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
           </p>
           <button onClick={() => onJump("News")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>See all →</button>
         </div>
-        <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {breakingQ.isPending &&
             [0, 1, 2].map((i) => (
               <div key={i} className="shrink-0 w-52 h-28 rounded-2xl border border-border bg-card animate-pulse" />
@@ -897,7 +897,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
 
       {/* Upcoming events horizontal */}
       <DashRow title="Upcoming Events" onMore={() => onJump("Events")}>
-        <div className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {liveEvents.slice(0, 5).map((e) => (
             <div key={e.id} className="shrink-0 w-56 rounded-2xl bg-card border border-border p-3">
               <p className="text-[10px] uppercase tracking-widest text-primary">{e.type}</p>
@@ -962,7 +962,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
 
       {/* Student Spotlights */}
       <DashRow title="Student Spotlights" onMore={() => onJump("Excellence")}>
-        <div className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {studentSpotlights.map((s) => (
             <div key={s.id} className="shrink-0 w-60 rounded-2xl bg-card border border-border p-4">
               <p className="text-2xl">{s.emoji}</p>
@@ -993,7 +993,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
 
       {/* Study Abroad */}
       <DashRow title="Study Abroad">
-        <div className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {studyAbroadPrograms.map((p) => (
             <div key={p.id} className="shrink-0 w-56 rounded-2xl bg-card border border-border p-4">
               <p className="text-2xl">{p.emoji}</p>
@@ -1023,7 +1023,7 @@ function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s:
 
       {/* Stocks & Market */}
       <DashRow title="Stocks & Market News">
-        <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
+        <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
           {marketTickers.map((t) => (
             <div key={t.symbol} className="shrink-0 px-3 py-2 rounded-xl bg-card border border-border min-w-[120px]">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.symbol}</p>
@@ -1938,7 +1938,7 @@ function GreekLifePanel() {
           className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
         />
       </div>
-      <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {allOrgs.map((o) => (
           <button
             key={o}
@@ -2341,7 +2341,7 @@ function FilterChips({
   values, active, onChange, small,
 }: { values: readonly string[]; active: string; onChange: (v: string) => void; small?: boolean }) {
   return (
-    <div className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {values.map((v) => {
         const a = v === active;
         return (

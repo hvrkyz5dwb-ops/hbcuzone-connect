@@ -63,7 +63,7 @@ function NationalsPage() {
       </section>
 
       <section className="px-5 pt-5">
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
           <Chip active={metric === "score"} onClick={() => setMetric("score")} label="Overall" />
           {METRIC_TABS.map((k) => (
             <Chip key={k} active={metric === k} onClick={() => setMetric(k)} label={metricLabel(k)} />

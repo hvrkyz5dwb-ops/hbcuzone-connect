@@ -96,7 +96,7 @@ function Hub() {
 
       {/* Category chips */}
       <section className="mt-3">
-        <div className="px-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="px-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Chip active={cat === "all"} onClick={() => setCat("all")}>All</Chip>
           {sections.map((s) => (
             <Chip key={s.key} active={cat === s.key} onClick={() => setCat(s.key)}>

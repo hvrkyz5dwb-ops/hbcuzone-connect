@@ -196,7 +196,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-nav">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-[image:var(--gradient-bronze)] focus:px-4 focus:py-2 focus:text-[11px] focus:font-semibold focus:text-primary-foreground"
+        >
+          Skip to main content
+        </a>
         <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-background/75 backdrop-blur-xl border-b border-border/50">
+
           <div className="flex items-center -space-x-1">
             <img
               src={pluguLogo}
@@ -243,7 +250,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           </div>
         </header>
 
-        <main key={pathname} className="flex-1 view-enter">{children}</main>
+        <main id="main-content" tabIndex={-1} key={pathname} className="flex-1 view-enter">{children}</main>
 
         <AchievementBurst />
 

@@ -221,7 +221,7 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
   return (
     <>
       <section className="px-5 mt-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Chip active={type === "all"} onClick={() => setType("all")} label="All" />
           {SEARCH_TYPES.map((s) => (
             <Chip key={s.key} active={type === s.key} onClick={() => setType(s.key)} label={`${s.emoji} ${s.label}`} />

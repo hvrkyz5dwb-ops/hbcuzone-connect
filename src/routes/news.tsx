@@ -108,7 +108,7 @@ function NewsCenter() {
       </section>
 
       {/* Tabs */}
-      <div className="mt-5 -mx-0 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-5 -mx-0 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {newsTabs.map((t) => {
           const active = t === tab;
           return (
@@ -128,7 +128,7 @@ function NewsCenter() {
       </div>
 
       {/* Filters */}
-      <div className="mt-3 px-5 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-3 px-5 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         {newsFilters.map((f) => {
           const active = filters.has(f);
