@@ -419,8 +419,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
         </div>
       )}
 
+      <RealtimeStatusBar />
       <TermsGate />
       <Toaster position="top-center" />
+
 
       {showSplash && (
         <SplashScreen
