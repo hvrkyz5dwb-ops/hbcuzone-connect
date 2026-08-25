@@ -41,6 +41,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as MeRouteImport } from './routes/me'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MapRouteImport } from './routes/map'
@@ -247,6 +248,11 @@ const MilestonesRoute = MilestonesRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeRoute = MeRouteImport.update({
+  id: '/me',
+  path: '/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -514,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -595,6 +602,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -677,6 +685,7 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
   '/nationals': typeof NationalsRoute
@@ -760,6 +769,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/mcp'
+    | '/me'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -841,6 +851,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/mcp'
+    | '/me'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -922,6 +933,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/market'
     | '/mcp'
+    | '/me'
     | '/messages'
     | '/milestones'
     | '/nationals'
@@ -1004,6 +1016,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   MarketRoute: typeof MarketRoute
   McpRoute: typeof McpRoute
+  MeRoute: typeof MeRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   MilestonesRoute: typeof MilestonesRoute
   NationalsRoute: typeof NationalsRoute
@@ -1277,6 +1290,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/me': {
+      id: '/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof MeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -1718,6 +1738,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   MarketRoute: MarketRoute,
   McpRoute: McpRoute,
+  MeRoute: MeRoute,
   MessagesRoute: MessagesRouteWithChildren,
   MilestonesRoute: MilestonesRoute,
   NationalsRoute: NationalsRoute,
