@@ -4,7 +4,9 @@ import {
   ShieldCheck, RefreshCw, Flag, UserX, Scale, BookOpen, MapPin, Phone, Receipt,
   ChevronRight, ArrowLeft, AlertTriangle, CheckCircle2,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { listMyOrders, centsToDollars, statusToneClass, STATUS_LABEL } from "@/lib/orders-db";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/trust")({
