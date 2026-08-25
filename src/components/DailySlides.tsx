@@ -43,6 +43,9 @@ export function DailySlides() {
   const [today, setToday] = useState("");
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const resume = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startX = useRef<number | null>(null);
 
   useEffect(() => {
     setToday(new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }));
