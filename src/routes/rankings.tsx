@@ -37,6 +37,8 @@ function medal(i: number): string {
 
 function RankingsPage() {
   const { profile } = useProfile();
+  const { user, loading: sessionLoading } = useSession();
+  const signedIn = !!user?.id;
   const [scope, setScope] = useState<"campus" | "national">("campus");
   const [period, setPeriod] = useState<RankingPeriod>("30");
   const [category, setCategory] = useState<string | null>(null);
