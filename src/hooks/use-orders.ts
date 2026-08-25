@@ -5,7 +5,7 @@ import {
   listOpenSlots, listSellerSlots, addSellerSlot, deleteSellerSlot,
   type OrderRole, type OrderStatus, type BookingStatus,
 } from "@/lib/orders-db";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribeChannel } from "@/lib/realtime";
 import { useEffect, useId } from "react";
 
 export function useMyOrders(role: OrderRole = "all") {
@@ -16,12 +16,11 @@ export function useMyOrders(role: OrderRole = "all") {
 
   // Live invalidate on new / updated orders and bookings.
   useEffect(() => {
-    const ch = supabase
-      .channel(`orders-${role}-${instanceId}`)
+    return subscribeChannel(`orders-${role}-${instanceId}`, (ch) =>
+      ch
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => qc.invalidateQueries({ queryKey: key }))
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => qc.invalidateQueries({ queryKey: key }))
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    );
   }, [qc, role, instanceId]);
 
   return q;
@@ -34,8 +33,8 @@ export function useOrder(id: string) {
   const q = useQuery({ queryKey: key, queryFn: () => getOrder(id), enabled: !!id });
   useEffect(() => {
     if (!id) return;
-    const ch = supabase
-      .channel(`order-${id}-${instanceId}`)
+    return subscribeChannel(`order-${id}-${instanceId}`, (ch) =>
+      ch
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
         qc.invalidateQueries({ queryKey: key });
         qc.invalidateQueries({ queryKey: ["order-history", id] });
@@ -43,8 +42,7 @@ export function useOrder(id: string) {
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: `order_id=eq.${id}` }, () => {
         qc.invalidateQueries({ queryKey: key });
       })
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    );
   }, [id, qc, instanceId]);
   return q;
 }
