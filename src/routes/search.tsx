@@ -6,6 +6,7 @@ import {
   Instagram, Youtube, Music2, Globe, ArrowUpRight, Heart,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { UniversalSearchPanel } from "@/components/UniversalSearchPanel";
 import { ChargingLoader } from "@/components/ChargingLoader";
 import { listings } from "@/lib/mock-data";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
@@ -48,7 +49,7 @@ const SUGGESTED_PROMPTS = [
 const SCHOOLS = ["Any school", "Howard", "Spelman", "Morehouse", "FAMU", "Hampton", "Talladega"];
 const SORTS = ["Best Match", "Newest", "Trending", "Price: Low → High", "Price: High → Low", "Top Rated"];
 
-const SearchParams = z.object({ q: z.string().optional(), tab: z.enum(["browse", "ai"]).optional() });
+const SearchParams = z.object({ q: z.string().optional(), tab: z.enum(["campus", "browse", "ai"]).optional() });
 
 export const Route = createFileRoute("/search")({
   validateSearch: SearchParams,
@@ -66,7 +67,7 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const sp = useSearch({ from: "/search" });
   const navigate = useNavigate({ from: "/search" });
-  const [tab, setTab] = useState<"browse" | "ai">(sp.tab ?? "browse");
+  const [tab, setTab] = useState<"campus" | "browse" | "ai">(sp.tab ?? "campus");
   const [query, setQuery] = useState(sp.q ?? "");
   const [type, setType] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -122,7 +123,7 @@ function SearchPage() {
   return (
     <AppShell title="SEARCH">
       <section className="px-5 pt-4 sticky top-[64px] z-20 bg-background/85 backdrop-blur-xl pb-3 border-b border-border/50">
-        <div className="flex items-center gap-2">
+        <div className={`items-center gap-2 ${tab === "campus" ? "hidden" : "flex"}`}>
           <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
@@ -149,13 +150,18 @@ function SearchPage() {
           )}
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-1 p-1 rounded-2xl bg-card border border-border">
-          <TabBtn active={tab === "browse"} onClick={() => setTab("browse")} icon={Search} label="Browse" />
+        <div className="mt-3 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-card border border-border">
+          <TabBtn active={tab === "campus"} onClick={() => setTab("campus")} icon={Search} label="Everything" />
+          <TabBtn active={tab === "browse"} onClick={() => setTab("browse")} icon={SlidersHorizontal} label="Market" />
           <TabBtn active={tab === "ai"} onClick={() => setTab("ai")} icon={Sparkles} label="Ask AI" />
         </div>
       </section>
 
-      {tab === "browse" ? (
+      {tab === "campus" ? (
+        <div className="pt-4">
+          <UniversalSearchPanel query={query} setQuery={setQuery} />
+        </div>
+      ) : tab === "browse" ? (
         <BrowseTab
           type={type} setType={setType}
           showFilters={showFilters}
