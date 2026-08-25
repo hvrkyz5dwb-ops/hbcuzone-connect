@@ -16,7 +16,27 @@ import {
   toggleLikeCommunityPost,
   type CommunityPost,
   type Comment,
+  type PostTag,
 } from "@/lib/community-storage";
+
+const TAGS: { key: PostTag; label: string; emoji: string }[] = [
+  { key: "chatter", label: "Chatter", emoji: "💬" },
+  { key: "selling", label: "Selling", emoji: "🏷️" },
+  { key: "looking", label: "Looking for", emoji: "🔎" },
+  { key: "hiring", label: "Hiring", emoji: "💼" },
+  { key: "event", label: "Event", emoji: "🎉" },
+  { key: "heads_up", label: "Heads up", emoji: "⚡" },
+];
+
+function tagDef(key: PostTag) {
+  return TAGS.find((t) => t.key === key) ?? TAGS[0];
+}
+
+/** Fizz-style hotness: engagement decayed over time so fresh buzz floats up. */
+function hotness(p: CommunityPost) {
+  const hours = (Date.now() - p.createdAt) / 3_600_000;
+  return (p.likes * 2 + p.comments.length * 3 + 1) / Math.pow(hours + 2, 1.3);
+}
 
 function relative(ts: number) {
   const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
