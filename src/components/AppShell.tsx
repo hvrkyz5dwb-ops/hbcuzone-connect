@@ -272,52 +272,48 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             }}
           >
             <ul className="grid grid-cols-5 items-end px-2 py-2 relative">
-              {tabs.map((t, idx) => {
+              {/* Floating action: tap for the Campus Hub, hold for quick actions. */}
+              <li className="pointer-events-none absolute -top-9 right-3 z-10">
+                <button
+                  onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
+                  onPointerDown={() => {
+                    longPress.current = false;
+                    pressTimer.current = window.setTimeout(() => { longPress.current = true; setPlugOpen(true); }, 500);
+                  }}
+                  onPointerUp={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
+                  onPointerLeave={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
+                  className="tap plugu-breathe pointer-events-auto grid place-items-center w-14 h-14 rounded-full relative overflow-hidden"
+                  style={{
+                    background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
+                    border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
+                  }}
+                  aria-label="Open Campus Hub — hold for quick actions"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-[2px] rounded-full pointer-events-none"
+                    style={{
+                      background:
+                        "conic-gradient(from 210deg, transparent 0deg, rgba(244,201,106,0.55) 60deg, transparent 140deg, transparent 360deg)",
+                      filter: "blur(7px)",
+                      opacity: 0.7,
+                    }}
+                  />
+                  <img
+                    src={pluguLogo}
+                    alt=""
+                    aria-hidden="true"
+                    className="relative h-7 w-7 object-contain"
+                    style={{
+                      filter:
+                        "drop-shadow(0 0 10px rgba(244,201,106,0.75)) drop-shadow(0 0 2px rgba(244,201,106,0.9))",
+                    }}
+                  />
+                </button>
+              </li>
+              {tabs.map((t) => {
                 const Icon = t.icon;
                 const active = pathname === t.to;
-                const isMiddle = idx === 2;
-                if (isMiddle) {
-                  return (
-                    <li key="plug-center" className="flex justify-center">
-                      <button
-                        onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
-                        onPointerDown={() => {
-                          longPress.current = false;
-                          pressTimer.current = window.setTimeout(() => { longPress.current = true; setPlugOpen(true); }, 500);
-                        }}
-                        onPointerUp={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
-                        onPointerLeave={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
-                        className="tap plugu-breathe -mt-8 grid place-items-center w-16 h-16 rounded-full relative overflow-hidden"
-                        style={{
-                          background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
-                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
-                        }}
-                        aria-label="Open Campus Hub — hold for quick actions"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="absolute inset-[2px] rounded-full pointer-events-none"
-                          style={{
-                            background:
-                              "conic-gradient(from 210deg, transparent 0deg, rgba(244,201,106,0.55) 60deg, transparent 140deg, transparent 360deg)",
-                            filter: "blur(7px)",
-                            opacity: 0.7,
-                          }}
-                        />
-                        <img
-                          src={pluguLogo}
-                          alt=""
-                          aria-hidden="true"
-                          className="relative h-8 w-8 object-contain"
-                          style={{
-                            filter:
-                              "drop-shadow(0 0 10px rgba(244,201,106,0.75)) drop-shadow(0 0 2px rgba(244,201,106,0.9))",
-                          }}
-                        />
-                      </button>
-                    </li>
-                  );
-                }
                 return (
                   <li key={t.to} className="flex justify-center">
                     <Link
