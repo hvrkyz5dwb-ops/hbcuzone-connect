@@ -84,6 +84,7 @@ export function addCommunityPost(input: {
     likes: 0,
     likedByMe: false,
     visibility: input.visibility || "campus",
+    tag: input.tag || "chatter",
     comments: [],
   };
   writeAll([post, ...readAll()]);
