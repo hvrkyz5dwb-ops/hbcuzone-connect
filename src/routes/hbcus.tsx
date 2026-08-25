@@ -44,6 +44,8 @@ import { useProfile } from "@/hooks/use-profile";
 import { detectHbcuSchool, isHbcuDomain, getDomain } from "@/lib/auth";
 import { ShieldCheck, Pencil } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { suggestConnections } from "@/lib/networking.functions";
 import { getLiveWeather, getLiveNews, getHbcuSports, type LiveGame } from "@/lib/live-feeds.functions";
 import {
   hbcuNewsFilters,
