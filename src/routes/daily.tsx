@@ -64,7 +64,7 @@ function DailyPage() {
       </section>
 
       <section className="px-5 pt-5">
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
           {DAILY_SECTIONS.map((s) => (
             <button
               key={s.key}

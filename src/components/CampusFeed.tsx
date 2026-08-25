@@ -87,7 +87,7 @@ export function CampusFeed() {
       </div>
 
       {/* Stories */}
-      <div className="flex gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {stories.map((s, i) => {
           const isCreate = s.id === "create";
           return (
@@ -154,7 +154,7 @@ export function CampusFeed() {
       </div>
 
       {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="flex gap-2 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {feedFilters.map((f) => {
           const active = f === filter;
           return (
@@ -200,7 +200,7 @@ export function CampusFeed() {
             See all
           </button>
         </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {featuredCreators.map((c) => (
             <article
               key={c.id}
@@ -588,7 +588,7 @@ function Composer({ onClose }: { onClose: () => void }) {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex gap-2 mb-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 mb-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {(["Post", "Drop", "Service", "Event"] as const).map((k) => (
             <button
               key={k}

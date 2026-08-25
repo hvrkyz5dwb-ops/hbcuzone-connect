@@ -115,7 +115,7 @@ export function DropComposer() {
                 aria-label="General campus area"
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
-              <div className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div tabIndex={0} className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {ZONE_SUGGESTIONS.map((z) => (
                   <button key={z} type="button" onClick={() => setZone(z)}
                     className="tap shrink-0 rounded-full border border-border px-2.5 py-1 text-[10px] text-muted-foreground">

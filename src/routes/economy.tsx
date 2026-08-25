@@ -39,7 +39,7 @@ function Economy() {
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 500)); }}>
         <Header />
         <div className="sticky top-[60px] z-20 bg-background/80 backdrop-blur-xl border-b border-border/40">
-          <div className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div tabIndex={0} className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {TABS.map((t) => {
               const active = tab === t;
               return (
@@ -131,7 +131,7 @@ function Dashboard() {
     <section className="mt-5 slide-up">
       <div className="px-5">
         <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground">My Campus</p>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {campusEconomies.map((x) => {
             const active = x.id === campusId;
             return (
@@ -260,7 +260,7 @@ function Rankings() {
     <section className="mt-5 slide-up">
       <div className="px-5">
         <SectionHeader title="National Campus Rankings" />
-        <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {rankingFilters.map((f) => (
             <button key={f} onClick={() => setFilter(f)}
               className={`tap shrink-0 px-3 py-1.5 rounded-full text-[11px] border ${
@@ -270,7 +270,7 @@ function Rankings() {
             </button>
           ))}
         </div>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-2 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {rankingCategories.map((c) => (
             <button key={c} onClick={() => setCat(c)}
               className={`tap shrink-0 px-3 py-1.5 rounded-full text-[11px] border ${

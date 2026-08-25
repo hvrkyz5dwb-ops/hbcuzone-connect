@@ -181,7 +181,7 @@ export function CommunityBoard() {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-1.5 overflow-x-auto border-t border-border pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-2 flex items-center gap-1.5 overflow-x-auto border-t border-border pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <span className="text-[10px] text-muted-foreground shrink-0 mr-0.5">Tag:</span>
           {TAGS.map((t) => (
             <button
@@ -226,7 +226,7 @@ export function CommunityBoard() {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex shrink-0 rounded-full border border-border p-0.5">
           {(["hot", "new", "top"] as const).map((s) => (
             <button

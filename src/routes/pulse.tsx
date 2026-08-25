@@ -53,7 +53,7 @@ function PulsePage() {
         </section>
 
         {hot.length > 0 && (
-          <div className="mt-3 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div tabIndex={0} className="mt-3 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {hot.map((z) => (
               <Link
                 key={z.zone_name}

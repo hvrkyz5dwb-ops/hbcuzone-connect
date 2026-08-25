@@ -92,7 +92,7 @@ function SchoolCommunity() {
       </section>
 
       {/* Tabs */}
-      <div className="mt-4 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-4 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => (
           <button
             key={t}
@@ -126,7 +126,7 @@ function SchoolCommunity() {
       {/* Cross-links to other HBCUs */}
       <section className="px-5 pb-10">
         <p className="text-[10px] tracking-[0.3em] uppercase mb-2" style={{ color: "color-mix(in oklab, var(--hbcu-gold) 70%, transparent)" }}>Jump to another HBCU</p>
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {schoolProfiles.filter((s) => s.name !== school.name).map((s) => (
             <Link
               key={s.name}

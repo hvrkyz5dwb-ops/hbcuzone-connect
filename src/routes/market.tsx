@@ -131,7 +131,7 @@ function Market() {
           </button>
         </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[{ key: "all", label: "All" }, ...MVP_CATEGORIES].map((c) => {
             const isActive = category === c.key;
             return (

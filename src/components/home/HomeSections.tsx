@@ -34,7 +34,17 @@ function Empty({ text, cta, to }: { text: string; cta?: string; to?: string }) {
   );
 }
 
-function Skeleton({ n = 3 }: { n?: number }) {
+function Skeleton({ n = 3, rail = false }: { n?: number; rail?: boolean }) {
+  if (rail) {
+    // Matches the real rail card footprint so swapping in data causes no layout shift.
+    return (
+      <div className="flex gap-3 overflow-hidden px-5 pb-1" aria-hidden="true">
+        {Array.from({ length: n }).map((_, i) => (
+          <div key={i} className="h-[104px] w-[230px] shrink-0 animate-pulse rounded-2xl border border-border bg-card" />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="space-y-2 px-5" aria-hidden="true">
       {Array.from({ length: n }).map((_, i) => (
@@ -43,6 +53,7 @@ function Skeleton({ n = 3 }: { n?: number }) {
     </div>
   );
 }
+
 
 /* --------------------------------- Around You --------------------------------- */
 
@@ -121,9 +132,10 @@ function Tonight() {
       <SectionHeader title="Tonight" />
       <h2 id="home-tonight" className="sr-only">Tonight</h2>
       {q.isPending ? (
-        <Skeleton n={2} />
+        <Skeleton n={2} rail />
+
       ) : (q.data ?? []).length ? (
-        <ul className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {q.data!.map((e) => (
             <li key={e.id} className="w-[230px] shrink-0 snap-start">
               <Link to="/events" className="tap block h-full rounded-2xl border border-border bg-card p-3.5">
@@ -154,7 +166,7 @@ function Opportunities() {
     <section className="mt-7" aria-labelledby="home-opps">
       <SectionHeader title="Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
       <h2 id="home-opps" className="sr-only">Opportunities</h2>
-      <ul className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {picks.map((o) => {
           const meta = opportunityMeta[o.kind];
           const Icon = meta.icon;

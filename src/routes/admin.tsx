@@ -147,7 +147,7 @@ function Admin() {
         <p className="text-xs text-muted-foreground">Moderate listings, resolve reports, protect the community.</p>
       </section>
 
-      <nav className="mt-4 flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav tabIndex={0} className="mt-4 flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.key;

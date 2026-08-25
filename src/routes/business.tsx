@@ -266,7 +266,7 @@ function BusinessCenter() {
       </section>
 
       {/* Tabs */}
-      <div className="mt-5 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} className="mt-5 px-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = t.key === tab;
