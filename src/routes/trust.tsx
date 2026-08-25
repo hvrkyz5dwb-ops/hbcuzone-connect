@@ -4,7 +4,9 @@ import {
   ShieldCheck, RefreshCw, Flag, UserX, Scale, BookOpen, MapPin, Phone, Receipt,
   ChevronRight, ArrowLeft, AlertTriangle, CheckCircle2,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { listMyOrders, centsToDollars, statusToneClass, STATUS_LABEL } from "@/lib/orders-db";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/trust")({
@@ -229,34 +231,64 @@ function ContactsBlock({ contacts }: { contacts: { label: string; value: string 
 }
 
 function HistoryBlock() {
-  const txns = [
-    { id: "TX-2041", item: "Silk Press by @JadaCutz", amount: "$60.00", date: "Jun 24", status: "Completed" },
-    { id: "TX-2032", item: "Calc III Tutoring (1hr)", amount: "$25.00", date: "Jun 20", status: "Completed" },
-    { id: "TX-2018", item: "Soul Food Plate", amount: "$12.00", date: "Jun 18", status: "Refunded" },
-    { id: "TX-2001", item: "Ride to ATL Airport", amount: "$40.00", date: "Jun 10", status: "Completed" },
-    { id: "TX-1987", item: "Campus Photoshoot (1 hr)", amount: "$32.00", date: "Jun 01", status: "Completed" },
-  ];
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["trust", "order-history"],
+    queryFn: () => listMyOrders("buyer"),
+    staleTime: 30_000,
+  });
+
   return (
     <section className="px-5 mt-3">
       <h2 className="text-lg font-bold">Transaction History</h2>
-      <ul className="mt-4 space-y-2">
-        {txns.map((t) => (
-          <li key={t.id} className="p-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">{t.item}</p>
-              <p className="text-sm font-bold">{t.amount}</p>
-            </div>
-            <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{t.id} · {t.date}</span>
-              <span className={
-                t.status === "Refunded" ? "text-rose-300"
-                : t.status === "Active" ? "text-accent"
-                : "text-emerald-300"
-              }>{t.status}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {isLoading ? (
+        <ul className="mt-4 space-y-2" aria-busy="true">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="h-16 rounded-xl bg-card border border-border animate-pulse" />
+          ))}
+        </ul>
+      ) : isError ? (
+        <div className="mt-4 p-4 rounded-xl bg-card border border-border text-sm">
+          <p className="text-muted-foreground">We couldn’t load your transactions.</p>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            className="mt-3 min-h-11 px-4 rounded-full border border-border text-xs font-semibold tap"
+          >
+            Try again
+          </button>
+        </div>
+      ) : !data || data.length === 0 ? (
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          <Receipt className="h-8 w-8 mx-auto mb-2 opacity-60" aria-hidden="true" />
+          <p>No transactions yet.</p>
+          <Link to="/market" className="inline-block mt-3 min-h-11 px-4 py-3 rounded-full border border-border text-xs font-semibold tap">
+            Browse the marketplace
+          </Link>
+        </div>
+      ) : (
+        <ul className="mt-4 space-y-2">
+          {data.map((o) => (
+            <li key={o.id}>
+              <Link
+                to="/orders/$id"
+                params={{ id: o.id }}
+                className="block p-4 rounded-xl bg-card border border-border tap"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold line-clamp-1">
+                    {o.listing?.title ?? "PlugU order"}
+                  </p>
+                  <p className="text-sm font-bold shrink-0">{centsToDollars(o.total_cents)}</p>
+                </div>
+                <div className="mt-1 flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
+                  <span>{new Date(o.created_at).toLocaleDateString()}</span>
+                  <span className={statusToneClass(o.status)}>{STATUS_LABEL[o.status]}</span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

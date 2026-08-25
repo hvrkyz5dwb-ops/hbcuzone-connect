@@ -193,7 +193,11 @@ export async function toggleSavedPlace(placeId: string, saved: boolean) {
 /* ------------------------------- live pins ------------------------------ */
 
 export async function fetchLivePins(campusId?: string | null): Promise<LivePin[]> {
+  // Live pins carry a student's precise location, so they are members-only.
+  const { data: s } = await supabase.auth.getSession();
+  if (!s.session) return [];
   let q = db
+
     .from("campus_live_pins")
     .select("*")
     .eq("status", "active")
