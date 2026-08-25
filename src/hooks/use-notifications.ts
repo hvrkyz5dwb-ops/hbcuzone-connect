@@ -1,6 +1,6 @@
 import { useEffect, useId } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribeChannel } from "@/lib/realtime";
 import { useSession } from "@/hooks/use-session";
 import { fetchNotifications, type NotifRow } from "@/lib/notifications-db";
 
@@ -22,15 +22,14 @@ export function useNotifications(): { list: NotifRow[]; unread: number; loading:
 
   useEffect(() => {
     if (!uid) return;
-    const channel = supabase
-      .channel(`notif:${uid}:${instanceId}`)
+    return subscribeChannel(`notif:${uid}:${instanceId}`, (ch) =>
+      ch
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
         () => { qc.invalidateQueries({ queryKey: ["notifications", uid] }); },
       )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    );
   }, [uid, qc, instanceId]);
 
   const list = q.data ?? [];

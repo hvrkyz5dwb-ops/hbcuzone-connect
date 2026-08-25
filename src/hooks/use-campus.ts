@@ -1,7 +1,7 @@
 // Campus Hub React Query hooks — real-time RSVP counts, events, orgs.
 import { useEffect, useId } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribeChannel } from "@/lib/realtime";
 import { useSession } from "./use-session";
 import { useProfile } from "./use-profile";
 import {
@@ -24,13 +24,12 @@ export function useCampusEvents() {
 
   // Live RSVP counts + new events without a full refetch storm.
   useEffect(() => {
-    const channel = supabase
-      .channel(`campus-events-live-${instanceId}`)
+    return subscribeChannel(`campus-events-live-${instanceId}`, (ch) =>
+      ch
       .on("postgres_changes", { event: "*", schema: "public", table: "campus_events" }, () => {
         qc.invalidateQueries({ queryKey: ["campus-events"] });
       })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    );
   }, [qc, instanceId]);
 
   return query;

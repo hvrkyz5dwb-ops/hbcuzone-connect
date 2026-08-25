@@ -2,7 +2,7 @@
 // campus and torn down on unmount.
 import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribeChannel } from "@/lib/realtime";
 import { useProfile } from "./use-profile";
 import { useSession } from "./use-session";
 import {
@@ -24,8 +24,8 @@ function useLiveInvalidation(schoolId: string | null) {
   if (!idRef.current) idRef.current = Math.random().toString(36).slice(2, 9);
   const instanceId = idRef.current;
   useEffect(() => {
-    const channel = supabase
-      .channel(`pulse-${schoolId ?? "all"}-${instanceId}`)
+    return subscribeChannel(`pulse-${schoolId ?? "all"}-${instanceId}`, (ch) =>
+      ch
       .on("postgres_changes", { event: "*", schema: "public", table: "seller_availability" }, () => {
         qc.invalidateQueries({ queryKey: ["availability"] });
         qc.invalidateQueries({ queryKey: ["campus-activity"] });
@@ -34,10 +34,7 @@ function useLiveInvalidation(schoolId: string | null) {
         qc.invalidateQueries({ queryKey: ["drops"] });
         qc.invalidateQueries({ queryKey: ["campus-activity"] });
       })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    );
   }, [qc, schoolId, instanceId]);
 }
 
