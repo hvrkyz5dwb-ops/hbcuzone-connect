@@ -94,9 +94,13 @@ export function useMyDrops() {
 
 export function useCampusActivity() {
   const schoolId = useCampusId();
+  const { user, loading } = useSession();
   useLiveInvalidation(schoolId);
   return useQuery({
-    queryKey: ["campus-activity", schoolId],
+    // The aggregate is only executable by signed-in students; running it for a
+    // guest returns a permission error and blanks the map with an error state.
+    enabled: !loading && !!user?.id,
+    queryKey: ["campus-activity", schoolId, user?.id ?? null],
     staleTime: 30_000,
     queryFn: () => fetchCampusActivity(schoolId),
   });
