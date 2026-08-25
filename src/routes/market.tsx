@@ -117,7 +117,7 @@ function Market() {
             />
             <button
               onClick={() => navigate({ to: "/search", search: { q: query || undefined, tab: "browse" } })}
-              className="text-[10px] uppercase tracking-wider text-[var(--plugu-purple)] inline-flex items-center gap-1"
+              className="tap text-[10px] uppercase tracking-wider text-primary inline-flex items-center gap-1"
             >
               <Sparkles className="h-3 w-3" /> AI
             </button>
@@ -142,7 +142,7 @@ function Market() {
                 }}
                 className={`tap shrink-0 px-4 py-2 rounded-full text-xs border transition-all whitespace-nowrap ${
                   isActive
-                    ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary shadow-[var(--shadow-glow)]"
+                    ? "bg-primary text-primary-foreground font-semibold border-primary shadow-[var(--shadow-glow)]"
                     : "bg-card text-muted-foreground border-border hover:text-foreground"
                 }`}
               >
