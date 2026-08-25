@@ -37,6 +37,7 @@ function readAll(): CommunityPost[] {
     return parsed.map((p) => ({
       ...p,
       visibility: p.visibility || "campus",
+      tag: p.tag || "chatter",
       comments: p.comments || [],
     }));
   } catch {
