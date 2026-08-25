@@ -161,7 +161,25 @@ export function CommunityBoard() {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-end gap-2 border-t border-border pt-2">
+        <div className="mt-2 flex items-center gap-1.5 overflow-x-auto border-t border-border pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <span className="text-[10px] text-muted-foreground shrink-0 mr-0.5">Tag:</span>
+          {TAGS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTag(t.key)}
+              className={`tap shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium border transition-colors ${
+                tag === t.key
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-2 flex items-center justify-end gap-2 border-t border-border pt-2">
           <span className="text-[10px] text-muted-foreground mr-1">Visible to:</span>
           <button
             type="button"
