@@ -9,6 +9,7 @@ import {
   fetchPlaces,
   fetchSavedPlaceIds,
   fetchTours,
+  fetchTourStops,
   resolveCampus,
 } from "@/lib/campus-os";
 import type { LngLat } from "@/lib/map-service";
@@ -50,6 +51,15 @@ export function useCampusTours(campusId?: string | null) {
     enabled: !!campusId,
     staleTime: 10 * 60_000,
     queryFn: () => fetchTours(campusId!),
+  });
+}
+
+export function useTourStops(tourId?: string | null) {
+  return useQuery({
+    queryKey: ["campus-tour-stops", tourId],
+    enabled: !!tourId,
+    staleTime: 10 * 60_000,
+    queryFn: () => fetchTourStops(tourId!),
   });
 }
 
