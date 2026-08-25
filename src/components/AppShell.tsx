@@ -250,7 +250,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           </div>
         </header>
 
-        <main key={pathname} className="flex-1 view-enter">{children}</main>
+        <main id="main-content" tabIndex={-1} key={pathname} className="flex-1 view-enter">{children}</main>
 
         <AchievementBurst />
 
