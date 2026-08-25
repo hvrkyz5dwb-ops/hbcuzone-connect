@@ -229,12 +229,12 @@ function CampusUpdates() {
 
 function YourActivity() {
   const orders = useMyOrders("all");
-  const unread = useUnreadCount();
+  const unread = useUnreadCount().data ?? 0;
   const open = (orders.data ?? []).filter((o: any) => !["completed", "cancelled", "refunded"].includes(o.status)).length;
 
   const tiles = [
     { to: "/orders" as const, icon: Package, label: "Open orders", value: String(open) },
-    { to: "/messages" as const, icon: MessageSquare, label: "Unread messages", value: String(unread ?? 0) },
+    { to: "/messages" as const, icon: MessageSquare, label: "Unread messages", value: String(unread) },
     { to: "/bookings" as const, icon: CalendarDays, label: "Bookings", value: "View" },
     { to: "/saved" as const, icon: Bookmark, label: "Saved", value: "View" },
   ];
