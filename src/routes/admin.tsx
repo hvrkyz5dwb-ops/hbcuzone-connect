@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
   School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, Star, History,
+  Building2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ChargingLoader } from "@/components/ChargingLoader";
@@ -12,6 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { adminPerform, type AdminAction } from "@/lib/moderation";
 import { friendlyError } from "@/lib/friendly-errors";
+import {
+  adminListBusinesses, adminSetBusinessStatus, type VerificationStatus,
+} from "@/lib/hiring-db";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -24,11 +28,113 @@ const TABS = [
   { key: "reports", label: "Reports", icon: Flag },
   { key: "filtered", label: "Filtered", icon: ShieldAlert },
   { key: "disputes", label: "Disputes", icon: AlertTriangle },
+  { key: "businesses", label: "Businesses", icon: Building2 },
   { key: "users", label: "Users", icon: Users },
   { key: "access", label: "School Access", icon: SchoolIcon },
   { key: "log", label: "Activity Log", icon: ClipboardList },
   { key: "promos", label: "Promos", icon: BadgePercent },
 ] as const;
+
+/* Local business verification. Businesses can't post opportunities or
+   contact students until an admin approves them here. */
+function LocalBusinessesPanel() {
+  const qc = useQueryClient();
+  const [status, setStatus] = useState<VerificationStatus>("pending");
+  const [note, setNote] = useState<Record<string, string>>({});
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const q = useQuery({
+    queryKey: ["admin-local-businesses", status],
+    queryFn: () => adminListBusinesses(status),
+    staleTime: 10_000,
+  });
+
+  async function decide(id: string, next: VerificationStatus) {
+    setBusyId(id);
+    try {
+      await adminSetBusinessStatus(id, next, note[id]?.trim() || null);
+      toast.success(next === "verified" ? "Business verified" : "Business rejected");
+      await qc.invalidateQueries({ queryKey: ["admin-local-businesses"] });
+    } catch (e) {
+      toast.error(friendlyError(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        {(["pending", "verified", "rejected"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatus(s)}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize ${
+              status === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {q.isPending && <ChargingLoader label="Loading businesses" />}
+      {!q.isPending && (q.data?.length ?? 0) === 0 && (
+        <p className="text-xs text-muted-foreground py-6 text-center">No {status} businesses.</p>
+      )}
+
+      {q.data?.map((b) => (
+        <article key={b.id} className="rounded-2xl border border-border bg-card p-4 space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="font-semibold text-sm">{b.name}</h3>
+              <p className="text-[11px] text-muted-foreground">
+                {b.rep_name} · {b.contact_email} · {b.contact_phone}
+              </p>
+            </div>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              Local Business
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">{b.address}</p>
+          {b.website && <p className="text-xs text-primary break-all">{b.website}</p>}
+          {b.campus_name && <p className="text-[11px] text-muted-foreground">Near {b.campus_name}</p>}
+          {b.services_needed.length > 0 && (
+            <p className="text-[11px] text-muted-foreground">Needs: {b.services_needed.join(", ")}</p>
+          )}
+          {b.description && <p className="text-xs">{b.description}</p>}
+          {b.verification_note && (
+            <p className="text-[11px] text-muted-foreground">Note: {b.verification_note}</p>
+          )}
+
+          <input
+            value={note[b.id] ?? ""}
+            onChange={(e) => setNote((n) => ({ ...n, [b.id]: e.target.value }))}
+            placeholder="Internal note (optional)"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs"
+          />
+          <div className="flex gap-2">
+            <button
+              disabled={busyId === b.id || b.verification_status === "verified"}
+              onClick={() => decide(b.id, "verified")}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {busyId === b.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              Verify
+            </button>
+            <button
+              disabled={busyId === b.id || b.verification_status === "rejected"}
+              onClick={() => decide(b.id, "rejected")}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+            >
+              <X className="h-3.5 w-3.5" /> Reject
+            </button>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
 
 function FilteredPanel() {
   const qc = useQueryClient();
