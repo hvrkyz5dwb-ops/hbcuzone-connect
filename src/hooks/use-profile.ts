@@ -46,7 +46,7 @@ export function useProfile() {
         // email is column-restricted to the service/admin paths; the signed-in
         // user's own email comes from the auth session instead.
         .select(
-          "id,full_name,display_name,username,school_name,school_domain,year,graduation_year,status,major,bio,avatar_url,is_hbcu_student,completed_transactions,rating_avg,rating_count,created_at,onboarding_completed_at,terms_accepted_at,school_id,verification_status",
+          "id,full_name,display_name,username,school_name,school_domain,year,graduation_year,status,major,bio,avatar_url,is_hbcu_student,completed_transactions,rating_avg,rating_count,created_at,onboarding_completed_at,terms_accepted_at,school_id,verification_status,account_type,open_to_work,open_to_work_note",
         )
         .eq("id", user.id)
         .maybeSingle();
