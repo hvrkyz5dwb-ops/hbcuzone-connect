@@ -343,9 +343,13 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
           </div>
         </div>
 
-        {/* Footer — dots + Continue */}
-        <div className="px-7 pt-3 pb-safe" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 26px)" }}>
-          <div className="flex items-center justify-center gap-1.5 mb-5">
+        {/* Footer — dots + Next. Never scrolls away, always on top of the
+            slide layer, and sits above the home indicator / notch insets. */}
+        <div
+          className="relative z-10 shrink-0 px-7 pt-3 bg-black"
+          style={{ paddingBottom: "max(calc(env(safe-area-inset-bottom, 0px) + 20px), 24px)" }}
+        >
+          <div className="flex items-center justify-center gap-1.5 mb-4">
             {SLIDES.map((s, idx) => (
               <button
                 key={s.id}
@@ -363,21 +367,19 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
           </div>
           <button
             type="button"
-            onClick={() => (last ? onComplete() : go(i + 1))}
+            onClick={() => (last ? finish() : go(i + 1))}
             className="tap w-full h-12 rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
             style={{
               background: "var(--gradient-bronze)",
               boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
             }}
           >
-            {last ? "Enter PlugU" : "Continue"}
+            {last ? "Next — create your account" : "Next"}
             <ArrowRight className="h-4 w-4" />
           </button>
-          {!last && (
-            <p className="text-center text-[11px] text-muted-foreground mt-3">
-              Swipe or tap continue · {i + 1} of {SLIDES.length}
-            </p>
-          )}
+          <p className="text-center text-[11px] text-muted-foreground mt-3">
+            {last ? "Takes you to sign in or create account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
+          </p>
         </div>
       </div>
     </div>
