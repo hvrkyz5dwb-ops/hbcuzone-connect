@@ -26,7 +26,7 @@ export const submitPublicSupportMessage = createServerFn({ method: "POST" })
       })
       .select("ticket_code")
       .single();
-    if (error) throw new Error("We couldn't send that right now. Please email support@plugu.app.");
+    if (error) throw new Error("We couldn't send that right now. Please email plugusupport@gmail.com.");
     return { ok: true as const, ticketCode: (row?.ticket_code as string | null) ?? null };
   });
 

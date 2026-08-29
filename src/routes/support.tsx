@@ -9,7 +9,7 @@ import { fetchMySupportRequests, SUPPORT_CATEGORIES, type SupportCategory } from
 import { submitPublicSupportMessage } from "@/lib/support.functions";
 import { useSession } from "@/hooks/use-session";
 
-export const SUPPORT_EMAIL = "support@plugu.app";
+export const SUPPORT_EMAIL = "plugusupport@gmail.com";
 export const SUPPORT_RESPONSE_TIME = "within 1–2 business days";
 
 type Search = { category?: SupportCategory; subject?: string; orderId?: string; listingId?: string };
