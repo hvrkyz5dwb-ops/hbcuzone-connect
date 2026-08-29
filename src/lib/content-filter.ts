@@ -45,12 +45,12 @@ const RULES: { category: string; reason: string; patterns: RegExp[] }[] = [
       "Selling drugs, controlled substances, weapons or other illegal items is prohibited on PlugU.",
     patterns: [
       // Unambiguous controlled substances.
-      /\b(?:selling|sell|plug for|hmu for|delivering)\s+(?:some\s+)?(?:weed|zaza|shrooms|molly|mdma|xans?|xanax|percs?|perc30|adderall|addys?|codeine|cocaine|meth|lsd|dmt|ket(?:amine)?|oxy)\b/i,
+      /\b(?:selling|sell|got|plug for|hmu for|delivering)\s+(?:some\s+)?(?:weed|zaza|shrooms|molly|mdma|xans?|xanax|percs?|perc30|adderall|addys?|codeine|cocaine|meth|lsd|dmt|ket(?:amine)?|oxy|lean|coke|acid)\b/i,
       // Slang that is also everyday language ("gas money", "loud music"), so it
       // only counts when paired with an explicit dealing phrase.
       /\b(?:plug for|hmu for)\s+(?:some\s+)?(?:loud|gas|lean|coke|acid)\b/i,
       /\b(?:oz|zip|qp|8th|eighth|gram)s?\s+(?:of\s+)?(?:weed|loud|gas|zaza|shrooms|coke)\b/i,
-      /\b(?:selling|sell|got)\s+(?:a\s+)?(?:glock|pistol|ar-?15|firearm|handgun)\b/i,
+      /\b(?:selling|sell|got)\s+(?:a\s+)?(?:gun|glock|switch|pistol|ar-?15|firearm|handgun|strap|chopp?a)\b/i,
       /\b(fake ids?|stolen (?:cards?|ids?|phones?)|cloned cards?|cc dumps?|write your (?:paper|essay) for you|take your exam for you)\b/i,
     ],
   },
