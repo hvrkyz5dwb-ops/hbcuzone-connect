@@ -52,7 +52,7 @@ function LocalBusinessesPanel() {
   async function decide(id: string, next: VerificationStatus) {
     setBusyId(id);
     try {
-      await adminSetBusinessStatus(id, next, note[id]?.trim() || null);
+      await adminSetBusinessStatus(id, next, note[id]?.trim() || undefined);
       toast.success(next === "verified" ? "Business verified" : "Business rejected");
       await qc.invalidateQueries({ queryKey: ["admin-local-businesses"] });
     } catch (e) {
