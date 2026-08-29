@@ -392,12 +392,12 @@ function AuthPage() {
             <Feedback err={err} msg={msg} />
             <button
               type="submit"
-              disabled={busy || !(emailCheck && emailCheck.ok) || !agreeTerms}
+              disabled={busy || (!isBusiness && !(emailCheck && emailCheck.ok)) || !agreeTerms}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
 
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {busy ? "Creating account…" : "Create student account"}
+              {busy ? "Creating account…" : isBusiness ? "Create business account" : "Create student account"}
             </button>
             <button type="button" onClick={() => reset("sign-in")} className="w-full text-xs text-muted-foreground underline">
               Already have an account? Sign in
