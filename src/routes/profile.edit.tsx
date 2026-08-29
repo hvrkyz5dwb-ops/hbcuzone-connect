@@ -153,6 +153,35 @@ function EditProfile() {
               className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
           </Field>
 
+          {/* Open to Work — lets verified local businesses find you in the
+              Plug directory. Your contact details stay private either way. */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={openToWork}
+                onChange={(e) => setOpenToWork(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--plugu-gold)]"
+              />
+              <span className="text-sm font-semibold">
+                Open to Work
+                <span className="block text-[11px] font-normal text-muted-foreground">
+                  Verified local businesses can find you and message you through PlugU. Your email
+                  and phone number are never shared.
+                </span>
+              </span>
+            </label>
+            {openToWork && (
+              <input
+                value={openToWorkNote}
+                onChange={(e) => setOpenToWorkNote(e.target.value)}
+                maxLength={120}
+                placeholder="What you're open to — e.g. weekend event staffing, photo gigs"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+              />
+            )}
+          </div>
+
           <p className="text-[11px] text-muted-foreground">
             School, verification, and rating are managed by PlugU and can't be edited here.
           </p>
