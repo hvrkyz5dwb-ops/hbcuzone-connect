@@ -67,6 +67,7 @@ import { Route as AmbassadorsRouteImport } from './routes/ambassadors'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as HiringIndexRouteImport } from './routes/hiring.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
@@ -78,6 +79,8 @@ import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LearnTrackRouteImport } from './routes/learn.$track'
 import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
+import { Route as HiringBusinessRouteImport } from './routes/hiring.business'
+import { Route as HiringIdRouteImport } from './routes/hiring.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
 import { Route as AmbassadorsDashboardRouteImport } from './routes/ambassadors.dashboard'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -380,6 +383,11 @@ const SellerIndexRoute = SellerIndexRouteImport.update({
   path: '/seller/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HiringIndexRoute = HiringIndexRouteImport.update({
+  id: '/hiring/',
+  path: '/hiring/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -433,6 +441,16 @@ const LearnTrackRoute = LearnTrackRouteImport.update({
 const LaunchSlugRoute = LaunchSlugRouteImport.update({
   id: '/launch/$slug',
   path: '/launch/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HiringBusinessRoute = HiringBusinessRouteImport.update({
+  id: '/hiring/business',
+  path: '/hiring/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HiringIdRoute = HiringIdRouteImport.update({
+  id: '/hiring/$id',
+  path: '/hiring/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutListingIdRoute = CheckoutListingIdRouteImport.update({
@@ -557,6 +575,8 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/hiring/$id': typeof HiringIdRoute
+  '/hiring/business': typeof HiringBusinessRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
@@ -568,6 +588,7 @@ export interface FileRoutesByFullPath {
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
+  '/hiring/': typeof HiringIndexRoute
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -639,6 +660,8 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/hiring/$id': typeof HiringIdRoute
+  '/hiring/business': typeof HiringBusinessRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
@@ -650,6 +673,7 @@ export interface FileRoutesByTo {
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
+  '/hiring': typeof HiringIndexRoute
   '/seller': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -722,6 +746,8 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/ambassadors/dashboard': typeof AmbassadorsDashboardRoute
   '/checkout/$listingId': typeof CheckoutListingIdRoute
+  '/hiring/$id': typeof HiringIdRoute
+  '/hiring/business': typeof HiringBusinessRoute
   '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
@@ -733,6 +759,7 @@ export interface FileRoutesById {
   '/seller/onboarding': typeof SellerOnboardingRoute
   '/seller/plans': typeof SellerPlansRoute
   '/u/$username': typeof UUsernameRoute
+  '/hiring/': typeof HiringIndexRoute
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -806,6 +833,8 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/hiring/$id'
+    | '/hiring/business'
     | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
@@ -817,6 +846,7 @@ export interface FileRouteTypes {
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
+    | '/hiring/'
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -888,6 +918,8 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/hiring/$id'
+    | '/hiring/business'
     | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
@@ -899,6 +931,7 @@ export interface FileRouteTypes {
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
+    | '/hiring'
     | '/seller'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -970,6 +1003,8 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/ambassadors/dashboard'
     | '/checkout/$listingId'
+    | '/hiring/$id'
+    | '/hiring/business'
     | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
@@ -981,6 +1016,7 @@ export interface FileRouteTypes {
     | '/seller/onboarding'
     | '/seller/plans'
     | '/u/$username'
+    | '/hiring/'
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1051,6 +1087,8 @@ export interface RootRouteChildren {
   UpgradeRoute: typeof UpgradeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  HiringIdRoute: typeof HiringIdRoute
+  HiringBusinessRoute: typeof HiringBusinessRoute
   LaunchSlugRoute: typeof LaunchSlugRoute
   LearnTrackRoute: typeof LearnTrackRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
@@ -1059,6 +1097,7 @@ export interface RootRouteChildren {
   SellerOnboardingRoute: typeof SellerOnboardingRoute
   SellerPlansRoute: typeof SellerPlansRoute
   UUsernameRoute: typeof UUsernameRoute
+  HiringIndexRoute: typeof HiringIndexRoute
   SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1474,6 +1513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hiring/': {
+      id: '/hiring/'
+      path: '/hiring'
+      fullPath: '/hiring/'
+      preLoaderRoute: typeof HiringIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -1549,6 +1595,20 @@ declare module '@tanstack/react-router' {
       path: '/launch/$slug'
       fullPath: '/launch/$slug'
       preLoaderRoute: typeof LaunchSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hiring/business': {
+      id: '/hiring/business'
+      path: '/hiring/business'
+      fullPath: '/hiring/business'
+      preLoaderRoute: typeof HiringBusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hiring/$id': {
+      id: '/hiring/$id'
+      path: '/hiring/$id'
+      fullPath: '/hiring/$id'
+      preLoaderRoute: typeof HiringIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/$listingId': {
@@ -1774,6 +1834,8 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  HiringIdRoute: HiringIdRoute,
+  HiringBusinessRoute: HiringBusinessRoute,
   LaunchSlugRoute: LaunchSlugRoute,
   LearnTrackRoute: LearnTrackRoute,
   SeasonSlugRoute: SeasonSlugRoute,
@@ -1782,6 +1844,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerOnboardingRoute: SellerOnboardingRoute,
   SellerPlansRoute: SellerPlansRoute,
   UUsernameRoute: UUsernameRoute,
+  HiringIndexRoute: HiringIndexRoute,
   SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
