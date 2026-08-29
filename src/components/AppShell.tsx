@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Home, Map, MessageSquare, User, Store, Sun, Moon,
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
-  Bell, type LucideIcon, Radio,
+  Bell, type LucideIcon, Radio, Briefcase,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
@@ -67,13 +67,28 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const isSeller = !!business && business.is_active && business.onboarding_step >= 5;
   const hasDraftBusiness = !!business && !isSeller;
 
+  // Local businesses get their own hiring dashboard; students get the
+  // "Businesses Hiring" board.
+  const isBusinessAccount = profile?.account_type === "business";
+
   // Only surface actions the current user can actually use.
   const quickActions: QuickAction[] = [];
   quickActions.push({
     to: "/pulse", label: "See what's live", icon: Radio,
     hint: "Who's available now, flash drops, events tonight.",
   });
-  if (isSeller) {
+  if (isBusinessAccount) {
+    quickActions.push({
+      to: "/hiring/business", label: "Business dashboard", icon: LayoutDashboard,
+      hint: "Verification, opportunities, applicants, find student Plugs.",
+    });
+  } else {
+    quickActions.push({
+      to: "/hiring", label: "Businesses hiring", icon: Briefcase,
+      hint: "Paid gigs local businesses posted for student Plugs.",
+    });
+  }
+  if (isSeller && !isBusinessAccount) {
     quickActions.push({
       to: "/seller/listings", label: "Create listing", icon: Plus,
       hint: "Post something to sell on your campus market.",
