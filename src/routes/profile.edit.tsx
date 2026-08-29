@@ -82,6 +82,8 @@ function EditProfile() {
         status,
         bio: bio.trim() || null,
         avatar_url: avatarUrl.trim() || null,
+        open_to_work: openToWork,
+        open_to_work_note: openToWork ? (openToWorkNote.trim() || null) : null,
       })
       .eq("id", profile.id);
     setSaving(false);
