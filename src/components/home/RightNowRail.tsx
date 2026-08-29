@@ -54,9 +54,9 @@ export function RightNowRail() {
               <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" /> Active now
               </span>
-              <p className="mt-2 truncate text-sm font-bold">{p.label ?? "Student seller"}</p>
+              <p className="mt-2 truncate text-sm font-bold">{p.title ?? "Student seller"}</p>
               <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
-                <MapPin className="h-3 w-3" aria-hidden="true" /> {p.zone_name ?? "On campus"}
+                <MapPin className="h-3 w-3" aria-hidden="true" /> {p.safe_location_label ?? "On campus"}
               </p>
               {p.expires_at && (
                 <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
