@@ -3,7 +3,7 @@ import { hideContent } from "@/lib/ugc-safety";
 
 export type ReportTargetType =
   | "user" | "listing" | "message" | "review" | "order" | "business"
-  | "event" | "post" | "comment" | "image";
+  | "event" | "post" | "comment" | "image" | "opportunity" | "local_business";
 
 // Reason set required by App Review.
 export const REPORT_REASONS = [
