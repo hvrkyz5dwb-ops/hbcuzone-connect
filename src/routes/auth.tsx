@@ -125,31 +125,44 @@ function AuthPage() {
     setErr(null);
     setMsg(null);
 
-    if (!fullName.trim()) return setErr("Enter your full name.");
-    if (!school.trim()) return setErr("Select your school.");
-    const check = validateStudentEmail(email, school);
-    if (!check.ok) return setErr(check.reason);
+    if (!fullName.trim()) return setErr(isBusiness ? "Enter the owner or representative name." : "Enter your full name.");
+    if (isBusiness && !businessName.trim()) return setErr("Enter your business name.");
+    if (!isBusiness && !school.trim()) return setErr("Select your school.");
+    const check = isBusiness ? null : validateStudentEmail(email, school);
+    if (check && !check.ok) return setErr(check.reason);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setErr("Enter a valid email address.");
     if (password.length < 8) return setErr("Password must be at least 8 characters.");
     if (!agreeTerms) return setErr("Accept the Terms of Use, Privacy Policy, and Community Guidelines to continue.");
 
 
     setBusy(true);
+    const metadata = isBusiness
+      ? {
+          account_type: "business",
+          full_name: fullName.trim(),
+          business_name: businessName.trim(),
+          terms_accepted: "true",
+          policy_version: POLICY_VERSION,
+          policy_accepted_at: new Date().toISOString(),
+        }
+      : {
+          account_type: "student",
+          full_name: fullName.trim(),
+          school_name: (school.trim() || check!.ok ? school.trim() || (check as any).school.name : school.trim()),
+          school_domain: (check as any).domain,
+          year,
+          major: major.trim() || "Undeclared",
+          is_hbcu_student: isHbcuDomain((check as any).domain),
+          terms_accepted: "true",
+          policy_version: POLICY_VERSION,
+          policy_accepted_at: new Date().toISOString(),
+        };
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/auth",
-        data: {
-          full_name: fullName.trim(),
-          school_name: (school.trim() || check.school.name),
-          school_domain: check.domain,
-          year,
-          major: major.trim() || "Undeclared",
-          is_hbcu_student: isHbcuDomain(check.domain),
-          terms_accepted: "true",
-          policy_version: POLICY_VERSION,
-          policy_accepted_at: new Date().toISOString(),
-        },
+        data: metadata,
       },
     });
     setBusy(false);
