@@ -443,16 +443,18 @@ function AuthPage() {
   );
 }
 
-function EmailField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function EmailField({
+  value, onChange, business,
+}: { value: string; onChange: (v: string) => void; business?: boolean }) {
   return (
-    <Labeled label="Student email">
+    <Labeled label={business ? "Business email" : "Student email"}>
       <div className="relative">
         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="email"
           required
           autoComplete="email"
-          placeholder="you@school.edu"
+          placeholder={business ? "you@yourbusiness.com" : "you@school.edu"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
