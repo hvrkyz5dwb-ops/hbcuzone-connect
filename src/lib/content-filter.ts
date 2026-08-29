@@ -45,7 +45,7 @@ const RULES: { category: string; reason: string; patterns: RegExp[] }[] = [
       "Selling drugs, controlled substances, weapons or other illegal items is prohibited on PlugU.",
     patterns: [
       // Unambiguous controlled substances.
-      /\b(?:selling|sell|got|plug for|hmu for|delivering)\s+(?:some\s+)?(?:weed|zaza|shrooms|molly|mdma|xans?|xanax|percs?|perc30|adderall|addys?|codeine|cocaine|meth|lsd|dmt|ket(?:amine)?|oxy|lean|coke|acid)\b/i,
+      /\b(?:selling|sell|got|plug for|hmu for|delivering)\s+(?:some\s+)?(?:weed(?!\s*(?:control|killer|whack))|zaza|shrooms|molly|mdma|xans?|xanax|percs?|perc30|adderall|addys?|codeine|cocaine|meth|lsd|dmt|ket(?:amine)?|oxy|lean|coke|acid)\b/i,
       // Slang that is also everyday language ("gas money", "loud music"), so it
       // only counts when paired with an explicit dealing phrase.
       /\b(?:plug for|hmu for)\s+(?:some\s+)?(?:loud|gas|lean|coke|acid)\b/i,
