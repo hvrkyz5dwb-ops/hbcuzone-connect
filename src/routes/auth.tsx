@@ -57,9 +57,16 @@ function AuthPage() {
   // for returning users on a new device.
   const [mode, setMode] = useState<Mode>(initialMode === "sign-in" ? "sign-in" : "sign-up");
 
+  // Two kinds of account. Students must hold a verified .edu address;
+  // local businesses sign up with any work email and are verified by hand
+  // (see /hiring/business) before they can post or contact students.
+  const [accountType, setAccountType] = useState<"student" | "business">("student");
+  const isBusiness = accountType === "business";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [school, setSchool] = useState("");
   const [year, setYear] = useState("Freshman");
   const [major, setMajor] = useState("");
@@ -73,8 +80,9 @@ function AuthPage() {
   const emailCheck = useMemo(() => {
     const trimmed = email.trim();
     if (!trimmed || !trimmed.includes("@")) return null;
+    if (isBusiness) return null; // business emails aren't school-checked
     return validateStudentEmail(trimmed, mode === "sign-up" ? school || undefined : undefined);
-  }, [email, school, mode]);
+  }, [email, school, mode, isBusiness]);
 
   function reset(nextMode: Mode) {
     setErr(null);
@@ -117,31 +125,44 @@ function AuthPage() {
     setErr(null);
     setMsg(null);
 
-    if (!fullName.trim()) return setErr("Enter your full name.");
-    if (!school.trim()) return setErr("Select your school.");
-    const check = validateStudentEmail(email, school);
-    if (!check.ok) return setErr(check.reason);
+    if (!fullName.trim()) return setErr(isBusiness ? "Enter the owner or representative name." : "Enter your full name.");
+    if (isBusiness && !businessName.trim()) return setErr("Enter your business name.");
+    if (!isBusiness && !school.trim()) return setErr("Select your school.");
+    const check = isBusiness ? null : validateStudentEmail(email, school);
+    if (check && !check.ok) return setErr(check.reason);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setErr("Enter a valid email address.");
     if (password.length < 8) return setErr("Password must be at least 8 characters.");
     if (!agreeTerms) return setErr("Accept the Terms of Use, Privacy Policy, and Community Guidelines to continue.");
 
 
     setBusy(true);
+    const metadata = isBusiness
+      ? {
+          account_type: "business",
+          full_name: fullName.trim(),
+          business_name: businessName.trim(),
+          terms_accepted: "true",
+          policy_version: POLICY_VERSION,
+          policy_accepted_at: new Date().toISOString(),
+        }
+      : {
+          account_type: "student",
+          full_name: fullName.trim(),
+          school_name: school.trim() || (check as { ok: true; school: { name: string }; domain: string }).school.name,
+          school_domain: (check as { ok: true; domain: string }).domain,
+          year,
+          major: major.trim() || "Undeclared",
+          is_hbcu_student: isHbcuDomain((check as { ok: true; domain: string }).domain),
+          terms_accepted: "true",
+          policy_version: POLICY_VERSION,
+          policy_accepted_at: new Date().toISOString(),
+        };
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/auth",
-        data: {
-          full_name: fullName.trim(),
-          school_name: (school.trim() || check.school.name),
-          school_domain: check.domain,
-          year,
-          major: major.trim() || "Undeclared",
-          is_hbcu_student: isHbcuDomain(check.domain),
-          terms_accepted: "true",
-          policy_version: POLICY_VERSION,
-          policy_accepted_at: new Date().toISOString(),
-        },
+        data: metadata,
       },
     });
     setBusy(false);
@@ -167,7 +188,9 @@ function AuthPage() {
       window.localStorage.setItem("plugu.welcome.pending", "1");
     } catch {}
 
-    window.location.href = safeNext(next);
+    // Businesses go straight to verification — they can't post or contact
+    // students until an admin approves them.
+    window.location.href = isBusiness ? "/hiring/business" : safeNext(next);
   }
 
   async function onForgot(e: React.FormEvent) {
@@ -222,7 +245,9 @@ function AuthPage() {
         <p className="mt-2 text-xs text-muted-foreground">
           {mode === "forgot"
             ? "Enter your PlugU email — we'll send a secure reset link."
-            : "Use your verified .edu school email. Nobody without one gets in."}
+            : isBusiness && mode === "sign-up"
+              ? "Local businesses hire student Plugs. No .edu needed — we verify your business before you can post."
+              : "Use your verified .edu school email. Nobody without one gets in."}
         </p>
 
         {mode === "sign-in" && (
@@ -260,7 +285,38 @@ function AuthPage() {
 
         {mode === "sign-up" && (
           <form onSubmit={onSignUp} className="mt-5 space-y-3">
-            <Labeled label="Full name">
+            {/* Account type — students verify with .edu, businesses get
+                verified by hand and never receive a student badge. */}
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/60 p-1" role="radiogroup" aria-label="Account type">
+              {([["student", "Student Plug"], ["business", "Local Business"]] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={accountType === key}
+                  onClick={() => { setAccountType(key); setErr(null); }}
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                    accountType === key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {isBusiness && (
+              <Labeled label="Business name">
+                <input
+                  required
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="Campus Corner Cafe"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+                />
+              </Labeled>
+            )}
+
+            <Labeled label={isBusiness ? "Owner or representative name" : "Full name"}>
               <input
                 required
                 value={fullName}
@@ -269,25 +325,34 @@ function AuthPage() {
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
             </Labeled>
-            <SchoolPicker value={school} onChange={setSchool} />
-            <EmailField value={email} onChange={setEmail} />
-            {emailCheck && !emailCheck.ok && email.includes("@") && (
+            {!isBusiness && <SchoolPicker value={school} onChange={setSchool} />}
+            <EmailField value={email} onChange={setEmail} business={isBusiness} />
+            {!isBusiness && emailCheck && !emailCheck.ok && email.includes("@") && (
               <p className="flex items-start gap-1.5 text-[11px] text-destructive">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {emailCheck.reason}
               </p>
             )}
-            {emailCheck && emailCheck.ok && (
+            {!isBusiness && emailCheck && emailCheck.ok && (
               <p className="flex items-center gap-1.5 text-[11px] text-primary">
                 <ShieldCheck className="h-3.5 w-3.5" /> Recognized as {emailCheck.school.name}.
               </p>
             )}
-            <p className="text-[11px] text-muted-foreground">
-              School not listed?{" "}
-              <Link to="/request-school-access" className="text-primary underline">
-                Request access
-              </Link>{" "}
-              after creating your account.
-            </p>
+            {!isBusiness && (
+              <p className="text-[11px] text-muted-foreground">
+                School not listed?{" "}
+                <Link to="/request-school-access" className="text-primary underline">
+                  Request access
+                </Link>{" "}
+                after creating your account.
+              </p>
+            )}
+            {isBusiness && (
+              <p className="text-[11px] text-muted-foreground">
+                Next you'll complete business verification — address, phone, website and the services
+                you need. Until it's approved you can't post opportunities or contact students.
+              </p>
+            )}
+            {!isBusiness && (
             <div className="grid grid-cols-2 gap-3">
               <Labeled label="Year">
                 <select
@@ -309,6 +374,7 @@ function AuthPage() {
                 />
               </Labeled>
             </div>
+            )}
             <PasswordField value={password} onChange={setPassword} autoComplete="new-password" />
             <p className="text-[10px] text-muted-foreground">Min 8 characters. Leaked passwords are blocked.</p>
 
@@ -326,12 +392,12 @@ function AuthPage() {
             <Feedback err={err} msg={msg} />
             <button
               type="submit"
-              disabled={busy || !(emailCheck && emailCheck.ok) || !agreeTerms}
+              disabled={busy || (!isBusiness && !(emailCheck && emailCheck.ok)) || !agreeTerms}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
 
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {busy ? "Creating account…" : "Create student account"}
+              {busy ? "Creating account…" : isBusiness ? "Create business account" : "Create student account"}
             </button>
             <button type="button" onClick={() => reset("sign-in")} className="w-full text-xs text-muted-foreground underline">
               Already have an account? Sign in
@@ -377,16 +443,18 @@ function AuthPage() {
   );
 }
 
-function EmailField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function EmailField({
+  value, onChange, business,
+}: { value: string; onChange: (v: string) => void; business?: boolean }) {
   return (
-    <Labeled label="Student email">
+    <Labeled label={business ? "Business email" : "Student email"}>
       <div className="relative">
         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="email"
           required
           autoComplete="email"
-          placeholder="you@school.edu"
+          placeholder={business ? "you@yourbusiness.com" : "you@school.edu"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2.5 text-sm"

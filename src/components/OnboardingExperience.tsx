@@ -210,9 +210,23 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
   const [i, setI] = useState(0);
   const [dragX, setDragX] = useState(0);
   const drag = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
+  // Double-tap / navigation-loop guard. A ref (not state) so the very next
+  // synthetic click in the same frame is ignored without re-rendering or
+  // adding any perceptible delay to the first tap.
+  const finishing = useRef(false);
   const slide = SLIDES[i];
   const last = i === SLIDES.length - 1;
   const isTrust = slide.scene === "trust";
+
+  // Always safe to call: the first call runs immediately, later ones no-op.
+  function finish() {
+    if (finishing.current) return;
+    finishing.current = true;
+    onComplete();
+    // Release the lock if the screen is somehow still mounted (e.g. a slow
+    // route transition), so the button can never become permanently dead.
+    window.setTimeout(() => { finishing.current = false; }, 1200);
+  }
 
   function go(next: number) {
     setI(Math.max(0, Math.min(SLIDES.length - 1, next)));
@@ -256,20 +270,19 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
             <img src={pluguLogo} alt="" className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
             <span className="font-bold tracking-[0.2em] text-xs plugu-wordmark">PLUGU</span>
           </div>
-          {!last && (
-            <button
-              type="button"
-              onClick={onComplete}
-              className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
-            >
-              Skip
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={finish}
+            className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
+          >
+            Skip
+          </button>
         </div>
 
-        {/* Slide — drag anywhere */}
+        {/* Slide — drag anywhere. Scrolls on short screens so the copy can
+            never grow under, or overlap, the fixed footer button. */}
         <div
-          className="flex-1 min-h-0 flex flex-col justify-center px-7 touch-pan-y"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain flex flex-col justify-center px-7 py-2 touch-pan-y"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -330,9 +343,13 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
           </div>
         </div>
 
-        {/* Footer — dots + Continue */}
-        <div className="px-7 pt-3 pb-safe" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 26px)" }}>
-          <div className="flex items-center justify-center gap-1.5 mb-5">
+        {/* Footer — dots + Next. Never scrolls away, always on top of the
+            slide layer, and sits above the home indicator / notch insets. */}
+        <div
+          className="relative z-10 shrink-0 px-7 pt-3 bg-black"
+          style={{ paddingBottom: "max(calc(env(safe-area-inset-bottom, 0px) + 20px), 24px)" }}
+        >
+          <div className="flex items-center justify-center gap-1.5 mb-4">
             {SLIDES.map((s, idx) => (
               <button
                 key={s.id}
@@ -350,21 +367,19 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
           </div>
           <button
             type="button"
-            onClick={() => (last ? onComplete() : go(i + 1))}
+            onClick={() => (last ? finish() : go(i + 1))}
             className="tap w-full h-12 rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
             style={{
               background: "var(--gradient-bronze)",
               boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
             }}
           >
-            {last ? "Enter PlugU" : "Continue"}
+            {last ? "Next — create your account" : "Next"}
             <ArrowRight className="h-4 w-4" />
           </button>
-          {!last && (
-            <p className="text-center text-[11px] text-muted-foreground mt-3">
-              Swipe or tap continue · {i + 1} of {SLIDES.length}
-            </p>
-          )}
+          <p className="text-center text-[11px] text-muted-foreground mt-3">
+            {last ? "Takes you to sign in or create account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
+          </p>
         </div>
       </div>
     </div>

@@ -1405,6 +1405,77 @@ export type Database = {
           },
         ]
       }
+      local_businesses: {
+        Row: {
+          address: string
+          campus_name: string | null
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_user_id: string
+          rep_name: string
+          school_id: string | null
+          services_needed: string[]
+          updated_at: string
+          verification_note: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+          website: string | null
+        }
+        Insert: {
+          address: string
+          campus_name?: string | null
+          contact_email: string
+          contact_phone: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_user_id: string
+          rep_name: string
+          school_id?: string | null
+          services_needed?: string[]
+          updated_at?: string
+          verification_note?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          campus_name?: string | null
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_user_id?: string
+          rep_name?: string
+          school_id?: string | null
+          services_needed?: string[]
+          updated_at?: string
+          verification_note?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_businesses_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_settings: {
         Row: {
           live_business_availability: boolean
@@ -1580,6 +1651,154 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      opportunities: {
+        Row: {
+          applicant_count: number
+          business_id: string
+          category: string
+          compensation: string
+          created_at: string
+          deadline: string | null
+          description: string
+          id: string
+          is_remote: boolean
+          location: string
+          moderation_status: string
+          owner_user_id: string
+          pay_max_cents: number | null
+          pay_min_cents: number | null
+          required_skills: string[]
+          school_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_count?: number
+          business_id: string
+          category: string
+          compensation: string
+          created_at?: string
+          deadline?: string | null
+          description: string
+          id?: string
+          is_remote?: boolean
+          location: string
+          moderation_status?: string
+          owner_user_id: string
+          pay_max_cents?: number | null
+          pay_min_cents?: number | null
+          required_skills?: string[]
+          school_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_count?: number
+          business_id?: string
+          category?: string
+          compensation?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          id?: string
+          is_remote?: boolean
+          location?: string
+          moderation_status?: string
+          owner_user_id?: string
+          pay_max_cents?: number | null
+          pay_min_cents?: number | null
+          required_skills?: string[]
+          school_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "local_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_applications: {
+        Row: {
+          business_user_id: string
+          created_at: string
+          id: string
+          message: string | null
+          opportunity_id: string
+          status: string
+          student_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_user_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          opportunity_id: string
+          status?: string
+          student_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_user_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          opportunity_id?: string
+          status?: string
+          student_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_saves: {
+        Row: {
+          created_at: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_saves_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -1885,6 +2104,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
           avatar_url: string | null
           bio: string | null
           completed_transactions: number
@@ -1898,6 +2118,8 @@ export type Database = {
           is_suspended: boolean
           major: string | null
           onboarding_completed_at: string | null
+          open_to_work: boolean
+          open_to_work_note: string | null
           rating_avg: number
           rating_count: number
           school_domain: string | null
@@ -1913,6 +2135,7 @@ export type Database = {
           year: string | null
         }
         Insert: {
+          account_type?: string
           avatar_url?: string | null
           bio?: string | null
           completed_transactions?: number
@@ -1926,6 +2149,8 @@ export type Database = {
           is_suspended?: boolean
           major?: string | null
           onboarding_completed_at?: string | null
+          open_to_work?: boolean
+          open_to_work_note?: string | null
           rating_avg?: number
           rating_count?: number
           school_domain?: string | null
@@ -1941,6 +2166,7 @@ export type Database = {
           year?: string | null
         }
         Update: {
+          account_type?: string
           avatar_url?: string | null
           bio?: string | null
           completed_transactions?: number
@@ -1954,6 +2180,8 @@ export type Database = {
           is_suspended?: boolean
           major?: string | null
           onboarding_completed_at?: string | null
+          open_to_work?: boolean
+          open_to_work_note?: string | null
           rating_avg?: number
           rating_count?: number
           school_domain?: string | null
@@ -2935,6 +3163,10 @@ export type Database = {
         Returns: boolean
       }
       is_suspended: { Args: { _user_id: string }; Returns: boolean }
+      is_verified_local_business: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       mark_all_notifications_read: { Args: never; Returns: number }
       mark_notification_read: { Args: { _id: string }; Returns: undefined }
       seller_plan_ranks: {
