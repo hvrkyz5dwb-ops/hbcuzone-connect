@@ -6,9 +6,14 @@ review team. It is a regular member account with no admin privileges.
 
 ## Demo credentials
 
-- Email: `appreview@plugu.app`
-- Password: `PlugU-Review-2026`
-- School shown in app: PlugU Demo University
+- Email: `appreview@plugudemo.com`
+- Password: `PlugUReview2026!`
+- School shown in app: Demo University
+
+The account is pre-confirmed and pre-verified: email confirmation, student
+`.edu` verification, Terms acceptance and onboarding are already recorded, so
+signing out and back in never restarts onboarding. It must not be deleted or
+suspended.
 
 ## How to sign in
 
@@ -17,15 +22,16 @@ review team. It is a regular member account with no admin privileges.
 3. Enter the demo credentials above and tap **Sign in**.
 
 No email confirmation, verification code, or phone number is required for
-this account — it is pre-verified.
+this account.
 
 ## What reviewers can exercise
 
-- Home, Marketplace (listings + campus posts), Search, Campus Hub, Events
+- Home, Marketplace (listings + campus posts), Search, Campus Hub, Live Map
 - Messaging, Orders, Notifications, Profile and Settings
+- Sign out and sign back in with the same credentials, repeatedly
 - Report / hide / block controls on all user-generated content
-- Account deletion in **Settings → Delete account** (permanently removes the
-  account and its data)
+- Account deletion in **Settings → Delete account** (do not use on this
+  account — it permanently removes it)
 - Digital-goods purchases are not sold inside the iOS app
 
 ## Notes
