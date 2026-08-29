@@ -245,7 +245,9 @@ function AuthPage() {
         <p className="mt-2 text-xs text-muted-foreground">
           {mode === "forgot"
             ? "Enter your PlugU email — we'll send a secure reset link."
-            : "Use your verified .edu school email. Nobody without one gets in."}
+            : isBusiness && mode === "sign-up"
+              ? "Local businesses hire student Plugs. No .edu needed — we verify your business before you can post."
+              : "Use your verified .edu school email. Nobody without one gets in."}
         </p>
 
         {mode === "sign-in" && (
