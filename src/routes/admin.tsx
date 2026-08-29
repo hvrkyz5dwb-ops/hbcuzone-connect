@@ -78,7 +78,7 @@ function LocalBusinessesPanel() {
         ))}
       </div>
 
-      {q.isPending && <ChargingLoader label="Loading businesses" />}
+      {q.isPending && <ChargingLoader message="Loading businesses" />}
       {!q.isPending && (q.data?.length ?? 0) === 0 && (
         <p className="text-xs text-muted-foreground py-6 text-center">No {status} businesses.</p>
       )}
