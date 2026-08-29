@@ -270,20 +270,19 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
             <img src={pluguLogo} alt="" className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
             <span className="font-bold tracking-[0.2em] text-xs plugu-wordmark">PLUGU</span>
           </div>
-          {!last && (
-            <button
-              type="button"
-              onClick={onComplete}
-              className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
-            >
-              Skip
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={finish}
+            className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
+          >
+            Skip
+          </button>
         </div>
 
-        {/* Slide — drag anywhere */}
+        {/* Slide — drag anywhere. Scrolls on short screens so the copy can
+            never grow under, or overlap, the fixed footer button. */}
         <div
-          className="flex-1 min-h-0 flex flex-col justify-center px-7 touch-pan-y"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain flex flex-col justify-center px-7 py-2 touch-pan-y"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
