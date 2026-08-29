@@ -90,7 +90,6 @@ import { Route as OrdersIdReviewRouteImport } from './routes/orders.$id.review'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
-import { Route as ApiPublicProvisionReviewRouteImport } from './routes/api/public/provision-review'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
@@ -502,12 +501,6 @@ const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   path: '/api/public/stripe-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicProvisionReviewRoute =
-  ApiPublicProvisionReviewRouteImport.update({
-    id: '/api/public/provision-review',
-    path: '/api/public/provision-review',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -599,7 +592,6 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/api/public/provision-review': typeof ApiPublicProvisionReviewRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -685,7 +677,6 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/api/public/provision-review': typeof ApiPublicProvisionReviewRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -772,7 +763,6 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/api/public/provision-review': typeof ApiPublicProvisionReviewRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -860,7 +850,6 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/api/public/provision-review'
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -946,7 +935,6 @@ export interface FileRouteTypes {
     | '/seller'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/api/public/provision-review'
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -1032,7 +1020,6 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
-    | '/api/public/provision-review'
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -1114,7 +1101,6 @@ export interface RootRouteChildren {
   SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
-  ApiPublicProvisionReviewRoute: typeof ApiPublicProvisionReviewRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   SellerAvailabilityListingIdRoute: typeof SellerAvailabilityListingIdRoute
 }
@@ -1688,13 +1674,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/provision-review': {
-      id: '/api/public/provision-review'
-      path: '/api/public/provision-review'
-      fullPath: '/api/public/provision-review'
-      preLoaderRoute: typeof ApiPublicProvisionReviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -1869,7 +1848,6 @@ const rootRouteChildren: RootRouteChildren = {
   SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
-  ApiPublicProvisionReviewRoute: ApiPublicProvisionReviewRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   SellerAvailabilityListingIdRoute: SellerAvailabilityListingIdRoute,
 }
