@@ -57,9 +57,16 @@ function AuthPage() {
   // for returning users on a new device.
   const [mode, setMode] = useState<Mode>(initialMode === "sign-in" ? "sign-in" : "sign-up");
 
+  // Two kinds of account. Students must hold a verified .edu address;
+  // local businesses sign up with any work email and are verified by hand
+  // (see /hiring/business) before they can post or contact students.
+  const [accountType, setAccountType] = useState<"student" | "business">("student");
+  const isBusiness = accountType === "business";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [school, setSchool] = useState("");
   const [year, setYear] = useState("Freshman");
   const [major, setMajor] = useState("");
@@ -73,8 +80,9 @@ function AuthPage() {
   const emailCheck = useMemo(() => {
     const trimmed = email.trim();
     if (!trimmed || !trimmed.includes("@")) return null;
+    if (isBusiness) return null; // business emails aren't school-checked
     return validateStudentEmail(trimmed, mode === "sign-up" ? school || undefined : undefined);
-  }, [email, school, mode]);
+  }, [email, school, mode, isBusiness]);
 
   function reset(nextMode: Mode) {
     setErr(null);
