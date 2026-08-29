@@ -210,9 +210,23 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
   const [i, setI] = useState(0);
   const [dragX, setDragX] = useState(0);
   const drag = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
+  // Double-tap / navigation-loop guard. A ref (not state) so the very next
+  // synthetic click in the same frame is ignored without re-rendering or
+  // adding any perceptible delay to the first tap.
+  const finishing = useRef(false);
   const slide = SLIDES[i];
   const last = i === SLIDES.length - 1;
   const isTrust = slide.scene === "trust";
+
+  // Always safe to call: the first call runs immediately, later ones no-op.
+  function finish() {
+    if (finishing.current) return;
+    finishing.current = true;
+    onComplete();
+    // Release the lock if the screen is somehow still mounted (e.g. a slow
+    // route transition), so the button can never become permanently dead.
+    window.setTimeout(() => { finishing.current = false; }, 1200);
+  }
 
   function go(next: number) {
     setI(Math.max(0, Math.min(SLIDES.length - 1, next)));
