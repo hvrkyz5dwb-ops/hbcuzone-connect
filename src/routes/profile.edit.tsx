@@ -32,6 +32,8 @@ function EditProfile() {
   const [status, setStatus] = useState<"student" | "alumni">("student");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [openToWork, setOpenToWork] = useState(false);
+  const [openToWorkNote, setOpenToWorkNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -43,6 +45,8 @@ function EditProfile() {
     setStatus((profile.status as "student" | "alumni") ?? "student");
     setBio(profile.bio ?? "");
     setAvatarUrl(profile.avatar_url ?? "");
+    setOpenToWork(!!profile.open_to_work);
+    setOpenToWorkNote(profile.open_to_work_note ?? "");
   }, [profile?.id]);
 
   const usernameOk = !username || /^[a-z0-9_]{3,20}$/.test(username);
