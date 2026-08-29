@@ -171,6 +171,7 @@ function Admin() {
         {tab === "access" && <SchoolAccessPanel />}
         {tab === "log" && <ActivityLog />}
         {tab === "promos" && <PromosPanel />}
+        {tab === "businesses" && <LocalBusinessesPanel />}
       </section>
     </AppShell>
   );
