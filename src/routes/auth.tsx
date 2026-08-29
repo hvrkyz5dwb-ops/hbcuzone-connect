@@ -188,7 +188,9 @@ function AuthPage() {
       window.localStorage.setItem("plugu.welcome.pending", "1");
     } catch {}
 
-    window.location.href = safeNext(next);
+    // Businesses go straight to verification — they can't post or contact
+    // students until an admin approves them.
+    window.location.href = isBusiness ? "/hiring/business" : safeNext(next);
   }
 
   async function onForgot(e: React.FormEvent) {
