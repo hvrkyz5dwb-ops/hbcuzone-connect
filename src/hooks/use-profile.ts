@@ -27,6 +27,9 @@ export type Profile = {
   terms_accepted_at: string | null;
   school_id: string | null;
   verification_status: "verified" | "pending" | "rejected" | string;
+  account_type: "student" | "business";
+  open_to_work: boolean;
+  open_to_work_note: string | null;
 };
 
 export function useProfile() {
