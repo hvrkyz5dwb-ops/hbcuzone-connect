@@ -285,7 +285,38 @@ function AuthPage() {
 
         {mode === "sign-up" && (
           <form onSubmit={onSignUp} className="mt-5 space-y-3">
-            <Labeled label="Full name">
+            {/* Account type — students verify with .edu, businesses get
+                verified by hand and never receive a student badge. */}
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/60 p-1" role="radiogroup" aria-label="Account type">
+              {([["student", "Student Plug"], ["business", "Local Business"]] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={accountType === key}
+                  onClick={() => { setAccountType(key); setErr(null); }}
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
+                    accountType === key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {isBusiness && (
+              <Labeled label="Business name">
+                <input
+                  required
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="Campus Corner Cafe"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+                />
+              </Labeled>
+            )}
+
+            <Labeled label={isBusiness ? "Owner or representative name" : "Full name"}>
               <input
                 required
                 value={fullName}
@@ -294,25 +325,34 @@ function AuthPage() {
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
               />
             </Labeled>
-            <SchoolPicker value={school} onChange={setSchool} />
-            <EmailField value={email} onChange={setEmail} />
-            {emailCheck && !emailCheck.ok && email.includes("@") && (
+            {!isBusiness && <SchoolPicker value={school} onChange={setSchool} />}
+            <EmailField value={email} onChange={setEmail} business={isBusiness} />
+            {!isBusiness && emailCheck && !emailCheck.ok && email.includes("@") && (
               <p className="flex items-start gap-1.5 text-[11px] text-destructive">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {emailCheck.reason}
               </p>
             )}
-            {emailCheck && emailCheck.ok && (
+            {!isBusiness && emailCheck && emailCheck.ok && (
               <p className="flex items-center gap-1.5 text-[11px] text-primary">
                 <ShieldCheck className="h-3.5 w-3.5" /> Recognized as {emailCheck.school.name}.
               </p>
             )}
-            <p className="text-[11px] text-muted-foreground">
-              School not listed?{" "}
-              <Link to="/request-school-access" className="text-primary underline">
-                Request access
-              </Link>{" "}
-              after creating your account.
-            </p>
+            {!isBusiness && (
+              <p className="text-[11px] text-muted-foreground">
+                School not listed?{" "}
+                <Link to="/request-school-access" className="text-primary underline">
+                  Request access
+                </Link>{" "}
+                after creating your account.
+              </p>
+            )}
+            {isBusiness && (
+              <p className="text-[11px] text-muted-foreground">
+                Next you'll complete business verification — address, phone, website and the services
+                you need. Until it's approved you can't post opportunities or contact students.
+              </p>
+            )}
+            {!isBusiness && (
             <div className="grid grid-cols-2 gap-3">
               <Labeled label="Year">
                 <select
@@ -334,6 +374,7 @@ function AuthPage() {
                 />
               </Labeled>
             </div>
+            )}
             <PasswordField value={password} onChange={setPassword} autoComplete="new-password" />
             <p className="text-[10px] text-muted-foreground">Min 8 characters. Leaked passwords are blocked.</p>
 
