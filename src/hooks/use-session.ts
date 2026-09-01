@@ -25,28 +25,41 @@ export function useSession(): SessionState {
     // state — fall through as signed-out so the UI can render.
     const watchdog = setTimeout(() => {
       if (!mounted) return;
+      console.warn("[PlugU:auth] session hydrate timed out — continuing as signed-out");
       setState((prev) => (prev.loading ? { ...prev, loading: false } : prev));
     }, 5000);
 
     // Set listener FIRST so we don't miss events.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
+      if (event === "TOKEN_REFRESHED" && !session) {
+        // Refresh failed against a stored token the server no longer knows
+        // about (revoked, rotated, expired past the refresh window).
+        void clearBrokenSession("token refresh returned no session");
+      }
       setState({ session, user: session?.user ?? null, loading: false });
     });
 
     // Then hydrate current session.
     supabase.auth
       .getSession()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (!mounted) return;
+        if (error) {
+          console.error("[PlugU:auth] getSession failed", error);
+          void clearBrokenSession(error.message);
+          setState({ session: null, user: null, loading: false });
+          return;
+        }
         setState({
           session: data.session,
           user: data.session?.user ?? null,
           loading: false,
         });
       })
-      .catch(() => {
+      .catch((err) => {
         if (!mounted) return;
+        console.error("[PlugU:auth] getSession threw", err);
         setState({ session: null, user: null, loading: false });
       });
 
