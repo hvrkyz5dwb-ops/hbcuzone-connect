@@ -76,17 +76,19 @@ function Home() {
   }, [loading, session, navigate]);
 
   // Hard entry watchdog (App Review 2.1(a)): whatever happens above — stalled
-  // auth call, blocked storage, stuck splash, failed route transition — a
-  // signed-out visitor must be looking at sign-in within 12s of app open.
+  // auth call, blocked storage, failed route transition — a signed-out
+  // visitor must be looking at something interactive within 12s of app open.
+  // Skipped while the splash or the onboarding slides are on screen: those
+  // are the intended experience, not a stall.
   useEffect(() => {
+    if (session || guestSplash || guestIntro) return;
     const t = window.setTimeout(() => {
-      if (session) return;
       if (window.location.pathname !== "/") return;
       console.warn("[PlugU:entry] entry watchdog fired — forcing /auth");
       window.location.assign("/auth?next=%2F&mode=");
     }, 12000);
     return () => window.clearTimeout(t);
-  }, [session]);
+  }, [session, guestSplash, guestIntro]);
 
   // Startup failsafe: the splash can never be the last thing on screen. If
   // it outlives its own scene clock (stalled timer, backgrounded tab, slow
