@@ -40,6 +40,46 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+/**
+ * Branded boot state. Replaces the old blank black screen so a slow network
+ * never looks like a broken launch, and offers a manual escape hatch to
+ * sign-in after 5s (App Review 2.1(a): the user can never be trapped).
+ */
+function EntryLoading() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setSlow(true), 5000);
+    return () => window.clearTimeout(t);
+  }, []);
+  return (
+    <div
+      className="min-h-screen bg-background grid place-items-center px-8 text-center"
+      role="status"
+      aria-live="polite"
+    >
+      <div>
+        <p className="text-[26px] font-black tracking-[0.24em]" style={{ color: "var(--plugu-gold)" }}>
+          PLUGU
+        </p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {slow ? "Still connecting…" : "Starting up…"}
+        </p>
+        {slow && (
+          <Link
+            to="/auth"
+            search={{ next: "/", mode: "" } as never}
+            className="tap mt-6 inline-flex h-11 items-center justify-center rounded-full px-7 text-sm font-bold text-black"
+            style={{ background: "var(--gradient-bronze)" }}
+          >
+            Continue to sign in
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function Home() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
@@ -59,15 +99,36 @@ function Home() {
   useEffect(() => {
     if (loading) return;
     if (session) return;
-    if (shouldPlaySplash()) {
-      markSplashPlayed();
-      setGuestSplash(true);
-    } else if (!hasSeenIntro()) {
-      setGuestIntro(true);
-    } else {
-      navigate({ to: "/auth", search: { next: "/", mode: "" } });
+    try {
+      if (shouldPlaySplash()) {
+        markSplashPlayed();
+        setGuestSplash(true);
+      } else if (!hasSeenIntro()) {
+        setGuestIntro(true);
+      } else {
+        navigate({ to: "/auth", search: { next: "/", mode: "" } });
+      }
+    } catch (err) {
+      // Storage blocked / navigation raced: never strand the guest.
+      console.error("[PlugU:entry] guest gate failed, falling through to /auth", err);
+      window.location.assign("/auth?next=%2F&mode=");
     }
   }, [loading, session, navigate]);
+
+  // Hard entry watchdog (App Review 2.1(a)): whatever happens above — stalled
+  // auth call, blocked storage, failed route transition — a signed-out
+  // visitor must be looking at something interactive within 12s of app open.
+  // Skipped while the splash or the onboarding slides are on screen: those
+  // are the intended experience, not a stall.
+  useEffect(() => {
+    if (session || guestSplash || guestIntro) return;
+    const t = window.setTimeout(() => {
+      if (window.location.pathname !== "/") return;
+      console.warn("[PlugU:entry] entry watchdog fired — forcing /auth");
+      window.location.assign("/auth?next=%2F&mode=");
+    }, 12000);
+    return () => window.clearTimeout(t);
+  }, [session, guestSplash, guestIntro]);
 
   // Startup failsafe: the splash can never be the last thing on screen. If
   // it outlives its own scene clock (stalled timer, backgrounded tab, slow
@@ -105,7 +166,7 @@ function Home() {
   }, [feedStagger]);
 
   if (!hydrated || loading) {
-    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+    return <EntryLoading />;
   }
   if (!session) {
     if (guestSplash) {
@@ -117,7 +178,7 @@ function Home() {
       );
     }
     if (guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
-    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+    return <EntryLoading />;
   }
 
   return (

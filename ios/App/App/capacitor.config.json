@@ -7,6 +7,7 @@
 		"url": "https://hbcuzone-connect.lovable.app",
 		"cleartext": false,
 		"androidScheme": "https",
+		"errorPath": "index.html",
 		"allowNavigation": [
 			"hbcuzone-connect.lovable.app",
 			"*.lovable.app",

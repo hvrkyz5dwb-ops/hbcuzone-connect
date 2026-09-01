@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
     <title>PlugU</title>
     <style>
       :root { color-scheme: dark; }
@@ -10,37 +11,87 @@
       body {
         display: grid; place-items: center; text-align: center;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: #f4c96a; padding: 32px;
+        color: #f4c96a;
+        padding: max(32px, env(safe-area-inset-top)) 32px max(32px, env(safe-area-inset-bottom));
       }
-      h1 { font-size: 40px; letter-spacing: 0.14em; margin: 0 0 12px; font-weight: 600; }
-      p { color: #b9b3a6; font-size: 15px; line-height: 1.5; margin: 0; max-width: 22em; }
+      main { max-width: 30em; width: 100%; }
+      h1 { font-size: clamp(34px, 7vw, 52px); letter-spacing: 0.14em; margin: 0 0 12px; font-weight: 600; }
+      p { color: #b9b3a6; font-size: 15px; line-height: 1.55; margin: 0 auto; max-width: 24em; }
+      #status { margin-top: 14px; font-size: 13px; color: #7e7a72; min-height: 1.2em; }
+      button {
+        margin-top: 26px; -webkit-appearance: none; appearance: none; cursor: pointer;
+        border: 1px solid rgba(244,201,106,0.55); border-radius: 999px;
+        background: linear-gradient(180deg, #f4c96a, #c9973f); color: #0a0a0a;
+        font-size: 16px; font-weight: 700; letter-spacing: 0.02em;
+        padding: 15px 34px; min-height: 48px; min-width: 180px;
+      }
+      button:disabled { opacity: 0.55; }
       .dot { width: 8px; height: 8px; border-radius: 50%; background: #f4c96a; margin: 24px auto 0;
              animation: pulse 1.4s ease-in-out infinite; }
       @keyframes pulse { 0%,100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
+      @media (prefers-reduced-motion: reduce) { .dot { animation: none; opacity: .6; } }
     </style>
   </head>
   <body>
     <main>
       <h1>PLUGU</h1>
-      <p>Connecting campus. Reconnect to the internet to plug back in.</p>
-      <div class="dot"></div>
-      <button id="retry" type="button" style="margin-top:22px;padding:12px 26px;border-radius:16px;border:1px solid rgba(244,201,106,.5);background:linear-gradient(140deg,#f4c96a,#b5822f);color:#160d03;font-weight:700;font-size:14px;">Try again</button>
-      <p id="hint" style="margin-top:12px;font-size:11px;opacity:.55;">Check your connection and tap Try again.</p>
+      <p>We couldn't reach PlugU just now. Check your connection and tap retry — nothing on your account is affected.</p>
+      <p id="status" role="status" aria-live="polite"></p>
+      <button id="retry" type="button">Retry</button>
+      <div class="dot" aria-hidden="true"></div>
     </main>
-      <script>
-      // If the device is offline and this fallback loads, hide the native
-      // splash so the user sees a branded screen instead of a frozen launch.
-      window.addEventListener('DOMContentLoaded', function () {
-        var sp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen;
-        if (sp && sp.hide) sp.hide();
+    <script>
+      (function () {
         var HOME = 'https://hbcuzone-connect.lovable.app/';
-        function retry() { window.location.replace(HOME); }
-        var btn = document.getElementById('retry');
-        if (btn) btn.addEventListener('click', retry);
-        // Auto-retry as soon as connectivity comes back, plus a slow poll.
-        window.addEventListener('online', retry);
-        setInterval(function () { if (navigator.onLine) retry(); }, 6000);
-      });
+        var statusEl = document.getElementById('status');
+        var retryEl = document.getElementById('retry');
+        var attempts = 0;
+        var timer = null;
+
+        function log(msg) {
+          try { console.log('[PlugU:offline-shell] ' + msg); } catch (e) {}
+        }
+        function setStatus(text) { if (statusEl) statusEl.textContent = text; }
+
+        // Dismiss the native launch screen so the user always sees a branded
+        // screen with a way forward instead of a frozen splash.
+        try {
+          var sp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen;
+          if (sp && sp.hide) sp.hide();
+        } catch (e) {}
+
+        function go() {
+          attempts++;
+          log('retry attempt ' + attempts + ' online=' + navigator.onLine);
+          if (!navigator.onLine) {
+            setStatus('Still offline. We\u2019ll reconnect automatically.');
+            retryEl.disabled = false;
+            return;
+          }
+          retryEl.disabled = true;
+          setStatus('Reconnecting\u2026');
+          // Cache-busted so a cached failure page can\u2019t stick.
+          window.location.replace(HOME + '?r=' + Date.now());
+        }
+
+        retryEl.addEventListener('click', go);
+        window.addEventListener('online', function () {
+          log('device came online');
+          setStatus('Back online \u2014 reconnecting\u2026');
+          go();
+        });
+
+        // Bounded auto-retry with backoff (8s, 16s, 32s, then stop and wait
+        // for the user or an `online` event) so we never loop forever.
+        function schedule() {
+          if (attempts >= 3) { setStatus('Tap retry when you\u2019re back online.'); return; }
+          var delay = 8000 * Math.pow(2, attempts);
+          timer = setTimeout(function () { go(); schedule(); }, delay);
+        }
+        setStatus(navigator.onLine ? 'Checking your connection\u2026' : 'You appear to be offline.');
+        schedule();
+        window.addEventListener('pagehide', function () { if (timer) clearTimeout(timer); });
+      })();
     </script>
   </body>
 </html>
