@@ -59,15 +59,34 @@ function Home() {
   useEffect(() => {
     if (loading) return;
     if (session) return;
-    if (shouldPlaySplash()) {
-      markSplashPlayed();
-      setGuestSplash(true);
-    } else if (!hasSeenIntro()) {
-      setGuestIntro(true);
-    } else {
-      navigate({ to: "/auth", search: { next: "/", mode: "" } });
+    try {
+      if (shouldPlaySplash()) {
+        markSplashPlayed();
+        setGuestSplash(true);
+      } else if (!hasSeenIntro()) {
+        setGuestIntro(true);
+      } else {
+        navigate({ to: "/auth", search: { next: "/", mode: "" } });
+      }
+    } catch (err) {
+      // Storage blocked / navigation raced: never strand the guest.
+      console.error("[PlugU:entry] guest gate failed, falling through to /auth", err);
+      window.location.assign("/auth?next=%2F&mode=");
     }
   }, [loading, session, navigate]);
+
+  // Hard entry watchdog (App Review 2.1(a)): whatever happens above — stalled
+  // auth call, blocked storage, stuck splash, failed route transition — a
+  // signed-out visitor must be looking at sign-in within 12s of app open.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      if (session) return;
+      if (window.location.pathname !== "/") return;
+      console.warn("[PlugU:entry] entry watchdog fired — forcing /auth");
+      window.location.assign("/auth?next=%2F&mode=");
+    }, 12000);
+    return () => window.clearTimeout(t);
+  }, [session]);
 
   // Startup failsafe: the splash can never be the last thing on screen. If
   // it outlives its own scene clock (stalled timer, backgrounded tab, slow
