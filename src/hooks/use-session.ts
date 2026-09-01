@@ -10,6 +10,26 @@ export type SessionState = {
   loading: boolean;
 };
 
+/**
+ * A stored session the auth server rejects (revoked, rotated, expired past
+ * the refresh window, or written by an older build) would otherwise wedge the
+ * app on a permanent "signing in…" state — the App Review 2.1(a) trap. Purge
+ * it locally so the very next render lands on the public entry flow.
+ */
+async function clearBrokenSession(reason: string): Promise<void> {
+  console.warn(`[PlugU:auth] clearing invalid stored session — ${reason}`);
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch {}
+  try {
+    const ls = window.localStorage;
+    for (let i = ls.length - 1; i >= 0; i--) {
+      const key = ls.key(i);
+      if (key && (key.startsWith("sb-") || key.startsWith("supabase.auth"))) ls.removeItem(key);
+    }
+  } catch {}
+}
+
 export function useSession(): SessionState {
   const [state, setState] = useState<SessionState>({
     session: null,
