@@ -126,7 +126,7 @@ function Home() {
   }, [feedStagger]);
 
   if (!hydrated || loading) {
-    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+    return <EntryLoading />;
   }
   if (!session) {
     if (guestSplash) {
@@ -138,7 +138,7 @@ function Home() {
       );
     }
     if (guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
-    return <div className="min-h-screen bg-background" aria-hidden="true" />;
+    return <EntryLoading />;
   }
 
   return (
