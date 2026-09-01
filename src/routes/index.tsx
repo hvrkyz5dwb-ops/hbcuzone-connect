@@ -40,6 +40,46 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+/**
+ * Branded boot state. Replaces the old blank black screen so a slow network
+ * never looks like a broken launch, and offers a manual escape hatch to
+ * sign-in after 5s (App Review 2.1(a): the user can never be trapped).
+ */
+function EntryLoading() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setSlow(true), 5000);
+    return () => window.clearTimeout(t);
+  }, []);
+  return (
+    <div
+      className="min-h-screen bg-background grid place-items-center px-8 text-center"
+      role="status"
+      aria-live="polite"
+    >
+      <div>
+        <p className="text-[26px] font-black tracking-[0.24em]" style={{ color: "var(--plugu-gold)" }}>
+          PLUGU
+        </p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {slow ? "Still connecting…" : "Starting up…"}
+        </p>
+        {slow && (
+          <Link
+            to="/auth"
+            search={{ next: "/", mode: "" } as never}
+            className="tap mt-6 inline-flex h-11 items-center justify-center rounded-full px-7 text-sm font-bold text-black"
+            style={{ background: "var(--gradient-bronze)" }}
+          >
+            Continue to sign in
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function Home() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
