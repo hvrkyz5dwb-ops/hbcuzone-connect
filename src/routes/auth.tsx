@@ -250,6 +250,33 @@ function AuthPage() {
               : "Use your verified .edu school email. Nobody without one gets in."}
         </p>
 
+        {/* Primary mode switch — returning users (and App Review) must be able
+            to reach Sign in immediately, without hunting for a small link. */}
+        {mode !== "forgot" && (
+          <div
+            className="mt-4 grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/60 p-1"
+            role="tablist"
+            aria-label="Sign in or create an account"
+          >
+            {([["sign-in", "Sign in"], ["sign-up", "Create account"]] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={mode === key}
+                onClick={() => reset(key)}
+                className={`tap rounded-lg px-3 py-2.5 text-xs font-semibold transition-colors ${
+                  mode === key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+
+
         {mode === "sign-in" && (
           <form onSubmit={onSignIn} className="mt-5 space-y-3">
             <EmailField value={email} onChange={setEmail} />
