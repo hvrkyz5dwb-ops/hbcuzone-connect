@@ -247,6 +247,7 @@ function AuthPage() {
             ? "Enter your PlugU email — we'll send a secure reset link."
             : isBusiness && mode === "sign-up"
               ? "Local businesses hire student Plugs. No .edu needed — we verify your business before you can post."
+              : "Use your verified .edu school email. Nobody without one gets in."}
         </p>
 
         {/* Primary mode switch — returning users (and App Review) must be able
