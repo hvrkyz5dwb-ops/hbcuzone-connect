@@ -128,10 +128,12 @@ function SearchPage() {
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
               autoFocus
+              type="search"
+              aria-label={tab === "ai" ? "Ask PlugU AI" : "Search PlugU"}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={tab === "ai" ? "Ask anything about your campus…" : "Search PlugU…"}
-              className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
+              className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
             />
             {query && (
               <button onClick={() => setQuery("")} className="tap text-muted-foreground" aria-label="Clear">
