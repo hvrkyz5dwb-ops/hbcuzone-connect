@@ -266,11 +266,21 @@ export async function fetchMyApplications(): Promise<
   if (!me) return [];
   const { data, error } = await supabase
     .from("opportunity_applications")
-    .select("*, opportunity:opportunities(*, business:local_businesses(id,name,campus_name,verification_status))")
+    .select("*, opportunity:opportunities(*)")
     .eq("student_user_id", me)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as any;
+  const rows = (data ?? []) as any[];
+  const byId = await fetchPublicBusinesses(
+    rows.map((r) => r.opportunity?.business_id).filter(Boolean),
+  );
+  return rows.map((r) => ({
+    ...r,
+    opportunity: r.opportunity
+      ? { ...r.opportunity, business: byId.get(r.opportunity.business_id) ?? null }
+      : null,
+  })) as any;
+
 }
 
 export type Applicant = Application & {
