@@ -164,12 +164,9 @@ export async function fetchBlockedUsers(): Promise<BlockedUser[]> {
     .order("created_at", { ascending: false });
   if (error || !data?.length) return [];
   const ids = data.map((r) => r.blocked_user_id as string);
-  // `profiles` is self-read only under RLS; the public view is the readable
-  // source for someone else's display name.
-  const { data: profiles } = await supabase
-    .from("public_profiles")
-    .select("id, username, display_name, avatar_url")
-    .in("id", ids);
+  // `profiles` is self-read only under RLS, so someone else's display name
+  // comes from the safe, signed-in-only lookup.
+  const { data: profiles } = await (supabase as any).rpc("get_public_profiles", { _ids: ids });
   const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
   return data.map((r) => {
     const p = byId.get(r.blocked_user_id as string) as any;
