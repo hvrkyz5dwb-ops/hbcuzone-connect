@@ -3150,6 +3150,19 @@ export type Database = {
           verified: boolean
         }[]
       }
+      get_public_local_businesses: {
+        Args: { _ids: string[] }
+        Returns: {
+          campus_name: string
+          description: string
+          id: string
+          name: string
+          school_id: string
+          services_needed: string[]
+          verification_status: string
+          website: string
+        }[]
+      }
       get_public_profiles: {
         Args: { _ids: string[] }
         Returns: {
