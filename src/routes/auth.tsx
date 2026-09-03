@@ -100,6 +100,10 @@ function AuthPage() {
       setErr("Enter your email and password.");
       return;
     }
+    if (!agreeTerms) {
+      setErr("Accept the Terms of Use and Privacy Policy to continue.");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
@@ -116,6 +120,9 @@ function AuthPage() {
       }
       return;
     }
+    // Record the acceptance date + policy version for this sign-in (no-op if
+    // the current version is already on file).
+    try { await recordPolicyAcceptance(); } catch {}
     window.location.href = safeNext(next);
   }
 
@@ -281,10 +288,23 @@ function AuthPage() {
           <form onSubmit={onSignIn} className="mt-5 space-y-3">
             <EmailField value={email} onChange={setEmail} />
             <PasswordField value={password} onChange={setPassword} autoComplete="current-password" />
+
+            {/* Affirmative agreement before login (App Review 1.2). */}
+            <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                <Link to="/terms" className="underline text-primary">Terms of Use</Link>
+                <Link to="/privacy" className="underline text-primary">Privacy Policy</Link>
+                <Link to="/community-guidelines" className="underline text-primary">Community Guidelines</Link>
+              </div>
+              <Check checked={agreeTerms} onChange={setAgreeTerms}>
+                I agree to the Terms of Use and Privacy Policy.
+              </Check>
+            </div>
+
             <Feedback err={err} msg={msg} />
             <button
               type="submit"
-              disabled={busy}
+              disabled={busy || !agreeTerms}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -528,7 +548,8 @@ function Check({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--plugu-gold)]"
+        aria-label="I agree to the Terms of Use and Privacy Policy"
+        className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--plugu-gold)]"
       />
       <span>{children}</span>
     </label>

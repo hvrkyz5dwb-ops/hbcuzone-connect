@@ -3,6 +3,7 @@ import { Search, MessageSquare, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useConversations } from "@/hooks/use-messages";
+import { useBlocklist } from "@/hooks/use-blocklist";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingList, EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/QueryStates";
@@ -38,9 +39,11 @@ function timeAgo(iso: string): string {
 function Messages() {
   const { data: threads, isPending, isError, refetch } = useConversations();
   const [query, setQuery] = useState("");
+  // Blocked accounts disappear from the inbox immediately, no restart needed.
+  const { isBlocked } = useBlocklist();
 
   const filtered = useMemo(() => {
-    const list = threads ?? [];
+    const list = (threads ?? []).filter((t) => !isBlocked(t.other?.user_id ?? null));
     if (!query) return list;
     const q = query.toLowerCase();
     return list.filter((t) => {
@@ -49,7 +52,7 @@ function Messages() {
       const preview = (t.last_message?.body ?? "").toLowerCase();
       return name.includes(q) || listing.includes(q) || preview.includes(q);
     });
-  }, [threads, query]);
+  }, [threads, query, isBlocked]);
 
   return (
     <AppShell title="INBOX">

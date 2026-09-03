@@ -3150,6 +3150,15 @@ export type Database = {
           verified: boolean
         }[]
       }
+      get_public_profiles: {
+        Args: { _ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -18,6 +18,7 @@ import { useMarketplace } from "@/hooks/use-listings";
 import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
 import { getOrCreateConversation } from "@/lib/messages-db";
 import { MVP_CATEGORIES, formatPrice, categoryLabel, type PriceType } from "@/lib/categories";
+import { useContentVisibility } from "@/hooks/use-blocklist";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
 import { FULFILLMENT_OPTIONS } from "@/lib/categories";
@@ -39,6 +40,7 @@ function Market() {
   const school = useSchool();
   const { profile } = useProfile();
   const qc = useQueryClient();
+  const isVisible = useContentVisibility();
 
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -75,7 +77,15 @@ function Market() {
     }
   }
 
-  const rows = listings ?? [];
+  // Reported/hidden listings and blocked sellers disappear instantly, with no
+  // refetch and no app restart.
+  const rows = useMemo(
+    () =>
+      (listings ?? []).filter((l) =>
+        isVisible({ type: "listing", id: l.id, authorId: (l as { seller_user_id?: string | null }).seller_user_id ?? null }),
+      ),
+    [listings, isVisible],
+  );
 
   return (
     <AppShell title="MARKET">

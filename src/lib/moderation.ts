@@ -164,8 +164,10 @@ export async function fetchBlockedUsers(): Promise<BlockedUser[]> {
     .order("created_at", { ascending: false });
   if (error || !data?.length) return [];
   const ids = data.map((r) => r.blocked_user_id as string);
+  // `profiles` is self-read only under RLS; the public view is the readable
+  // source for someone else's display name.
   const { data: profiles } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select("id, username, display_name, avatar_url")
     .in("id", ids);
   const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
@@ -184,7 +186,7 @@ export async function fetchBlockedUsers(): Promise<BlockedUser[]> {
 export type AdminAction =
   | "listing.approve" | "listing.reject" | "listing.remove"
   | "user.suspend" | "user.restore"
-  | "report.resolve" | "report.dismiss"
+  | "report.review" | "report.resolve" | "report.dismiss"
   | "dispute.resolve" | "dispute.reject"
   | "review.remove";
 

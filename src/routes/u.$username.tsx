@@ -10,8 +10,9 @@ import { Crown, GraduationCap, MapPin, Star, ShoppingBag, Flag, Ban } from "luci
 import { ReviewsList } from "@/components/ReviewsList";
 import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { ReportDialog } from "@/components/ReportDialog";
-import { blockUser } from "@/lib/moderation";
+import { blockUser, unblockUser } from "@/lib/moderation";
 import { useSession } from "@/hooks/use-session";
+import { useBlocklist, useRefreshBlocklist } from "@/hooks/use-blocklist";
 
 export const Route = createFileRoute("/u/$username")({
   ssr: false,
@@ -51,6 +52,9 @@ function PublicProfile() {
   const meId = session?.user?.id ?? null;
   const [reportOpen, setReportOpen] = useState(false);
   const [blocking, setBlocking] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
+  const { isBlocked } = useBlocklist();
+  const refreshBlocklist = useRefreshBlocklist();
   const q = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async (): Promise<PublicProfile | null> => {
@@ -100,14 +104,59 @@ function PublicProfile() {
   const joined = new Date(p.created_at);
   const isAlumni = p.status === "alumni";
   const isSelf = meId === p.id;
+  const blockedByMe = isBlocked(p.id);
 
   async function onBlock() {
     if (!meId) return toast.error("Sign in to block");
-    if (!confirm(`Block ${displayName}? You won't see their messages or listings.`)) return;
     setBlocking(true);
-    try { await blockUser(p!.id); toast.success("User blocked"); }
-    catch (err) { toast.error((err as Error).message); }
-    finally { setBlocking(false); }
+    try {
+      await blockUser(p!.id);
+      refreshBlocklist();
+      setConfirmBlock(false);
+      toast.success("Blocked", {
+        description: "Their listings, posts, reviews and messages are hidden and you can't contact each other.",
+      });
+    } catch (err) {
+      toast.error("Couldn't block", { description: (err as Error).message });
+    } finally { setBlocking(false); }
+  }
+
+  async function onUnblock() {
+    setBlocking(true);
+    try {
+      await unblockUser(p!.id);
+      refreshBlocklist();
+      toast.success("Unblocked");
+    } catch (err) {
+      toast.error("Couldn't unblock", { description: (err as Error).message });
+    } finally { setBlocking(false); }
+  }
+
+  // An old link to a blocked account must not surface their content.
+  if (blockedByMe) {
+    return (
+      <AppShell title="PROFILE">
+        <section className="px-6 pt-16 text-center">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-border bg-card">
+            <Ban className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="mt-4 text-sm font-semibold">This content is unavailable</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            You blocked this account. Unblock it to see their profile again.
+          </p>
+          <button
+            onClick={onUnblock}
+            disabled={blocking}
+            className="tap mt-5 rounded-2xl border border-border bg-secondary px-5 py-3 text-xs font-semibold disabled:opacity-60"
+          >
+            Unblock
+          </button>
+          <div className="mt-3">
+            <Link to="/blocked" className="text-[11px] text-accent underline">Manage blocked users</Link>
+          </div>
+        </section>
+      </AppShell>
+    );
   }
 
   return (
@@ -150,7 +199,7 @@ function PublicProfile() {
             <button onClick={() => setReportOpen(true)} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-accent/40 text-accent bg-accent/5">
               <Flag className="h-3 w-3"/> Report
             </button>
-            <button onClick={onBlock} disabled={blocking} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-destructive/40 text-destructive bg-destructive/5 disabled:opacity-60">
+            <button onClick={() => setConfirmBlock(true)} disabled={blocking} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-destructive/40 text-destructive bg-destructive/5 disabled:opacity-60">
               <Ban className="h-3 w-3"/> {blocking ? "Blocking…" : "Block"}
             </button>
           </div>
@@ -170,7 +219,26 @@ function PublicProfile() {
         <ReviewsList userId={p.id} />
       </section>
 
-      <ReportDialog open={reportOpen} onClose={() => setReportOpen(false)} targetType="user" targetId={p.id} targetLabel={displayName} />
+      {confirmBlock && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setConfirmBlock(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-sm rounded-3xl border border-border bg-card p-5 text-left">
+            <h3 className="text-base font-bold">Block {displayName}?</h3>
+            <p className="mt-2 text-xs text-muted-foreground">
+              You won't see their listings, posts, comments, events, reviews or messages anywhere in
+              PlugU, and neither of you can contact the other. Unblock any time in
+              Settings → Privacy &amp; Safety → Blocked users.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button onClick={() => setConfirmBlock(false)} className="tap rounded-2xl border border-border bg-secondary py-3 text-sm">Cancel</button>
+              <button onClick={onBlock} disabled={blocking} className="tap rounded-2xl bg-destructive py-3 text-sm font-semibold text-destructive-foreground disabled:opacity-60">
+                {blocking ? "Blocking…" : "Block"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ReportDialog open={reportOpen} onClose={() => setReportOpen(false)} targetType="user" targetId={p.id} targetLabel={displayName} reportedUserId={p.id} />
     </AppShell>
   );
 }
