@@ -140,12 +140,24 @@ export type OpportunityFilters = {
   remote?: "any" | "remote" | "in-person";
 };
 
+type PublicBusiness = Pick<LocalBusiness, "id" | "name" | "campus_name" | "verification_status">;
+
+/** Business rows carry contact details that are owner/admin-only, so public
+ *  surfaces read a safe projection through a signed-in-only RPC. */
+async function fetchPublicBusinesses(ids: string[]): Promise<Map<string, PublicBusiness>> {
+  const unique = Array.from(new Set(ids.filter(Boolean)));
+  if (unique.length === 0) return new Map();
+  const { data, error } = await supabase.rpc("get_public_local_businesses", { _ids: unique });
+  if (error) return new Map();
+  return new Map(((data ?? []) as any[]).map((b) => [b.id as string, b as PublicBusiness]));
+}
+
 export async function fetchOpportunities(
   f: OpportunityFilters = {},
 ): Promise<OpportunityWithBusiness[]> {
   let query = supabase
     .from("opportunities")
-    .select("*, business:local_businesses(id,name,campus_name,verification_status)")
+    .select("*")
     .eq("status", "open")
     .eq("moderation_status", "approved")
     .order("created_at", { ascending: false })
@@ -160,18 +172,29 @@ export async function fetchOpportunities(
   }
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []) as unknown as OpportunityWithBusiness[];
+  const rows = (data ?? []) as any[];
+  const byId = await fetchPublicBusinesses(rows.map((r) => r.business_id));
+  return rows.map((r) => ({
+    ...r,
+    business: byId.get(r.business_id) ?? null,
+  })) as unknown as OpportunityWithBusiness[];
 }
 
 export async function fetchOpportunity(id: string): Promise<OpportunityWithBusiness | null> {
   const { data, error } = await supabase
     .from("opportunities")
-    .select("*, business:local_businesses(id,name,campus_name,verification_status)")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return (data as unknown as OpportunityWithBusiness | null) ?? null;
+  if (!data) return null;
+  const byId = await fetchPublicBusinesses([(data as any).business_id]);
+  return {
+    ...(data as any),
+    business: byId.get((data as any).business_id) ?? null,
+  } as unknown as OpportunityWithBusiness;
 }
+
 
 export async function fetchMyOpportunities(): Promise<Opportunity[]> {
   const me = await uid();
