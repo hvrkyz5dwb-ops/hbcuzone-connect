@@ -1725,6 +1725,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "opportunities_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "local_businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "opportunities_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
@@ -2960,6 +2967,50 @@ export type Database = {
       }
     }
     Views: {
+      local_businesses_public: {
+        Row: {
+          campus_name: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          name: string | null
+          school_id: string | null
+          services_needed: string[] | null
+          verification_status: string | null
+          website: string | null
+        }
+        Insert: {
+          campus_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          name?: string | null
+          school_id?: string | null
+          services_needed?: string[] | null
+          verification_status?: string | null
+          website?: string | null
+        }
+        Update: {
+          campus_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          name?: string | null
+          school_id?: string | null
+          services_needed?: string[] | null
+          verification_status?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_businesses_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
