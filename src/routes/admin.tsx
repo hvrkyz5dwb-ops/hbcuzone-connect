@@ -356,7 +356,7 @@ function ListingsPanel() {
 
 function ReportsPanel() {
   const perform = useAdminAction();
-  const [status, setStatus] = useState<"open"|"all"|"resolved"|"dismissed">("open");
+  const [status, setStatus] = useState<"open"|"all"|"reviewing"|"resolved"|"dismissed">("open");
   const q = useQuery({
     queryKey: ["admin-reports", status],
     queryFn: async () => {
@@ -371,7 +371,7 @@ function ReportsPanel() {
   return (
     <>
       <div className="flex flex-wrap gap-1.5">
-        {(["open","resolved","dismissed","all"] as const).map((s) => (
+        {(["open","reviewing","resolved","dismissed","all"] as const).map((s) => (
           <button key={s} onClick={() => setStatus(s)}
             className={`px-3 py-1 rounded-full text-[11px] border capitalize ${status===s?"bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary":"bg-secondary text-muted-foreground border-border"}`}>{s}</button>
         ))}
@@ -409,8 +409,11 @@ function ReportsPanel() {
                 </div>
                 <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-border text-muted-foreground">{r.status}</span>
               </div>
-              {r.status === "open" && (
+              {(r.status === "open" || r.status === "reviewing") && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
+                  {r.status === "open" && (
+                    <AdminBtn variant="warn" onClick={() => perform({ action:"report.review", targetType:"report", targetId:r.id, invalidate:["admin-reports"] })}><Check className="h-3 w-3"/> Mark reviewed</AdminBtn>
+                  )}
                   <AdminBtn variant="ok" onClick={() => perform({ action:"report.resolve", targetType:"report", targetId:r.id, invalidate:["admin-reports"] })}><Check className="h-3 w-3"/> Resolve</AdminBtn>
                   <AdminBtn variant="warn" onClick={() => perform({ action:"report.dismiss", targetType:"report", targetId:r.id, invalidate:["admin-reports"] })}><X className="h-3 w-3"/> Dismiss</AdminBtn>
                   {r.target_type === "review" && (
