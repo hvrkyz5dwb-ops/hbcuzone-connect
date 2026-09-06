@@ -4,6 +4,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 // students straight into the sign-in tab.
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
-    throw redirect({ to: "/auth", search: { next: "", mode: "" } });
+    throw redirect({ to: "/auth", search: { next: "", mode: "sign-in" } });
   },
 });

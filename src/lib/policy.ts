@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const POLICY_VERSION = "2026-01-plugu-v1";
 
 export const POLICY_CONSENT_TEXT =
-  "I agree to PlugU's Terms of Use, Privacy Policy, and Community Guidelines. I understand that prohibited or abusive content may be removed and accounts may be suspended.";
+  "I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines, and Marketplace Agreement. I understand that prohibited or abusive content may be removed and accounts may be suspended.";
 
 export async function recordPolicyAcceptance(userId?: string) {
   let uid = userId;
