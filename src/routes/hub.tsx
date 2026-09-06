@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowRight, Briefcase, DollarSign, Search, X, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { AiNewsFeed } from "@/components/AiNewsFeed";
+import { useProfile } from "@/hooks/use-profile";
+
 import {
   careerSections, moneySections, hubItems,
   type HubCategory,
@@ -25,6 +28,9 @@ function Hub() {
   const [hub, setHub] = useState<Hub>("career");
   const [cat, setCat] = useState<HubCategory | "all">("all");
   const [q, setQ] = useState("");
+  const { profile } = useProfile();
+  const major = profile?.major ?? null;
+
 
   const sections = hub === "career" ? careerSections : moneySections;
 
@@ -106,7 +112,32 @@ function Hub() {
         </div>
       </section>
 
+      {/* Matched to the student's major — live, AI-ranked opportunities */}
+      <section className="px-5 pt-2 pb-1">
+        <div className="rounded-3xl border border-border bg-card p-4">
+          <p className="text-[10px] tracking-[0.25em] uppercase text-accent">
+            {major ? `Matched to ${major}` : "Matched to you"}
+          </p>
+          <p className="mt-0.5 mb-2 text-[11px] text-muted-foreground">
+            {major
+              ? `Live ${hub === "career" ? "internships & jobs" : "scholarships & grants"} for ${major} majors.`
+              : `Add your major in your profile to sharpen these ${hub === "career" ? "internships" : "scholarships"}.`}
+          </p>
+          <AiNewsFeed
+            category={
+              hub === "career"
+                ? `Internships and entry-level jobs for ${major ?? "college"} students`
+                : `Scholarships, grants and paid opportunities for ${major ?? "college"} students`
+            }
+            school={profile?.school_name ?? undefined}
+            count={5}
+            compact
+          />
+        </div>
+      </section>
+
       {/* List */}
+
       <section className="px-5 mt-2 pb-6 space-y-2">
         {filtered.map((i) => (
           <article

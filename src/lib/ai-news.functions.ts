@@ -23,32 +23,38 @@ const Input = z.object({
   school: z.string().max(200).optional(),
   count: z.number().int().min(1).max(12).optional(),
   context: z.string().max(1000).optional(),
+  /** Topics the student has been tapping on, strongest first. */
+  interests: z.array(z.string().max(40)).max(8).optional(),
+  /** The student's declared major, used to slant careers/scholarships. */
+  major: z.string().max(80).optional(),
 });
 
-const SYSTEM = `You are PlugU NewsAI, generating short, plausible, real-world style news briefs for Black college students at HBCUs and across America.
-Treat the user prompt as a category. Produce up-to-date sounding stories that a Black college student would care about — campus, HBCU funding & policy, scholarships, internships, Black business, Black culture, sports (HBCU football/basketball/track), markets/finance, careers, study abroad, social justice, and national headlines that affect Black students.
+const SYSTEM = `You are PlugU NewsAI, the newsroom editor inside a college app for Black students at HBCUs and across America.
+
+You are given LIVE WIRE STORIES pulled minutes ago from real newsrooms. Your job is to pick the stories that matter most to THIS student and rewrite each into a tight brief. Never invent a story that is not in the wire list, and never invent a link — copy the wire "url" exactly.
 
 Return STRICT JSON ONLY (no markdown) with shape:
 {
   "items": [
     {
       "headline": "Concise, news-style headline (<= 90 chars)",
-      "summary": "1-2 short factual-sounding sentences",
-      "source": "Realistic outlet (AP, Reuters, NYT, The Root, HBCU Buzz, ESPN, Bloomberg, Atlanta Journal-Constitution, Andscape, etc.)",
-      "time": "e.g. 12m, 2h, 1d",
+      "summary": "1-2 short sentences, faithful to the wire story",
+      "source": "The outlet from the wire item",
+      "time": "e.g. 12m, 2h, 1d — from the wire timestamp",
       "tag": "Short category tag, 1-2 words",
       "emoji": "Single relevant emoji",
-      "url": "Optional plausible search URL on google.com/news or the outlet's domain"
+      "url": "The exact wire url"
     }
   ]
 }
 
 Rules:
-- Do NOT fabricate quotes, exact dollar figures attributed to a named person, or breaking-news claims that could be mistaken for verified facts.
-- Keep tone neutral and informational. Phrase as "reports", "announces", "expands", "launches", "named", "ranks".
-- Diversify across the requested category. If category is "All HBCUs" mix schools (Howard, Spelman, Morehouse, FAMU, Hampton, Jackson State, NCCU, Tuskegee, Southern, etc.).
+- Rank by relevance to the student's interests, major and school first, then by freshness.
+- Do NOT fabricate quotes, figures, or claims beyond what the wire headline/summary supports.
+- Keep tone neutral and informational.
 - Never include phone numbers, emails, addresses, or unsafe content.
-- Return between 6 and 10 items unless a different count is requested.`;
+- If the wire list is empty, return items: [].`;
+
 
 function fallback(category: string, msg: string): AiNewsResult {
   return {
@@ -75,19 +81,67 @@ function safeParse(s: string): any | null {
   return null;
 }
 
+function ago(iso: string): string {
+  const mins = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (mins < 60) return `${mins}m`;
+  const h = Math.round(mins / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.round(h / 24)}d`;
+}
+
 export const generateNews = createServerFn({ method: "POST" })
   .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<AiNewsResult> => {
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) return fallback(data.category, "AI news is offline. Try again later.");
-
     const count = data.count ?? 8;
+    const { fetchWire } = await import("./news-wire.server");
+
+    const interests = (data.interests ?? []).filter(Boolean).slice(0, 5);
+    const queryParts = [
+      data.category,
+      data.school ?? "",
+      data.major ? `${data.major} students` : "",
+      interests.slice(0, 3).join(" OR "),
+    ].filter(Boolean);
+    const wire = await fetchWire(queryParts.join(" "), 16);
+    const wireFallback = await (wire.length ? Promise.resolve(wire) : fetchWire(`${data.category} HBCU students`, 16));
+    const stories = wire.length ? wire : wireFallback;
+
+    // Straight-from-the-wire result, used when AI is unavailable so students
+    // always see real, current headlines.
+    const rawItems: AiNewsItem[] = stories.slice(0, count).map((w, i) => ({
+      id: `wire-${i}-${w.url}`,
+      headline: w.headline.slice(0, 160),
+      summary: w.summary.slice(0, 240),
+      source: w.source,
+      time: ago(w.publishedAt),
+      tag: data.category.slice(0, 24),
+      emoji: "📰",
+      url: w.url,
+    }));
+
+    const key = process.env.LOVABLE_API_KEY;
+    if (!key || stories.length === 0) {
+      return rawItems.length
+        ? { items: rawItems, generatedAt: new Date().toISOString() }
+        : fallback(data.category, "Live news is temporarily unavailable.");
+    }
+
     const userPrompt =
       `Category: ${data.category}\n` +
-      (data.school ? `Student's home HBCU: ${data.school}\n` : "") +
+      (data.school ? `Student's school: ${data.school}\n` : "") +
+      (data.major ? `Student's major: ${data.major}\n` : "") +
+      (interests.length ? `Student's recent interests: ${interests.join(", ")}\n` : "") +
       (data.context ? `Extra context: ${data.context}\n` : "") +
-      `Generate ${count} fresh news briefs relevant to Black college students RIGHT NOW. ` +
-      `Mix national, HBCU-specific, and student-impact angles. Vary sources and timeframes (minutes to a few days old).`;
+      `Pick and rewrite the ${count} most relevant of these LIVE WIRE STORIES:\n` +
+      JSON.stringify(
+        stories.map((w) => ({
+          headline: w.headline,
+          summary: w.summary,
+          source: w.source,
+          url: w.url,
+          age: ago(w.publishedAt),
+        })),
+      );
 
     try {
       const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -98,7 +152,8 @@ export const generateNews = createServerFn({ method: "POST" })
           "X-Lovable-AIG-SDK": "vercel-ai-sdk",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          // Strongest available reasoning model for ranking + summarising.
+          model: "google/gemini-3-pro-preview",
           messages: [
             { role: "system", content: SYSTEM },
             { role: "user", content: userPrompt },
@@ -106,14 +161,13 @@ export const generateNews = createServerFn({ method: "POST" })
           response_format: { type: "json_object" },
         }),
       });
-      if (r.status === 429) return fallback(data.category, "PlugU NewsAI is busy — try again in a moment.");
-      if (r.status === 402) return fallback(data.category, "PlugU NewsAI is temporarily out of credits.");
-      if (!r.ok) return fallback(data.category, `AI error (${r.status}).`);
+      if (!r.ok) return { items: rawItems, generatedAt: new Date().toISOString() };
       const j = await r.json();
       const raw = j?.choices?.[0]?.message?.content ?? "";
       const parsed = safeParse(raw);
       const arr = Array.isArray(parsed?.items) ? parsed.items : [];
-      if (arr.length === 0) return fallback(data.category, "No stories generated.");
+      if (arr.length === 0) return { items: rawItems, generatedAt: new Date().toISOString() };
+      const allowed = new Set(stories.map((w) => w.url));
       const items: AiNewsItem[] = arr.slice(0, count).map((it: any, i: number) => ({
         id: `ai-${Date.now()}-${i}`,
         headline: String(it.headline ?? "").slice(0, 160),
@@ -122,10 +176,11 @@ export const generateNews = createServerFn({ method: "POST" })
         time: String(it.time ?? "now"),
         tag: String(it.tag ?? data.category).slice(0, 24),
         emoji: String(it.emoji ?? "📰").slice(0, 4),
-        url: typeof it.url === "string" ? it.url : undefined,
+        // Only real wire links survive — no invented URLs.
+        url: typeof it.url === "string" && allowed.has(it.url) ? it.url : undefined,
       }));
       return { items, generatedAt: new Date().toISOString() };
     } catch {
-      return fallback(data.category, "AI unreachable.");
+      return { items: rawItems, generatedAt: new Date().toISOString() };
     }
   });

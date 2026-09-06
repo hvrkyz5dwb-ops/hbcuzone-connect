@@ -1,7 +1,10 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RefreshCw, Sparkles, ExternalLink } from "lucide-react";
 import { generateNews, type AiNewsItem } from "@/lib/ai-news.functions";
+import { useProfile } from "@/hooks/use-profile";
+import { recordInterest, topInterests } from "@/lib/interests";
 
 type Props = {
   category: string;
@@ -17,9 +20,14 @@ type Props = {
 
 export function useAiNews(category: string, school?: string, count = 8, refreshMs = 10 * 60_000) {
   const fn = useServerFn(generateNews);
+  const { profile } = useProfile();
+  const major = profile?.major ?? undefined;
+  // Snapshot the student's tapped topics once per mount so the query key stays stable.
+  const interests = useMemo(() => topInterests(5), []);
+
   return useQuery({
-    queryKey: ["ai-news", category, school ?? "", count],
-    queryFn: () => fn({ data: { category, school, count } }),
+    queryKey: ["ai-news", category, school ?? "", count, major ?? "", interests.join(",")],
+    queryFn: () => fn({ data: { category, school, count, major, interests } }),
     staleTime: refreshMs,
     refetchInterval: refreshMs,
     refetchOnWindowFocus: false,
@@ -31,6 +39,7 @@ export function AiNewsFeed({ category, school, count = 8, refreshMs, compact, fa
 
   const items = data?.items?.length ? data.items : (fallback ?? []);
   const showSkeleton = isLoading && items.length === 0;
+
 
   return (
     <div className="space-y-2">
@@ -66,8 +75,10 @@ export function AiNewsFeed({ category, school, count = 8, refreshMs, compact, fa
           {items.map((n) => (
             <li
               key={n.id}
+              onClick={() => recordInterest(n.tag || category)}
               className={`rounded-2xl bg-card border border-border tap ${compact ? "p-3" : "p-3.5"}`}
             >
+
               <div className="flex items-center gap-2">
                 <span className="text-base leading-none">{n.emoji}</span>
                 <span className="text-[10px] uppercase tracking-widest" style={{ color: "var(--plugu-gold)" }}>
