@@ -41,14 +41,20 @@ export const Route = createFileRoute("/api/public/campus-image")({
           const place = await findCampus(school, city);
           if (!place) return new Response("Campus not found", { status: 404 });
 
-          let upstream: Response;
-          if (mode === "photo" && place.photoName) {
-            upstream = await fetchCampusPhoto(place.photoName, 1000);
-          } else if (typeof place.lat === "number") {
-            upstream = await fetchCampusSatellite(place.lat, place.lng, zoom);
-          } else {
-            return new Response("No imagery", { status: 404 });
+          let upstream: Response | null = null;
+          if (mode === "satellite" && typeof place.lat === "number") {
+            // Aerial stills need the Static Maps API; fall back to a real
+            // campus photograph when that API isn't available on the key.
+            try {
+              upstream = await fetchCampusSatellite(place.lat, place.lng, zoom);
+            } catch {
+              upstream = null;
+            }
           }
+          if (!upstream && place.photoName) {
+            upstream = await fetchCampusPhoto(place.photoName, 1000);
+          }
+          if (!upstream) return new Response("No imagery", { status: 404 });
           if (!upstream.ok) {
             return new Response(`Imagery failed [${upstream.status}]`, { status: 502 });
           }
