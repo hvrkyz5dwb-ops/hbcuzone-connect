@@ -128,7 +128,7 @@ export function CampusSatelliteMap({ school, city }: Props) {
           <MapPin className="h-3 w-3" /> {loc.address}
         </p>
       )}
-      {(mapError || loc?.error || (loc && !loc.found && !q.isLoading)) && (
+      {(loc?.error || (loc && !loc.found && !q.isLoading)) && (
         <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
           <MapPin className="h-3 w-3" /> Campus view unavailable for {school} right now.
         </p>
