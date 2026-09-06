@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { MapPin, Satellite, Map as MapIcon, Loader2 } from "lucide-react";
+import { CampusThumb } from "@/components/CampusThumb";
 import { locateCampus } from "@/lib/campus-imagery.functions";
 
 type Props = { school: string; city?: string };
