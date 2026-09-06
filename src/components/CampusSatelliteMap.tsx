@@ -108,9 +108,19 @@ export function CampusSatelliteMap({ school, city }: Props) {
               </span>
             </div>
           )}
-          <div ref={el} className="w-full h-full" />
+          {mapError ? (
+            <CampusThumb
+              school={school}
+              city={city}
+              mode="satellite"
+              className="w-full h-full"
+            />
+          ) : (
+            <div ref={el} className="w-full h-full" />
+          )}
         </div>
       </div>
+
 
       {loc?.found && loc.address && (
         <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
