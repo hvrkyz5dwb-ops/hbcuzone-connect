@@ -164,10 +164,10 @@ export type EmailValidation =
  * Apple's reviewers have no .edu address, so a single documented demo
  * account is allowed through the students-only gate. It is a normal
  * member account with no elevated privileges. */
-export const APP_REVIEW_EMAILS = ["appreview@plugu.app"];
+export const APP_REVIEW_EMAILS = ["appreview@plugu.app", "appreview@plugudemo.com"];
 const APP_REVIEW_SCHOOL: ApprovedSchool = {
   name: "PlugU Demo University",
-  domains: ["plugu.app"],
+  domains: ["plugu.app", "plugudemo.com"],
 };
 export function isAppReviewEmail(email: string): boolean {
   return APP_REVIEW_EMAILS.includes(email.trim().toLowerCase());

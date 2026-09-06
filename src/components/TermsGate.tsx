@@ -53,6 +53,7 @@ export function TermsGate() {
           <PolicyLink to="/terms" label="Terms of Use" />
           <PolicyLink to="/privacy" label="Privacy Policy" />
           <PolicyLink to="/community-guidelines" label="Community Guidelines" />
+          <PolicyLink to="/seller-agreement" label="Marketplace Agreement" />
         </div>
 
         <label className="mt-4 flex cursor-pointer items-start gap-2 rounded-2xl border border-border bg-background/60 p-3 text-[12px] leading-snug">

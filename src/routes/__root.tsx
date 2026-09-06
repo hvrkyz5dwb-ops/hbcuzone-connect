@@ -42,7 +42,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Plug in. Stand out. Stay connected." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "application-name", content: "PlugU" },
       // Mobile install polish — iOS Add to Home Screen + Android PWA.
       { name: "theme-color", content: "#0a0a0a" },
       { name: "apple-mobile-web-app-capable", content: "yes" },

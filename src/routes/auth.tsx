@@ -292,9 +292,10 @@ function AuthPage() {
             {/* Affirmative agreement before login (App Review 1.2). */}
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
-                <Link to="/terms" className="underline text-primary">Terms of Use</Link>
-                <Link to="/privacy" className="underline text-primary">Privacy Policy</Link>
-                <Link to="/community-guidelines" className="underline text-primary">Community Guidelines</Link>
+                <Link to="/terms" className="tap underline text-primary py-1">Terms of Use</Link>
+                <Link to="/privacy" className="tap underline text-primary py-1">Privacy Policy</Link>
+                <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
+                <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
               </div>
               <Check checked={agreeTerms} onChange={setAgreeTerms}>
                 I agree to the Terms of Use and Privacy Policy.
@@ -427,9 +428,10 @@ function AuthPage() {
 
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
-                <Link to="/terms" className="underline text-primary">Terms of Use</Link>
-                <Link to="/privacy" className="underline text-primary">Privacy Policy</Link>
-                <Link to="/community-guidelines" className="underline text-primary">Community Guidelines</Link>
+                <Link to="/terms" className="tap underline text-primary py-1">Terms of Use (EULA)</Link>
+                <Link to="/privacy" className="tap underline text-primary py-1">Privacy Policy</Link>
+                <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
+                <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
               </div>
               <Check checked={agreeTerms} onChange={setAgreeTerms}>
                 {POLICY_CONSENT_TEXT}
