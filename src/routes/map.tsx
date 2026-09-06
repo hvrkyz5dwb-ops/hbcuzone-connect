@@ -25,6 +25,9 @@ import {
 } from "@/lib/map-service";
 import { useContentVisibility } from "@/hooks/use-blocklist";
 import { blockUser } from "@/lib/moderation";
+import { isAppReviewEmail } from "@/lib/auth";
+import { findCampusCoord, haversineKm } from "@/lib/campus-coords";
+
 
 const CampusMap = lazy(() => import("@/components/campus/CampusMap"));
 const GuidedTourPlayer = lazy(() => import("@/components/campus/GuidedTourPlayer"));
@@ -137,7 +140,28 @@ function MapPage() {
       ? previewPath(coords, { lat: destination.lat, lng: destination.lng })
       : null;
 
+  /* ---- On-campus gate ---------------------------------------------------
+   * The live map is a campus tool: it only unlocks when the student is
+   * physically on their campus. Apple's review account is exempt so the
+   * feature can be demonstrated from anywhere. */
+  const reviewer = isAppReviewEmail(session?.user?.email ?? "");
+  const campusPoint = useMemo(() => {
+    if (campus?.center_lat != null && campus?.center_lng != null) {
+      return { lat: campus.center_lat, lng: campus.center_lng, radiusKm: 2 };
+    }
+    const known = findCampusCoord(campusName || campus?.name || "");
+    return known ? { lat: known.lat, lng: known.lng, radiusKm: known.radiusKm ?? 2 } : null;
+  }, [campus?.center_lat, campus?.center_lng, campus?.name, campusName]);
+
+  const distanceKm = campusPoint && coords ? haversineKm(coords, campusPoint) : null;
+  const onCampus = distanceKm != null && distanceKm <= (campusPoint?.radiusKm ?? 2);
+  // Without a known campus centre there is nothing to measure against, so the
+  // map stays open rather than locking students out of a working feature.
+  const gateApplies = !reviewer && !!campusPoint;
+  const mapUnlocked = !gateApplies || onCampus;
+
   return (
+
     <AppShell title="LIVE MAP">
       <section className="px-5 pt-4">
         <h1 className="sr-only">{campusName || "Campus"} live map</h1>
@@ -175,91 +199,135 @@ function MapPage() {
               : "No campus is linked to your account yet."}
         </p>
 
-        {/* Map */}
-        <Suspense
-          fallback={<div className="mt-3 h-[320px] animate-pulse rounded-3xl bg-secondary/60" aria-hidden="true" />}
-        >
-          <CampusMap
-            className="mt-3 h-[320px]"
-            ariaLabel={`${campusName || "Campus"} map, ${mode} mode`}
-            center={center}
-            markers={markers}
-            routePath={routePath}
-            userLocation={coords}
-          />
-        </Suspense>
-
-        {locState !== "granted" && (
-          <div className="mt-3 rounded-2xl border border-border bg-card p-3">
-            <p className="text-xs font-semibold">Use your location?</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              PlugU uses your location only while you have the map open, to measure walking time to a
-              destination and show what's nearby. It is never shared with other students.
-            </p>
-            <button
-              onClick={requestLocation}
-              className="tap mt-2 inline-flex min-h-11 items-center rounded-full bg-secondary px-4 text-xs font-semibold"
-            >
-              {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
-            </button>
-            {locState === "denied" && (
-              <p className="mt-2 text-[11px] text-muted-foreground" role="status">
-                Location is off. You can still search and open destinations — walking times just
-                won't be shown.
-              </p>
+        {/* Location gate — the live map only works while you're on campus */}
+        {!mapUnlocked && (
+          <div className="mt-3 rounded-3xl border border-border bg-card p-5 text-center">
+            <MapPin className="mx-auto h-6 w-6" style={{ color: "var(--plugu-gold)" }} aria-hidden="true" />
+            {locState !== "granted" ? (
+              <>
+                <p className="mt-2 text-sm font-bold">Turn on location to open the map</p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  The live map is a campus-only tool. PlugU checks your location while the map is
+                  open to confirm you're on {campusName || "campus"} — it is never shared with other
+                  students.
+                </p>
+                <button
+                  onClick={requestLocation}
+                  className="tap mt-3 inline-flex min-h-11 items-center rounded-full bg-secondary px-5 text-xs font-semibold"
+                >
+                  {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
+                </button>
+                {(locState === "denied" || locState === "unsupported") && (
+                  <p className="mt-2 text-[11px] text-muted-foreground" role="status">
+                    Location is off, so the campus map stays locked. You can turn it back on in your
+                    device settings.
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-sm font-bold">You're not on campus right now</p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  The live map unlocks when you're on {campusName || "your campus"}
+                  {distanceKm != null && distanceKm < 500
+                    ? ` — you're about ${distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`} away.`
+                    : "."}
+                </p>
+              </>
             )}
           </div>
         )}
 
-        {mode === "navigate" && (
-          <NavigateMode
-            places={mapped}
-            query={query}
-            setQuery={setQuery}
-            accessibleOnly={accessibleOnly}
-            setAccessibleOnly={setAccessibleOnly}
-            destination={destination}
-            setDestination={(p) => {
-              setDestination(p);
-              setRouteStarted(false);
-              setArrived(false);
-            }}
-            coords={coords}
-            meters={routeMeters}
-            started={routeStarted}
-            arrived={arrived}
-            onStart={() => setRouteStarted(true)}
-            onArrive={() => {
-              setArrived(true);
-              setRouteStarted(false);
-            }}
-            loading={places.isPending}
-          />
+        {mapUnlocked && (
+          <>
+            {/* Map */}
+            <Suspense
+              fallback={<div className="mt-3 h-[320px] animate-pulse rounded-3xl bg-secondary/60" aria-hidden="true" />}
+            >
+              <CampusMap
+                className="mt-3 h-[320px]"
+                ariaLabel={`${campusName || "Campus"} map, ${mode} mode`}
+                center={center}
+                markers={markers}
+                routePath={routePath}
+                userLocation={coords}
+              />
+            </Suspense>
+
+            {locState !== "granted" && (
+              <div className="mt-3 rounded-2xl border border-border bg-card p-3">
+                <p className="text-xs font-semibold">Use your location?</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  PlugU uses your location only while you have the map open, to measure walking time to a
+                  destination and show what's nearby. It is never shared with other students.
+                </p>
+                <button
+                  onClick={requestLocation}
+                  className="tap mt-2 inline-flex min-h-11 items-center rounded-full bg-secondary px-4 text-xs font-semibold"
+                >
+                  {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
+                </button>
+                {locState === "denied" && (
+                  <p className="mt-2 text-[11px] text-muted-foreground" role="status">
+                    Location is off. You can still search and open destinations — walking times just
+                    won't be shown.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {mode === "navigate" && (
+              <NavigateMode
+                places={mapped}
+                query={query}
+                setQuery={setQuery}
+                accessibleOnly={accessibleOnly}
+                setAccessibleOnly={setAccessibleOnly}
+                destination={destination}
+                setDestination={(p) => {
+                  setDestination(p);
+                  setRouteStarted(false);
+                  setArrived(false);
+                }}
+                coords={coords}
+                meters={routeMeters}
+                started={routeStarted}
+                arrived={arrived}
+                onStart={() => setRouteStarted(true)}
+                onArrive={() => {
+                  setArrived(true);
+                  setRouteStarted(false);
+                }}
+                loading={places.isPending}
+              />
+            )}
+
+            {mode === "explore" && (
+              <ExploreMode
+                places={visiblePlaces}
+                loading={places.isPending}
+                category={category}
+                setCategory={setCategory}
+                query={query}
+                setQuery={setQuery}
+                tours={tours.data ?? []}
+                onStartTour={setActiveTour}
+                onOpen={setSelected}
+                savedIds={saved.data ?? []}
+              />
+            )}
+
+            {mode === "live" && (
+              <LiveMode
+                pins={visiblePins}
+                loading={pins.isPending}
+                filter={liveFilter}
+                setFilter={setLiveFilter}
+              />
+            )}
+          </>
         )}
 
-        {mode === "explore" && (
-          <ExploreMode
-            places={visiblePlaces}
-            loading={places.isPending}
-            category={category}
-            setCategory={setCategory}
-            query={query}
-            setQuery={setQuery}
-            tours={tours.data ?? []}
-            onStartTour={setActiveTour}
-            onOpen={setSelected}
-            savedIds={saved.data ?? []}
-          />
-        )}
-
-        {mode === "live" && (
-          <LiveMode
-            pins={visiblePins}
-            loading={pins.isPending}
-            filter={liveFilter}
-            setFilter={setLiveFilter}
-          />
-        )}
       </section>
 
       {activeTour && (

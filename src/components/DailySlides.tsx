@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Quote, Newspaper, Plug, Megaphone } from "lucide-react";
+import { ArrowRight, Quote, Newspaper, Plug, Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
+import { recordInterest } from "@/lib/interests";
+
 
 type Slide = {
   key: string;
@@ -126,13 +128,37 @@ export function DailySlides() {
 
   return (
     <section className="px-5 pt-5">
+      {/* Pick the slide that catches your eye */}
+      <div tabIndex={0} className="mb-2 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+        {slides.map((sl, idx) => (
+          <button
+            key={sl.key}
+            type="button"
+            onClick={() => { hold(); setI(idx); recordInterest(sl.eyebrow); }}
+            className={`tap shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-colors ${
+              idx === i ? "border-primary bg-secondary text-primary" : "border-border text-muted-foreground"
+            }`}
+          >
+            {sl.emoji} {sl.eyebrow}
+          </button>
+        ))}
+      </div>
+
       <div className="relative">
         <Link
           key={s.key}
           to={s.to}
+          onClick={() => recordInterest(s.eyebrow)}
           onTouchStart={(e) => { hold(); startX.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
             const dx = e.changedTouches[0].clientX - (startX.current ?? 0);
+            if (Math.abs(dx) > 40) { e.preventDefault(); go(dx < 0 ? 1 : -1); }
+            startX.current = null;
+          }}
+          onPointerDown={(e) => { if (e.pointerType !== "touch") { hold(); startX.current = e.clientX; } }}
+          onPointerUp={(e) => {
+            if (e.pointerType === "touch") return;
+            const dx = e.clientX - (startX.current ?? e.clientX);
             if (Math.abs(dx) > 40) { e.preventDefault(); go(dx < 0 ? 1 : -1); }
             startX.current = null;
           }}
@@ -189,6 +215,24 @@ export function DailySlides() {
             </span>
           </div>
         </Link>
+
+        {/* Back / forward — always available, never blocks the card link */}
+        <button
+          type="button"
+          aria-label="Previous slide"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); go(-1); }}
+          className="tap absolute left-1 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-black/45 backdrop-blur"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next slide"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); go(1); }}
+          className="tap absolute right-1 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-black/45 backdrop-blur"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
     </section>
   );
