@@ -98,13 +98,23 @@ export const generateNews = createServerFn({ method: "POST" })
     const interests = (data.interests ?? []).filter(Boolean).slice(0, 5);
     const queryParts = [
       data.category,
-      data.school ?? "",
       data.major ? `${data.major} students` : "",
       interests.slice(0, 3).join(" OR "),
     ].filter(Boolean);
-    const wire = await fetchWire(queryParts.join(" "), 16);
-    const wireFallback = await (wire.length ? Promise.resolve(wire) : fetchWire(`${data.category} HBCU students`, 16));
-    const stories = wire.length ? wire : wireFallback;
+
+    // Narrow first (school + major + interests, last two weeks), then widen
+    // until we have enough real stories to rank.
+    const attempts = [
+      `${[data.school ?? "", ...queryParts].filter(Boolean).join(" ")} when:14d`,
+      `${queryParts.join(" ")} when:30d`,
+      `${data.category} college students`,
+    ];
+    let stories: Awaited<ReturnType<typeof fetchWire>> = [];
+    for (const q of attempts) {
+      stories = await fetchWire(q, 16);
+      if (stories.length >= 4) break;
+    }
+
 
     // Straight-from-the-wire result, used when AI is unavailable so students
     // always see real, current headlines.
