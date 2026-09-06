@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { LiveNewsRail } from "@/components/LiveNewsRail";
-import { MiniCampusLayout } from "@/components/MiniCampusLayout";
+import { CampusThumb } from "@/components/CampusThumb";
 import { hbcus } from "@/lib/mock-data";
 import { useHomeCampus } from "@/hooks/use-home-campus";
 import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
@@ -1713,7 +1713,7 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${s.color}`} />
               <div className="absolute inset-0 opacity-70">
-                <MiniCampusLayout school={s.name} city={s.city} mascot={s.mascot} />
+                <CampusThumb school={s.name} city={s.city} />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
               <div

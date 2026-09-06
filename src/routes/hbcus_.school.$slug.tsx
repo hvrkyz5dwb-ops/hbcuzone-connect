@@ -9,7 +9,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { AiNewsFeed } from "@/components/AiNewsFeed";
 import { toast } from "sonner";
-import { CampusLayoutAI } from "@/components/CampusLayoutAI";
+import { CampusSatelliteMap } from "@/components/CampusSatelliteMap";
 import { CampusWayfinder } from "@/components/CampusWayfinder";
 import {
   findSchoolBySlug, schoolSlug, schoolProfiles,
@@ -18,7 +18,7 @@ import {
   getSchoolDetail,
 } from "@/lib/hbcus-data";
 
-export const Route = createFileRoute("/hbcus/school/$slug")({
+export const Route = createFileRoute("/hbcus_/school/$slug")({
   head: ({ params }) => {
     const s = findSchoolBySlug(params.slug);
     const title = s ? `${s.name} — PlugU Community` : "School — PlugU";
@@ -291,6 +291,9 @@ function MapsTab({ school }: { school: any }) {
   return (
     <div>
       <SectionTitle icon={MapIcon} title={`${school.name} campus map`} subtitle="Pins, dorms, dining, safety & events" />
+      <div className="mb-4">
+        <CampusSatelliteMap school={school.name} city={school.city} />
+      </div>
       <CampusWayfinder school={school.name} city={school.city} mascot={school.mascot} />
       <div className="mt-3">
         <Link to="/map" className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full border border-border bg-card tap">

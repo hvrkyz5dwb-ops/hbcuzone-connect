@@ -88,8 +88,9 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as SellerAvailabilityListingIdRouteImport } from './routes/seller.availability.$listingId'
 import { Route as OrdersIdReviewRouteImport } from './routes/orders.$id.review'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
-import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus.school.$slug'
+import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus_.school.$slug'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
+import { Route as ApiPublicCampusImageRouteImport } from './routes/api/public/campus-image'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
@@ -492,13 +493,18 @@ const OrdersIdDisputeRoute = OrdersIdDisputeRouteImport.update({
   getParentRoute: () => OrdersIdRoute,
 } as any)
 const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
-  id: '/school/$slug',
-  path: '/school/$slug',
-  getParentRoute: () => HbcusRoute,
+  id: '/hbcus_/school/$slug',
+  path: '/hbcus/school/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
   path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCampusImageRoute = ApiPublicCampusImageRouteImport.update({
+  id: '/api/public/campus-image',
+  path: '/api/public/campus-image',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
@@ -530,7 +536,7 @@ export interface FileRoutesByFullPath {
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRouteWithChildren
+  '/hbcus': typeof HbcusRoute
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
@@ -592,6 +598,7 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -615,7 +622,7 @@ export interface FileRoutesByTo {
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRouteWithChildren
+  '/hbcus': typeof HbcusRoute
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
@@ -677,6 +684,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
@@ -701,7 +709,7 @@ export interface FileRoutesById {
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
-  '/hbcus': typeof HbcusRouteWithChildren
+  '/hbcus': typeof HbcusRoute
   '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
@@ -763,8 +771,9 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
-  '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
+  '/hbcus_/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
   '/orders/$id/review': typeof OrdersIdReviewRoute
   '/seller/availability/$listingId': typeof SellerAvailabilityListingIdRoute
@@ -850,6 +859,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -935,6 +945,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
@@ -1020,8 +1031,9 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
-    | '/hbcus/school/$slug'
+    | '/hbcus_/school/$slug'
     | '/orders/$id/dispute'
     | '/orders/$id/review'
     | '/seller/availability/$listingId'
@@ -1044,7 +1056,7 @@ export interface RootRouteChildren {
   DeleteAccountRoute: typeof DeleteAccountRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
-  HbcusRoute: typeof HbcusRouteWithChildren
+  HbcusRoute: typeof HbcusRoute
   HeatmapRoute: typeof HeatmapRoute
   HubRoute: typeof HubRoute
   LoginRoute: typeof LoginRoute
@@ -1101,7 +1113,9 @@ export interface RootRouteChildren {
   SellerIndexRoute: typeof SellerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicCampusImageRoute: typeof ApiPublicCampusImageRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
+  HbcusSchoolSlugRoute: typeof HbcusSchoolSlugRoute
   SellerAvailabilityListingIdRoute: typeof SellerAvailabilityListingIdRoute
 }
 
@@ -1660,18 +1674,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersIdDisputeRouteImport
       parentRoute: typeof OrdersIdRoute
     }
-    '/hbcus/school/$slug': {
-      id: '/hbcus/school/$slug'
-      path: '/school/$slug'
+    '/hbcus_/school/$slug': {
+      id: '/hbcus_/school/$slug'
+      path: '/hbcus/school/$slug'
       fullPath: '/hbcus/school/$slug'
       preLoaderRoute: typeof HbcusSchoolSlugRouteImport
-      parentRoute: typeof HbcusRoute
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
       path: '/api/public/stripe-webhook'
       fullPath: '/api/public/stripe-webhook'
       preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/campus-image': {
+      id: '/api/public/campus-image'
+      path: '/api/public/campus-image'
+      fullPath: '/api/public/campus-image'
+      preLoaderRoute: typeof ApiPublicCampusImageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
@@ -1714,16 +1735,6 @@ const CheckoutRouteChildren: CheckoutRouteChildren = {
 const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
   CheckoutRouteChildren,
 )
-
-interface HbcusRouteChildren {
-  HbcusSchoolSlugRoute: typeof HbcusSchoolSlugRoute
-}
-
-const HbcusRouteChildren: HbcusRouteChildren = {
-  HbcusSchoolSlugRoute: HbcusSchoolSlugRoute,
-}
-
-const HbcusRouteWithChildren = HbcusRoute._addFileChildren(HbcusRouteChildren)
 
 interface MessagesRouteChildren {
   MessagesIdRoute: typeof MessagesIdRoute
@@ -1790,7 +1801,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeleteAccountRoute: DeleteAccountRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
-  HbcusRoute: HbcusRouteWithChildren,
+  HbcusRoute: HbcusRoute,
   HeatmapRoute: HeatmapRoute,
   HubRoute: HubRoute,
   LoginRoute: LoginRoute,
@@ -1848,7 +1859,9 @@ const rootRouteChildren: RootRouteChildren = {
   SellerIndexRoute: SellerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicCampusImageRoute: ApiPublicCampusImageRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
+  HbcusSchoolSlugRoute: HbcusSchoolSlugRoute,
   SellerAvailabilityListingIdRoute: SellerAvailabilityListingIdRoute,
 }
 export const routeTree = rootRouteImport
