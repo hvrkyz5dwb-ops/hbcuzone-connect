@@ -45,6 +45,8 @@ export function CampusSatelliteMap({ school, city }: Props) {
   useEffect(() => {
     if (!loc?.found || !el.current || loc.lat == null) return;
     let cancelled = false;
+    // Google signals a domain/key rejection through this global only.
+    (window as any).gm_authFailure = () => !cancelled && setMapError(true);
     loadMaps()
       .then(() => {
         if (cancelled || !el.current) return;
@@ -67,6 +69,7 @@ export function CampusSatelliteMap({ school, city }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc?.found, loc?.lat, loc?.lng]);
+
 
   useEffect(() => {
     if (mapRef.current) mapRef.current.setMapTypeId(view);
