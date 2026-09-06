@@ -18,7 +18,7 @@ import {
   getSchoolDetail,
 } from "@/lib/hbcus-data";
 
-export const Route = createFileRoute("/hbcus/school/$slug")({
+export const Route = createFileRoute("/hbcus_/school/$slug")({
   head: ({ params }) => {
     const s = findSchoolBySlug(params.slug);
     const title = s ? `${s.name} — PlugU Community` : "School — PlugU";
