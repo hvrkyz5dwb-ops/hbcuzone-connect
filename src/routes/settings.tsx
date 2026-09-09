@@ -7,11 +7,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { signOutAndReset } from "@/lib/sign-out";
 import {
   Sun, Moon, Bell, ShieldCheck, CreditCard, Scale, ShieldAlert,
-  User, LogOut, ChevronRight, Trash2, Info, LifeBuoy, Bug, FileWarning, FileText, Ban,
+  User, LogOut, ChevronRight, Trash2, Info, LifeBuoy, Bug, FileWarning, FileText, Ban, Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { NotificationCategories, LocationPrivacy } from "@/components/settings/PrivacyAndNotifications";
+import { SUPPORT_EMAIL, SUPPORT_RESPONSE_TIME } from "@/lib/support-contact";
 
 
 export const Route = createFileRoute("/settings")({
