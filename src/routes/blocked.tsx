@@ -87,7 +87,7 @@ function BlockedPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => unblock(u.user_id, label)}
+                    onClick={() => setConfirming({ id: u.user_id, label })}
                     disabled={busyId === u.user_id}
                     className="tap inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-2 text-xs font-semibold disabled:opacity-60"
                   >
@@ -98,6 +98,39 @@ function BlockedPage() {
             })}
           </ul>
         )}
+
+        {confirming && (
+          <div
+            className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
+            onClick={() => setConfirming(null)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-3xl border border-border bg-card p-5"
+            >
+              <h2 className="text-base font-bold">Unblock {confirming.label}?</h2>
+              <p className="mt-2 text-xs text-muted-foreground">
+                They'll be able to message you again, and their listings, posts, comments and
+                events will reappear across PlugU. You can block them again at any time.
+              </p>
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => setConfirming(null)}
+                  className="tap flex-1 rounded-2xl border border-border bg-secondary py-3 text-sm font-semibold"
+                >
+                  Keep blocked
+                </button>
+                <button
+                  onClick={() => void unblock(confirming.id, confirming.label)}
+                  className="tap flex-1 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
+                >
+                  Yes, unblock
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         <p className="mt-6 text-[11px] text-muted-foreground">
           Need help with a specific account?{" "}
