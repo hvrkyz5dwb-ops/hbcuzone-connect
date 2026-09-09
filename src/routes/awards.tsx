@@ -97,7 +97,7 @@ function AwardsPage() {
           icon={Award}
           title="🏆 Top Business Awards"
           headline="Top 25 student businesses nationwide"
-          body="Categories include Food, Beauty, Fashion, Media, Tech and Services. Every winner gets a KingPin year on the house."
+          body="Categories include Food, Beauty, Fashion, Media, Tech and Services. Every winner gets a national spotlight across PlugU."
           accent="#22d3ee"
         >
           <Link to="/nationals" className="tap mt-2 inline-flex text-[11px] font-semibold text-primary">

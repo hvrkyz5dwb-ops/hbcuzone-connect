@@ -103,11 +103,11 @@ const SEASONS: Record<Exclude<SeasonKey, "everyday">, Season> = {
   entrepreneurship: {
     key: "entrepreneurship", label: "Entrepreneurship Month", emoji: "🚀",
     tagline: "Build. Ship. Repeat.",
-    hero: "Daily founder tips, pitch nights, KingPin discounts, and matched mentors.",
+    hero: "Daily founder tips, pitch nights, free promo tools, and matched mentors.",
     accent: "#f4c96a",
     gradient: "linear-gradient(160deg, rgba(244,201,106,0.4), rgba(20,15,5,0.9))",
     promo: [
-      { title: "KingPin at 50% off", body: "Upgrade your seller tier for the month." },
+      { title: "Founder spotlight", body: "Free feature for new student businesses this month." },
       { title: "Free logo pack", body: "AI-crafted brand kit for every new business." },
       { title: "Pitch night ticket", body: "Reserve a slot at your yard's founder mixer." },
     ],
