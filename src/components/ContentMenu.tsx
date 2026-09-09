@@ -84,44 +84,63 @@ export function ContentMenu({
         <MoreVertical className="h-4 w-4" />
       </button>
 
+      {/* Rendered as a fixed sheet, never absolutely inside the card: cards clip
+          overflow, which hid the menu on iPhone widths. */}
       {open && (
         <div
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-          className="absolute right-0 top-9 z-40 w-56 overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-elegant)]"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(false); }}
         >
-          <button
-            type="button"
-            onClick={() => { setOpen(false); setReportOpen(true); }}
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm hover:bg-secondary"
+          <div
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+            className="w-full max-w-sm overflow-hidden rounded-t-3xl border border-border bg-card pb-[env(safe-area-inset-bottom)] shadow-[var(--shadow-elegant)] sm:rounded-3xl sm:pb-0"
           >
-            <Flag className="h-4 w-4 text-accent" /> Report
-          </button>
-          <button
-            type="button"
-            onClick={doHide}
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm hover:bg-secondary border-t border-border"
-          >
-            <EyeOff className="h-4 w-4 text-muted-foreground" /> Hide this
-          </button>
-          {(extraActions ?? []).map((a) => (
-            <button
-              key={a.label}
-              type="button"
-              onClick={() => { setOpen(false); a.onSelect(); onHidden?.(); }}
-              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm hover:bg-secondary border-t border-border"
-            >
-              <Ban className="h-4 w-4 text-muted-foreground" /> {a.label}
-            </button>
-          ))}
-          {authorUserId && !isSelf && (
-            <button
-              type="button"
-              onClick={() => setConfirmBlock(true)}
-              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-destructive hover:bg-secondary border-t border-border"
-            >
-              <Ban className="h-4 w-4" /> Block user
-            </button>
-          )}
+            <p className="px-4 pt-4 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+              {targetLabel ? targetLabel : "Safety options"}
+            </p>
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => { setOpen(false); setReportOpen(true); }}
+                className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm hover:bg-secondary border-t border-border"
+              >
+                <Flag className="h-4 w-4 text-accent" /> Report
+              </button>
+              <button
+                type="button"
+                onClick={doHide}
+                className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm hover:bg-secondary border-t border-border"
+              >
+                <EyeOff className="h-4 w-4 text-muted-foreground" /> Hide this
+              </button>
+              {(extraActions ?? []).map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  onClick={() => { setOpen(false); a.onSelect(); onHidden?.(); }}
+                  className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm hover:bg-secondary border-t border-border"
+                >
+                  <Ban className="h-4 w-4 text-muted-foreground" /> {a.label}
+                </button>
+              ))}
+              {authorUserId && !isSelf && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmBlock(true)}
+                  className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm text-destructive hover:bg-secondary border-t border-border"
+                >
+                  <Ban className="h-4 w-4" /> Block user
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="w-full px-4 py-4 text-sm text-muted-foreground border-t border-border"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
