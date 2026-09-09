@@ -2960,6 +2960,51 @@ export type Database = {
       }
     }
     Views: {
+      moderation_reports: {
+        Row: {
+          content_id: string | null
+          content_snapshot: string | null
+          content_type: string | null
+          created_at: string | null
+          details: string | null
+          id: string | null
+          reason: string | null
+          reason_code: string | null
+          reported_user_id: string | null
+          reporter_user_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content_id?: string | null
+          content_snapshot?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string | null
+          reason?: string | null
+          reason_code?: string | null
+          reported_user_id?: string | null
+          reporter_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content_id?: string | null
+          content_snapshot?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string | null
+          reason?: string | null
+          reason_code?: string | null
+          reported_user_id?: string | null
+          reporter_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
