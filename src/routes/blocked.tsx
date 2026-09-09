@@ -25,10 +25,12 @@ export const Route = createFileRoute("/blocked")({
 function BlockedPage() {
   const refresh = useRefreshBlocklist();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<{ id: string; label: string } | null>(null);
   const q = useQuery({ queryKey: ["blocked-users"], queryFn: fetchBlockedUsers });
 
   const unblock = async (id: string, label: string) => {
     setBusyId(id);
+    setConfirming(null);
     try {
       await unblockUser(id);
       await q.refetch();
@@ -40,6 +42,7 @@ function BlockedPage() {
       setBusyId(null);
     }
   };
+
 
   return (
     <AppShell title="BLOCKED">
