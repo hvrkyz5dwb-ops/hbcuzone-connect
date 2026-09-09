@@ -162,13 +162,29 @@ function SettingsPage() {
         </div>
       </section>
 
-      {/* Support */}
+      {/* Help & Safety */}
       <section className="mt-5 px-5">
-        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Support</h2>
+        <h2 className="text-[11px] tracking-widest uppercase text-muted-foreground mb-2">Help &amp; Safety</h2>
         <div className="rounded-2xl bg-card border border-border divide-y divide-border">
           <LinkRow to="/support" icon={LifeBuoy} label="Contact support" />
-          <LinkRow to="/report-problem" icon={Bug} label="Report a problem" />
+          <LinkRow to="/report-problem" icon={Bug} label="Report content or a problem" />
+          <LinkRow to="/blocked" icon={Ban} label="Blocked users" />
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="w-full flex items-center gap-3 px-4 py-4 text-sm"
+          >
+            <Mail className="h-4 w-4 text-primary" />
+            <div className="flex-1">
+              <p>Email the PlugU team</p>
+              <p className="text-[11px] text-muted-foreground">{SUPPORT_EMAIL} · replies {SUPPORT_RESPONSE_TIME}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </a>
         </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          PlugU · Trust &amp; Safety, {SUPPORT_EMAIL}. Reports and blocks are reviewed by a human
+          moderator, and abusive accounts are warned, suspended or removed.
+        </p>
       </section>
 
       {/* Sign out */}

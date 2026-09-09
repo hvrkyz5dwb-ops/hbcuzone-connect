@@ -94,7 +94,7 @@ export function DailySlides() {
       key: "promote",
       eyebrow: "Free On-Campus",
       title: "Promote your local event",
-      blurb: "Pin your event to a spot on your live campus map — free for on-campus, paid boosts available.",
+      blurb: "Pin your event to a spot on your live campus map — free for every student, no paid boosts.",
       to: "/promote",
       cta: "Promote now",
       icon: Megaphone,

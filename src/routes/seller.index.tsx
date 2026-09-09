@@ -176,7 +176,7 @@ function SellerDashboard() {
           <ActionRow to="/seller/listings" icon={Plus} label="Manage listings" hint="Create, pause, delete or edit" />
           <ActionRow to="/seller/analytics" icon={BarChart3} label="Seller analytics" hint="Views, sales, conversion, tier ROI" />
           <ActionRow to="/seller/onboarding" icon={Pencil} label="Edit business" hint="Category, campus, policies, contact" />
-          <ActionRow to="/promote" icon={Rocket} label="Promote & boost" hint="Get seen across campus" />
+          <ActionRow to="/promote" icon={Rocket} label="Promote your event" hint="Free campus map placement" />
           <ActionRow to="/business" icon={ExternalLink} label="Full business center" hint="Analytics, revenue, discounts, plan" />
         </div>
       </section>

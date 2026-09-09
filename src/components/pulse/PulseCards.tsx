@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BadgeCheck, Clock, MapPin, Star, Zap, MessageCircle, CalendarCheck } from "lucide-react";
 import { countdown, sellerName, untilLabel } from "@/lib/pulse-db";
 import type { AvailabilityWithSeller, DropWithSeller } from "@/hooks/use-pulse";
+import { ContentMenu } from "@/components/ContentMenu";
 
 export function money(cents?: number | null) {
   if (cents == null) return null;
@@ -38,6 +39,15 @@ export function AvailableNowCard({ row, compact = false }: { row: AvailabilityWi
     >
       <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
         <LiveDot /> Available now
+        <ContentMenu
+          className="ml-auto"
+          targetType="post"
+          targetId={row.id}
+          targetLabel={row.service_label || "Available now"}
+          snapshot={`${name} · ${row.service_label ?? "Available now"}`}
+          authorUserId={row.seller_user_id}
+          authorLabel={name}
+        />
       </div>
       <div className="mt-2 flex items-center gap-2.5">
         <Avatar url={row.seller?.avatar_url} name={name} />
@@ -138,7 +148,15 @@ export function DropCard({
           >
             {drop.is_flash ? <><Zap className="h-3 w-3" /> Flash drop</> : <span className="text-muted-foreground">Drop</span>}
           </span>
-          <span className="text-[10px] text-muted-foreground">{countdown(drop.expires_at)} left</span>
+          <span className="ml-auto text-[10px] text-muted-foreground">{countdown(drop.expires_at)} left</span>
+          <ContentMenu
+            targetType="post"
+            targetId={drop.id}
+            targetLabel={drop.body}
+            snapshot={`${name} · ${drop.body}`}
+            authorUserId={drop.seller_user_id}
+            authorLabel={name}
+          />
         </div>
         <p className="mt-1.5 text-sm font-semibold leading-snug text-foreground">{drop.body}</p>
         <p className="mt-1 truncate text-[11px] text-muted-foreground">

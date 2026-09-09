@@ -8,6 +8,8 @@ import {
   addUserEvent, listUserEvents, removeUserEvent, subscribeUserEvents, type UserEvent,
 } from "@/lib/events-storage";
 import { toast } from "sonner";
+import { ContentMenu } from "@/components/ContentMenu";
+import { useContentVisibility } from "@/hooks/use-blocklist";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -36,6 +38,7 @@ function EventsPage() {
   }, [activeSchool]);
 
   const [addOpen, setAddOpen] = useState(false);
+  const isVisible = useContentVisibility();
 
   function norm(s: string) { return s.toLowerCase().replace(/[^a-z0-9]/g, ""); }
   const schoolKey = norm(activeSchool);
@@ -59,7 +62,9 @@ function EventsPage() {
   const all = [...userEntries, ...seededTagged].sort(
     (a, b) => (Number(b.promoted) - Number(a.promoted)) || ((b.boost ?? 0) - (a.boost ?? 0)),
   );
-  const filteredAll = all.filter((e) => filter === "All" || e.kind === filter);
+  const filteredAll = all
+    .filter((e) => filter === "All" || e.kind === filter)
+    .filter((e) => isVisible({ type: "event", id: e.title }));
 
   return (
     <AppShell title="EVENTS">
@@ -119,7 +124,8 @@ function EventsPage() {
           </li>
         )}
         {filteredAll.map((e, i) => {
-            const id = `${e.title}-${i}`;
+            const id = e.title;
+            void i;
             const isRsvp = !!rsvped[id];
             const going = 80 + e.title.length * 7;
             const liveGoing = going + (isRsvp ? 1 : 0);
@@ -136,6 +142,13 @@ function EventsPage() {
                   {userId && (
                     <span className="ml-auto text-[9px] uppercase tracking-widest text-accent">You posted</span>
                   )}
+                  <ContentMenu
+                    className={userId ? "" : "ml-auto"}
+                    targetType="event"
+                    targetId={id}
+                    targetLabel={e.title}
+                    snapshot={`${e.title} · ${e.when} · ${e.where}`}
+                  />
                 </div>
                 <h3 className="mt-1 font-semibold text-base">{e.title}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
