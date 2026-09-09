@@ -47,7 +47,7 @@ export function autoApproveIfDue(): AmbassadorApp {
 
 export const AMBASSADOR_PERKS = [
   { title: "Ambassador badge", body: "Silver crown on your profile everywhere." },
-  { title: "Free premium membership", body: "KingPin tier at no cost while active." },
+  { title: "Ambassador toolkit", body: "Campus growth tools and templates, free like everything else." },
   { title: "Referral dashboard", body: "Track recruits, campus growth, and national rank." },
   { title: "Early access", body: "New features drop in your hands first." },
   { title: "Exclusive merchandise", body: "PlugU drops built for ambassadors only." },

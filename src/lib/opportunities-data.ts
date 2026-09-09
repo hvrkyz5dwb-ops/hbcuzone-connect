@@ -44,7 +44,7 @@ export const liveActivity = [
   { who: "Jada",  what: "just booked",  detail: "a nail set with Luxe Nails", when: "now" },
   { who: "Trey",  what: "listed",       detail: "Studio Time — 2hr Block", when: "2m" },
   { who: "Aaliyah", what: "RSVP'd",     detail: "to Yard Show tonight", when: "4m" },
-  { who: "Marcus", what: "upgraded",    detail: "to KingPin Pro", when: "9m" },
+  { who: "Marcus", what: "hit",         detail: "50 completed orders", when: "9m" },
   { who: "Imani", what: "saved",        detail: "UNCF Scholarship", when: "12m" },
 ];
 

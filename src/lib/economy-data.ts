@@ -156,7 +156,7 @@ export const monthlyChallenges = [
   { name: "Highest Revenue Campus", reward: "PlugU Trophy + Feature", ends: "Apr 30" },
   { name: "Best Small Business", reward: "$500 boost credit", ends: "Apr 30" },
   { name: "Most Community Service", reward: "Trophy + spotlight", ends: "Apr 30" },
-  { name: "Best New Business", reward: "KingPin Pro · 90 days", ends: "Apr 30" },
+  { name: "Best New Business", reward: "Featured for 90 days", ends: "Apr 30" },
   { name: "Most Orders Completed", reward: "Verified Gold badge", ends: "Apr 30" },
   { name: "Marketplace Challenge", reward: "Homepage feature", ends: "Apr 30" },
 ];

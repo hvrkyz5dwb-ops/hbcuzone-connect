@@ -348,7 +348,7 @@ function Trending() {
           <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>{b.title}</p>
           {b.title === "Top Plugs Today" && (
             <p className="mt-1 text-[10px] text-muted-foreground leading-snug">
-              Identities stay private. #1 is auto-crowned <span style={{ color: "var(--plugu-gold)" }}>KingPin</span> and gets paid — paid tier or not.
+              Identities stay private. #1 is auto-crowned <span style={{ color: "var(--plugu-gold)" }}>Top Plug</span> for the day.
             </p>
           )}
           <ul className="mt-2 space-y-1.5">

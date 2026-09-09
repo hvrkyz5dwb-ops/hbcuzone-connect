@@ -181,7 +181,7 @@ function SafetyHub() {
               ["Listing replies", true],
               ["Campus safety alerts", true],
               ["Event reminders", false],
-              ["KingPin drops", false],
+              ["Campus drops", false],
             ].map(([label, on]) => (
               <li key={String(label)} className="flex items-center justify-between px-4 py-3 text-sm">
                 <span>{label as string}</span>
