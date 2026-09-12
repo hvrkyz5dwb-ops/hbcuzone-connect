@@ -10,6 +10,19 @@ export function isNativeApp(): boolean {
   return !!cap?.isNativePlatform?.();
 }
 
+/**
+ * Open this app's entry in the device Settings app so the student can turn a
+ * permission back on. On the web there is no OS settings screen, so this is a
+ * no-op and callers keep showing their written instructions.
+ */
+export function openAppSettings(): void {
+  if (typeof window === "undefined") return;
+  if (!isNativeApp()) return;
+  try {
+    window.location.href = "app-settings:";
+  } catch {}
+}
+
 export function nativePlatform(): "ios" | "android" | "web" {
   if (typeof window === "undefined") return "web";
   const cap = (window as unknown as { Capacitor?: { getPlatform?: () => string } }).Capacitor;

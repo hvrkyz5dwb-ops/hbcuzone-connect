@@ -33,7 +33,7 @@ export function computeMilestones(): Milestone[] {
     { key: "hundred_sales", label: "100 Sales", hint: "One hundred orders delivered", earned: totalSales >= 100, accent: "#f4c96a" },
     { key: "top_rated", label: "Top Rated", hint: "5+ reviews at 4.7★", earned: topRated, accent: "#b9f2ff" },
     { key: "campus_fav", label: "Campus Favorite", hint: "Featured on your campus page", earned: totalSales >= 25, accent: "#f4c96a" },
-    { key: "kingpin_status", label: "KingPin Status", hint: "Upgraded to KingPin seller", earned: false, accent: "#f4c96a" },
+    { key: "top_plug_status", label: "Top Plug", hint: "Ranked #1 on your campus for a week", earned: false, accent: "#f4c96a" },
     { key: "anniversary", label: "Business Anniversary", hint: "One year of hustling on PlugU", earned: false, accent: "#c9c9c9" },
   ];
 

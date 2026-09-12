@@ -298,7 +298,9 @@ function AuthPage() {
                 <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
               </div>
               <Check checked={agreeTerms} onChange={setAgreeTerms}>
-                I agree to the Terms of Use and Privacy Policy.
+                I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines and
+                Marketplace Agreement. I understand that prohibited or abusive content may be
+                removed and accounts may be suspended.
               </Check>
             </div>
 
@@ -306,7 +308,7 @@ function AuthPage() {
             <button
               type="submit"
               disabled={busy || !agreeTerms}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className="tap w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               {busy ? "Signing in…" : "Sign in"}
@@ -473,7 +475,7 @@ function AuthPage() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className="tap w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               {busy ? "Sending…" : "Send reset link"}
