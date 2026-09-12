@@ -36,6 +36,8 @@ this account.
 
 ## Notes
 
-- Location is optional; the campus map works without granting it.
+- Location is optional. Every part of PlugU works without it. The Live Map is a
+  campus-only tool, so it asks once with **Continue** / **Not Now**; choosing
+  **Not Now** is never re-prompted and leaves the rest of the app fully usable.
 - All content is user-generated and moderated: every post, listing, message
   and review can be reported, and blocked users disappear from the feed.
