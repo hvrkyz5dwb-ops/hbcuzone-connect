@@ -36,8 +36,8 @@ function Terms() {
         <Section title="5. Suspension & termination">
           PlugU may suspend or terminate any account for violations of these Terms, our Community Guidelines, or applicable law, with or without notice.
         </Section>
-        <Section title="6. Subscriptions & payments">
-          Optional paid features (seller plans, boosts) are billed on the cycle you select. Fees are non-refundable except where required by law. You can cancel at any time from Manage Plan; access continues through the end of the paid period.
+        <Section title="6. Payments between students">
+          PlugU does not sell memberships, subscriptions, upgrades or paid promotion. Every feature of the app is free for verified students. The only money that moves through PlugU is payment from a buyer to a seller for real-world goods and services arranged on campus, handled by our payment processor.
         </Section>
         <Section title="7. Dispute process">
           Disputes about a listing, transaction, or user should first be addressed directly with the other party. If unresolved, submit a report through the listing or message. See our <Link to="/refunds" className="underline text-accent">Refund & Dispute Policy</Link>.

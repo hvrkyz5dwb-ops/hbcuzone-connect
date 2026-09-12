@@ -374,7 +374,7 @@ img, video { content-visibility: auto; }
 
 /* Ensure any `.tap` control clears the 44×44 minimum tap target on touch. */
 @media (hover: none) and (pointer: coarse) {
-  .tap { min-height: 40px; min-width: 40px; }
+  .tap { min-height: 44px; min-width: 44px; }
 }
 
 /* Premium card lift on hover — gold border glow + soft shadow, 250ms. */

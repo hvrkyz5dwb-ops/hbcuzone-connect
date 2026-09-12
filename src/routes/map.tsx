@@ -27,6 +27,7 @@ import { useContentVisibility } from "@/hooks/use-blocklist";
 import { blockUser } from "@/lib/moderation";
 import { isAppReviewEmail } from "@/lib/auth";
 import { findCampusCoord, haversineKm } from "@/lib/campus-coords";
+import { openAppSettings } from "@/lib/native";
 
 
 const CampusMap = lazy(() => import("@/components/campus/CampusMap"));
@@ -68,6 +69,9 @@ function MapPage() {
   const [accessibleOnly, setAccessibleOnly] = useState(false);
   const [liveFilter, setLiveFilter] = useState<string | null>(null);
   const [activeTour, setActiveTour] = useState<{ id: string; title: string; description: string | null; duration_min: number | null } | null>(null);
+  // "Not Now" is remembered for the session so the permission card never
+  // re-prompts a student who already declined.
+  const [locDismissed, setLocDismissed] = useState(false);
 
   const places = useCampusPlaces(campus?.id);
   const tours = useCampusTours(campus?.id);
@@ -205,23 +209,55 @@ function MapPage() {
             <MapPin className="mx-auto h-6 w-6" style={{ color: "var(--plugu-gold)" }} aria-hidden="true" />
             {locState !== "granted" ? (
               <>
-                <p className="mt-2 text-sm font-bold">Turn on location to open the map</p>
+                <p className="mt-2 text-sm font-bold">Use your location to open the campus map</p>
                 <p className="mt-1 text-[12px] text-muted-foreground">
-                  The live map is a campus-only tool. PlugU checks your location while the map is
-                  open to confirm you're on {campusName || "campus"} — it is never shared with other
-                  students.
+                  The live map is a campus-only tool. PlugU checks your location only while this map
+                  is open, to confirm you're on {campusName || "campus"} and to measure walking time.
+                  Your location is never shared with other students and is never stored.
                 </p>
-                <button
-                  onClick={requestLocation}
-                  className="tap mt-3 inline-flex min-h-11 items-center rounded-full bg-secondary px-5 text-xs font-semibold"
-                >
-                  {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
-                </button>
-                {(locState === "denied" || locState === "unsupported") && (
-                  <p className="mt-2 text-[11px] text-muted-foreground" role="status">
-                    Location is off, so the campus map stays locked. You can turn it back on in your
-                    device settings.
-                  </p>
+                {locDismissed ? (
+                  <>
+                    <p className="mt-3 text-[11px] text-muted-foreground" role="status">
+                      No problem — the map stays closed. Everything else in PlugU works without
+                      location.
+                    </p>
+                    <button
+                      onClick={() => { setLocDismissed(false); requestLocation(); }}
+                      className="tap mt-3 inline-flex min-h-11 items-center rounded-full bg-secondary px-5 text-xs font-semibold"
+                    >
+                      Use location
+                    </button>
+                  </>
+                ) : (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                    <button
+                      onClick={requestLocation}
+                      disabled={locState === "asking"}
+                      className="tap inline-flex min-h-11 items-center rounded-full bg-primary px-6 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                    >
+                      {locState === "asking" ? "Waiting for permission…" : "Continue"}
+                    </button>
+                    <button
+                      onClick={() => setLocDismissed(true)}
+                      className="tap inline-flex min-h-11 items-center rounded-full border border-border bg-secondary px-6 text-xs font-semibold"
+                    >
+                      Not Now
+                    </button>
+                  </div>
+                )}
+                {(locState === "denied" || locState === "unsupported") && !locDismissed && (
+                  <>
+                    <p className="mt-2 text-[11px] text-muted-foreground" role="status">
+                      Location is currently turned off for PlugU, so the campus map stays locked.
+                      Turn it on in your device settings to continue.
+                    </p>
+                    <button
+                      onClick={openAppSettings}
+                      className="tap mt-2 inline-flex min-h-11 items-center rounded-full border border-border bg-secondary px-5 text-xs font-semibold"
+                    >
+                      Open Settings
+                    </button>
+                  </>
                 )}
               </>
             ) : (
@@ -254,24 +290,41 @@ function MapPage() {
               />
             </Suspense>
 
-            {locState !== "granted" && (
+            {locState !== "granted" && !locDismissed && (
               <div className="mt-3 rounded-2xl border border-border bg-card p-3">
                 <p className="text-xs font-semibold">Use your location?</p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   PlugU uses your location only while you have the map open, to measure walking time to a
                   destination and show what's nearby. It is never shared with other students.
                 </p>
-                <button
-                  onClick={requestLocation}
-                  className="tap mt-2 inline-flex min-h-11 items-center rounded-full bg-secondary px-4 text-xs font-semibold"
-                >
-                  {locState === "asking" ? "Waiting for permission…" : "Turn on location"}
-                </button>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    onClick={requestLocation}
+                    disabled={locState === "asking"}
+                    className="tap inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                  >
+                    {locState === "asking" ? "Waiting for permission…" : "Continue"}
+                  </button>
+                  <button
+                    onClick={() => setLocDismissed(true)}
+                    className="tap inline-flex min-h-11 items-center rounded-full border border-border bg-secondary px-5 text-xs font-semibold"
+                  >
+                    Not Now
+                  </button>
+                </div>
                 {locState === "denied" && (
-                  <p className="mt-2 text-[11px] text-muted-foreground" role="status">
-                    Location is off. You can still search and open destinations — walking times just
-                    won't be shown.
-                  </p>
+                  <>
+                    <p className="mt-2 text-[11px] text-muted-foreground" role="status">
+                      Location is off. You can still search and open destinations — walking times just
+                      won't be shown.
+                    </p>
+                    <button
+                      onClick={openAppSettings}
+                      className="tap mt-2 inline-flex min-h-11 items-center rounded-full border border-border bg-secondary px-4 text-xs font-semibold"
+                    >
+                      Open Settings
+                    </button>
+                  </>
                 )}
               </div>
             )}
