@@ -134,7 +134,7 @@ function BlockedPage() {
 
         <p className="mt-6 text-[11px] text-muted-foreground">
           Need help with a specific account?{" "}
-          <Link to="/support" className="text-accent underline">Contact support</Link>.
+          <Link to="/support" className="tap inline-flex items-center text-accent underline">Contact support</Link>.
         </p>
       </section>
     </AppShell>

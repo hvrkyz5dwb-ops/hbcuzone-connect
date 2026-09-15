@@ -87,7 +87,7 @@ function NewsCenter() {
               Short, useful briefings — across campus, money, careers & culture.
             </p>
           </div>
-          <Link to="/saved" className="text-[11px] text-primary">Saved</Link>
+          <Link to="/saved" className="tap inline-flex shrink-0 items-center justify-center rounded-full px-3 text-[11px] text-primary">Saved</Link>
         </div>
 
         {/* Search */}

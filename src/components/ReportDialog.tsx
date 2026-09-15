@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Flag, Loader2 } from "lucide-react";
+
 import { toast } from "sonner";
 import {
   REPORT_REASONS,
@@ -25,7 +27,7 @@ export function ReportDialog({
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,8 +54,9 @@ export function ReportDialog({
     }
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
+
       <form
         onSubmit={onSubmit}
         onClick={(e) => e.stopPropagation()}
@@ -117,6 +120,8 @@ export function ReportDialog({
           Reports are confidential and reviewed by our safety team. Abuse of the reporting system may result in suspension.
         </p>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
+
 }

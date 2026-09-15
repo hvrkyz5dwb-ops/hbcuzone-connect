@@ -2,6 +2,7 @@
 // content: posts, listings, comments, reviews, messages, events, profiles and
 // uploaded images. Report + Block + Hide, all instant.
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { MoreVertical, Flag, Ban, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ReportDialog } from "@/components/ReportDialog";
@@ -86,9 +87,9 @@ export function ContentMenu({
 
       {/* Rendered as a fixed sheet, never absolutely inside the card: cards clip
           overflow, which hid the menu on iPhone widths. */}
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(false); }}
         >
           <div
@@ -141,12 +142,13 @@ export function ContentMenu({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
-      {confirmBlock && (
+      {confirmBlock && typeof document !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
           onClick={(e) => { e.stopPropagation(); setConfirmBlock(false); }}
         >
           <div
@@ -177,7 +179,8 @@ export function ContentMenu({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       <ReportDialog
