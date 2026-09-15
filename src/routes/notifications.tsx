@@ -139,9 +139,10 @@ function NotificationsPage() {
           action={
             <Link
               to="/"
-              className="text-xs font-semibold text-primary px-4 py-2 rounded-full border border-primary/40"
+              className="tap inline-flex items-center justify-center text-xs font-semibold text-primary px-5 py-3 rounded-full border border-primary/40"
             >
               Back to home
+
             </Link>
           }
         />

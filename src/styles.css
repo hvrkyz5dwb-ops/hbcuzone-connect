@@ -405,6 +405,12 @@ img, video { content-visibility: auto; }
     min-width: 22px;
     min-height: 22px;
   }
+  /* A checkbox/radio is tapped through its label row — keep that row at 44pt. */
+  label:has(input[type="checkbox"]),
+  label:has(input[type="radio"]) {
+    min-height: 44px;
+  }
+
 
 }
 
