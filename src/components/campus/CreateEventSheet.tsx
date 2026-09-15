@@ -61,7 +61,7 @@ export function CreateEventSheet({ onClose }: { onClose: () => void }) {
       <button className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
       <form
         onSubmit={submit}
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-card border-t border-border rounded-t-3xl p-5 pb-8"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-card border-t border-border rounded-t-3xl p-5 pb-[max(2rem,env(safe-area-inset-bottom))]"
         style={{ animation: "plugu-slide-up 0.34s cubic-bezier(0.22,1,0.36,1) both" }}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />

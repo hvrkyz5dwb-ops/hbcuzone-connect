@@ -2397,7 +2397,7 @@ function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <button className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
-      <div className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-8 animate-in slide-in-from-bottom max-h-[85vh] overflow-y-auto">
+      <div className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-[max(2rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom max-h-[85vh] overflow-y-auto">
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
         {children}
       </div>
