@@ -372,10 +372,63 @@ img, video { content-visibility: auto; }
   border-radius: 8px;
 }
 
-/* Ensure any `.tap` control clears the 44×44 minimum tap target on touch. */
-@media (hover: none) and (pointer: coarse) {
+/* =========================================================================
+   Apple HIG minimum touch targets (App Store Guideline 4 — Design)
+   Every interactive control clears 44×44pt on touch devices (iPhone + iPad,
+   portrait and landscape). Visual styling is untouched: only the minimum
+   box grows, and small icons keep their size via the `.hit` utility below.
+   ========================================================================= */
+@media (pointer: coarse) {
   .tap { min-height: 44px; min-width: 44px; }
+
+  /* Safety net for controls that don't carry `.tap`.
+     Absolutely/fixed positioned controls are excluded so overlays,
+     backdrops and pinned badges keep their exact geometry — those use
+     `.hit` instead. */
+  :where(button, [role="button"], [role="switch"], [role="tab"],
+         [role="menuitem"], [role="option"], summary, select)
+    :not(.absolute):not(.fixed):not(.hit):not(.sr-only) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  a:where(.block, .flex, .inline-flex, .grid, .inline-grid, .tap)
+    :not(.absolute):not(.fixed):not(.hit) {
+    min-height: 44px;
+  }
+
+  /* Text fields, selects and native toggles. */
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]), select) {
+    min-height: 44px;
+  }
+  :where(input[type="checkbox"], input[type="radio"]) {
+    min-width: 22px;
+    min-height: 22px;
+  }
+
+  /* Neighbouring controls never sit shoulder-to-shoulder. */
+  :where(button, [role="button"], a.tap) + :where(button, [role="button"], a.tap) {
+    margin-left: max(0px, var(--plugu-control-gap, 0px));
+  }
 }
+
+/* Keeps a small icon visually small while giving it a full 44×44 hit box. */
+@utility hit {
+  position: relative;
+}
+@media (pointer: coarse) {
+  .hit::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+    border-radius: inherit;
+  }
+}
+
 
 /* Premium card lift on hover — gold border glow + soft shadow, 250ms. */
 @utility lift-card {
