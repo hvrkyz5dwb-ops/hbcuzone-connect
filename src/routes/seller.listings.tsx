@@ -310,7 +310,7 @@ function ListingComposer({
             {images.map((src, i) => (
               <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-secondary">
                 <img src={src} alt="" className="h-full w-full object-cover" />
-                <button onClick={() => setImages((p) => p.filter((_, ii) => ii !== i))} className="absolute top-1 right-1 h-6 w-6 grid place-items-center rounded-full bg-background/80" aria-label="Remove">
+                <button onClick={() => setImages((p) => p.filter((_, ii) => ii !== i))} className="hit absolute top-1 right-1 h-8 w-8 grid place-items-center rounded-full bg-background/80" aria-label="Remove photo">
                   <X className="h-3 w-3" />
                 </button>
               </div>

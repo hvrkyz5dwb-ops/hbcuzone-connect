@@ -41,7 +41,7 @@ export function EventDetailSheet({
     <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={event.title}>
       <button className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-label="Close event" />
       <div
-        className="relative w-full max-w-md max-h-[88vh] overflow-y-auto bg-card border-t border-border rounded-t-3xl pb-8"
+        className="relative w-full max-w-md max-h-[88vh] overflow-y-auto bg-card border-t border-border rounded-t-3xl pb-[max(2rem,env(safe-area-inset-bottom))]"
         style={{ animation: "plugu-slide-up 0.34s cubic-bezier(0.22,1,0.36,1) both" }}
       >
         <div className="relative h-40 w-full overflow-hidden rounded-t-3xl bg-secondary">

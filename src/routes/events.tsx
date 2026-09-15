@@ -227,7 +227,7 @@ function AddEventSheet({
       <button className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
       <form
         onSubmit={submit}
-        className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-8 animate-in slide-in-from-bottom"
+        className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-[max(2rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom"
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
         <div className="flex items-center justify-between mb-2">
