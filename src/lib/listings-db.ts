@@ -55,6 +55,8 @@ export type DiscoveryFilters = {
   price_max_cents?: number;
   fulfillment?: string[];         // any of these must overlap
   sort?: "newest" | "rating" | "popular";
+  /** Only show listings whose seller is a Verified Student. */
+  verified_only?: boolean;
   limit?: number;
   offset?: number;
 };
@@ -127,6 +129,23 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
       const rankOf = new Map(list.map((r) => [r.user_id, r.plan_code === "kingpin" ? 0 : 1]));
       rows.sort((a, b) => (rankOf.get(a.seller_user_id) ?? 2) - (rankOf.get(b.seller_user_id) ?? 2));
     }
+  }
+
+  // Attach the public seller card (display name, school, verification state).
+  // Only public_profiles columns — private data such as email never leaves the
+  // database.
+  if (rows.length > 0) {
+    const sellerIds = [...new Set(rows.map((r) => r.seller_user_id))].filter(Boolean);
+    const { data: sellers } = await supabase
+      .from("public_profiles")
+      .select("id,display_name,username,avatar_url,school_name,verification_status,rating_avg")
+      .in("id", sellerIds);
+    const byId = new Map((sellers ?? []).map((s: any) => [s.id as string, s]));
+    for (const r of rows) r.seller = (byId.get(r.seller_user_id) as ListingWithExtras["seller"]) ?? null;
+  }
+
+  if (filters.verified_only) {
+    return rows.filter((r) => r.seller?.verification_status === "verified");
   }
 
   return rows;

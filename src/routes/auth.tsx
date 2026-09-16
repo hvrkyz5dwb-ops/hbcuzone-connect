@@ -242,7 +242,7 @@ function AuthPage() {
       <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
         <div className="flex items-center gap-2">
           <img src={pluguLogo} alt="" className="h-8 w-8 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
-          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">PlugU · Students Only</p>
+          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">PlugU · HBCU Students</p>
         </div>
         <h1 className="mt-3 text-2xl font-bold plugu-wordmark">
           {mode === "sign-in" && "Sign in"}
@@ -254,8 +254,17 @@ function AuthPage() {
             ? "Enter your PlugU email — we'll send a secure reset link."
             : isBusiness && mode === "sign-up"
               ? "Local businesses hire student Plugs. No .edu needed — we verify your business before you can post."
-              : "Use your verified .edu school email. Nobody without one gets in."}
+              : "Buy, sell, book and build on your campus. Built for HBCU students and student-owned businesses — verify with your school-issued .edu email."}
         </p>
+        {mode === "sign-up" && !isBusiness && (
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            No .edu address at your school?{" "}
+            <Link to="/request-school-access" className="tap font-semibold text-primary underline underline-offset-2">
+              Request manual review
+            </Link>{" "}
+            — a person on the PlugU team verifies you by hand.
+          </p>
+        )}
 
         {/* Primary mode switch — returning users (and App Review) must be able
             to reach Sign in immediately, without hunting for a small link. */}

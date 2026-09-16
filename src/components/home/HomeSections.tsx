@@ -70,8 +70,8 @@ function AroundYou() {
 
   return (
     <section className="mt-7" aria-labelledby="home-around-you">
-      <SectionHeader title="Around You" action="Open map" onAction={() => navigate({ to: "/map" })} />
-      <h2 id="home-around-you" className="sr-only">Around You</h2>
+      <SectionHeader title="Student Services Near You" action="Open map" onAction={() => navigate({ to: "/map" })} />
+      <h2 id="home-around-you" className="sr-only">Student Services Near You</h2>
       {/* Reserved height matches the skeleton so resolving data never shifts the page. */}
       <div className="min-h-[208px]">
       {isLoading ? (
@@ -133,8 +133,8 @@ function Tonight() {
 
   return (
     <section className="mt-7" aria-labelledby="home-tonight">
-      <SectionHeader title="Tonight" />
-      <h2 id="home-tonight" className="sr-only">Tonight</h2>
+      <SectionHeader title="Campus Events" />
+      <h2 id="home-tonight" className="sr-only">Campus Events</h2>
       {/* Reserved height so the skeleton, rail and empty state all occupy the same space. */}
       <div className="min-h-[112px]">
       {q.isPending ? (
@@ -171,8 +171,8 @@ function Opportunities() {
   const picks = opportunities.filter((o) => o.kind === "scholarship" || o.kind === "internship" || o.kind === "job").slice(0, 6);
   return (
     <section className="mt-7" aria-labelledby="home-opps">
-      <SectionHeader title="Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
-      <h2 id="home-opps" className="sr-only">Opportunities</h2>
+      <SectionHeader title="Scholarships and Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
+      <h2 id="home-opps" className="sr-only">Scholarships and Opportunities</h2>
       <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {picks.map((o) => {
           const meta = opportunityMeta[o.kind];

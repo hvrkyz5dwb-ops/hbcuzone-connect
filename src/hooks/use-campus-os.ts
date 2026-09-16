@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSchool } from "@/hooks/use-school";
 import { useHomeCampus } from "@/hooks/use-home-campus";
+import { useCampusScope } from "@/hooks/use-campus-scope";
 import {
   fetchLivePins,
   fetchPlaces,
@@ -17,7 +18,14 @@ import type { LngLat } from "@/lib/map-service";
 export function useActiveCampus() {
   const school = useSchool();
   const { active: homeCampus } = useHomeCampus();
-  const name = school.verified ? school.name : homeCampus;
+  // When the student is exploring another PlugU campus, every campus-scoped
+  // surface follows them there; otherwise their verified school wins.
+  const { campusName: scopedCampus, exploring } = useCampusScope();
+  const name = exploring
+    ? scopedCampus
+    : school.verified
+      ? school.name
+      : homeCampus;
   const q = useQuery({
     queryKey: ["campus", name],
     staleTime: 10 * 60_000,

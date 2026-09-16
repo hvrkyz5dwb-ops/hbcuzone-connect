@@ -11,7 +11,7 @@ function minutesLeft(iso: string) {
 }
 
 export function RightNowRail() {
-  const { campus } = useActiveCampus();
+  const { campus, campusName } = useActiveCampus();
   const pins = useLivePins(campus?.id);
 
   const drops = useQuery({
@@ -35,9 +35,9 @@ export function RightNowRail() {
   return (
     <section className="mt-6" aria-labelledby="right-now-h">
       <div className="flex items-center justify-between px-5">
-        <h2 id="right-now-h" className="flex items-center gap-1.5 text-sm font-black tracking-tight">
-          <Zap className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} aria-hidden="true" />
-          Right now
+        <h2 id="right-now-h" className="flex min-w-0 items-center gap-1.5 text-sm font-black tracking-tight">
+          <Zap className="h-4 w-4 shrink-0" style={{ color: "var(--plugu-gold)" }} aria-hidden="true" />
+          <span className="truncate">Happening at {campusName}</span>
         </h2>
         <Link to="/map" className="tap text-[11px] font-semibold text-muted-foreground">
           Open map

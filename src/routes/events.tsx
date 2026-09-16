@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Calendar, Users, Ticket, Plus, X, Trash2 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
+import { CampusBar } from "@/components/campus/CampusBar";
 import { events, hbcuEvents } from "@/lib/mock-data";
 import { useSchool } from "@/hooks/use-school";
 import {
@@ -68,6 +69,7 @@ function EventsPage() {
 
   return (
     <AppShell title="EVENTS">
+      <CampusBar subtitle="Campus events posted by students and student orgs" />
       <section className="px-5 pt-5">
         <p className="text-xs text-muted-foreground">Tonight, this week, this month · {activeSchool}</p>
         <div className="flex items-end justify-between gap-3">
