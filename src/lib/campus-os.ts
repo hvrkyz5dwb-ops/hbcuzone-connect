@@ -405,10 +405,10 @@ export async function saveLocationSettings(patch: {
 /* ------------------------------ home layout ------------------------------ */
 
 export const HOME_SECTIONS = [
-  { key: "right_now", label: "Right Now", locked: true },
-  { key: "around_you", label: "Around You", locked: false },
-  { key: "tonight", label: "Tonight", locked: false },
-  { key: "opportunities", label: "Opportunities", locked: false },
+  { key: "right_now", label: "Happening on Campus", locked: true },
+  { key: "around_you", label: "Student Services Near You", locked: false },
+  { key: "tonight", label: "Campus Events", locked: false },
+  { key: "opportunities", label: "Scholarships and Opportunities", locked: false },
   { key: "campus_updates", label: "Campus Updates", locked: false },
   { key: "your_activity", label: "Your Activity", locked: false },
 ] as const;
