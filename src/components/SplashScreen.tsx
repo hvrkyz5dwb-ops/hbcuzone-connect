@@ -85,7 +85,7 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
       <div className="intro-stage absolute inset-0">
         <img
           src={localAsset(POSTER_SRC)}
-          alt="The illuminated PlugU monument on an HBCU campus"
+          alt="The illuminated stone PlugU P statue on an HBCU campus"
           className="intro-poster absolute inset-0 h-full w-full"
           draggable={false}
         />
