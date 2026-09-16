@@ -6,6 +6,8 @@ import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { PersonalizedHome } from "@/components/home/HomeSections";
 import { HeroCarousel } from "@/components/HeroCarousel";
+import { CampusBar } from "@/components/campus/CampusBar";
+import { useCampusScope } from "@/hooks/use-campus-scope";
 import { LookingForSheet } from "@/components/LookingForSheet";
 import { useProfile } from "@/hooks/use-profile";
 import { AlertCircle } from "lucide-react";
@@ -185,16 +187,22 @@ function Home() {
     <AppShell title="PLUGU">
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
 
-      {/* Hero — primary message + rotating highlights */}
+      {/* Which campus this feed belongs to, plus the student's verification state */}
+      <CampusBar subtitle="Built for HBCU students and student-owned businesses" />
+
+      {/* Hero — PlugU's purpose, stated plainly */}
       <section className="px-5 pt-4">
         <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--plugu-gold)" }}>
-          Your campus, plugged in
+          Built for HBCU students
         </p>
         <h1 className="mt-2 text-[27px] font-black leading-[1.08] tracking-[-0.02em] text-foreground">
-          Buy from students.<br />
-          Book student services.<br />
-          <span style={{ color: "var(--plugu-gold)" }}>Build your bag.</span>
+          Buy, sell, book and<br />
+          build on <span style={{ color: "var(--plugu-gold)" }}>your campus.</span>
         </h1>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Student-owned businesses, campus services, events and opportunities — verified
+          student to verified student.
+        </p>
       </section>
 
       <div className={feedStagger ? "fse fse-d1" : undefined}>
@@ -227,7 +235,7 @@ function Home() {
 
       {/* Marketplace categories */}
       <section className="mt-6">
-        <SectionHeader title="Shop by category" action="See all" onAction={() => navigate({ to: "/market" })} />
+        <SectionHeader title="Buy and Sell on Campus" action="See all" onAction={() => navigate({ to: "/market" })} />
         <div className="px-5 grid grid-cols-4 gap-2.5">
           {AVAILABLE_CATEGORIES.slice(0, 8).map((c) => (
             <Link
@@ -273,6 +281,9 @@ function Home() {
       <div className={feedStagger ? "fse fse-d5" : undefined}>
         <SellCta />
       </div>
+
+      {/* Campus safety & community standards — always one tap from Home */}
+      <SafetyStandards />
 
       {/* More — everything else lives behind its own tab */}
       <MoreLinks />
@@ -367,7 +378,7 @@ function TrendingListings() {
   const { data, isLoading } = useMarketplace({ sort: "popular", limit: 8 });
   return (
     <section className="mt-7" data-tour="events">
-      <SectionHeader title="Trending Near You" action="See all" onAction={() => navigate({ to: "/market" })} />
+      <SectionHeader title="Trending Student Businesses" action="See all" onAction={() => navigate({ to: "/market" })} />
       {isLoading ? (
         <div tabIndex={0} className="px-5 flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -431,6 +442,47 @@ function MoreLinks() {
             <span className="text-[10px] text-muted-foreground text-center leading-tight">{i.label}</span>
           </Link>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Campus Safety and Community Standards — PlugU's safety tools are part of
+ * the Home experience, not buried in settings. Every link here is a real,
+ * working screen.
+ */
+function SafetyStandards() {
+  const { campusName } = useCampusScope();
+  const items = [
+    { to: "/safety" as const, label: "Safety Center", hint: "How reporting and moderation work" },
+    { to: "/community-guidelines" as const, label: "Community Standards", hint: "What's allowed on campus" },
+    { to: "/blocked" as const, label: "Blocked students", hint: "Review and unblock" },
+    { to: "/support" as const, label: "Contact support", hint: "Reach the PlugU team" },
+  ];
+  return (
+    <section className="mt-8 px-5">
+      <div className="rounded-3xl border border-border bg-card p-4">
+        <p className="text-[10px] uppercase tracking-[0.24em]" style={{ color: "var(--plugu-gold)" }}>
+          Campus safety
+        </p>
+        <h2 className="mt-1 text-base font-bold">Safety and community standards at {campusName}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Students only, verified by school email. Report or block anyone, any time — reported
+          content disappears from your feed immediately.
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {items.map((i) => (
+            <Link
+              key={i.to}
+              to={i.to}
+              className="tap flex min-h-[56px] flex-col justify-center rounded-2xl border border-border bg-background px-3 py-2"
+            >
+              <span className="text-xs font-semibold">{i.label}</span>
+              <span className="text-[10px] text-muted-foreground">{i.hint}</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

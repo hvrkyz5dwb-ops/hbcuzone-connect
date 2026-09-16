@@ -21,16 +21,16 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     id: "welcome",
-    eyebrow: "Welcome",
-    title: "Welcome to PlugU.",
-    body: "Built by students, for students. Buy, sell, discover campus events, support student businesses, and create opportunities — all in one place.",
+    eyebrow: "Built for HBCU students",
+    title: "Buy, sell, book and build on your campus.",
+    body: "PlugU is made for HBCU students and student-owned businesses. One verified campus community for commerce, services, events and opportunities.",
     scene: "campus",
   },
   {
     id: "market",
-    eyebrow: "Marketplace",
-    title: "Your Campus Marketplace.",
-    body: "Need a haircut? Selling clothes? Looking for food? Need tutoring? Hosting an event? Find it all inside PlugU.",
+    eyebrow: "Your campus, not a catalog",
+    title: "Student services, booked on campus.",
+    body: "Barbers, stylists, nail techs, photographers, tutors, cooks, drivers and creatives — all students at your school, bookable with pickup or meetup spots you already know.",
     scene: "market",
   },
   {

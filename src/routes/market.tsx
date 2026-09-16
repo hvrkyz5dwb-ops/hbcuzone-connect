@@ -20,6 +20,7 @@ import { getOrCreateConversation } from "@/lib/messages-db";
 import { MVP_CATEGORIES, formatPrice, categoryLabel, type PriceType } from "@/lib/categories";
 import { useContentVisibility } from "@/hooks/use-blocklist";
 import { useSchool } from "@/hooks/use-school";
+import { CampusBar } from "@/components/campus/CampusBar";
 import { useProfile } from "@/hooks/use-profile";
 import { FULFILLMENT_OPTIONS } from "@/lib/categories";
 
@@ -48,6 +49,7 @@ function Market() {
   const [scope, setScope] = useState<"mine" | "all">("mine");
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [fulfillment, setFulfillment] = useState<string[]>([]);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(0);
   const [tab, setTab] = useState<"shop" | "posts">("shop");
@@ -60,10 +62,11 @@ function Market() {
     school_id: profile?.school_id ?? undefined,
     price_max_cents: priceMax !== null ? priceMax * 100 : undefined,
     fulfillment: fulfillment.length ? fulfillment : undefined,
+    verified_only: verifiedOnly || undefined,
     sort,
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
-  }), [query, category, scope, profile?.school_id, priceMax, fulfillment, sort, page]);
+  }), [query, category, scope, profile?.school_id, priceMax, fulfillment, verifiedOnly, sort, page]);
 
   const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
@@ -90,6 +93,7 @@ function Market() {
   return (
     <AppShell title="MARKET">
       <PullToRefresh onRefresh={async () => { await refetch(); }}>
+      <CampusBar subtitle="Student-owned businesses and campus services" />
       <section className="px-5 pt-5">
         <div className="flex gap-2 p-1 rounded-2xl bg-secondary border border-border">
           {(["shop", "posts"] as const).map((t) => (
@@ -171,6 +175,17 @@ function Market() {
                   My campus · {school.name}
                 </ChipToggle>
                 <ChipToggle active={scope === "all"} onClick={() => { setScope("all"); setPage(0); }}>All PlugU</ChipToggle>
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sellers</p>
+              <div className="mt-1.5 flex gap-2 flex-wrap">
+                <ChipToggle active={!verifiedOnly} onClick={() => { setVerifiedOnly(false); setPage(0); }}>
+                  All students
+                </ChipToggle>
+                <ChipToggle active={verifiedOnly} onClick={() => { setVerifiedOnly(true); setPage(0); }}>
+                  Verified students only
+                </ChipToggle>
               </div>
             </div>
             <div>
