@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const VIDEO_SRC = "/media/plugu-campus-intro.mp4";
+const VIDEO_MP4_SRC = "/media/plugu-campus-intro.mp4";
+const VIDEO_WEBM_SRC = "/media/plugu-campus-intro.webm";
 const POSTER_SRC = "/media/plugu-campus-intro-poster.jpg";
 const FULL_INTRO_MS = 2875;
 const REDUCED_INTRO_MS = 750;
@@ -102,7 +103,8 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
             onEnded={() => finish()}
             onError={() => finish(true)}
           >
-            <source src={localAsset(VIDEO_SRC)} type="video/mp4" />
+            <source src={localAsset(VIDEO_WEBM_SRC)} type="video/webm" />
+            <source src={localAsset(VIDEO_MP4_SRC)} type="video/mp4" />
           </video>
         )}
 
