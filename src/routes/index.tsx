@@ -15,10 +15,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { OnboardingExperience } from "@/components/OnboardingExperience";
-import { SplashScreen } from "@/components/SplashScreen";
 import {
-  shouldPlaySplash,
-  markSplashPlayed,
   hasSeenIntro,
   markIntroSeen,
   FIRST_FEED_EVENT,
@@ -92,20 +89,14 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
-  // Guests never see the app. First open: cinematic splash → onboarding
-  // slides → /auth. Returning guests go straight to /auth. Signed-in
-  // users fall through to the full dashboard below — the member journey
-  // (splash → onboarding → tour → welcome) runs via AppShell.
-  const [guestSplash, setGuestSplash] = useState(false);
+  // The global cinematic is mounted by __root after React is ready. Guests
+  // continue to onboarding or auth independently beneath that bounded overlay.
   const [guestIntro, setGuestIntro] = useState(false);
   useEffect(() => {
     if (loading) return;
     if (session) return;
     try {
-      if (shouldPlaySplash()) {
-        markSplashPlayed();
-        setGuestSplash(true);
-      } else if (!hasSeenIntro()) {
+      if (!hasSeenIntro()) {
         setGuestIntro(true);
       } else {
         navigate({ to: "/auth", search: { next: "/", mode: "" } });
@@ -120,29 +111,17 @@ function Home() {
   // Hard entry watchdog (App Review 2.1(a)): whatever happens above — stalled
   // auth call, blocked storage, failed route transition — a signed-out
   // visitor must be looking at something interactive within 12s of app open.
-  // Skipped while the splash or the onboarding slides are on screen: those
-  // are the intended experience, not a stall.
+  // Skipped while onboarding is on screen: that is the intended experience,
+  // not a stall. The global cinematic is independently bounded to 3.4s.
   useEffect(() => {
-    if (session || guestSplash || guestIntro) return;
+    if (session || guestIntro) return;
     const t = window.setTimeout(() => {
       if (window.location.pathname !== "/") return;
       console.warn("[PlugU:entry] entry watchdog fired — forcing /auth");
       window.location.assign("/auth?next=%2F&mode=");
     }, 12000);
     return () => window.clearTimeout(t);
-  }, [session, guestSplash, guestIntro]);
-
-  // Startup failsafe: the splash can never be the last thing on screen. If
-  // it outlives its own scene clock (stalled timer, backgrounded tab, slow
-  // device), move the guest along to the intro anyway.
-  useEffect(() => {
-    if (!guestSplash) return;
-    const t = window.setTimeout(() => {
-      setGuestSplash(false);
-      setGuestIntro(true);
-    }, 6000);
-    return () => window.clearTimeout(t);
-  }, [guestSplash]);
+  }, [session, guestIntro]);
 
   function finishGuestIntro() {
     markIntroSeen();
@@ -171,14 +150,6 @@ function Home() {
     return <EntryLoading />;
   }
   if (!session) {
-    if (guestSplash) {
-      return (
-        <>
-          <SplashScreen onDone={() => { setGuestSplash(false); setGuestIntro(true); }} />
-          <div className="fixed inset-0 z-[90] bg-black" aria-hidden="true" />
-        </>
-      );
-    }
     if (guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
     return <EntryLoading />;
   }

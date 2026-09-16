@@ -7,12 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import monumentDark from "@/assets/plugu-monument-dark.png.asset.json";
-import monumentLit from "@/assets/plugu-monument-lit.png.asset.json";
+import { SplashScreen } from "@/components/SplashScreen";
+import { markSplashPlayed, shouldPlaySplash } from "@/lib/first-launch";
 import { supabase } from "@/integrations/supabase/client";
 import { RouteErrorFallback, RouteNotFoundFallback } from "@/components/QueryStates";
 import { initNative, hideNativeSplash } from "@/lib/native";
@@ -62,9 +62,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap",
       },
-      // Preload the splash hero so first paint isn't blocked on the 2 MB image.
-      { rel: "preload", as: "image", href: monumentDark.url, fetchPriority: "high" },
-      { rel: "preload", as: "image", href: monumentLit.url },
+      { rel: "preload", as: "image", href: "/media/plugu-campus-intro-poster.jpg", fetchPriority: "high" },
       // Browser tab icons — small PNG first so tabs don't fetch the 512px file.
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
@@ -96,6 +94,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const [showIntro, setShowIntro] = useState(false);
+
+  // The route is already rendered when this runs. The cinematic therefore
+  // never replaces native launch work or delays access to a functioning page.
+  useEffect(() => {
+    if (!shouldPlaySplash()) return;
+    markSplashPlayed();
+    setShowIntro(true);
+  }, []);
 
   // One global auth-state subscriber. Keeps the router + query cache in sync
   // with the Supabase session so signed-in/out state propagates everywhere.
@@ -129,6 +136,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      {showIntro && <SplashScreen onDone={() => setShowIntro(false)} />}
     </QueryClientProvider>
   );
 }

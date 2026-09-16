@@ -8,7 +8,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/use-theme";
-import { SplashScreen } from "@/components/SplashScreen";
 import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { OnboardingExperience } from "@/components/OnboardingExperience";
 import { CoachMarks } from "@/components/CoachMarks";
@@ -24,10 +23,6 @@ import { useUnreadCount } from "@/hooks/use-messages";
 import { useMyBusiness } from "@/hooks/use-business";
 import { isHbcuDomain, getDomain } from "@/lib/auth";
 import {
-  SPLASH_PLAYED_KEY,
-  SPLASH_RECENT_KEY,
-  shouldPlaySplash,
-  markSplashPlayed,
   hasOnboarded,
   markOnboarded,
   hasToured,
@@ -134,10 +129,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const hbcuStudent =
     !!profile?.is_hbcu_student || (!!emailDomain && isHbcuDomain(emailDomain));
 
-  // First-launch journey for signed-in members:
-  //   cinematic splash → onboarding slides → coach-mark tour → welcome card.
+  // First-launch journey for signed-in members after the global cinematic:
+  //   onboarding slides → coach-mark tour → welcome card.
   // Each stage is gated by its own localStorage flag so it plays exactly once.
-  const [showSplash, setShowSplash] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -156,37 +150,8 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   useEffect(() => {
     if (sessionLoading || !session) return;
-    if (shouldPlaySplash()) {
-      markSplashPlayed();
-      setShowSplash(true);
-      return;
-    }
     beginFirstLaunch();
   }, [sessionLoading, session, beginFirstLaunch]);
-
-  // Failsafe: the splash must never be able to trap the app. If it is still
-  // mounted well past its own scene clock, tear it down and continue.
-  useEffect(() => {
-    if (!showSplash) return;
-    const t = window.setTimeout(() => {
-      setShowSplash(false);
-      beginFirstLaunch();
-    }, 6000);
-    return () => window.clearTimeout(t);
-  }, [showSplash, beginFirstLaunch]);
-
-  // If a sibling tab plays the splash while this tab is open, remember it
-  // so a later refresh here doesn't replay. (No re-render needed.)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === SPLASH_RECENT_KEY && e.newValue) {
-        try { window.sessionStorage.setItem(SPLASH_PLAYED_KEY, "1"); } catch {}
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -452,14 +417,6 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       <Toaster position="top-center" />
 
 
-      {showSplash && (
-        <SplashScreen
-          onDone={() => {
-            setShowSplash(false);
-            beginFirstLaunch();
-          }}
-        />
-      )}
       {showOnboarding && (
         <OnboardingExperience
           onComplete={() => {
