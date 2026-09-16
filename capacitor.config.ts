@@ -46,8 +46,8 @@ const config: CapacitorConfig = {
       // slow network, JS error) iOS still dismisses the launch screen
       // instead of freezing on it forever.
       launchAutoHide: true,
-      launchShowDuration: 2500,
-      launchFadeOutDuration: 300,
+      launchShowDuration: 350,
+      launchFadeOutDuration: 120,
       backgroundColor: "#0a0a0a",
       androidSplashResourceName: "splash",
       showSpinner: false,

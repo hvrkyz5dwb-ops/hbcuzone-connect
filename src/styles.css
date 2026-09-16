@@ -566,337 +566,47 @@ img, video { content-visibility: auto; }
   }
 }
 
-/* =====================================================
-   PlugU Launch Splash — "Power On" (3.3s)
-   black → gold dust → rumble → lightning strikes the U → the U
-   pulses hotter than the rest → energy climbs the P → shimmer +
-   sparks → spring to 105% and settle → brand hold → final pulse
-   expands → crossfade into the already-loaded app.
-   Only transform/opacity animate (compositor-friendly).
-   ===================================================== */
-
-/* Final crossfade — the whole splash fades into the app beneath it */
-@keyframes spl-exit {
-  0%, 91% { opacity: 1; }
-  100%    { opacity: 0; }
-}
-.spl-root {
+/* In-app cinematic intro. The native iOS launch screen remains static. */
+.intro-root {
   contain: strict;
-  animation: spl-exit 3.3s linear both;
+  opacity: 1;
+  transition: opacity 180ms ease;
 }
-
-/* Reveal → strike shake → 105% spring → settle → hold → gentle push */
-@keyframes spl-stage {
-  0%    { opacity: 0; transform: scale(1.05); }
-  12%   { opacity: 1; transform: scale(1.015); }
-  24%   { transform: scale(1); }
-  35%   { transform: translate(0, 0) scale(1); }
-  36.5% { transform: translate(1.5px, -1px); }
-  38%   { transform: translate(-1.5px, 1px); }
-  39.5% { transform: translate(1px, 0.5px); }
-  41%   { transform: translate(0, 0); }
-  66%   { transform: scale(1); }
-  73%   { transform: scale(1.05); }  /* spring up to ~105% */
-  78%   { transform: scale(0.996); } /* settle back, slight undershoot */
-  83%   { transform: scale(1.004); }
-  88%   { transform: scale(1); }     /* locked for the brand hold */
-  100%  { transform: scale(1.03); }  /* soft push as the glow takes over */
+.intro-root.intro-exiting { opacity: 0; pointer-events: none; }
+.intro-stage { background: var(--background); }
+.intro-video,
+.intro-poster {
+  object-fit: contain;
+  object-position: center;
+  background: var(--background);
 }
-.spl-stage {
-  animation: spl-stage 3.3s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transform-origin: 50% 36%;
-  will-change: transform, opacity;
+.intro-poster { opacity: 1; }
+.intro-video { opacity: 1; }
+.intro-shade {
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 55%, color-mix(in oklab, var(--background) 78%, transparent));
 }
-
-/* Powered-on plate cross-fades in as energy floods the P */
-@keyframes spl-lit {
-  0%, 45%   { opacity: 0; }
-  56%       { opacity: 0.6; }
-  66%, 100% { opacity: 1; }
-}
-.spl-lit {
-  opacity: 0;
-  animation: spl-lit 3.3s linear both;
-}
-
-/* Ambient gold dust — floating from the first frame */
-@keyframes spl-dust {
-  0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
-  18%  { opacity: var(--o, 0.6); }
-  55%  { opacity: calc(var(--o, 0.6) * 0.75); }
-  85%  { opacity: var(--o, 0.6); }
-  100% { opacity: 0; transform: translate(var(--dx, 8px), -130px) scale(1); }
-}
-.spl-dust {
-  position: absolute;
-  border-radius: 9999px;
-  background: radial-gradient(circle, #ffe9b8 0%, rgba(246, 210, 122, 0.85) 45%, transparent 75%);
-  box-shadow: 0 0 6px 1px rgba(246, 210, 122, 0.5);
-  opacity: 0;
-  animation: spl-dust 3.3s ease-in-out both;
-  will-change: transform, opacity;
+.intro-title {
+  bottom: max(8vh, calc(env(safe-area-inset-bottom, 0px) + 48px));
   pointer-events: none;
 }
-
-/* Dark-gold horizon illumination once the power is on */
-@keyframes spl-goldbg {
-  0%, 48% { opacity: 0; }
-  62%     { opacity: 0.75; }
-  76%     { opacity: 0.4; }
-  88%     { opacity: 0.5; }
-  100%    { opacity: 0; }
-}
-.spl-goldbg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(120% 90% at 50% 42%, rgba(168, 118, 38, 0.5) 0%, rgba(96, 66, 18, 0.28) 55%, transparent 85%);
-  mix-blend-mode: screen;
+.intro-title p {
+  color: var(--plugu-gold);
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(20px, 4vmin, 38px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 22px color-mix(in oklab, var(--background) 82%, transparent);
   opacity: 0;
-  animation: spl-goldbg 3.3s ease-out both;
+  animation: intro-title-in 520ms ease 2s both;
 }
-
-/* Polished-metal shimmer sweeping across the lit logo */
-@keyframes spl-shimmer {
-  0%, 54%   { opacity: 0; transform: translateX(-55%) skewX(-12deg); }
-  60%       { opacity: 1; }
-  78%       { opacity: 0.9; transform: translateX(55%) skewX(-12deg); }
-  82%, 100% { opacity: 0; transform: translateX(55%) skewX(-12deg); }
-}
-.spl-shimmer {
-  position: absolute;
-  top: -10%;
-  bottom: -10%;
-  left: -30%;
-  width: 60%;
-  background: linear-gradient(100deg, transparent 0%, rgba(255, 246, 222, 0.22) 42%, rgba(255, 250, 234, 0.4) 50%, rgba(255, 246, 222, 0.22) 58%, transparent 100%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  animation: spl-shimmer 3.3s cubic-bezier(0.4, 0, 0.2, 1) both;
-  will-change: transform, opacity;
-}
-
-/* The bolt draws down onto the U, holds, then dies */
-@keyframes spl-bolt-draw {
-  0%, 34%   { opacity: 0; stroke-dashoffset: 100; }
-  36%       { opacity: 1; }
-  41%       { opacity: 1; stroke-dashoffset: 0; }
-  47%       { opacity: 0.85; }
-  58%, 100% { opacity: 0; stroke-dashoffset: 0; }
-}
-.spl-bolt {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.spl-bolt path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: spl-bolt-draw 3.3s cubic-bezier(0.3, 0.7, 0.3, 1) both;
-}
-.spl-bolt .spl-branch {
-  animation-delay: 0.045s;
-}
-
-/* Residual arcs dancing around the U just after the strike */
-@keyframes spl-arcs-op {
-  0%, 38%   { opacity: 0; }
-  40%       { opacity: 0.9; }
-  41.5%     { opacity: 0.2; }
-  43%       { opacity: 0.85; }
-  47%       { opacity: 0.3; }
-  49%       { opacity: 0.7; }
-  54%, 100% { opacity: 0; }
-}
-.spl-arcs {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0;
-  animation: spl-arcs-op 3.3s linear both;
-}
-.spl-arcs path {
-  fill: none;
-  stroke: #fff3cf;
-  stroke-width: 0.45;
-  stroke-linecap: round;
-}
-
-/* Strike flash — soft double flicker, never harsh */
-@keyframes spl-flash {
-  0%, 34.5% { opacity: 0; }
-  36.5%     { opacity: 0.8; }
-  38.5%     { opacity: 0.12; }
-  40%       { opacity: 0.38; }
-  50%, 100% { opacity: 0; }
-}
-.spl-flash {
-  background: radial-gradient(90% 70% at 55% 45%, rgba(255, 246, 220, 0.9), rgba(190, 220, 255, 0.45) 60%, transparent 100%);
-  opacity: 0;
-  animation: spl-flash 3.3s linear both;
-}
-
-/* Warm backlight bloom behind the P — breathing through the brand hold */
-@keyframes spl-bloom {
-  0%, 50% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-  60%     { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
-  68%     { opacity: 0.55; }
-  74%     { opacity: 0.9; transform: translate(-50%, -50%) scale(1.1); }
-  80%     { opacity: 0.65; transform: translate(-50%, -50%) scale(1.02); }
-  86%     { opacity: 0.8; transform: translate(-50%, -50%) scale(1.07); }
-  92%     { opacity: 0.7; }
-  100%    { opacity: 0.95; transform: translate(-50%, -50%) scale(1.16); }
-}
-.spl-bloom {
-  position: absolute;
-  left: 50%;
-  top: 34%;
-  width: min(85vmin, 700px);
-  height: min(85vmin, 700px);
-  transform: translate(-50%, -50%);
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(246, 210, 122, 0.5) 0%, rgba(246, 210, 122, 0.16) 42%, transparent 70%);
-  opacity: 0;
-  animation: spl-bloom 3.3s ease-out both;
-  will-change: opacity, transform;
-}
-
-/* The U burning hotter than the rest of the logo — electric pulses */
-@keyframes spl-upulse {
-  0%, 35.5% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); }
-  37.5%     { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
-  39.5%     { opacity: 0.5; transform: translate(-50%, -50%) scale(0.95); }
-  41.5%     { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
-  45%       { opacity: 0.65; }
-  50%       { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
-  62%       { opacity: 0.55; }
-  74%       { opacity: 0.7; }
-  88%       { opacity: 0.6; transform: translate(-50%, -50%) scale(1.04); }
-  100%      { opacity: 0; }
-}
-.spl-upulse {
-  position: absolute;
-  left: 66%;
-  top: 63.5%;
-  width: 22vmin;
-  height: 22vmin;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(255, 244, 214, 0.85) 0%, rgba(246, 210, 122, 0.45) 38%, transparent 70%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  animation: spl-upulse 3.3s linear both;
-  will-change: opacity, transform;
-}
-
-/* Gold energy wave sweeps from the U up past the P */
-@keyframes spl-sweep {
-  0%, 37%   { opacity: 0; transform: translateX(-50%) translateY(60%); }
-  42%       { opacity: 0.9; }
-  54%       { opacity: 0.7; transform: translateX(-50%) translateY(-60%); }
-  60%, 100% { opacity: 0; transform: translateX(-50%) translateY(-60%); }
-}
-.spl-sweep {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 130%;
-  height: 34%;
-  transform: translateX(-50%) translateY(60%);
-  background: linear-gradient(180deg, transparent, rgba(246, 210, 122, 0.34) 45%, rgba(255, 240, 194, 0.55) 50%, rgba(246, 210, 122, 0.34) 55%, transparent);
-  opacity: 0;
-  animation: spl-sweep 3.3s cubic-bezier(0.4, 0, 0.2, 1) both;
-  will-change: transform, opacity;
-}
-
-/* Shockwave rings off the impact point */
-@keyframes spl-shock {
-  0%, 36% { opacity: 0; transform: translate(-50%, -50%) scale(0.12); }
-  38%     { opacity: 0.85; }
-  56%     { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
-  100%    { opacity: 0; }
-}
-.spl-shock {
-  position: absolute;
-  left: 66%;
-  top: 63.5%;
-  width: 42vmin;
-  height: 42vmin;
-  border-radius: 9999px;
-  border: 2px solid rgba(246, 210, 122, 0.75);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  animation: spl-shock 3.3s cubic-bezier(0.2, 0.7, 0.3, 1) both;
-  will-change: transform, opacity;
-}
-.spl-shock-2 {
-  width: 30vmin;
-  height: 30vmin;
-  border-width: 1px;
-  border-color: rgba(255, 240, 194, 0.55);
-  animation-delay: 0.14s;
-}
-
-/* Gold sparks rising around the plug prongs */
-@keyframes spl-spark-rise {
-  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
-  12%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx, 6px), -64px) scale(1); }
-}
-.spl-spark {
-  width: 3px;
-  height: 3px;
-  background: radial-gradient(circle, #fff3cf 0%, rgba(246, 210, 122, 0.9) 45%, transparent 75%);
-  box-shadow: 0 0 8px 2px rgba(246, 210, 122, 0.65);
-  opacity: 0;
-  animation: spl-spark-rise 0.85s ease-out both;
-  will-change: transform, opacity;
-}
-
-/* Radial spark burst when the bolt lands on the U */
-@keyframes spl-burst {
-  0%, 36% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-  38.5%   { opacity: 1; }
-  60%     { opacity: 0; transform: translate(calc(-50% + var(--bx, 20px)), calc(-50% + var(--by, -30px))) scale(1); }
-  100%    { opacity: 0; }
-}
-.spl-burst {
-  width: 4px;
-  height: 4px;
-  background: radial-gradient(circle, #ffffff 0%, rgba(246, 210, 122, 0.9) 40%, transparent 75%);
-  box-shadow: 0 0 10px 2px rgba(246, 210, 122, 0.7);
-  opacity: 0;
-  animation: spl-burst 3.3s ease-out both;
-  will-change: transform, opacity;
-}
-
-/* Final pulse — a gold ring expands across the screen into the crossfade */
-@keyframes spl-finalpulse {
-  0%, 89% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
-  92%     { opacity: 0.9; }
-  100%    { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
-}
-.spl-finalpulse {
-  position: absolute;
-  left: 50%;
-  top: 36%;
-  width: 55vmin;
-  height: 55vmin;
-  border-radius: 9999px;
-  border: 3px solid rgba(246, 210, 122, 0.8);
-  box-shadow: 0 0 40px 6px rgba(246, 210, 122, 0.45), inset 0 0 40px rgba(246, 210, 122, 0.3);
-  opacity: 0;
-  pointer-events: none;
-  animation: spl-finalpulse 3.3s cubic-bezier(0.2, 0.7, 0.3, 1) both;
-  will-change: transform, opacity;
+@keyframes intro-title-in { to { opacity: 1; } }
+.intro-reduced .intro-poster { animation: intro-static-fade 750ms ease both; }
+.intro-reduced .intro-title p { animation: intro-title-in 280ms ease 140ms both; }
+@keyframes intro-static-fade {
+  0% { opacity: 0; transform: scale(1.01); }
+  35%, 80% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.92; transform: scale(1); }
 }
 
 /* One-time welcome card after account creation */
@@ -1133,55 +843,31 @@ img, video { content-visibility: auto; }
   }
 }
 
-/* ============================================
-   Splash — Skip control & fast exit
-   ============================================ */
-
-.spl-skip {
+/* Cinematic intro — visible, safe-area-aware 44×44 Skip control. */
+.intro-skip {
   position: absolute;
-  top: max(14px, env(safe-area-inset-top, 0px));
-  right: 14px;
+  top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+  right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px));
   z-index: 70;
-  padding: 10px 18px;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: rgba(255, 246, 214, 0.85);
   background: rgba(14, 12, 7, 0.55);
   border: 1px solid rgba(244, 201, 106, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  opacity: 0;
-  animation: splSkipIn 0.5s ease 0.9s both;
+  opacity: 1;
   -webkit-tap-highlight-color: transparent;
 }
-.spl-skip:hover {
+.intro-skip:hover {
   color: #ffe9b0;
   border-color: rgba(244, 201, 106, 0.6);
 }
-@keyframes splSkipIn {
-  to { opacity: 1; }
-}
-/* Skip pressed — everything cuts to a short, smooth fade */
-.spl-root.spl-skipping * {
-  animation-play-state: paused;
-}
-.spl-root.spl-skipping {
-  /* Clear the spl-exit keyframes first — CSS animations override transitions
-     in the cascade, so without this the Skip fade never runs and the splash
-     hard-cuts instead of dissolving. */
-  animation: none;
-  opacity: 0;
-  transition: opacity 0.24s ease;
-}
-/* The reduced-motion splash shows Skip immediately */
 @media (prefers-reduced-motion: reduce) {
-  .spl-skip {
-    animation: none;
-    opacity: 1;
-  }
+  .intro-root { transition-duration: 1ms; }
 }
 
 /* ============================================

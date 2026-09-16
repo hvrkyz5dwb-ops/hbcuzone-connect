@@ -15,14 +15,12 @@ function remove(key: string) {
   try { window.localStorage.removeItem(key); } catch {}
 }
 
-/* — Cinematic splash gating — */
-// PLAYED (sessionStorage): once the splash plays in a tab, refreshing that
-//   tab won't replay it. Cleared when the tab closes.
-// RECENT (localStorage): timestamp of the most recent play in ANY tab, so a
-//   second tab opened right after the first skips instead of doubling up.
-export const SPLASH_PLAYED_KEY = "plugu.splash.playedThisSession";
-export const SPLASH_RECENT_KEY = "plugu.splash.lastPlayedAt";
-const MULTI_TAB_WINDOW_MS = 15_000;
+/* — Cinematic intro gating — */
+// Change this release id only for a major, approved intro update. A local,
+// versioned flag means the full film runs once after installation/update and
+// never needs an account, cookie, session, or database request.
+export const INTRO_RELEASE = "monument-campus-2026-09";
+export const INTRO_RELEASE_KEY = "plugu.intro.release";
 
 let splashShownThisRuntime = false;
 
@@ -30,18 +28,17 @@ export function shouldPlaySplash(): boolean {
   if (typeof window === "undefined") return false;
   if (splashShownThisRuntime) return false;
   try {
-    if (window.sessionStorage.getItem(SPLASH_PLAYED_KEY)) return false;
-  } catch {}
-  const recent = Number(get(SPLASH_RECENT_KEY) ?? 0);
-  if (recent && Date.now() - recent < MULTI_TAB_WINDOW_MS) return false;
-  return true;
+    return window.localStorage.getItem(INTRO_RELEASE_KEY) !== INTRO_RELEASE;
+  } catch {
+    // If persistence is unavailable, skip rather than replaying every launch.
+    return false;
+  }
 }
 
 export function markSplashPlayed() {
   if (typeof window === "undefined") return;
   splashShownThisRuntime = true;
-  try { window.sessionStorage.setItem(SPLASH_PLAYED_KEY, "1"); } catch {}
-  set(SPLASH_RECENT_KEY, String(Date.now()));
+  set(INTRO_RELEASE_KEY, INTRO_RELEASE);
 }
 
 /* — Onboarding slides —
