@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, Star, History,
+  School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, History,
   Building2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
