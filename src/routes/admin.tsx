@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ShieldCheck, Users, Flag, ScrollText, Search, Check, X, Ban, Trash2, Loader2,
-  School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, Star, History,
+  School as SchoolIcon, AlertTriangle, ShieldAlert, ClipboardList, BadgePercent, History,
   Building2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -787,7 +787,7 @@ function PromosPanel() {
           {busy ? "Creating…" : "Create code"}
         </button>
         <p className="mt-2 text-[10px] text-muted-foreground">
-          One redemption per account is enforced automatically. Codes apply to seller subscriptions at checkout.
+          One redemption per account is enforced automatically. Codes apply to marketplace orders for real-world goods and services.
         </p>
       </div>
 
@@ -841,12 +841,11 @@ function PromosPanel() {
         loading={redemptions.isPending}
       />
 
-      <KingPinTargeting />
     </>
   );
 }
 
-/** Append-only audit trail: who redeemed which promo code, on what plan,
+/** Append-only audit trail: who redeemed which promo code, on what order,
  *  for how much, and when. Redemptions are written server-side at checkout
  *  verification and cannot be edited or deleted by anyone (RLS). */
 function PromoAuditLog({ redemptions, codes, loading }: {
@@ -881,7 +880,7 @@ function PromoAuditLog({ redemptions, codes, loading }: {
         <History className="h-3.5 w-3.5 text-primary" /> Redemption audit log
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        Every promo code redemption — who applied it, what plan was purchased, and the exact
+        Every promo code redemption — who applied it, what it applied to, and the exact
         amounts. Entries are written server-side at payment and cannot be edited or deleted.
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
@@ -889,7 +888,7 @@ function PromoAuditLog({ redemptions, codes, loading }: {
         {totalSaved > 0 ? ` · $${(totalSaved / 100).toFixed(2)} total discounts given` : ""}
       </p>
       <div className="mt-3">
-        <SearchBar value={term} onChange={setTerm} placeholder="Search code, user, plan, or session" />
+        <SearchBar value={term} onChange={setTerm} placeholder="Search code, user, or session" />
       </div>
       {loading ? (
         <Loading />
@@ -927,81 +926,6 @@ function PromoAuditLog({ redemptions, codes, loading }: {
               </li>
             );
           })}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-/** KingPin sellers are eligible for expanded visibility — set who sees their promotion. */
-function KingPinTargeting() {
-  const qc = useQueryClient();
-  const subs = useQuery({
-    queryKey: ["admin-paid-subs"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("seller_subscriptions")
-        .select("id, user_id, plan_code, status, promo_scope, current_period_end")
-        .in("plan_code", ["pro", "kingpin"])
-        .eq("status", "active");
-      if (error) throw error;
-      return (data ?? []) as unknown as {
-        id: string; user_id: string; plan_code: string; promo_scope: string; current_period_end: string | null;
-      }[];
-    },
-  });
-  const users = useAdminDirectory();
-
-  async function setScope(id: string, scope: string) {
-    const { error } = await supabase.from("seller_subscriptions").update({ promo_scope: scope }).eq("id", id);
-    if (error) {
-      toast.error("Couldn't update targeting", { description: friendlyError(error) });
-      return;
-    }
-    qc.invalidateQueries({ queryKey: ["admin-paid-subs"] });
-    toast.success("Targeting updated");
-  }
-
-  const nameOf = new Map((users.data ?? []).map((u) => [u.id, u.display_name ?? u.username ?? u.id.slice(0, 8)]));
-
-  return (
-    <section className="mt-5 rounded-2xl border border-border bg-card p-4">
-      <p className="text-xs font-semibold flex items-center gap-1.5">
-        <Star className="h-3.5 w-3.5 text-primary" /> Featured promotion targeting
-      </p>
-      <p className="mt-1 text-[11px] text-muted-foreground">
-        KingPin sellers are eligible for expanded visibility. Verified Pro sellers are always featured on their own campus.
-      </p>
-      {subs.isPending ? (
-        <Loading />
-      ) : (subs.data ?? []).length === 0 ? (
-        <Empty text="No active Pro or KingPin subscriptions yet." />
-      ) : (
-        <ul className="mt-3 space-y-2">
-          {(subs.data ?? []).map((s) => (
-            <li key={s.id} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{nameOf.get(s.user_id) ?? s.user_id.slice(0, 8)}</p>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {s.plan_code}
-                  {s.current_period_end ? ` · until ${new Date(s.current_period_end).toLocaleDateString()}` : ""}
-                </p>
-              </div>
-              <select
-                value={s.promo_scope}
-                disabled={s.plan_code !== "kingpin"}
-                onChange={(e) => setScope(s.id, e.target.value)}
-                aria-label="Promotion scope"
-                className="rounded-xl border border-border bg-card px-2 py-1.5 text-xs disabled:opacity-50"
-              >
-                <option value="campus">Campus</option>
-                <option value="nearby">Nearby campuses</option>
-                <option value="state">Statewide</option>
-                <option value="regional">Regional</option>
-                <option value="national">National</option>
-              </select>
-            </li>
-          ))}
         </ul>
       )}
     </section>

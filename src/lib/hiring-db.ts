@@ -315,7 +315,7 @@ export async function fetchApplicants(opportunityId?: string): Promise<Applicant
   // cannot embed the profile row through the application table.
   const ids = Array.from(new Set(rows.map((r) => r.student_user_id)));
   const { data: profs } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select("id,username,display_name,full_name,avatar_url,school_name,major,rating_avg,rating_count,verification_status")
     .in("id", ids);
   const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
@@ -385,13 +385,13 @@ export async function searchStudentPlugs(opts: {
   minRating?: number;
 }): Promise<StudentPlug[]> {
   let query = supabase
-    .from("profiles")
+    .from("public_profiles")
     .select(
       "id,username,display_name,full_name,avatar_url,school_name,major,bio,open_to_work_note,rating_avg,rating_count,completed_transactions,verification_status",
     )
     .eq("open_to_work", true)
     .eq("account_type", "student")
-    .eq("is_suspended", false)
+    
     .order("rating_avg", { ascending: false })
     .limit(60);
   if (opts.school?.trim()) query = query.ilike("school_name", `%${opts.school.trim()}%`);

@@ -32,8 +32,8 @@ function Refunds() {
         <Section title="Consequences of violations">
           Repeated violations can result in listing removal, account suspension, or permanent removal from PlugU.
         </Section>
-        <Section title="Subscriptions">
-          Seller plans and boosts are billed on the cycle you select and are non-refundable except where required by law. See <Link to="/terms" className="underline text-accent">Terms of Service</Link>.
+        <Section title="No paid plans">
+          PlugU sells no memberships, subscriptions, digital upgrades or paid promotion. Every app feature is free for verified students, so there is nothing to cancel or refund. The only payments are buyer-to-seller payments for real-world goods and services. See <Link to="/terms" className="underline text-accent">Terms of Service</Link>.
         </Section>
       </article>
     </AppShell>
