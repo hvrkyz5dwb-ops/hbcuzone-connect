@@ -576,8 +576,11 @@ img, video { content-visibility: auto; }
 .intro-stage { background: var(--background); }
 .intro-video,
 .intro-poster {
-  object-fit: contain;
-  object-position: center;
+  /* Fill the viewport on every iPhone/iPad aspect without stretching the
+     image or leaving black letterbox bars. The monument is centred slightly
+     high so the pedestal crop never removes the carved PLUGU lettering. */
+  object-fit: cover;
+  object-position: center 42%;
   background: var(--background);
 }
 .intro-poster { opacity: 1; }

@@ -47,7 +47,7 @@ export const Route = createFileRoute("/")({
 function EntryLoading() {
   const [slow, setSlow] = useState(false);
   useEffect(() => {
-    const t = window.setTimeout(() => setSlow(true), 5000);
+    const t = window.setTimeout(() => setSlow(true), 2500);
     return () => window.clearTimeout(t);
   }, []);
   return (
@@ -64,14 +64,30 @@ function EntryLoading() {
           {slow ? "Still connecting…" : "Starting up…"}
         </p>
         {slow && (
-          <Link
-            to="/auth"
-            search={{ next: "/", mode: "" } as never}
-            className="tap mt-6 inline-flex h-11 items-center justify-center rounded-full px-7 text-sm font-bold text-black"
-            style={{ background: "var(--gradient-bronze)" }}
-          >
-            Continue to sign in
-          </Link>
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <Link
+              to="/auth"
+              search={{ next: "/", mode: "" } as never}
+              aria-label="Continue to sign in or create an account"
+              className="tap inline-flex h-11 items-center justify-center rounded-full px-7 text-sm font-bold text-black"
+              style={{ background: "var(--gradient-bronze)" }}
+            >
+              Continue
+            </Link>
+            <button
+              type="button"
+              aria-label="Try loading PlugU again"
+              onClick={() => window.location.reload()}
+              className="tap inline-flex h-11 items-center justify-center rounded-full border border-border px-7 text-sm font-semibold text-muted-foreground"
+            >
+              Try again
+            </button>
+            <div className="mt-1 flex items-center gap-4 text-[11px] text-muted-foreground underline">
+              <Link to="/terms" aria-label="Read the Terms of Use">Terms</Link>
+              <Link to="/privacy" aria-label="Read the Privacy Policy">Privacy</Link>
+              <Link to="/support" aria-label="Get support">Support</Link>
+            </div>
+          </div>
         )}
       </div>
     </div>
