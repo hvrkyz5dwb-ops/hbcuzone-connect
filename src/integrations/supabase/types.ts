@@ -3007,15 +3007,19 @@ export type Database = {
       }
       public_profiles: {
         Row: {
+          account_type: string | null
           avatar_url: string | null
           bio: string | null
           completed_transactions: number | null
           created_at: string | null
           display_name: string | null
+          full_name: string | null
           graduation_year: number | null
           id: string | null
           is_hbcu_student: boolean | null
           major: string | null
+          open_to_work: boolean | null
+          open_to_work_note: string | null
           rating_avg: number | null
           rating_count: number | null
           school_name: string | null
@@ -3025,15 +3029,19 @@ export type Database = {
           year: string | null
         }
         Insert: {
+          account_type?: string | null
           avatar_url?: string | null
           bio?: string | null
           completed_transactions?: number | null
           created_at?: string | null
           display_name?: never
+          full_name?: string | null
           graduation_year?: number | null
           id?: string | null
           is_hbcu_student?: boolean | null
           major?: string | null
+          open_to_work?: boolean | null
+          open_to_work_note?: string | null
           rating_avg?: number | null
           rating_count?: number | null
           school_name?: string | null
@@ -3043,15 +3051,19 @@ export type Database = {
           year?: string | null
         }
         Update: {
+          account_type?: string | null
           avatar_url?: string | null
           bio?: string | null
           completed_transactions?: number | null
           created_at?: string | null
           display_name?: never
+          full_name?: string | null
           graduation_year?: number | null
           id?: string | null
           is_hbcu_student?: boolean | null
           major?: string | null
+          open_to_work?: boolean | null
+          open_to_work_note?: string | null
           rating_avg?: number | null
           rating_count?: number | null
           school_name?: string | null
