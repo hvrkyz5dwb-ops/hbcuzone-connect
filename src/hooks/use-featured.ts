@@ -1,8 +1,7 @@
-// Featured "Businesses & Events You Should Know" promotions for the
-// Home carousel. Served by the featured_promotions RPC (security
-// definer): Pro sellers appear to students on their own campus,
-// KingPin sellers appear per their admin-set targeting scope, and
-// featured/boosted campus events appear to their campus audience.
+// Featured "Businesses & Events You Should Know" spots for the Home
+// carousel. Served by the featured_promotions RPC (security definer).
+// Placement is earned through verification, reviews and completed sales —
+// it cannot be purchased, and PlugU sells no promotion of any kind.
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./use-profile";
