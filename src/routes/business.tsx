@@ -481,7 +481,7 @@ function BusinessCenter() {
               <p className="text-sm font-semibold">Daily revenue</p>
               <div className="mt-3"><Bars data={revenueDays} /></div>
               <Link to="/payment-history" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                Payout history <ArrowRight className="h-3 w-3" />
+                Order receipts <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
           </div>
