@@ -38,13 +38,17 @@ export function ContentMenu({
   const refreshBlocklist = useRefreshBlocklist();
   const isSelf = !!authorUserId && authorUserId === session?.user?.id;
 
+  // The sheet is portalled to <body>, so it is NOT inside `ref`. A document
+  // mousedown listener therefore closed the sheet before the pointer-up could
+  // land on Report/Block, making both unreachable. The backdrop's own onClick
+  // dismisses the sheet; Escape covers keyboards.
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
   const doHide = () => {
