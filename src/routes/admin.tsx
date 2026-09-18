@@ -931,4 +931,3 @@ function PromoAuditLog({ redemptions, codes, loading }: {
     </section>
   );
 }
-}
