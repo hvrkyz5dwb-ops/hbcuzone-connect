@@ -40,3 +40,9 @@ ios/DerivedData/
 android/.gradle/
 android/build/
 android/app/build/
+
+# Environment files — never commit real values.
+# Lovable injects deployment variables at build/runtime; .env is local only.
+.env
+.env.*
+!.env.example

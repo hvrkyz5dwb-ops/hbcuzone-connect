@@ -583,6 +583,18 @@ img, video { content-visibility: auto; }
   object-position: center 42%;
   background: var(--background);
 }
+/* Tall phone screens crop the sides hardest, so hold the frame slightly
+   higher to keep the monument head and charger cord in view. */
+@media (max-aspect-ratio: 3 / 4) {
+  .intro-video,
+  .intro-poster { object-position: center 38%; }
+}
+/* Wide iPad landscape crops top and bottom instead: centre the frame so the
+   carved PLUGU pedestal and the students around it both stay visible. */
+@media (min-aspect-ratio: 4 / 3) {
+  .intro-video,
+  .intro-poster { object-position: center 50%; }
+}
 .intro-poster { opacity: 1; }
 .intro-video { opacity: 1; }
 .intro-shade {

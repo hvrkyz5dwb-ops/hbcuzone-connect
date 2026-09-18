@@ -556,15 +556,19 @@ function Check({
   checked, onChange, children,
 }: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
   return (
-    <label className="flex items-start gap-2 cursor-pointer">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        aria-label="I agree to the Terms of Use and Privacy Policy"
-        className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--plugu-gold)]"
-      />
-      <span>{children}</span>
+    // The box itself stays visually small; the surrounding square gives it a
+    // full 44x44pt touch target (Apple HIG / Guideline 4).
+    <label className="flex min-h-[44px] items-start gap-1 cursor-pointer">
+      <span className="grid h-11 w-11 shrink-0 place-items-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          aria-label="I agree to the Terms of Use and Privacy Policy"
+          className="h-5 w-5 shrink-0 accent-[var(--plugu-gold)]"
+        />
+      </span>
+      <span className="self-center">{children}</span>
     </label>
   );
 }

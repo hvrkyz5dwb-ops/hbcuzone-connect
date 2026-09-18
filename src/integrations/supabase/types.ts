@@ -3236,6 +3236,7 @@ export type Database = {
       }
       mark_all_notifications_read: { Args: never; Returns: number }
       mark_notification_read: { Args: { _id: string }; Returns: undefined }
+      my_profile_email: { Args: never; Returns: string }
       seller_plan_ranks: {
         Args: { _seller_ids: string[] }
         Returns: {

@@ -110,7 +110,7 @@ export function SplashScreen({ onDone }: { onDone?: () => void }) {
 
         <div className="intro-shade absolute inset-0" aria-hidden="true" />
         <div className="intro-title absolute inset-x-5 text-center" aria-live="off">
-          <p>YOU'VE BEEN PLUGGED IN.</p>
+          <p>YOU&rsquo;VE BEEN PLUGGED IN</p>
         </div>
       </div>
 
