@@ -224,7 +224,7 @@ function SellerOnboarding() {
             <>
               <Field label="Business name">
                 <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                  placeholder="e.g. Kingpin Cuts" maxLength={60}
+                  placeholder="e.g. Yard Fresh Cuts" maxLength={60}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
               </Field>
               <Field label="Category">

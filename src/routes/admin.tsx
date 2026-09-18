@@ -787,7 +787,7 @@ function PromosPanel() {
           {busy ? "Creating…" : "Create code"}
         </button>
         <p className="mt-2 text-[10px] text-muted-foreground">
-          One redemption per account is enforced automatically. Codes apply to seller subscriptions at checkout.
+          One redemption per account is enforced automatically. Codes apply to marketplace orders for real-world goods and services.
         </p>
       </div>
 
@@ -841,12 +841,11 @@ function PromosPanel() {
         loading={redemptions.isPending}
       />
 
-      <KingPinTargeting />
     </>
   );
 }
 
-/** Append-only audit trail: who redeemed which promo code, on what plan,
+/** Append-only audit trail: who redeemed which promo code, on what order,
  *  for how much, and when. Redemptions are written server-side at checkout
  *  verification and cannot be edited or deleted by anyone (RLS). */
 function PromoAuditLog({ redemptions, codes, loading }: {
@@ -881,7 +880,7 @@ function PromoAuditLog({ redemptions, codes, loading }: {
         <History className="h-3.5 w-3.5 text-primary" /> Redemption audit log
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        Every promo code redemption — who applied it, what plan was purchased, and the exact
+        Every promo code redemption — who applied it, what it applied to, and the exact
         amounts. Entries are written server-side at payment and cannot be edited or deleted.
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
@@ -889,7 +888,7 @@ function PromoAuditLog({ redemptions, codes, loading }: {
         {totalSaved > 0 ? ` · $${(totalSaved / 100).toFixed(2)} total discounts given` : ""}
       </p>
       <div className="mt-3">
-        <SearchBar value={term} onChange={setTerm} placeholder="Search code, user, plan, or session" />
+        <SearchBar value={term} onChange={setTerm} placeholder="Search code, user, or session" />
       </div>
       {loading ? (
         <Loading />

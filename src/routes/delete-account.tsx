@@ -75,7 +75,7 @@ function DeleteAccount() {
             <AlertTriangle className="h-4 w-4" /> Before you delete
           </p>
           <ul className="mt-2 list-disc pl-5 space-y-1 text-xs text-rose-100/85">
-            <li>Cancel any active seller subscription from Manage Plan.</li>
+            <li>Let buyers know if you have listings or bookings still open.</li>
             <li>Complete or refund any open orders and bookings.</li>
             <li>Download anything you want to keep (messages, receipts).</li>
           </ul>

@@ -42,8 +42,8 @@ function AwardsPage() {
             PlugU awards, grants and scholarships are sponsored and administered solely by PlugU.
             Apple is not a sponsor of, and is not involved in, any PlugU award, grant, scholarship or
             contest in any manner. Open to verified students at participating U.S. colleges who are 18
-            or older; no purchase or payment of any kind is necessary to enter or win, and paying for a
-            membership or boost does not increase your chances of winning. Void where prohibited.
+            or older; no purchase or payment of any kind is necessary to enter or win. PlugU sells no
+            memberships, upgrades or paid promotion. Void where prohibited.
             Winners are selected from public campus activity scores and notified in-app.
           </p>
         </div>
