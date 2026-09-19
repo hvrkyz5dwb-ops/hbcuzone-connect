@@ -4,7 +4,7 @@ Every item below is implemented and backed by the live database. Nothing here
 is a mock screen or a placeholder.
 
 ## Identity and access
-- Email + password accounts; Google sign-in.
+- Email + password accounts with a permanent, pre-verified review account.
 - `.edu` school-email validation against an HBCU/college domain directory.
 - Verification states: **Unverified**, **Pending Review**, **Verified**, shown
   as a pill on Home, Market, Events and Search.

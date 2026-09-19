@@ -22,6 +22,12 @@ the build numbering used for App Store submissions.
   students whose school does not issue `.edu` addresses.
 - Added `docs/app-review` with originality, feature, walkthrough, asset and
   change documentation.
+- Synchronized the checked-in Xcode Capacitor configuration with the release
+  source: 350 ms auto-hiding native splash, native keyboard resize, and light
+  status-bar content on PlugU's dark chrome.
+- Removed stale paid-tier/template wording from repository documentation and
+  corrected the profile so Verified Student marks appear only for verified
+  accounts.
 
 ## Build 10 — Guidelines 2.2, 4, 5.1.1(iv), 2.1(b)
 

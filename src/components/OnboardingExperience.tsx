@@ -374,7 +374,7 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
               boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
             }}
           >
-            {last ? "Next — create your account" : "Next"}
+            {last ? "Continue to sign in or create account" : "Next"}
             <ArrowRight className="h-4 w-4" />
           </button>
           <p className="text-center text-[11px] text-muted-foreground mt-3">

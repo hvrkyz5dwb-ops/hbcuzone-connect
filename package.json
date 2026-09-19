@@ -13,7 +13,8 @@
     "ios:sync": "npx cap sync ios",
     "ios:open": "npx cap open ios",
     "cap:sync": "npx cap sync",
-    "ios:bootstrap": "npm install && npx cap sync ios"
+    "ios:bootstrap": "npm install && npx cap sync ios",
+    "verify:ios": "node scripts/verify-ios-release.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

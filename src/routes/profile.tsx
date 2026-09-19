@@ -1,6 +1,6 @@
 import { Ban } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Settings, Heart, ListOrdered, CreditCard, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap, Gift } from "lucide-react";
+import { Settings, Heart, ListOrdered, ChevronRight, ShieldAlert, Sparkles, Receipt, ShieldCheck, Store, Briefcase, Scale, LogOut, Pencil, Star, ShoppingBag, GraduationCap, Gift } from "lucide-react";
 import { VerifiedStudentBadge } from "@/components/VerifiedStudentBadge";
 import { PlugScoreBadge } from "@/components/PlugScoreBadge";
 import { AppShell } from "@/components/AppShell";
@@ -87,8 +87,8 @@ function ProfileInner() {
             : <img src={pluguLogo} alt="avatar" className="h-16 w-16 object-contain" />}
         </div>
         <h1 className="mt-3 text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
-          {displayName} <Crown className="h-5 w-5 text-accent" />
-          <VerifiedStudentBadge size="xs" iconOnly />
+          {displayName}
+          {profile?.verification_status === "verified" && <VerifiedStudentBadge size="xs" iconOnly />}
         </h1>
         {handle && <p className="text-xs text-muted-foreground">{handle}</p>}
         <p className="text-sm text-muted-foreground">{subline}</p>

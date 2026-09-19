@@ -48,7 +48,7 @@ const POOLS: Record<DailySectionKey, { headline: string; body: string; tag?: str
     { headline: "Talladega freshman wins pitch competition", body: "Community laundry pickup — took home $5,000 in seed money.", tag: "Pitch" },
   ],
   events: [
-    { headline: "Homecoming Yardfest — Friday, 4pm", body: "Marching band, food trucks, KingPin lounge on the quad.", tag: "Yardfest" },
+    { headline: "Homecoming Yardfest — Friday, 4pm", body: "Marching band, student vendors and food trucks on the quad.", tag: "Yardfest" },
     { headline: "Kickback @ The Punchout — Sat 9pm", body: "PlugU verified vendors + free entry with your .edu.", tag: "Nightlife" },
     { headline: "Alumni x Student Mixer — Sunday brunch", body: "Bring one question you actually want answered.", tag: "Networking" },
     { headline: "Study Marathon — finals countdown", body: "24-hour library takeover with food, coffee, and free tutoring.", tag: "Finals" },

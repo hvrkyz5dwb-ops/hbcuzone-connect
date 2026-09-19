@@ -10,7 +10,7 @@ with your Apple Developer account, archive, and upload to App Store Connect.
 | --- | --- |
 | Bundle ID | `app.lovable.plugu` |
 | App name | PlugU |
-| Version / build | `1.0` / `1` (Xcode → General) |
+| Version / build | Read from Xcode (`MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`) |
 | Deployment target | iOS 15.0 |
 | Orientation | Portrait only (iPhone) |
 | Appearance | Forced dark, light status bar, PlugU black `#0a0a0a` |
@@ -18,7 +18,7 @@ with your Apple Developer account, archive, and upload to App Store Connect.
 | Launch screen | Black with centered PlugU mark |
 | Plugins | App, Haptics, Keyboard, Splash Screen, Status Bar (Swift Package Manager) |
 | Encryption | `ITSAppUsesNonExemptEncryption = false` (skips export-compliance prompts) |
-| Privacy strings | Camera, Photos, Photo add, Location (when in use), Microphone |
+| Privacy strings | Camera, Photos, Photo add, Location (when in use) |
 | Content | Loads the live PlugU build at `https://hbcuzone-connect.lovable.app` |
 | Offline | Bundled branded fallback page (`native/www`) with auto-retry |
 
@@ -75,13 +75,9 @@ Ship a release build only with the production URL.
   you have reporting and blocking (PlugU has both: report dialogs and blocks).
 - **Data safety / privacy nutrition labels:** email, name, campus, photos,
   approximate location, purchase history, user content, identifiers.
-- **Payments (guideline 3.1.1 / 3.1.3):** PlugU sells real-world goods and
-  services between students, which is exempt from in-app purchase. Seller
-  subscriptions (Verified Pro / KingPin) unlock selling tools inside the app —
-  Apple may require in-app purchase for those. Safest launch path: keep the
-  marketplace transactions on Stripe and either (a) gate subscription purchases
-  behind StoreKit, or (b) hide subscription upsell UI on iOS for v1 and enable
-  it after review feedback.
+- **Payments (guideline 3.1.1 / 3.1.3):** PlugU only processes payments for
+  physical goods and real-world services between students. PlugU has no paid
+  memberships, digital upgrades, or paid visibility products in this release.
 - **Guideline 4.2 (minimum functionality):** the shell is not a plain website
   wrapper — it uses native status bar, splash, haptics, keyboard insets, and
   hardware back handling. Mention this in App Review Notes.

@@ -53,12 +53,15 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     StatusBar: {
-      style: "DARK",
+      // Light foreground content stays legible on PlugU's black chrome.
+      style: "LIGHT",
       backgroundColor: "#0a0a0a",
       overlaysWebView: true,
     },
     Keyboard: {
-      resize: "none",
+      // Let WKWebView resize above the software keyboard. `none` can leave
+      // the auth submit button hidden on iPhone/iPad during App Review.
+      resize: "native",
       style: "DARK",
       resizeOnFullScreen: true,
     },
