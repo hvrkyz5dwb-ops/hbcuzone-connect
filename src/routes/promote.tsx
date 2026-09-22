@@ -184,7 +184,7 @@ function PromotePage() {
 
         <button
           onClick={submit}
-          disabled={!canSubmit}
+          disabled={!canSubmit || saving}
           className="tap w-full py-3.5 rounded-2xl text-sm font-bold text-primary-foreground disabled:opacity-40 mb-8"
           style={{ background: "var(--gradient-bronze)", boxShadow: "var(--shadow-glow)" }}
         >

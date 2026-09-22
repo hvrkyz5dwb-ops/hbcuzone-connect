@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { ContentMenu } from "@/components/ContentMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { CampusFeed } from "@/components/CampusFeed";
 import { CommunityBoard } from "@/components/CommunityBoard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { LoadingGrid, EmptyState } from "@/components/EmptyState";
@@ -124,7 +123,6 @@ function Market() {
 
       {tab === "posts" ? (
         <div className="pb-6">
-          <CampusFeed />
           <CommunityBoard />
         </div>
       ) : (
