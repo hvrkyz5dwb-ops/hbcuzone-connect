@@ -5,6 +5,8 @@ import { hideCommunityPost, isPostHidden, muteAuthor, isAuthorMuted, isContentHi
 import { screenBeforePublish } from "@/lib/screen";
 import { toast } from "sonner";
 import { useSchool } from "@/hooks/use-school";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { useProfile } from "@/hooks/use-profile";
 import {
   addCommunityPost,
@@ -53,6 +55,7 @@ const MAX_COMMENT = 140;
 
 export function CommunityBoard() {
   const school = useSchool();
+  const { session } = useSession();
   const { profile } = useProfile();
   const authorName = useMemo(
     () => profile?.full_name?.trim() || profile?.email?.split("@")[0] || "Plug",
@@ -111,6 +114,7 @@ export function CommunityBoard() {
   }, [school.name, safetyTick]);
 
   const submit = async () => {
+    if (!session) { requestAuthentication(); return; }
     const t = text.trim();
     if (!t) return;
     if (t.length > MAX_POST) { toast.error(`Keep it under ${MAX_POST} characters`); return; }
@@ -121,12 +125,18 @@ export function CommunityBoard() {
       toast.error(`Post blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
-    addCommunityPost({ school: school.name, author: authorName, text: t, visibility, tag });
+    try {
+      await addCommunityPost({ school: school.name, schoolId: profile?.school_id ?? null, author: authorName, text: t, visibility, tag });
+    } catch {
+      toast.error("Couldn't post", { description: "Check your connection and try again." });
+      return;
+    }
     setText("");
     toast.success(visibility === "public" ? "Posted publicly" : "Posted to your campus");
   };
 
   const submitComment = async (postId: string) => {
+    if (!session) { requestAuthentication(); return; }
     const t = (commentDrafts[postId] || "").trim();
     if (!t) return;
     if (t.length > MAX_COMMENT) { toast.error(`Comment under ${MAX_COMMENT} chars`); return; }
@@ -137,7 +147,12 @@ export function CommunityBoard() {
       toast.error(`Comment blocked — ${e.category ?? "Community Guidelines"}`, { description: e.message });
       return;
     }
-    addComment(postId, authorName, t);
+    try {
+      await addComment(postId, authorName, t);
+    } catch {
+      toast.error("Couldn't post that reply", { description: "Check your connection and try again." });
+      return;
+    }
     setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
   };
 
