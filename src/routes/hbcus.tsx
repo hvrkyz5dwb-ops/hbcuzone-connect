@@ -330,7 +330,7 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
               </button>
               {fallbackReason && (
                 <span className="text-[10px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 60%, transparent)" }}>
-                  Preview mode · "{fallbackReason}" not in directory yet
+                  Showing national HBCU information · “{fallbackReason}” is not in the directory
                 </span>
               )}
             </div>
@@ -367,7 +367,7 @@ function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string;
         <section className="px-5 pt-4 pb-6 view-enter hbcus-rise" key={section}>
         {fallbackReason && (
           <div className="mb-4 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-[11px]">
-            <p className="text-amber-200 font-semibold">Preview mode</p>
+            <p className="text-amber-200 font-semibold">National HBCU information</p>
             <p className="text-amber-100/80 mt-0.5">
               We couldn't match <span className="text-foreground">{fallbackReason}</span> to an HBCU yet — showing national HBC"US" content sampled from {active}.
               Pick a specific school from the Schools tab to personalize.
@@ -564,10 +564,10 @@ function VerificationWall({
             </button>
             {previewSchool && (
               <button
-                onClick={() => { onVerified({ method: "school", school: schoolProfiles[0].name }); toast.success("Preview mode enabled"); }}
+                onClick={() => { onVerified({ method: "school", school: schoolProfiles[0].name }); toast.success("HBCU directory opened"); }}
                 className="w-full py-2.5 rounded-2xl bg-card border border-border text-xs tap"
               >
-                Browse HBC"US" in preview mode
+                Explore the HBCU directory
               </button>
             )}
             <p className="text-[10px] text-muted-foreground text-center">
@@ -1693,17 +1693,7 @@ function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
           <div key={s.name} className="relative">
             {(() => {
               const status = launchStatusFor(schoolSlug(s.name));
-              if (status === "coming-soon") {
-                return (
-                  <Link
-                    to="/launch/$slug"
-                    params={{ slug: schoolSlug(s.name) }}
-                    className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-1 rounded-full bg-background/85 backdrop-blur border border-primary/50 text-primary tap"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary plugu-pulse" /> Coming Soon
-                  </Link>
-                );
-              }
+              if (status === "coming-soon") return null;
               return null;
             })()}
             <Link
