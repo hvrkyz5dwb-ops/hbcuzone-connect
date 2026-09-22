@@ -84,17 +84,17 @@ function ProtectedCheckout() {
 
   if (isPending) {
     return (
-      <AppShell title="CHECKOUT">
-        <PageLoader message="Preparing checkout…" />
+      <AppShell title="LISTING">
+        <PageLoader message="Loading listing…" />
       </AppShell>
     );
   }
 
   if (isError) {
     return (
-      <AppShell title="CHECKOUT">
+      <AppShell title="LISTING">
         <ErrorState
-          title="Checkout didn't load"
+          title="Listing didn't load"
           description="We couldn't reach this listing. Check your connection and try again."
           onRetry={() => void refetch()}
         />
@@ -104,7 +104,7 @@ function ProtectedCheckout() {
 
   if (!listing) {
     return (
-      <AppShell title="CHECKOUT">
+      <AppShell title="LISTING">
         <section className="px-5 pt-10 text-center">
           <p className="text-sm text-muted-foreground">This listing is no longer available.</p>
           <Link to="/market" className="mt-4 inline-block text-xs text-accent">← Back to market</Link>
@@ -261,13 +261,13 @@ function ProtectedCheckout() {
               {isService ? "Service" : "Product"}
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
+          {paymentsLive && <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
             <Row label="Item" value={centsToDollars(subtotalCents)} />
             <Row label="Platform fee (8%)" value={centsToDollars(preview.platform)} muted />
             <Row label="Processing (2.9% + $0.30)" value={centsToDollars(preview.processing)} muted />
             <Row label="Total" value={centsToDollars(preview.total)} bold />
             <p className="text-[10px] text-muted-foreground pt-1">Final totals confirmed server-side at checkout.</p>
-          </div>
+          </div>}
         </div>
 
         <section className="mt-4 rounded-2xl border border-border bg-card p-4">
@@ -333,7 +333,7 @@ function ProtectedCheckout() {
         )}
 
         {/* Protected by PlugU */}
-        <div
+        {paymentsLive && <div
           className="mt-4 rounded-2xl p-4"
           style={{
             background: "linear-gradient(160deg, rgba(28,28,28,0.9), rgba(10,10,10,0.9))",
@@ -351,7 +351,7 @@ function ProtectedCheckout() {
             <li className="flex items-center gap-2"><Lock className="h-3.5 w-3.5 text-accent" /> Funds held in escrow until you confirm</li>
             <li className="flex items-center gap-2"><RefreshCw className="h-3.5 w-3.5 text-accent" /> 48-hour refund window after delivery</li>
           </ul>
-        </div>
+        </div>}
 
         {/* Payment methods */}
         {paymentsLive && <>

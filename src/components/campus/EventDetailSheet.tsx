@@ -8,6 +8,7 @@ import { useSession } from "@/hooks/use-session";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { useEventComments, useEventMutations, useRsvpToggle } from "@/hooks/use-campus";
 import { calendarUrl, categoryMeta, type CampusEvent } from "@/lib/campus-db";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -79,10 +80,10 @@ export function EventDetailSheet({
 
           <div className="mt-4 flex gap-2">
             <button
-              onClick={() => rsvp.mutate(
+               onClick={() => user ? rsvp.mutate(
                 { eventId: event.id, going: !going },
                 { onError: (e) => toast.error((e as Error).message) },
-              )}
+               ) : requestAuthentication()}
               disabled={rsvp.isPending}
               className={`tap flex-1 py-3 rounded-2xl text-sm font-semibold transition-colors ${
                 going ? "bg-secondary text-foreground border border-border" : "text-primary-foreground"
@@ -116,7 +117,7 @@ export function EventDetailSheet({
                 {remove.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             ) : (
-              <button onClick={() => setReportOpen(true)} aria-label="Report event" className="tap h-12 w-12 grid place-items-center rounded-2xl border border-border bg-secondary">
+               <button onClick={() => user ? setReportOpen(true) : requestAuthentication()} aria-label="Report event" className="tap h-12 w-12 grid place-items-center rounded-2xl border border-border bg-secondary">
                 <Flag className="h-4 w-4" />
               </button>
             )}
@@ -194,6 +195,7 @@ export function EventDetailSheet({
             className="mt-3 flex gap-2"
             onSubmit={(e) => {
               e.preventDefault();
+               if (!user) { requestAuthentication(); return; }
               const v = body.trim();
               if (v.length < 2) return;
               comments.post.mutate(v, {

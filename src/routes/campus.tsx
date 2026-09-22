@@ -447,6 +447,7 @@ function MapSection({ events, onOpen }: { events: CampusEvent[]; onOpen: (id: st
 /* ---------------- Orgs ---------------- */
 
 function OrgsSection({ query }: { query: string }) {
+  const { session } = useSession();
   const { data: orgs = [], isLoading } = useOrgs();
   const follows = useOrgFollows();
   const followSet = new Set(follows.data ?? []);
@@ -488,7 +489,7 @@ function OrgsSection({ query }: { query: string }) {
               {o.contact_email && <p className="text-[10px] text-muted-foreground truncate">{o.contact_email}</p>}
             </div>
             <button
-              onClick={() => follows.toggle.mutate({ orgId: o.id, following: !following }, { onError: (e) => toast.error((e as Error).message) })}
+              onClick={() => session ? follows.toggle.mutate({ orgId: o.id, following: !following }, { onError: (e) => toast.error((e as Error).message) }) : requestAuthentication()}
               aria-pressed={following}
               className={`tap text-[11px] font-semibold rounded-full px-3 py-2 border ${
                 following ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border"

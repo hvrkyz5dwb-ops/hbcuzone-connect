@@ -77,12 +77,9 @@ function SearchPage() {
 
   // Filters
   const [school, setSchool] = useState(SCHOOLS[0]);
-  const [maxDistance, setMaxDistance] = useState(10);
   const [maxPrice, setMaxPrice] = useState(500);
   const [minRating, setMinRating] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [openNow, setOpenNow] = useState(false);
-  const [availability, setAvailability] = useState<"any" | "today" | "week">("any");
   const [sort, setSort] = useState(SORTS[0]);
   const marketplace = useMarketplace({ q: query || undefined, campus_scope: "all", limit: 60 });
 
@@ -166,7 +163,7 @@ function SearchPage() {
         <BrowseTab
           type={type} setType={setType}
           showFilters={showFilters}
-          filters={{ school, setSchool, maxDistance, setMaxDistance, maxPrice, setMaxPrice, minRating, setMinRating, verifiedOnly, setVerifiedOnly, openNow, setOpenNow, availability, setAvailability, sort, setSort }}
+          filters={{ school, setSchool, maxPrice, setMaxPrice, minRating, setMinRating, verifiedOnly, setVerifiedOnly, sort, setSort }}
           results={results}
         />
       ) : (
@@ -193,12 +190,9 @@ function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onCli
 
 type Filters = {
   school: string; setSchool: (v: string) => void;
-  maxDistance: number; setMaxDistance: (n: number) => void;
   maxPrice: number; setMaxPrice: (n: number) => void;
   minRating: number; setMinRating: (n: number) => void;
   verifiedOnly: boolean; setVerifiedOnly: (b: boolean) => void;
-  openNow: boolean; setOpenNow: (b: boolean) => void;
-  availability: "any" | "today" | "week"; setAvailability: (v: "any" | "today" | "week") => void;
   sort: string; setSort: (s: string) => void;
 };
 
@@ -305,23 +299,10 @@ function FiltersPanel({ f }: { f: Filters }) {
             {SCHOOLS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </Row>
-        <Slider label={`Distance: ${f.maxDistance} mi`} min={1} max={25} value={f.maxDistance} onChange={f.setMaxDistance} />
         <Slider label={`Max Price: $${f.maxPrice}`} min={5} max={500} step={5} value={f.maxPrice} onChange={f.setMaxPrice} />
         <Slider label={`Min Rating: ${f.minRating.toFixed(1)}★`} min={0} max={5} step={0.5} value={f.minRating} onChange={f.setMinRating} />
-        <Row label="Availability">
-          <div className="flex gap-1.5">
-            {(["any", "today", "week"] as const).map((a) => (
-              <button key={a} onClick={() => f.setAvailability(a)} className={`tap text-[11px] px-3 py-1.5 rounded-full border ${f.availability === a ? "bg-primary/15 border-primary/60 text-primary" : "border-border text-muted-foreground"}`}>
-                {a === "any" ? "Any" : a === "today" ? "Today" : "This week"}
-              </button>
-            ))}
-          </div>
-        </Row>
         <Row label="Verified Seller">
           <Toggle on={f.verifiedOnly} onChange={f.setVerifiedOnly} />
-        </Row>
-        <Row label="Open Now">
-          <Toggle on={f.openNow} onChange={f.setOpenNow} />
         </Row>
         <Row label="Sort">
           <select value={f.sort} onChange={(e) => f.setSort(e.target.value)} className="bg-secondary border border-border rounded-lg px-3 py-2 text-xs outline-none">
