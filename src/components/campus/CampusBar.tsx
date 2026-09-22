@@ -5,7 +5,7 @@
 //   1. Which HBCU campus the feed is showing.
 //   2. Whether this student is a Verified Student on that campus.
 //   3. How to explore another PlugU campus (same app, same account).
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, ChevronDown, Clock3, GraduationCap, ShieldAlert, X } from "lucide-react";
@@ -53,7 +53,7 @@ export function VerificationPill({ state, className = "" }: { state: Verificatio
   );
 }
 
-export function CampusBar({ subtitle }: { subtitle?: string }) {
+export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
   const { campusName, homeCampusName, exploring, setCampus, resetToHome } = useCampusScope();
   const state = useVerificationState();
   const [open, setOpen] = useState(false);
