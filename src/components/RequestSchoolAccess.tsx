@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 // Authenticated form that lets a signed-in student ask us to add their
 // school to the PlugU registry. Writes to public.school_access_requests
 // under RLS (requester_user_id = auth.uid()).
