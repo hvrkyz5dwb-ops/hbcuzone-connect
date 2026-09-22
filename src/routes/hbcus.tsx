@@ -139,7 +139,8 @@ function HbcusPage() {
       </AppShell>
     );
   }
-  if (!profile || !isHbcu || !verification.verified) {
+  if (!profile) return <HbcusApp />;
+  if (!isHbcu || !verification.verified) {
     return <NonHbcuGate school={school.name} domain={domain ?? undefined} />;
   }
   // Fallback: verified but school not in profiles → preview mode with default HBCU.
