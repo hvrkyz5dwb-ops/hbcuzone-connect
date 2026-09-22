@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import {
   Store, Package, Scissors, Image as ImageIcon, Tag, Calendar,
