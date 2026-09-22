@@ -33,13 +33,13 @@ requireCheck(
   "The iOS keyboard must resize the web view so auth controls remain reachable.",
 );
 requireCheck(
-  nativeConfig.plugins?.StatusBar?.style === "LIGHT",
-  "Use light status-bar content on PlugU's dark background.",
+  nativeConfig.plugins?.StatusBar?.style === "DARK",
+  "Use light status-bar content (Capacitor style DARK) on PlugU's dark background.",
 );
 requireCheck(
   sourceConfig.includes("launchShowDuration: 350") &&
     sourceConfig.includes('resize: "native"') &&
-    sourceConfig.includes('style: "LIGHT"'),
+    sourceConfig.includes('backgroundColor: "#0a0a0a"'),
   "capacitor.config.ts does not match the checked-in iOS release settings.",
 );
 requireCheck(

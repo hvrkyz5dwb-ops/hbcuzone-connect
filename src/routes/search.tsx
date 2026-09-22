@@ -122,7 +122,7 @@ function SearchPage() {
 
   return (
     <AppShell title="SEARCH">
-      <CampusBar subtitle="Results are scoped to this campus first" />
+      <CampusBar subtitle="Search covers every PlugU campus — filter by school below" />
       <section className="px-5 pt-4 sticky top-[64px] z-20 bg-background/85 backdrop-blur-xl pb-3 border-b border-border/50">
         <div className="flex items-center gap-2">
           <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">

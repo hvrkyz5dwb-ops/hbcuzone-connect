@@ -50,7 +50,10 @@ export type DiscoveryFilters = {
   q?: string;
   category?: string;              // category key, e.g. "hair"
   school_id?: string | null;
+  /** Every school row id that matches the browsed campus (some campuses have duplicates). */
+  school_ids?: string[];
   campus_scope?: "mine" | "all";  // "mine" filters by school_id
+
   price_min_cents?: number;
   price_max_cents?: number;
   fulfillment?: string[];         // any of these must overlap
@@ -78,11 +81,14 @@ function isCompletePublicListing(listing: ListingWithExtras): boolean {
 
 const sel = (s: string): string => s;
 
-/** Public marketplace read: only active + approved listings. */
-export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<ListingWithExtras[]> {
-  const limit = filters.limit ?? 24;
-  const offset = filters.offset ?? 0;
+/** A marketplace page, with a flag telling the UI whether more pages exist. */
+export type MarketplacePage = ListingWithExtras[] & { hasMore?: boolean; nextOffset?: number };
 
+async function fetchMarketplaceRaw(
+  filters: DiscoveryFilters,
+  offset: number,
+  limit: number,
+): Promise<{ rows: ListingWithExtras[]; rawCount: number }> {
   let q = supabase
     .from("listings")
     .select(sel(`
@@ -96,7 +102,11 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     .eq("moderation_status", "approved");
 
   if (filters.category && filters.category !== "all") q = q.eq("category", filters.category);
-  if (filters.campus_scope === "mine" && filters.school_id) q = q.eq("school_id", filters.school_id);
+  if (filters.campus_scope === "mine") {
+    const ids = filters.school_ids?.length ? filters.school_ids : filters.school_id ? [filters.school_id] : [];
+    if (ids.length === 1) q = q.eq("school_id", ids[0]);
+    else if (ids.length > 1) q = q.in("school_id", ids);
+  }
   if (typeof filters.price_min_cents === "number") q = q.gte("price_cents", filters.price_min_cents);
   if (typeof filters.price_max_cents === "number") q = q.lte("price_cents", filters.price_max_cents);
   if (filters.fulfillment && filters.fulfillment.length > 0) q = q.overlaps("fulfillment", filters.fulfillment);
@@ -118,39 +128,70 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     return { ...rest, images } as ListingWithExtras;
   });
 
-  // Attach favorite state for the signed-in user, if any.
-  const { data: session } = await supabase.auth.getUser();
-  const userId = session.user?.id;
-  if (userId && rows.length > 0) {
-    const ids = rows.map((r) => r.id);
-    const { data: favs } = await supabase.from("favorites").select("listing_id").eq("user_id", userId).in("listing_id", ids);
-    const set = new Set((favs ?? []).map((f) => f.listing_id));
-    for (const r of rows) r.is_favorited = set.has(r.id);
-  }
-
-  // Sort by rating requires seller rating join — cheap follow-up query.
-  if (filters.sort === "rating") {
-    rows.sort((a, b) => (b.favorite_count ?? 0) - (a.favorite_count ?? 0)); // fallback proxy
-  }
-
   // Attach the public seller card (display name, school, verification state).
   // Only public_profiles columns — private data such as email never leaves the
-  // database.
+  // database. A failed lookup must not silently hide every listing.
   if (rows.length > 0) {
     const sellerIds = [...new Set(rows.map((r) => r.seller_user_id))].filter(Boolean);
-    const { data: sellers } = await supabase
+    const { data: sellers, error: sellerError } = await supabase
       .from("public_profiles")
       .select("id,display_name,username,avatar_url,school_name,verification_status,rating_avg")
       .in("id", sellerIds);
+    if (sellerError) throw sellerError;
     const byId = new Map((sellers ?? []).map((s: any) => [s.id as string, s]));
     for (const r of rows) r.seller = (byId.get(r.seller_user_id) as ListingWithExtras["seller"]) ?? null;
   }
 
   const complete = rows.filter(isCompletePublicListing);
-
-  return filters.verified_only
+  const kept = filters.verified_only
     ? complete.filter((r) => r.seller?.verification_status === "verified")
     : complete;
+
+  return { rows: kept, rawCount: rows.length };
+}
+
+/**
+ * Public marketplace read: only active + approved listings.
+ *
+ * Completeness and "verified sellers only" are applied after the database
+ * page is fetched, so we keep pulling database pages until the requested
+ * number of visible listings is filled (or the source runs out). Without this
+ * a page of unverified sellers renders an empty marketplace and hides
+ * "Load more" while matching listings still exist further down.
+ */
+export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<MarketplacePage> {
+  const limit = filters.limit ?? 24;
+  const offset = filters.offset ?? 0;
+
+  const collected: ListingWithExtras[] = [];
+  let cursor = offset;
+  let exhausted = false;
+
+  // Bounded so a sparse marketplace can never spin.
+  for (let attempt = 0; attempt < 6 && collected.length < limit; attempt++) {
+    const { rows, rawCount } = await fetchMarketplaceRaw(filters, cursor, limit);
+    collected.push(...rows);
+    cursor += limit;
+    if (rawCount < limit) { exhausted = true; break; }
+  }
+
+  // Keep every row we already paid for; `nextOffset` tells the caller exactly
+  // where the next page starts, so nothing repeats or gets skipped.
+  const page = collected as MarketplacePage;
+
+  // Attach favorite state for the signed-in user, if any.
+  const { data: session } = await supabase.auth.getUser();
+  const userId = session.user?.id;
+  if (userId && page.length > 0) {
+    const ids = page.map((r) => r.id);
+    const { data: favs } = await supabase.from("favorites").select("listing_id").eq("user_id", userId).in("listing_id", ids);
+    const set = new Set((favs ?? []).map((f) => f.listing_id));
+    for (const r of page) r.is_favorited = set.has(r.id);
+  }
+
+  page.hasMore = !exhausted;
+  page.nextOffset = cursor;
+  return page;
 }
 
 /** All listings the caller owns (any status). */

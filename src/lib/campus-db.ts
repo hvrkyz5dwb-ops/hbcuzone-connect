@@ -64,7 +64,9 @@ export type EventInput = {
 
 const SELECT = "*";
 
-export async function fetchEvents(opts: { schoolId?: string | null; limit?: number } = {}) {
+export async function fetchEvents(
+  opts: { schoolId?: string | null; schoolIds?: string[]; limit?: number } = {},
+) {
   let q = supabase
     .from("campus_events")
     .select(SELECT)
@@ -73,7 +75,10 @@ export async function fetchEvents(opts: { schoolId?: string | null; limit?: numb
     .order("is_featured", { ascending: false })
     .order("starts_at", { ascending: true })
     .limit(opts.limit ?? 60);
-  if (opts.schoolId) q = q.eq("school_id", opts.schoolId);
+  // Some campuses exist as more than one school row, so match on all of them.
+  const ids = opts.schoolIds?.length ? opts.schoolIds : opts.schoolId ? [opts.schoolId] : [];
+  if (ids.length === 1) q = q.eq("school_id", ids[0]);
+  else if (ids.length > 1) q = q.in("school_id", ids);
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []) as CampusEvent[];

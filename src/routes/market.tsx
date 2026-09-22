@@ -22,6 +22,7 @@ import { useContentVisibility } from "@/hooks/use-blocklist";
 import { useSchool } from "@/hooks/use-school";
 import { CampusBar } from "@/components/campus/CampusBar";
 import { useProfile } from "@/hooks/use-profile";
+import { useCampusSchoolId } from "@/hooks/use-campus-scope";
 import { FULFILLMENT_OPTIONS } from "@/lib/categories";
 import { useSession } from "@/hooks/use-session";
 import { requestAuthentication } from "@/components/RequireAuthPrompt";
@@ -42,6 +43,7 @@ function Market() {
   const navigate = useNavigate();
   const school = useSchool();
   const { profile } = useProfile();
+  const { schoolId: activeSchoolId, schoolIds: activeSchoolIds, campusName, exploring } = useCampusSchoolId();
   const { session } = useSession();
   const qc = useQueryClient();
   const isVisible = useContentVisibility();
@@ -54,7 +56,9 @@ function Market() {
   const [fulfillment, setFulfillment] = useState<string[]>([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [page, setPage] = useState(0);
+  // Byte offset into the marketplace result set (not a page index): filtered
+  // pages can consume more source rows than they render.
+  const [offset, setOffset] = useState(0);
   const [tab, setTab] = useState<"shop" | "posts">("shop");
   const PAGE_SIZE = 24;
 
@@ -62,14 +66,16 @@ function Market() {
     q: query || undefined,
     category: category === "all" ? undefined : category,
     campus_scope: scope,
-    school_id: profile?.school_id ?? undefined,
+    school_id: activeSchoolId ?? undefined,
+    school_ids: activeSchoolIds.length ? activeSchoolIds : undefined,
     price_max_cents: priceMax !== null ? priceMax * 100 : undefined,
     fulfillment: fulfillment.length ? fulfillment : undefined,
     verified_only: verifiedOnly || undefined,
     sort,
     limit: PAGE_SIZE,
-    offset: page * PAGE_SIZE,
-  }), [query, category, scope, profile?.school_id, priceMax, fulfillment, verifiedOnly, sort, page]);
+    offset,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [query, category, scope, activeSchoolId, activeSchoolIds.join(","), priceMax, fulfillment, verifiedOnly, sort, offset]);
 
   const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
@@ -129,7 +135,7 @@ function Market() {
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={query}
-              onChange={(e) => { setQuery(e.target.value); setPage(0); }}
+              onChange={(e) => { setQuery(e.target.value); setOffset(0); }}
               placeholder="Search hair, food, dorm, tutoring…"
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
@@ -156,7 +162,7 @@ function Market() {
               <button
                 key={c.key}
                 onClick={() => {
-                  setCategory(c.key); setPage(0);
+                  setCategory(c.key); setOffset(0);
                 }}
                 className={`tap shrink-0 px-4 py-2 rounded-full text-xs border transition-all whitespace-nowrap ${
                   isActive
@@ -175,19 +181,19 @@ function Market() {
             <div>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">School</p>
               <div className="mt-1.5 flex gap-2">
-                <ChipToggle active={scope === "mine"} onClick={() => { setScope("mine"); setPage(0); }}>
+                <ChipToggle active={scope === "mine"} onClick={() => { setScope("mine"); setOffset(0); }}>
                   My campus · {school.name}
                 </ChipToggle>
-                <ChipToggle active={scope === "all"} onClick={() => { setScope("all"); setPage(0); }}>All PlugU</ChipToggle>
+                <ChipToggle active={scope === "all"} onClick={() => { setScope("all"); setOffset(0); }}>All PlugU</ChipToggle>
               </div>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sellers</p>
               <div className="mt-1.5 flex gap-2 flex-wrap">
-                <ChipToggle active={!verifiedOnly} onClick={() => { setVerifiedOnly(false); setPage(0); }}>
+                <ChipToggle active={!verifiedOnly} onClick={() => { setVerifiedOnly(false); setOffset(0); }}>
                   All students
                 </ChipToggle>
-                <ChipToggle active={verifiedOnly} onClick={() => { setVerifiedOnly(true); setPage(0); }}>
+                <ChipToggle active={verifiedOnly} onClick={() => { setVerifiedOnly(true); setOffset(0); }}>
                   Verified students only
                 </ChipToggle>
               </div>
@@ -196,7 +202,7 @@ function Market() {
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sort</p>
               <div className="mt-1.5 flex gap-2 flex-wrap">
                 {(["newest","popular","rating"] as const).map((s) => (
-                  <ChipToggle key={s} active={sort === s} onClick={() => { setSort(s); setPage(0); }}>
+                  <ChipToggle key={s} active={sort === s} onClick={() => { setSort(s); setOffset(0); }}>
                     {s === "popular" ? "Most saved" : s === "rating" ? "Top rated" : "Newest"}
                   </ChipToggle>
                 ))}
@@ -206,7 +212,7 @@ function Market() {
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Max price</p>
               <div className="mt-1.5 flex gap-2 flex-wrap">
                 {[null, 25, 50, 100, 250].map((p, i) => (
-                  <ChipToggle key={i} active={priceMax === p} onClick={() => { setPriceMax(p); setPage(0); }}>
+                  <ChipToggle key={i} active={priceMax === p} onClick={() => { setPriceMax(p); setOffset(0); }}>
                     {p === null ? "Any" : `Up to $${p}`}
                   </ChipToggle>
                 ))}
@@ -220,7 +226,7 @@ function Market() {
                   return (
                     <ChipToggle key={f.key} active={on} onClick={() => {
                       setFulfillment((prev) => on ? prev.filter((k) => k !== f.key) : [...prev, f.key]);
-                      setPage(0);
+                      setOffset(0);
                     }}>{f.label}</ChipToggle>
                   );
                 })}
@@ -244,8 +250,8 @@ function Market() {
           title={
             query
               ? `No results for "${query}"`
-              : scope === "mine" && school.verified
-                ? `Nothing posted at ${school.name} yet`
+              : scope === "mine" && (exploring || school.verified)
+                ? `Nothing posted at ${exploring ? campusName : school.name} yet`
                 : "Nothing posted here yet"
           }
           description={
@@ -266,7 +272,7 @@ function Market() {
               </Link>
               {scope === "mine" && (
                 <button
-                  onClick={() => { setScope("all"); setPage(0); }}
+                  onClick={() => { setScope("all"); setOffset(0); }}
                   className="hit rounded-full border border-border bg-card px-5 py-2 text-xs font-semibold text-muted-foreground"
                 >
                   Browse all schools
@@ -274,7 +280,7 @@ function Market() {
               )}
               {(query || priceMax !== null || fulfillment.length > 0 || verifiedOnly || category !== "all") && (
                 <button
-                  onClick={() => { setQuery(""); setPriceMax(null); setFulfillment([]); setVerifiedOnly(false); setCategory("all"); setPage(0); }}
+                  onClick={() => { setQuery(""); setPriceMax(null); setFulfillment([]); setVerifiedOnly(false); setCategory("all"); setOffset(0); }}
                   className="hit rounded-full border border-border bg-card px-5 py-2 text-xs font-semibold text-muted-foreground"
                 >
                   Clear filters
@@ -289,10 +295,10 @@ function Market() {
       </section>
       )}
 
-      {rows.length >= PAGE_SIZE && (
+      {(listings as { hasMore?: boolean } | undefined)?.hasMore && (
         <div className="px-5 mt-5 flex justify-center">
           <button
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setOffset((listings as { nextOffset?: number } | undefined)?.nextOffset ?? offset + PAGE_SIZE)}
             disabled={isFetching}
             className="tap px-6 py-2.5 text-xs rounded-full border border-border bg-card text-muted-foreground disabled:opacity-50"
           >
@@ -301,9 +307,9 @@ function Market() {
         </div>
       )}
 
-      {page > 0 && (
+      {offset > 0 && (
         <div className="px-5 mt-2 flex justify-center">
-          <button onClick={() => setPage(0)} className="text-[11px] text-muted-foreground underline underline-offset-4">Back to page 1</button>
+          <button onClick={() => setOffset(0)} className="text-[11px] text-muted-foreground underline underline-offset-4">Back to page 1</button>
         </div>
       )}
       </>
