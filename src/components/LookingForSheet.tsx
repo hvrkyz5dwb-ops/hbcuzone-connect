@@ -19,6 +19,7 @@ const TEMPLATES = [
 
 export function LookingForSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { profile } = useProfile();
+  const { session } = useSession();
   const [text, setText] = useState("");
   if (!open || typeof document === "undefined") return null;
 
