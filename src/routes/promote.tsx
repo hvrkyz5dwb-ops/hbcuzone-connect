@@ -7,7 +7,9 @@ import { AppShell } from "@/components/AppShell";
 import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
 import { generateCampusLayout } from "@/lib/campus-layout.functions";
-import { addUserEvent } from "@/lib/events-storage";
+import { createEvent } from "@/lib/campus-db";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/promote")({
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/promote")({
 function PromotePage() {
   const navigate = useNavigate();
   const school = useSchool();
+  const { session } = useSession();
   const profile = useProfile();
   const activeSchool = school.name && school.name !== "Your Campus" ? school.name : "your campus";
   const author = profile.profile?.full_name?.split(" ")[0] || "Plug";
@@ -47,21 +50,34 @@ function PromotePage() {
     () => layout?.zones.find((z) => z.id === spotId) ?? null,
     [layout, spotId],
   );
-  const canSubmit = title.trim().length >= 2 && when.trim().length >= 2 && !!spot;
+  const canSubmit = title.trim().length >= 2 && !!when && !Number.isNaN(+new Date(when)) && !!spot;
 
-  function submit() {
+  const [saving, setSaving] = useState(false);
+
+  async function submit() {
     if (!canSubmit || !spot) return;
-    addUserEvent({
-      school: activeSchool,
-      title: `${title.trim()}${author ? ` · by ${author}` : ""}`,
-      when: when.trim(),
-      where: spot.label,
-      promoted: true,
-      boost: 0,
-      spot: { x: spot.x + spot.w / 2, y: spot.y + spot.h / 2, label: spot.label },
-    });
-    toast.success("Live on your campus map & Tonight tab.");
-    navigate({ to: "/events" });
+    if (!session?.user?.id) { requestAuthentication(); return; }
+    setSaving(true);
+    try {
+      await createEvent(
+        {
+          school_id: profile.profile?.school_id ?? null,
+          title: title.trim(),
+          description: null,
+          category: "campus",
+          location: spot.label,
+          starts_at: new Date(when).toISOString(),
+          host_name: author,
+        } as never,
+        session.user.id,
+      );
+      toast.success("Event posted to your campus");
+      navigate({ to: "/events" });
+    } catch (e) {
+      toast.error((e as Error)?.message ?? "Couldn't post your event. Try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -102,8 +118,7 @@ function PromotePage() {
           />
           <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">When</p>
           <input
-            value={when} onChange={(e) => setWhen(e.target.value)} maxLength={40}
-            placeholder="Tonight · 7pm  or  Fri · 8pm"
+            type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)}
             className="mt-1 w-full bg-secondary border border-border rounded-2xl px-4 py-3 text-sm outline-none"
           />
         </div>
