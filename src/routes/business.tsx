@@ -206,9 +206,6 @@ function NewListingSheet({
 
 function BusinessCenter() {
   return <Navigate to="/seller" replace />;
-  /* Legacy static business-center UI is intentionally unreachable. Seller
-     operations now use the persisted Seller dashboard. */
-  /*
   const [tab, setTab] = useState<TabKey>("overview");
   const [sheet, setSheet] = useState<null | "product" | "service">(null);
   const [discountCode, setDiscountCode] = useState("");
@@ -536,5 +533,4 @@ function BusinessCenter() {
       <NewListingSheet open={sheet !== null} onClose={() => setSheet(null)} defaultKind={sheet ?? "product"} />
     </AppShell>
   );
-  */
 }

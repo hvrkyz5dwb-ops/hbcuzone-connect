@@ -16,8 +16,6 @@ export const Route = createFileRoute("/ambassadors")({
 
 function AmbassadorsPage() {
   return <Navigate to="/" replace />;
-  /* Ambassador applications are hidden until backed by production services. */
-  /*
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [app, setApp] = useState<AmbassadorApp>({ status: "none" });
@@ -150,7 +148,6 @@ function AmbassadorsPage() {
       </section>
     </AppShell>
   );
-  */
 }
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
