@@ -4,6 +4,8 @@ import { X, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { addCommunityPost } from "@/lib/community-storage";
 import { useProfile } from "@/hooks/use-profile";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 const TEMPLATES = [
   "Need a barber",
@@ -20,15 +22,22 @@ export function LookingForSheet({ open, onClose }: { open: boolean; onClose: () 
   const [text, setText] = useState("");
   if (!open || typeof document === "undefined") return null;
 
-  function post(body: string) {
+  async function post(body: string) {
     const clean = body.trim();
     if (!clean) return;
-    addCommunityPost({
-      school: profile?.school_name ?? "Campus",
-      author: profile?.display_name ?? profile?.full_name ?? "Plug",
-      text: `🔎 Looking for: ${clean} — reply here or DM me if you can help.`,
-      visibility: "campus",
-    });
+    if (!session) { onClose(); requestAuthentication(); return; }
+    try {
+      await addCommunityPost({
+        school: profile?.school_name ?? "Campus",
+        schoolId: profile?.school_id ?? null,
+        author: profile?.display_name ?? profile?.full_name ?? "Plug",
+        text: `🔎 Looking for: ${clean} — reply here or DM me if you can help.`,
+        visibility: "campus",
+      });
+    } catch {
+      toast.error("Couldn't post your request", { description: "Check your connection and try again." });
+      return;
+    }
     toast.success("Posted to your campus board", {
       description: "Students reply on the post or message you directly.",
     });
