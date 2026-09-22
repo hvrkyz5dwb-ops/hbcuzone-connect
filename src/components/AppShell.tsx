@@ -440,6 +440,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
       {showOnboarding && (
         <OnboardingExperience
+          showAuthActions={false}
           onComplete={() => {
             markOnboarded();
             setShowOnboarding(false);
