@@ -20,7 +20,7 @@ import { useCampusScope } from "@/hooks/use-campus-scope";
  */
 
 const TABS = [
-  "All HBCUs", "Campus", "Sports", "Culture", "Money", "Policy", "Business", "Careers", "Greek",
+  "Students", "HBCUs", "Campus", "Sports", "Culture", "Money", "Policy", "Business", "Careers", "Greek",
 ] as const;
 type Tab = (typeof TABS)[number];
 
@@ -56,7 +56,7 @@ function localTime(iso: string): string {
 }
 
 function NewsCenter() {
-  const [tab, setTab] = useState<Tab>("All HBCUs");
+  const [tab, setTab] = useState<Tab>("Students");
   const [schoolOnly, setSchoolOnly] = useState(false);
   const [q, setQ] = useState("");
   const { profile } = useProfile();

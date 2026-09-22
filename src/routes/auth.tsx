@@ -253,7 +253,7 @@ function AuthPage() {
       <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
         <div className="flex items-center gap-2">
           <img src={pluguLogo} alt="" className="h-8 w-8 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
-          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">PlugU · HBCU Students</p>
+          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">PlugU · Students</p>
         </div>
         <h1 className="mt-3 text-2xl font-bold plugu-wordmark">
           {mode === "sign-in" && "Sign in"}
@@ -265,7 +265,7 @@ function AuthPage() {
             ? "Enter your PlugU email — we'll send a secure reset link."
             : isBusiness && mode === "sign-up"
               ? "Local businesses hire student Plugs. No .edu needed — we verify your business before you can post."
-              : "Buy, sell, book and build on your campus. Built for HBCU students and student-owned businesses — verify with your school-issued .edu email."}
+              : "Buy, sell, book and build on your campus. For students and student-owned businesses at schools across the U.S. — verify with your school-issued .edu email."}
         </p>
         {mode === "sign-up" && !isBusiness && (
           <p className="mt-2 text-[11px] text-muted-foreground">

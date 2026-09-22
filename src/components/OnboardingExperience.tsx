@@ -3,8 +3,11 @@
 // animation runs on transform/opacity so it holds 60fps.
 //
 // Used for guests on "/" and signed-in members after the launch splash.
-import { useRef, useState } from "react";
-import { ArrowRight, GraduationCap, HeartHandshake, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  ArrowRight, ArrowLeft, GraduationCap, HeartHandshake, Sparkles, Play, Pause,
+} from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 
 type SceneKind = "campus" | "market" | "income" | "trust";
@@ -20,16 +23,16 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     id: "welcome",
-    eyebrow: "Built for HBCU students",
+    eyebrow: "Built for students",
     title: "Buy, sell, book and build on your campus.",
-    body: "PlugU is made for HBCU students and student-owned businesses. One verified campus community for commerce, services, events and opportunities.",
+    body: "PlugU connects students and local communities at schools across the United States — one app for commerce, services, events and opportunities.",
     scene: "campus",
   },
   {
     id: "market",
     eyebrow: "Your campus, not a catalog",
     title: "Student services, booked on campus.",
-    body: "Barbers, stylists, nail techs, photographers, tutors, cooks, drivers and creatives — all students at your school, bookable with pickup or meetup spots you already know.",
+    body: "Barbers, stylists, nail techs, photographers, tutors, cooks, drivers and creatives — students at your school and trusted people nearby, with pickup and meetup spots you already know.",
     scene: "market",
   },
   {
@@ -43,7 +46,7 @@ const SLIDES: Slide[] = [
     id: "trust",
     eyebrow: "Our mission",
     title: "Don't Run Off on the Plug.",
-    body: "Help students earn while building real businesses. Every verified purchase helps create opportunities for students. Members who actively build their businesses may become eligible for future PlugU programs, grants, rewards, and community initiatives as they become available.",
+    body: "Help students earn while building real businesses. Verified school email, seller reputation, reporting and blocking are built in, so you always know who you're dealing with.",
     scene: "trust",
   },
 ];
@@ -205,9 +208,31 @@ function SceneTrust() {
   );
 }
 
-export function OnboardingExperience({ onComplete }: { onComplete: () => void }) {
+export function OnboardingExperience({
+  onComplete,
+  showAuthActions = true,
+}: {
+  onComplete: () => void;
+  /** Signed-in members re-running the deck don't need sign-in / sign-up. */
+  showAuthActions?: boolean;
+}) {
+  const navigate = useNavigate();
   const [i, setI] = useState(0);
   const [dragX, setDragX] = useState(0);
+  const [autoplay, setAutoplay] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => {
+      setReducedMotion(mq.matches);
+      if (mq.matches) setAutoplay(false);
+    };
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
   const drag = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
   // Double-tap / navigation-loop guard. A ref (not state) so the very next
   // synthetic click in the same frame is ignored without re-rendering or
@@ -231,6 +256,25 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
     setI(Math.max(0, Math.min(SLIDES.length - 1, next)));
     setDragX(0);
   }
+
+  // Leave onboarding for a real auth screen. The deck is marked as seen so a
+  // student who signs in is never sent back through the slides.
+  function goAuth(mode: "sign-in" | "sign-up") {
+    if (finishing.current) return;
+    finishing.current = true;
+    onComplete();
+    navigate({ to: "/auth", search: { next: "", mode } });
+    window.setTimeout(() => { finishing.current = false; }, 1200);
+  }
+
+  // Optional autoplay: manual navigation stays the default, motion
+  // preferences win, and it always stops on the final slide.
+  useEffect(() => {
+    if (!autoplay || reducedMotion) return;
+    if (i >= SLIDES.length - 1) { setAutoplay(false); return; }
+    const t = window.setTimeout(() => go(i + 1), 4200);
+    return () => window.clearTimeout(t);
+  }, [autoplay, reducedMotion, i]);
 
   function onPointerDown(e: React.PointerEvent) {
     drag.current = { startX: e.clientX, active: true };
@@ -269,13 +313,26 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
             <img src={pluguLogo} alt="" className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
             <span className="font-bold tracking-[0.2em] text-xs plugu-wordmark">PLUGU</span>
           </div>
+          <div className="flex items-center gap-1">
+            {showAuthActions && (
+              // A returning student must reach sign-in without watching the deck.
+              <button
+                type="button"
+                onClick={() => goAuth("sign-in")}
+                className="tap min-h-[44px] px-3 text-[11px] font-semibold tracking-widest uppercase"
+                style={{ color: "var(--plugu-gold)" }}
+              >
+                Sign in
+              </button>
+            )}
           <button
             type="button"
             onClick={finish}
-            className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
+            className="tap min-h-[44px] text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
           >
             Skip
           </button>
+          </div>
         </div>
 
         {/* Slide — drag anywhere. Scrolls on short screens so the copy can
@@ -348,37 +405,113 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
           className="relative z-10 shrink-0 px-7 pt-3 bg-black"
           style={{ paddingBottom: "max(calc(env(safe-area-inset-bottom, 0px) + 20px), 24px)" }}
         >
-          <div className="flex items-center justify-center gap-1.5 mb-4">
-            {SLIDES.map((s, idx) => (
+          {/* Indicators + autoplay. Each control keeps a 44pt target. */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => go(i - 1)}
+              disabled={i === 0}
+              aria-label="Previous slide"
+              className="tap grid h-11 w-11 place-items-center rounded-full border border-white/12 text-white/80 disabled:opacity-25"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {SLIDES.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => { setAutoplay(false); go(idx); }}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  aria-current={idx === i}
+                  className="tap grid h-11 place-items-center px-1"
+                  style={{ width: 26 }}
+                >
+                  <span
+                    className="block h-1 rounded-full transition-all"
+                    style={{
+                      width: idx === i ? 22 : 6,
+                      background: idx === i ? "var(--plugu-gold)" : "rgba(255,255,255,0.18)",
+                      boxShadow: idx === i ? "0 0 8px rgba(244,201,106,0.55)" : "none",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+
+            {reducedMotion || last ? (
+              <span className="h-11 w-11" aria-hidden />
+            ) : (
               <button
-                key={s.id}
                 type="button"
-                onClick={() => go(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className="h-1 rounded-full transition-all"
+                onClick={() => setAutoplay((v) => !v)}
+                aria-pressed={autoplay}
+                aria-label={autoplay ? "Pause autoplay" : "Play slides automatically"}
+                className="tap grid h-11 w-11 place-items-center rounded-full border text-white/85"
                 style={{
-                  width: idx === i ? 22 : 6,
-                  background: idx === i ? "var(--plugu-gold)" : "rgba(255,255,255,0.18)",
-                  boxShadow: idx === i ? "0 0 8px rgba(244,201,106,0.55)" : "none",
+                  borderColor: autoplay ? "rgba(244,201,106,0.6)" : "rgba(255,255,255,0.12)",
+                  color: autoplay ? "var(--plugu-gold)" : undefined,
                 }}
-              />
-            ))}
+              >
+                {autoplay ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              </button>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={() => (last ? finish() : go(i + 1))}
-            className="tap w-full h-12 rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
-            style={{
-              background: "var(--gradient-bronze)",
-              boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
-            }}
-          >
-            {last ? "Continue as Guest" : "Next"}
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <p className="text-center text-[11px] text-muted-foreground mt-3">
-            {last ? "Browse PlugU without an account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
-          </p>
+
+          {last && showAuthActions ? (
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => goAuth("sign-in")}
+                className="tap w-full min-h-[52px] rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
+                style={{
+                  background: "var(--gradient-bronze)",
+                  boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
+                }}
+              >
+                Student sign in
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goAuth("sign-up")}
+                className="tap w-full min-h-[52px] rounded-2xl font-semibold inline-flex items-center justify-center border"
+                style={{ borderColor: "rgba(244,201,106,0.55)", color: "var(--plugu-gold)" }}
+              >
+                Create account
+              </button>
+              <button
+                type="button"
+                onClick={finish}
+                className="tap w-full min-h-[48px] rounded-2xl text-sm font-medium text-white/75 border border-white/12"
+              >
+                Continue as Guest
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground pt-0.5">
+                Guests can browse. Posting, messaging, saving and booking need a
+                verified student account.
+              </p>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => (last ? finish() : go(i + 1))}
+                className="tap w-full min-h-[52px] rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
+                style={{
+                  background: "var(--gradient-bronze)",
+                  boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
+                }}
+              >
+                {last ? "Get started" : "Next"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground mt-3">
+                {`Swipe, or use Back and Next · ${i + 1} of ${SLIDES.length}`}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
