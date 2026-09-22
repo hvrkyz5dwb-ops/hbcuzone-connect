@@ -208,9 +208,31 @@ function SceneTrust() {
   );
 }
 
-export function OnboardingExperience({ onComplete }: { onComplete: () => void }) {
+export function OnboardingExperience({
+  onComplete,
+  showAuthActions = true,
+}: {
+  onComplete: () => void;
+  /** Signed-in members re-running the deck don't need sign-in / sign-up. */
+  showAuthActions?: boolean;
+}) {
+  const navigate = useNavigate();
   const [i, setI] = useState(0);
   const [dragX, setDragX] = useState(0);
+  const [autoplay, setAutoplay] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => {
+      setReducedMotion(mq.matches);
+      if (mq.matches) setAutoplay(false);
+    };
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
   const drag = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
   // Double-tap / navigation-loop guard. A ref (not state) so the very next
   // synthetic click in the same frame is ignored without re-rendering or
