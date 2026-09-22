@@ -241,8 +241,41 @@ function Market() {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={SearchX}
-          title={query ? `No results for "${query}"` : "No listings yet"}
-          description={scope === "mine" ? "Try switching to All PlugU or a different category." : "Try clearing filters or a different keyword."}
+          title={query ? `No results for "${query}"` : scope === "mine" ? `Nothing posted at ${school.name} yet` : "Nothing in this category yet"}
+          description={
+            query
+              ? "Try a different keyword, or clear your filters."
+              : scope === "mine"
+                ? "Be the first. Post a service or something you're selling, then share it with your campus."
+                : "Try another category, or post the first listing here yourself."
+          }
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link
+                to="/seller/listings"
+                onClick={(event) => { if (!session) { event.preventDefault(); requestAuthentication(); } }}
+                className="hit inline-flex items-center gap-1.5 rounded-full bg-[image:var(--gradient-bronze)] px-5 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                <Plus className="h-3.5 w-3.5" /> Post the first listing
+              </Link>
+              {scope === "mine" && (
+                <button
+                  onClick={() => { setScope("all"); setPage(0); }}
+                  className="hit rounded-full border border-border bg-card px-5 py-2 text-xs font-semibold text-muted-foreground"
+                >
+                  Browse all schools
+                </button>
+              )}
+              {(query || priceMax !== null || fulfillment.length > 0 || verifiedOnly || category !== "all") && (
+                <button
+                  onClick={() => { setQuery(""); setPriceMax(null); setFulfillment([]); setVerifiedOnly(false); setCategory("all"); setPage(0); }}
+                  className="hit rounded-full border border-border bg-card px-5 py-2 text-xs font-semibold text-muted-foreground"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          }
         />
       ) : (
       <section className="mt-5 px-5 grid grid-cols-2 gap-3 slide-up">
