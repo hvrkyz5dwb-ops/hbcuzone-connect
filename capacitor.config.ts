@@ -53,8 +53,9 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     StatusBar: {
-      // Light foreground content stays legible on PlugU's black chrome.
-      style: "LIGHT",
+      // Capacitor's "DARK" style means light foreground content, which is what
+      // stays legible on PlugU's black chrome.
+      style: "DARK",
       backgroundColor: "#0a0a0a",
       overlaysWebView: true,
     },

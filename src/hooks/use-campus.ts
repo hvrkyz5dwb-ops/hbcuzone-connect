@@ -3,6 +3,7 @@ import { useEffect, useId } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { subscribeChannel } from "@/lib/realtime";
 import { useSession } from "./use-session";
+import { useCampusSchoolId } from "./use-campus-scope";
 import { useProfile } from "./use-profile";
 import {
   addComment, addRsvp, createEvent, deleteEvent, fetchComments, fetchEvents, fetchMyFollows,
@@ -12,8 +13,7 @@ import {
 
 export function useCampusEvents() {
   const instanceId = useId();
-  const { profile } = useProfile();
-  const schoolId = profile?.school_id ?? null;
+  const { schoolId } = useCampusSchoolId();
   const qc = useQueryClient();
 
   const query = useQuery({
