@@ -138,11 +138,22 @@ function SchoolRow({ school }: { school: SchoolProfile }) {
 
 /* ---------------------------------- News ----------------------------------- */
 
+const NEWS_TOPICS = [
+  "HBCUs",
+  "Black Culture",
+  "Music & Style",
+  "Black Voices",
+  "Black Entertainment",
+  "Black Sports",
+  "Black Business",
+] as const;
+
 function NewsPanel() {
   const fn = useServerFn(getLiveNews);
+  const [topic, setTopic] = useState<(typeof NEWS_TOPICS)[number]>("HBCUs");
   const { data, isPending, isFetching, refetch, isError } = useQuery({
-    queryKey: ["hbcus-live-news"],
-    queryFn: () => fn({ data: { topic: "HBCUs", count: 20 } }),
+    queryKey: ["hbcus-live-news", topic],
+    queryFn: () => fn({ data: { topic, count: 20 } }),
     staleTime: 10 * 60_000,
     refetchOnWindowFocus: false,
   });
@@ -151,6 +162,24 @@ function NewsPanel() {
   return (
     <div className="space-y-3">
       <SectionHeader title="Live headlines" />
+
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        {NEWS_TOPICS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTopic(t)}
+            aria-pressed={topic === t}
+            className={`tap min-h-[44px] shrink-0 rounded-full border px-3.5 text-[12px] font-semibold ${
+              topic === t
+                ? "border-transparent bg-primary text-primary-foreground"
+                : "border-border bg-card text-muted-foreground"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center justify-between">
         <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
           <Radio className="h-3 w-3" style={{ color: "var(--plugu-gold)" }} /> Live wire
@@ -159,6 +188,7 @@ function NewsPanel() {
           <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
+
 
       {isPending && (
         <ul className="space-y-2" aria-hidden="true">
