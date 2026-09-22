@@ -163,7 +163,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       "/", "/auth", "/login", "/signup", "/reset-password",
       "/terms", "/privacy", "/community-guidelines", "/prohibited-items",
       "/support", "/safety", "/refunds", "/seller-agreement",
-      "/market", "/hub", "/events", "/search", "/campus", "/map", "/hbcus",
+      "/market", "/hub", "/events", "/search", "/campus", "/map", "/hbcus", "/news",
     ];
 
     const isPublic =
