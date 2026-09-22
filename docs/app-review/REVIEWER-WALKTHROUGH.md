@@ -4,7 +4,7 @@
 
 - Email: `appreview@plugudemo.com`
 - Password: `PlugUReview2026!`
-- School shown in app: Demo University (Verified Student)
+- School shown in app: Talladega College (Verified Student)
 
 The account is permanent, pre-confirmed and pre-verified. There is no email
 code, SMS code, two-factor step or personal information required. It holds no
