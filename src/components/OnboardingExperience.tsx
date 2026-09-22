@@ -313,10 +313,22 @@ export function OnboardingExperience({
             <img src={pluguLogo} alt="" className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
             <span className="font-bold tracking-[0.2em] text-xs plugu-wordmark">PLUGU</span>
           </div>
+          <div className="flex items-center gap-1">
+            {showAuthActions && (
+              // A returning student must reach sign-in without watching the deck.
+              <button
+                type="button"
+                onClick={() => goAuth("sign-in")}
+                className="tap min-h-[44px] px-3 text-[11px] font-semibold tracking-widest uppercase"
+                style={{ color: "var(--plugu-gold)" }}
+              >
+                Sign in
+              </button>
+            )}
           <button
             type="button"
             onClick={finish}
-            className="tap text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
+            className="tap min-h-[44px] text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
           >
             Skip
           </button>
