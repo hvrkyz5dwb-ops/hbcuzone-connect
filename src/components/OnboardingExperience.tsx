@@ -257,6 +257,25 @@ export function OnboardingExperience({
     setDragX(0);
   }
 
+  // Leave onboarding for a real auth screen. The deck is marked as seen so a
+  // student who signs in is never sent back through the slides.
+  function goAuth(mode: "sign-in" | "sign-up") {
+    if (finishing.current) return;
+    finishing.current = true;
+    onComplete();
+    navigate({ to: "/auth", search: { next: "", mode } });
+    window.setTimeout(() => { finishing.current = false; }, 1200);
+  }
+
+  // Optional autoplay: manual navigation stays the default, motion
+  // preferences win, and it always stops on the final slide.
+  useEffect(() => {
+    if (!autoplay || reducedMotion) return;
+    if (i >= SLIDES.length - 1) { setAutoplay(false); return; }
+    const t = window.setTimeout(() => go(i + 1), 4200);
+    return () => window.clearTimeout(t);
+  }, [autoplay, reducedMotion, i]);
+
   function onPointerDown(e: React.PointerEvent) {
     drag.current = { startX: e.clientX, active: true };
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
