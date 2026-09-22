@@ -90,38 +90,6 @@
           ]
         },
         "outputSchema": null
-      },
-      {
-        "name": "list_scholarships",
-        "title": "List scholarships",
-        "description": "List PlugU-tracked scholarship opportunities. Optionally filter by category (e.g. 'STEM', 'National', 'Merit-Based') or by a keyword matched against title/sponsor.",
-        "annotations": {
-          "readOnlyHint": true,
-          "idempotentHint": true,
-          "openWorldHint": false
-        },
-        "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "type": "object",
-          "properties": {
-            "category": {
-              "description": "Optional category. One of: All, National, School, Minority, Business, Engineering, Medical, Law, STEM, Arts, Athletics, Need-Based, Merit-Based",
-              "type": "string"
-            },
-            "keyword": {
-              "description": "Case-insensitive substring match on title/sponsor.",
-              "type": "string",
-              "minLength": 1
-            },
-            "limit": {
-              "description": "Max rows (default 20).",
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 50
-            }
-          }
-        },
-        "outputSchema": null
       }
     ]
   }
