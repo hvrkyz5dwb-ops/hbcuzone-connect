@@ -178,15 +178,17 @@ function ago(iso: string): string {
 }
 
 const NEWS_TOPICS: Record<string, { q: string; tag: string; emoji: string }> = {
+  Students: { q: "college students campus life university", tag: "Students", emoji: "🎓" },
+  HBCUs: { q: "HBCU", tag: "HBCU", emoji: "🎓" },
   "All HBCUs": { q: "HBCU", tag: "HBCU", emoji: "🎓" },
-  Campus: { q: "HBCU campus students", tag: "Campus", emoji: "🏫" },
-  Sports: { q: "HBCU football OR basketball SWAC OR MEAC", tag: "Sports", emoji: "🏈" },
-  Culture: { q: "HBCU culture homecoming band", tag: "Culture", emoji: "🎺" },
-  Money: { q: "HBCU funding OR endowment OR scholarship", tag: "Money", emoji: "💰" },
-  Policy: { q: "HBCU federal funding policy Congress", tag: "Policy", emoji: "🏛️" },
-  Business: { q: "Black-owned business entrepreneurship", tag: "Business", emoji: "💼" },
-  Careers: { q: "HBCU internship OR hiring OR career fair", tag: "Careers", emoji: "🚀" },
-  Greek: { q: "Divine Nine fraternity sorority HBCU", tag: "Greek", emoji: "🔱" },
+  Campus: { q: "college campus students news", tag: "Campus", emoji: "🏫" },
+  Sports: { q: "college football OR basketball students", tag: "Sports", emoji: "🏈" },
+  Culture: { q: "college culture homecoming band students", tag: "Culture", emoji: "🎺" },
+  Money: { q: "college tuition OR scholarship OR financial aid", tag: "Money", emoji: "💰" },
+  Policy: { q: "higher education policy Congress students", tag: "Policy", emoji: "🏛️" },
+  Business: { q: "student entrepreneurship small business", tag: "Business", emoji: "💼" },
+  Careers: { q: "college internship OR hiring OR career fair", tag: "Careers", emoji: "🚀" },
+  Greek: { q: "fraternity sorority Divine Nine college", tag: "Greek", emoji: "🔱" },
 };
 
 const NewsInput = z.object({
@@ -198,7 +200,7 @@ const NewsInput = z.object({
 export const getLiveNews = createServerFn({ method: "POST" })
   .validator((d: unknown) => NewsInput.parse(d))
   .handler(async ({ data }): Promise<LiveNewsResult> => {
-    const topic = NEWS_TOPICS[data.topic ?? "All HBCUs"] ?? NEWS_TOPICS["All HBCUs"];
+    const topic = NEWS_TOPICS[data.topic ?? "Students"] ?? NEWS_TOPICS["Students"]!;
     const query = data.school ? `"${data.school}" ${topic.q}` : topic.q;
     const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
     const xml = await getText(url);
