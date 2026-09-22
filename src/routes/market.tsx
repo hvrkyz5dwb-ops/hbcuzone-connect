@@ -74,7 +74,8 @@ function Market() {
     sort,
     limit: PAGE_SIZE,
     offset,
-  }), [query, category, scope, activeSchoolId, activeSchoolIds, priceMax, fulfillment, verifiedOnly, sort, offset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [query, category, scope, activeSchoolId, activeSchoolIds.join(","), priceMax, fulfillment, verifiedOnly, sort, offset]);
 
   const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
