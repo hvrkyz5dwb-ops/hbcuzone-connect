@@ -2,8 +2,7 @@
 // drag-follow parallax. Pure CSS/SVG scenes: zero image downloads, every
 // animation runs on transform/opacity so it holds 60fps.
 //
-// Used twice: for guests on "/" (complete → /auth) and for signed-in
-// members after the launch splash (complete → coach-mark tour).
+// Used for guests on "/" and signed-in members after the launch splash.
 import { useRef, useState } from "react";
 import { ArrowRight, GraduationCap, HeartHandshake, Sparkles } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
@@ -374,11 +373,11 @@ export function OnboardingExperience({ onComplete }: { onComplete: () => void })
               boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
             }}
           >
-            {last ? "Continue to sign in or create account" : "Next"}
+            {last ? "Continue as Guest" : "Next"}
             <ArrowRight className="h-4 w-4" />
           </button>
           <p className="text-center text-[11px] text-muted-foreground mt-3">
-            {last ? "Takes you to sign in or create account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
+            {last ? "Browse PlugU without an account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
           </p>
         </div>
       </div>
