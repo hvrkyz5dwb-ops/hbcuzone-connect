@@ -179,8 +179,39 @@ function ago(iso: string): string {
 
 const NEWS_TOPICS: Record<string, { q: string; tag: string; emoji: string }> = {
   Students: { q: "college students campus life university", tag: "Students", emoji: "🎓" },
-  HBCUs: { q: "HBCU", tag: "HBCU", emoji: "🎓" },
-  "All HBCUs": { q: "HBCU", tag: "HBCU", emoji: "🎓" },
+  HBCUs: { q: "HBCU students OR homecoming OR campus", tag: "HBCU", emoji: "🎓" },
+  "All HBCUs": { q: "HBCU students OR homecoming OR campus", tag: "HBCU", emoji: "🎓" },
+  "Black Culture": {
+    q: "Black culture OR Black community news",
+    tag: "Culture",
+    emoji: "✊🏾",
+  },
+  "Music & Style": {
+    q: "hip hop OR R&B OR Black fashion OR sneakers culture",
+    tag: "Music",
+    emoji: "🎧",
+  },
+  "Black Voices": {
+    q: "young Black Americans OR Gen Z Black students",
+    tag: "Voices",
+    emoji: "🗣️",
+  },
+  "Black Entertainment": {
+    q: "Black film OR television OR celebrity culture",
+    tag: "Screen",
+    emoji: "🎬",
+  },
+  "Black Sports": {
+    q: "HBCU sports OR Black athletes college",
+    tag: "Sports",
+    emoji: "🏈",
+  },
+  "Black Business": {
+    q: "Black entrepreneurs OR Black-owned business",
+    tag: "Business",
+    emoji: "💼",
+  },
+
   Campus: { q: "college campus students news", tag: "Campus", emoji: "🏫" },
   Sports: { q: "college football OR basketball students", tag: "Sports", emoji: "🏈" },
   Culture: { q: "college culture homecoming band students", tag: "Culture", emoji: "🎺" },
