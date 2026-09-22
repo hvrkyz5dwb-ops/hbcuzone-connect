@@ -9,7 +9,10 @@ import { AppShell } from "@/components/AppShell";
 import { CampusBar } from "@/components/campus/CampusBar";
 import { UniversalSearchPanel } from "@/components/UniversalSearchPanel";
 import { ChargingLoader } from "@/components/ChargingLoader";
-import { listings } from "@/lib/mock-data";
+import { useMarketplace } from "@/hooks/use-listings";
+import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
+import { formatPrice, type PriceType } from "@/lib/categories";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
 import { askPlugU } from "@/lib/plugai.functions";
 import type { AskPlugUResult } from "@/lib/plugai-types";
@@ -82,6 +85,7 @@ function SearchPage() {
   const [openNow, setOpenNow] = useState(false);
   const [availability, setAvailability] = useState<"any" | "today" | "week">("any");
   const [sort, setSort] = useState(SORTS[0]);
+  const marketplace = useMarketplace({ q: query || undefined, campus_scope: "all", limit: 60 });
 
   useEffect(() => {
     const nextQ = query || undefined;
@@ -100,26 +104,25 @@ function SearchPage() {
     const t = SEARCH_TYPES.find((s) => s.key === type);
     const typeMatch = t ? new Set(t.match.map((m) => m.toLowerCase())) : null;
     const q = query.trim().toLowerCase();
-    const priceNum = (p: string) => parseFloat(p.replace(/[^0-9.]/g, "")) || 0;
-
-    let arr = listings.filter((l) => {
+    let arr = (marketplace.data ?? []).filter((l) => {
       if (typeMatch && !typeMatch.has(l.category.toLowerCase())) return false;
-      if (q && !`${l.title} ${l.seller} ${l.category}`.toLowerCase().includes(q)) return false;
-      if (school !== "Any school" && !l.campus.toLowerCase().includes(school.toLowerCase())) return false;
-      if (priceNum(l.price) > maxPrice) return false;
-      if (l.rating < minRating) return false;
+      if (q && !`${l.title} ${l.description ?? ""} ${l.seller?.display_name ?? ""} ${l.category}`.toLowerCase().includes(q)) return false;
+      if (school !== "Any school" && !(l.campus_name ?? l.seller?.school_name ?? "").toLowerCase().includes(school.toLowerCase())) return false;
+      if (l.price_cents > maxPrice * 100) return false;
+      if ((l.seller?.rating_avg ?? 0) < minRating) return false;
+      if (verifiedOnly && l.seller?.verification_status !== "verified") return false;
       return true;
     });
 
     switch (sort) {
       case "Newest": arr = [...arr].reverse(); break;
-      case "Trending": arr = [...arr].sort((a, b) => b.rating - a.rating); break;
-      case "Price: Low → High": arr = [...arr].sort((a, b) => priceNum(a.price) - priceNum(b.price)); break;
-      case "Price: High → Low": arr = [...arr].sort((a, b) => priceNum(b.price) - priceNum(a.price)); break;
-      case "Top Rated": arr = [...arr].sort((a, b) => b.rating - a.rating); break;
+      case "Trending": arr = [...arr].sort((a, b) => b.favorite_count - a.favorite_count); break;
+      case "Price: Low → High": arr = [...arr].sort((a, b) => a.price_cents - b.price_cents); break;
+      case "Price: High → Low": arr = [...arr].sort((a, b) => b.price_cents - a.price_cents); break;
+      case "Top Rated": arr = [...arr].sort((a, b) => (b.seller?.rating_avg ?? 0) - (a.seller?.rating_avg ?? 0)); break;
     }
     return arr;
-  }, [type, query, school, maxPrice, minRating, sort]);
+  }, [marketplace.data, type, query, school, maxPrice, minRating, verifiedOnly, sort]);
 
   return (
     <AppShell title="SEARCH">
@@ -205,10 +208,14 @@ type Filters = {
   sort: string; setSort: (s: string) => void;
 };
 
-function BrowseTab({ type, setType, showFilters, filters, results }: { type: string; setType: (s: string) => void; showFilters: boolean; filters: Filters; results: typeof listings }) {
+function BrowseTab({ type, setType, showFilters, filters, results }: { type: string; setType: (s: string) => void; showFilters: boolean; filters: Filters; results: ListingWithExtras[] }) {
+  const navigate = useNavigate();
+  const { session } = useSession();
   const [saved, setSaved] = useState<Set<string>>(new Set());
 
-  function toggleSave(id: string, title: string) {
+  async function toggleSave(id: string, title: string) {
+    if (!session) { requestAuthentication(); return; }
+    await toggleFavorite(id);
     setSaved((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -248,7 +255,7 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
             style={{ animation: `plugu-fade-up 0.35s ease-out ${i * 30}ms both` }}
           >
             <div className="relative aspect-square bg-secondary">
-              <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
+               <button type="button" onClick={() => navigate({ to: "/checkout/$listingId", params: { listingId: l.id } })} className="block h-full w-full"><img src={l.images[0]?.url} alt={l.title} loading="lazy" className="w-full h-full object-cover" /></button>
               <span className="absolute bottom-2 left-2 text-[10px] tracking-wider uppercase px-2 py-1 rounded-full bg-background/70 backdrop-blur">{l.category}</span>
               <button
                 aria-label={saved.has(l.id) ? "Remove from saved" : "Save"}
@@ -261,15 +268,15 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
             </div>
             <div className="p-3">
               <p className="text-sm font-medium line-clamp-2">{l.title}</p>
-              <p className="text-primary font-bold mt-1">{l.price}</p>
+               <p className="text-primary font-bold mt-1">{formatPrice(l.price_cents, l.price_type as PriceType)}</p>
               <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="truncate inline-flex items-center gap-1">
-                  {l.seller} <VerifiedStudentBadge size="xs" iconOnly />
+                   {l.seller?.display_name ?? l.seller?.username} <VerifiedStudentBadge size="xs" iconOnly />
                 </span>
-                <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-accent fill-accent" />{l.rating}</span>
+                 <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-accent fill-accent" />{(l.seller?.rating_avg ?? 0).toFixed(1)}</span>
               </div>
               <p className="mt-1 text-[10px] text-muted-foreground inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {l.campus}
+                 <MapPin className="h-3 w-3" /> {l.campus_name ?? l.seller?.school_name}
               </p>
             </div>
           </article>
