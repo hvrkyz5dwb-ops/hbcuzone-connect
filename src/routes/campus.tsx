@@ -12,6 +12,8 @@ import { useCampusEvents, useMyRsvps, useOrgFollows, useOrgs, useRsvpToggle } fr
 import { useProfile } from "@/hooks/use-profile";
 import { bucketOf, categoryMeta, EVENT_CATEGORIES, type CampusEvent } from "@/lib/campus-db";
 import { toast } from "sonner";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 export const Route = createFileRoute("/campus")({
   validateSearch: (s: Record<string, unknown>): { event?: string } => ({
@@ -54,6 +56,7 @@ function CampusHub() {
   const [q, setQ] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(deepLinkId ?? null);
+  const { session } = useSession();
 
   // Remember the last section the student visited.
   useEffect(() => { setSection(readLastSection()); }, []);
@@ -109,7 +112,7 @@ function CampusHub() {
         <div className="mt-1 flex items-end justify-between gap-3">
           <h1 className="text-2xl font-bold tracking-tight">Campus Hub</h1>
           <button
-            onClick={() => setCreateOpen(true)}
+            onClick={() => session ? setCreateOpen(true) : requestAuthentication()}
             className="tap inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-semibold text-primary-foreground"
             style={{ background: "var(--gradient-bronze)", boxShadow: "var(--shadow-glow)" }}
           >
@@ -151,7 +154,7 @@ function CampusHub() {
         {isLoading ? (
           <PageLoader message="Loading campus hub…" />
         ) : section === "events" ? (
-          <EventsSection events={filtered} goingSet={goingSet} onOpen={setOpenId} onCreate={() => setCreateOpen(true)} />
+          <EventsSection events={filtered} goingSet={goingSet} onOpen={setOpenId} onCreate={() => session ? setCreateOpen(true) : requestAuthentication()} />
         ) : section === "pulse" ? (
           <PulseSection events={filtered} onOpen={setOpenId} />
         ) : section === "map" ? (
@@ -176,6 +179,7 @@ function EventCard({
 }: { ev: CampusEvent; going: boolean; onOpen: (id: string) => void }) {
   const cat = categoryMeta(ev.category);
   const rsvp = useRsvpToggle();
+  const { session } = useSession();
   const live = bucketOf(ev) === "now";
   return (
     <li className="rounded-2xl border border-border bg-card overflow-hidden slide-up">
@@ -209,7 +213,7 @@ function EventCard({
           <Users className="h-3 w-3" /> {ev.rsvp_count} going
         </span>
         <button
-          onClick={() => rsvp.mutate({ eventId: ev.id, going: !going }, { onError: (e) => toast.error((e as Error).message) })}
+          onClick={() => session ? rsvp.mutate({ eventId: ev.id, going: !going }, { onError: (e) => toast.error((e as Error).message) }) : requestAuthentication()}
           disabled={rsvp.isPending}
           aria-pressed={going}
           className={`tap text-[11px] font-semibold rounded-full px-4 py-2 border transition-colors ${
@@ -443,6 +447,7 @@ function MapSection({ events, onOpen }: { events: CampusEvent[]; onOpen: (id: st
 /* ---------------- Orgs ---------------- */
 
 function OrgsSection({ query }: { query: string }) {
+  const { session } = useSession();
   const { data: orgs = [], isLoading } = useOrgs();
   const follows = useOrgFollows();
   const followSet = new Set(follows.data ?? []);
@@ -484,7 +489,7 @@ function OrgsSection({ query }: { query: string }) {
               {o.contact_email && <p className="text-[10px] text-muted-foreground truncate">{o.contact_email}</p>}
             </div>
             <button
-              onClick={() => follows.toggle.mutate({ orgId: o.id, following: !following }, { onError: (e) => toast.error((e as Error).message) })}
+              onClick={() => session ? follows.toggle.mutate({ orgId: o.id, following: !following }, { onError: (e) => toast.error((e as Error).message) }) : requestAuthentication()}
               aria-pressed={following}
               className={`tap text-[11px] font-semibold rounded-full px-3 py-2 border ${
                 following ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border"

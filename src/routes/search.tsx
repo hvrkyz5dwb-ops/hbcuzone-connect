@@ -7,9 +7,11 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CampusBar } from "@/components/campus/CampusBar";
-import { UniversalSearchPanel } from "@/components/UniversalSearchPanel";
 import { ChargingLoader } from "@/components/ChargingLoader";
-import { listings } from "@/lib/mock-data";
+import { useMarketplace } from "@/hooks/use-listings";
+import { toggleFavorite, type ListingWithExtras } from "@/lib/listings-db";
+import { formatPrice, type PriceType } from "@/lib/categories";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { askAI, type AskAIResult } from "@/lib/search.functions";
 import { askPlugU } from "@/lib/plugai.functions";
 import type { AskPlugUResult } from "@/lib/plugai-types";
@@ -50,7 +52,7 @@ const SUGGESTED_PROMPTS = [
 const SCHOOLS = ["Any school", "Howard", "Spelman", "Morehouse", "FAMU", "Hampton", "Talladega"];
 const SORTS = ["Best Match", "Newest", "Trending", "Price: Low → High", "Price: High → Low", "Top Rated"];
 
-const SearchParams = z.object({ q: z.string().optional(), tab: z.enum(["campus", "browse", "ai"]).optional() });
+const SearchParams = z.object({ q: z.string().optional(), tab: z.enum(["browse", "ai"]).optional() });
 
 export const Route = createFileRoute("/search")({
   validateSearch: SearchParams,
@@ -68,20 +70,18 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const sp = useSearch({ from: "/search" });
   const navigate = useNavigate({ from: "/search" });
-  const [tab, setTab] = useState<"campus" | "browse" | "ai">(sp.tab ?? "campus");
+  const [tab, setTab] = useState<"browse" | "ai">(sp.tab ?? "browse");
   const [query, setQuery] = useState(sp.q ?? "");
   const [type, setType] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // Filters
   const [school, setSchool] = useState(SCHOOLS[0]);
-  const [maxDistance, setMaxDistance] = useState(10);
   const [maxPrice, setMaxPrice] = useState(500);
   const [minRating, setMinRating] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [openNow, setOpenNow] = useState(false);
-  const [availability, setAvailability] = useState<"any" | "today" | "week">("any");
   const [sort, setSort] = useState(SORTS[0]);
+  const marketplace = useMarketplace({ q: query || undefined, campus_scope: "all", limit: 60 });
 
   useEffect(() => {
     const nextQ = query || undefined;
@@ -100,32 +100,31 @@ function SearchPage() {
     const t = SEARCH_TYPES.find((s) => s.key === type);
     const typeMatch = t ? new Set(t.match.map((m) => m.toLowerCase())) : null;
     const q = query.trim().toLowerCase();
-    const priceNum = (p: string) => parseFloat(p.replace(/[^0-9.]/g, "")) || 0;
-
-    let arr = listings.filter((l) => {
+    let arr = (marketplace.data ?? []).filter((l) => {
       if (typeMatch && !typeMatch.has(l.category.toLowerCase())) return false;
-      if (q && !`${l.title} ${l.seller} ${l.category}`.toLowerCase().includes(q)) return false;
-      if (school !== "Any school" && !l.campus.toLowerCase().includes(school.toLowerCase())) return false;
-      if (priceNum(l.price) > maxPrice) return false;
-      if (l.rating < minRating) return false;
+      if (q && !`${l.title} ${l.description ?? ""} ${l.seller?.display_name ?? ""} ${l.category}`.toLowerCase().includes(q)) return false;
+      if (school !== "Any school" && !(l.campus_name ?? l.seller?.school_name ?? "").toLowerCase().includes(school.toLowerCase())) return false;
+      if (l.price_cents > maxPrice * 100) return false;
+      if ((l.seller?.rating_avg ?? 0) < minRating) return false;
+      if (verifiedOnly && l.seller?.verification_status !== "verified") return false;
       return true;
     });
 
     switch (sort) {
       case "Newest": arr = [...arr].reverse(); break;
-      case "Trending": arr = [...arr].sort((a, b) => b.rating - a.rating); break;
-      case "Price: Low → High": arr = [...arr].sort((a, b) => priceNum(a.price) - priceNum(b.price)); break;
-      case "Price: High → Low": arr = [...arr].sort((a, b) => priceNum(b.price) - priceNum(a.price)); break;
-      case "Top Rated": arr = [...arr].sort((a, b) => b.rating - a.rating); break;
+      case "Trending": arr = [...arr].sort((a, b) => b.favorite_count - a.favorite_count); break;
+      case "Price: Low → High": arr = [...arr].sort((a, b) => a.price_cents - b.price_cents); break;
+      case "Price: High → Low": arr = [...arr].sort((a, b) => b.price_cents - a.price_cents); break;
+      case "Top Rated": arr = [...arr].sort((a, b) => (b.seller?.rating_avg ?? 0) - (a.seller?.rating_avg ?? 0)); break;
     }
     return arr;
-  }, [type, query, school, maxPrice, minRating, sort]);
+  }, [marketplace.data, type, query, school, maxPrice, minRating, verifiedOnly, sort]);
 
   return (
     <AppShell title="SEARCH">
       <CampusBar subtitle="Results are scoped to this campus first" />
       <section className="px-5 pt-4 sticky top-[64px] z-20 bg-background/85 backdrop-blur-xl pb-3 border-b border-border/50">
-        <div className={`items-center gap-2 ${tab === "campus" ? "hidden" : "flex"}`}>
+        <div className="flex items-center gap-2">
           <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
@@ -154,22 +153,17 @@ function SearchPage() {
           )}
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-card border border-border">
-          <TabBtn active={tab === "campus"} onClick={() => setTab("campus")} icon={Search} label="Everything" />
+        <div className="mt-3 grid grid-cols-2 gap-1 p-1 rounded-2xl bg-card border border-border">
           <TabBtn active={tab === "browse"} onClick={() => setTab("browse")} icon={SlidersHorizontal} label="Market" />
           <TabBtn active={tab === "ai"} onClick={() => setTab("ai")} icon={Sparkles} label="Ask AI" />
         </div>
       </section>
 
-      {tab === "campus" ? (
-        <div className="pt-4">
-          <UniversalSearchPanel query={query} setQuery={setQuery} />
-        </div>
-      ) : tab === "browse" ? (
+      {tab === "browse" ? (
         <BrowseTab
           type={type} setType={setType}
           showFilters={showFilters}
-          filters={{ school, setSchool, maxDistance, setMaxDistance, maxPrice, setMaxPrice, minRating, setMinRating, verifiedOnly, setVerifiedOnly, openNow, setOpenNow, availability, setAvailability, sort, setSort }}
+          filters={{ school, setSchool, maxPrice, setMaxPrice, minRating, setMinRating, verifiedOnly, setVerifiedOnly, sort, setSort }}
           results={results}
         />
       ) : (
@@ -196,19 +190,20 @@ function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onCli
 
 type Filters = {
   school: string; setSchool: (v: string) => void;
-  maxDistance: number; setMaxDistance: (n: number) => void;
   maxPrice: number; setMaxPrice: (n: number) => void;
   minRating: number; setMinRating: (n: number) => void;
   verifiedOnly: boolean; setVerifiedOnly: (b: boolean) => void;
-  openNow: boolean; setOpenNow: (b: boolean) => void;
-  availability: "any" | "today" | "week"; setAvailability: (v: "any" | "today" | "week") => void;
   sort: string; setSort: (s: string) => void;
 };
 
-function BrowseTab({ type, setType, showFilters, filters, results }: { type: string; setType: (s: string) => void; showFilters: boolean; filters: Filters; results: typeof listings }) {
+function BrowseTab({ type, setType, showFilters, filters, results }: { type: string; setType: (s: string) => void; showFilters: boolean; filters: Filters; results: ListingWithExtras[] }) {
+  const navigate = useNavigate();
+  const { session } = useSession();
   const [saved, setSaved] = useState<Set<string>>(new Set());
 
-  function toggleSave(id: string, title: string) {
+  async function toggleSave(id: string, title: string) {
+    if (!session) { requestAuthentication(); return; }
+    await toggleFavorite(id);
     setSaved((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -248,7 +243,7 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
             style={{ animation: `plugu-fade-up 0.35s ease-out ${i * 30}ms both` }}
           >
             <div className="relative aspect-square bg-secondary">
-              <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
+               <button type="button" onClick={() => navigate({ to: "/checkout/$listingId", params: { listingId: l.id } })} className="block h-full w-full"><img src={l.images[0]?.url} alt={l.title} loading="lazy" className="w-full h-full object-cover" /></button>
               <span className="absolute bottom-2 left-2 text-[10px] tracking-wider uppercase px-2 py-1 rounded-full bg-background/70 backdrop-blur">{l.category}</span>
               <button
                 aria-label={saved.has(l.id) ? "Remove from saved" : "Save"}
@@ -261,15 +256,15 @@ function BrowseTab({ type, setType, showFilters, filters, results }: { type: str
             </div>
             <div className="p-3">
               <p className="text-sm font-medium line-clamp-2">{l.title}</p>
-              <p className="text-primary font-bold mt-1">{l.price}</p>
+               <p className="text-primary font-bold mt-1">{formatPrice(l.price_cents, l.price_type as PriceType)}</p>
               <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="truncate inline-flex items-center gap-1">
-                  {l.seller} <VerifiedStudentBadge size="xs" iconOnly />
+                   {l.seller?.display_name ?? l.seller?.username} <VerifiedStudentBadge size="xs" iconOnly />
                 </span>
-                <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-accent fill-accent" />{l.rating}</span>
+                 <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-accent fill-accent" />{(l.seller?.rating_avg ?? 0).toFixed(1)}</span>
               </div>
               <p className="mt-1 text-[10px] text-muted-foreground inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {l.campus}
+                 <MapPin className="h-3 w-3" /> {l.campus_name ?? l.seller?.school_name}
               </p>
             </div>
           </article>
@@ -304,23 +299,10 @@ function FiltersPanel({ f }: { f: Filters }) {
             {SCHOOLS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </Row>
-        <Slider label={`Distance: ${f.maxDistance} mi`} min={1} max={25} value={f.maxDistance} onChange={f.setMaxDistance} />
         <Slider label={`Max Price: $${f.maxPrice}`} min={5} max={500} step={5} value={f.maxPrice} onChange={f.setMaxPrice} />
         <Slider label={`Min Rating: ${f.minRating.toFixed(1)}★`} min={0} max={5} step={0.5} value={f.minRating} onChange={f.setMinRating} />
-        <Row label="Availability">
-          <div className="flex gap-1.5">
-            {(["any", "today", "week"] as const).map((a) => (
-              <button key={a} onClick={() => f.setAvailability(a)} className={`tap text-[11px] px-3 py-1.5 rounded-full border ${f.availability === a ? "bg-primary/15 border-primary/60 text-primary" : "border-border text-muted-foreground"}`}>
-                {a === "any" ? "Any" : a === "today" ? "Today" : "This week"}
-              </button>
-            ))}
-          </div>
-        </Row>
         <Row label="Verified Seller">
           <Toggle on={f.verifiedOnly} onChange={f.setVerifiedOnly} />
-        </Row>
-        <Row label="Open Now">
-          <Toggle on={f.openNow} onChange={f.setOpenNow} />
         </Row>
         <Row label="Sort">
           <select value={f.sort} onChange={(e) => f.setSort(e.target.value)} className="bg-secondary border border-border rounded-lg px-3 py-2 text-xs outline-none">

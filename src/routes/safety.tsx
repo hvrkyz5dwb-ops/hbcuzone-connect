@@ -1,231 +1,79 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  AlertTriangle, Phone, MapPin, ShieldCheck, GraduationCap, Heart,
-  Car, BookOpen, Home, Calendar, Tag, Bell, Search, Mail
-} from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { AlertTriangle, Ban, FileText, HeartHandshake, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { toast } from "sonner";
-import { lostAndFound, rideBoard, studyGroups, housingBoard, studentDeals, events } from "@/lib/mock-data";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 export const Route = createFileRoute("/safety")({
-  head: () => ({ meta: [{ title: "Safety & Tools — PlugU" }] }),
-  component: SafetyHub,
+  head: () => ({
+    meta: [
+      { title: "Safety Center — PlugU" },
+      { name: "description", content: "PlugU safety tools, reporting, blocking, community standards, and support." },
+    ],
+  }),
+  component: SafetyCenter,
 });
 
-const TABS = [
-  { key: "verify", label: ".edu Verify", icon: GraduationCap },
-  { key: "lost", label: "Lost & Found", icon: Search },
-  { key: "rides", label: "Rides", icon: Car },
-  { key: "study", label: "Study", icon: BookOpen },
-  { key: "housing", label: "Housing", icon: Home },
-  { key: "events", label: "Events", icon: Calendar },
-  { key: "deals", label: "Deals", icon: Tag },
-  { key: "notif", label: "Alerts", icon: Bell },
-] as const;
-
-function SafetyHub() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("verify");
-  const [sos, setSos] = useState(false);
-  const [verifyEmail, setVerifyEmail] = useState("");
-
-  function sendVerification() {
-    const email = verifyEmail.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.edu$/.test(email)) {
-      toast.error("Enter a valid .edu email address");
-      return;
-    }
-    toast.success(`Verification link sent to ${email}`);
-    setVerifyEmail("");
-  }
-
+function SafetyCenter() {
+  const { session } = useSession();
   return (
-    <AppShell title="SAFETY & TOOLS">
-      {/* Emergency button */}
-      <section className="px-5 pt-5">
-        <button
-          onClick={() => setSos(true)}
-          className="w-full rounded-2xl bg-destructive/15 border border-destructive/40 p-4 flex items-center gap-3 text-left"
-        >
-          <div className="h-12 w-12 rounded-full grid place-items-center bg-destructive text-destructive-foreground">
-            <AlertTriangle className="h-6 w-6" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-destructive">Emergency — Campus Safety</p>
-            <p className="text-[11px] text-muted-foreground">Tap to call escort + share your location.</p>
-          </div>
-          <Phone className="h-5 w-5 text-destructive" />
-        </button>
-        {sos && (
-          <p className="mt-2 text-[11px] text-center text-destructive">
-            Connecting to campus safety… (demo)
+    <AppShell title="SAFETY CENTER">
+      <section className="px-5 pt-6 pb-8">
+        <div className="rounded-3xl border border-primary/35 bg-primary/5 p-5">
+          <ShieldCheck className="h-7 w-7 text-primary" />
+          <h1 className="mt-3 text-xl font-bold">Your safety comes first</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            PlugU combines school-email verification, content moderation, reporting, and blocking to support safer campus commerce.
           </p>
-        )}
-      </section>
+        </div>
 
-      <nav tabIndex={0} className="mt-4 flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const active = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border ${
-                active
-                  ? "bg-[image:var(--gradient-bronze)] text-primary-foreground border-primary"
-                  : "bg-card text-muted-foreground border-border"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" /> {t.label}
-            </button>
-          );
-        })}
-      </nav>
+        <div className="mt-5 grid gap-3">
+          <SafetyCard icon={FileText} title="Report content" body="Open the menu on a listing, profile, message, or community post and choose Report. Reports are reviewed by PlugU’s moderation team." />
+          <SafetyCard icon={Ban} title="Block a user" body="Blocking hides that person’s content and prevents contact. You can review blocked accounts from Settings at any time." />
+          <SafetyCard icon={HeartHandshake} title="Meet and trade safely" body="Meet in a public campus location, inspect items before accepting them, and keep communication inside PlugU." />
+        </div>
 
-      <section className="px-5 mt-3 pb-6 space-y-3">
-        {tab === "verify" && (
-          <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium">Verify with your .edu email</p>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <Link to="/community-guidelines" className="tap inline-flex min-h-11 items-center justify-center rounded-2xl border border-border bg-card px-4 text-sm font-semibold">
+            Community Guidelines
+          </Link>
+          <Link to="/prohibited-items" className="tap inline-flex min-h-11 items-center justify-center rounded-2xl border border-border bg-card px-4 text-sm font-semibold">
+            Prohibited Items
+          </Link>
+          <Link
+            to="/blocked"
+            onClick={(event) => { if (!session) { event.preventDefault(); requestAuthentication(); } }}
+            className="tap inline-flex min-h-11 items-center justify-center rounded-2xl border border-border bg-card px-4 text-sm font-semibold"
+          >
+            Manage Blocked Users
+          </Link>
+          <Link to="/support" className="tap inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 text-sm font-semibold">
+            <Mail className="h-4 w-4" /> Contact Support
+          </Link>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-destructive/35 bg-destructive/10 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+            <div>
+              <h2 className="text-sm font-semibold">Emergency help</h2>
+              <p className="mt-1 text-xs text-muted-foreground">If anyone is in immediate danger, call 911 or your campus public-safety department.</p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Get the verified student badge, join campus-only chats, and unlock student deals.
-            </p>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary border border-border">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <input
-                type="email"
-                value={verifyEmail}
-                onChange={(e) => setVerifyEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") sendVerification(); }}
-                placeholder="you@school.edu"
-                aria-label="School email"
-                className="bg-transparent flex-1 text-sm outline-none"
-              />
-            </div>
-            <button
-              onClick={sendVerification}
-              className="tap w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
-            >
-              Send verification link
-            </button>
           </div>
-        )}
-
-        {tab === "lost" && (
-          <Listing
-            items={lostAndFound.map((i) => ({
-              title: i.title,
-              meta: `${i.kind} · ${i.where} · ${i.when}`,
-            }))}
-            cta="Post item"
-          />
-        )}
-
-        {tab === "rides" && (
-          <Listing
-            items={rideBoard.map((r) => ({
-              title: `${r.from} → ${r.to}`,
-              meta: `${r.when} · ${r.seats} seats · ${r.price}`,
-            }))}
-            cta="Offer / request ride"
-          />
-        )}
-
-        {tab === "study" && (
-          <Listing
-            items={studyGroups.map((s) => ({
-              title: `${s.course} — ${s.topic}`,
-              meta: `${s.when} · ${s.where} · ${s.size} people`,
-            }))}
-            cta="Start a group"
-          />
-        )}
-
-        {tab === "housing" && (
-          <Listing
-            items={housingBoard.map((h) => ({
-              title: h.title,
-              meta: `${h.rent} · ${h.when} · ${h.contact}`,
-            }))}
-            cta="Post a room"
-          />
-        )}
-
-        {tab === "events" && (
-          <Listing
-            items={events.map((e) => ({
-              title: e.title,
-              meta: `${e.when} · ${e.where}`,
-            }))}
-            cta="Add event"
-          />
-        )}
-
-        {tab === "deals" && (
-          <Listing
-            items={studentDeals.map((d) => ({
-              title: `${d.brand} — ${d.offer}`,
-              meta: `Code: ${d.code}`,
-            }))}
-            cta="Submit a deal"
-          />
-        )}
-
-        {tab === "notif" && (
-          <ul className="rounded-2xl bg-card border border-border divide-y divide-border">
-            {[
-              ["New message alerts", true],
-              ["Listing replies", true],
-              ["Campus safety alerts", true],
-              ["Event reminders", false],
-              ["Campus drops", false],
-            ].map(([label, on]) => (
-              <li key={String(label)} className="flex items-center justify-between px-4 py-3 text-sm">
-                <span>{label as string}</span>
-                <span
-                  className={`h-6 w-10 rounded-full p-0.5 ${on ? "bg-primary" : "bg-secondary"}`}
-                >
-                  <span className={`block h-5 w-5 rounded-full bg-background transition-transform ${on ? "translate-x-4" : ""}`} />
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="pt-2 grid grid-cols-2 gap-2">
-          <Link to="/saved" className="rounded-2xl bg-card border border-border p-3 text-sm flex items-center gap-2">
-            <Heart className="h-4 w-4 text-primary" /> Saved listings
-          </Link>
-          <Link to="/map" className="rounded-2xl bg-card border border-border p-3 text-sm flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" /> Campus map
-          </Link>
+          <a href="tel:911" className="tap mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-destructive px-4 text-sm font-bold text-destructive-foreground">
+            <MapPin className="h-4 w-4" /> Call 911
+          </a>
         </div>
       </section>
     </AppShell>
   );
 }
 
-function Listing({ items, cta }: { items: { title: string; meta: string }[]; cta: string }) {
-  const navigate = useNavigate();
+function SafetyCard({ icon: Icon, title, body }: { icon: typeof ShieldCheck; title: string; body: string }) {
   return (
-    <>
-      <ul className="rounded-2xl bg-card border border-border divide-y divide-border">
-        {items.map((it, i) => (
-          <li key={i} className="px-4 py-3">
-            <p className="text-sm font-medium">{it.title}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{it.meta}</p>
-          </li>
-        ))}
-      </ul>
-      <button
-        onClick={() => navigate({ to: "/community" })}
-        className="tap mt-3 w-full py-2.5 rounded-xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-sm font-medium"
-      >
-        {cta}
-      </button>
-    </>
+    <article className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2"><Icon className="h-4 w-4 text-primary" /><h2 className="text-sm font-semibold">{title}</h2></div>
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{body}</p>
+    </article>
   );
 }

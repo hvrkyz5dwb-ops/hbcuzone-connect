@@ -18,13 +18,22 @@ import {
 } from "@/lib/orders-db";
 import { useOpenSlots } from "@/hooks/use-orders";
 import { getStripeStatus, createCheckoutSession } from "@/lib/stripe.functions";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 type PaymentMethod = "apple_pay" | "cash_app" | "card";
 const paymentLabel = (m: PaymentMethod) =>
   m === "apple_pay" ? "Apple Pay" : m === "cash_app" ? "Cash App Pay" : "Card";
 
 export const Route = createFileRoute("/checkout/$listingId")({
-  head: () => ({ meta: [{ title: "Protected Checkout — PlugU" }] }),
+  head: () => ({ meta: [
+    { title: "Listing Details — PlugU" },
+    { name: "description", content: "View a complete student marketplace listing on PlugU." },
+    { property: "og:title", content: "PlugU Marketplace Listing" },
+    { property: "og:description", content: "View product and service details from a verified campus seller." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ProtectedCheckout,
 });
 
@@ -42,6 +51,7 @@ const PROCESSING_FLAT_CENTS = 30;
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
+  const { session } = useSession();
   const { data: listing, isPending, isError, refetch } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListing(listingId),
@@ -74,17 +84,17 @@ function ProtectedCheckout() {
 
   if (isPending) {
     return (
-      <AppShell title="CHECKOUT">
-        <PageLoader message="Preparing checkout…" />
+      <AppShell title="LISTING">
+        <PageLoader message="Loading listing…" />
       </AppShell>
     );
   }
 
   if (isError) {
     return (
-      <AppShell title="CHECKOUT">
+      <AppShell title="LISTING">
         <ErrorState
-          title="Checkout didn't load"
+          title="Listing didn't load"
           description="We couldn't reach this listing. Check your connection and try again."
           onRetry={() => void refetch()}
         />
@@ -94,7 +104,7 @@ function ProtectedCheckout() {
 
   if (!listing) {
     return (
-      <AppShell title="CHECKOUT">
+      <AppShell title="LISTING">
         <section className="px-5 pt-10 text-center">
           <p className="text-sm text-muted-foreground">This listing is no longer available.</p>
           <Link to="/market" className="mt-4 inline-block text-xs text-accent">← Back to market</Link>
@@ -103,14 +113,25 @@ function ProtectedCheckout() {
     );
   }
 
-  const cover = listing.images[0]?.url ?? "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600";
-  const sellerName = listing.campus_name ?? "PlugU seller";
+  const cover = listing.images[0]?.url;
+  if (!cover) {
+    return (
+      <AppShell title="LISTING">
+        <section className="px-5 pt-10 text-center">
+          <p className="text-sm text-muted-foreground">This listing is no longer available.</p>
+          <Link to="/market" className="tap mt-4 inline-flex min-h-11 items-center text-xs text-accent">Back to market</Link>
+        </section>
+      </AppShell>
+    );
+  }
+  const sellerName = listing.seller?.display_name ?? listing.seller?.username ?? listing.campus_name ?? "Student seller";
   const campusName = listing.campus_name ?? "";
   const fulfillmentOptions = listing.fulfillment && listing.fulfillment.length > 0 ? listing.fulfillment : ["pickup"];
   const effectiveFulfillment = fulfillment || fulfillmentOptions[0];
 
   async function placeOrder() {
     if (!listing) return;
+    if (!session) { requestAuthentication(); return; }
     if (loading) return;
     setLoading(true);
     try {
@@ -147,7 +168,7 @@ function ProtectedCheckout() {
         // Honest: order reserved, but payment is not accepted yet.
         setPlaced(id);
         toast.message("Order reserved — payment not collected", {
-          description: "Checkout is unavailable during the current test environment.",
+          description: "Online payment is not available for this listing.",
         });
       }
     } catch (err) {
@@ -218,13 +239,13 @@ function ProtectedCheckout() {
   }
 
   return (
-    <AppShell title="CHECKOUT">
+    <AppShell title="LISTING">
       <section className="px-5 pt-4 pb-6 slide-up">
         <Link to="/market" className="tap inline-flex items-center gap-1 text-[11px] text-muted-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to market
         </Link>
 
-        {/* Order summary */}
+        {/* Listing summary */}
         <div className="mt-3 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <img src={cover} alt={listing.title} className="h-16 w-16 rounded-xl object-cover" />
@@ -240,14 +261,19 @@ function ProtectedCheckout() {
               {isService ? "Service" : "Product"}
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
+          {paymentsLive && <div className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1.5">
             <Row label="Item" value={centsToDollars(subtotalCents)} />
             <Row label="Platform fee (8%)" value={centsToDollars(preview.platform)} muted />
             <Row label="Processing (2.9% + $0.30)" value={centsToDollars(preview.processing)} muted />
             <Row label="Total" value={centsToDollars(preview.total)} bold />
             <p className="text-[10px] text-muted-foreground pt-1">Final totals confirmed server-side at checkout.</p>
-          </div>
+          </div>}
         </div>
+
+        <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+          <h2 className="text-sm font-semibold">About this {isService ? "service" : "item"}</h2>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{listing.description}</p>
+        </section>
 
         {/* Service: slot picker */}
         {isService && (
@@ -307,7 +333,7 @@ function ProtectedCheckout() {
         )}
 
         {/* Protected by PlugU */}
-        <div
+        {paymentsLive && <div
           className="mt-4 rounded-2xl p-4"
           style={{
             background: "linear-gradient(160deg, rgba(28,28,28,0.9), rgba(10,10,10,0.9))",
@@ -325,9 +351,10 @@ function ProtectedCheckout() {
             <li className="flex items-center gap-2"><Lock className="h-3.5 w-3.5 text-accent" /> Funds held in escrow until you confirm</li>
             <li className="flex items-center gap-2"><RefreshCw className="h-3.5 w-3.5 text-accent" /> 48-hour refund window after delivery</li>
           </ul>
-        </div>
+        </div>}
 
         {/* Payment methods */}
+        {paymentsLive && <>
         <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Payment</p>
         <div className="mt-2 space-y-2">
           {METHODS.map((m) => {
@@ -364,6 +391,7 @@ function ProtectedCheckout() {
           })}
         </div>
 
+
         {/* Meetup / notes */}
         <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">
           {isService ? "Notes for provider" : "Meetup & notes"}
@@ -390,36 +418,36 @@ function ProtectedCheckout() {
           />
         </div>
 
-        {!paymentsLive && (
-          <div className="mt-5 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 flex gap-2 text-[11px] text-amber-200">
-            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-amber-100">Checkout is unavailable in this test environment.</p>
-              <p className="mt-0.5 text-amber-200/80">
-                No card will be charged. You can reserve an order to coordinate with the seller,
-                but payments turn on once PlugU connects Stripe.
-              </p>
-            </div>
-          </div>
-        )}
-
         <button
           disabled={loading || (isService && !slotId)}
           onClick={placeOrder}
           className="mt-4 w-full py-3.5 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-bronze)" }}
         >
-          {loading
-            ? (paymentsLive ? "Redirecting to Stripe…" : "Reserving order…")
-            : paymentsLive
-              ? `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`
-              : `Reserve order · ${centsToDollars(preview.total)}`}
+          {loading ? "Opening secure checkout…" : `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`}
         </button>
         <p className="mt-2 text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
-          {paymentsLive
-            ? `Secure checkout · Stripe ${stripeStatusQ.data?.mode ?? "test"} mode`
-            : "No payment collected · Test environment"}
+          Secure checkout
         </p>
+        </>}
+
+        {!paymentsLive && (
+          <button
+            type="button"
+            onClick={async () => {
+              if (!session) { requestAuthentication(); return; }
+              try {
+                const convId = await getOrCreateConversation(listing.seller_user_id, listing.id);
+                navigate({ to: "/messages/$id", params: { id: convId } });
+              } catch (error) {
+                toast.error("Couldn’t open chat", { description: (error as Error).message });
+              }
+            }}
+            className="tap mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/10 px-4 text-sm font-semibold text-primary"
+          >
+            <MessageSquare className="h-4 w-4" /> Message seller
+          </button>
+        )}
       </section>
     </AppShell>
   );

@@ -118,19 +118,6 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     rows.sort((a, b) => (b.favorite_count ?? 0) - (a.favorite_count ?? 0)); // fallback proxy
   }
 
-  // Category placement by earned seller standing — nothing here is
-  // purchasable. Array.prototype.sort is stable, so each tier keeps its
-  // existing relevance order.
-  if (rows.length > 1) {
-    const sellerIds = [...new Set(rows.map((r) => r.seller_user_id))];
-    const { data: ranks } = await supabase.rpc("seller_plan_ranks", { _seller_ids: sellerIds });
-    const list = (ranks ?? []) as unknown as { user_id: string; plan_code: string }[];
-    if (list.length > 0) {
-      const rankOf = new Map(list.map((r) => [r.user_id, r.plan_code === "kingpin" ? 0 : 1]));
-      rows.sort((a, b) => (rankOf.get(a.seller_user_id) ?? 2) - (rankOf.get(b.seller_user_id) ?? 2));
-    }
-  }
-
   // Attach the public seller card (display name, school, verification state).
   // Only public_profiles columns — private data such as email never leaves the
   // database.
@@ -144,11 +131,22 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     for (const r of rows) r.seller = (byId.get(r.seller_user_id) as ListingWithExtras["seller"]) ?? null;
   }
 
-  if (filters.verified_only) {
-    return rows.filter((r) => r.seller?.verification_status === "verified");
-  }
+  const complete = rows.filter((r) =>
+    r.title.trim().length > 0 &&
+    (r.description?.trim().length ?? 0) > 0 &&
+    r.price_cents >= 0 &&
+    r.category.trim().length > 0 &&
+    !!r.school_id &&
+    !!r.campus_name?.trim() &&
+    r.images.some((image) => /^https?:\/\//i.test(image.url)) &&
+    !!r.seller &&
+    !!(r.seller.display_name?.trim() || r.seller.username?.trim()) &&
+    !!r.seller.school_name?.trim()
+  );
 
-  return rows;
+  return filters.verified_only
+    ? complete.filter((r) => r.seller?.verification_status === "verified")
+    : complete;
 }
 
 /** All listings the caller owns (any status). */

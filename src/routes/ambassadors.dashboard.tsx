@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Users, Building2, TrendingUp, Trophy, Calendar } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/ambassadors/dashboard")({
 });
 
 function AmbassadorDashboard() {
+  return <Navigate to="/" replace />;
   const [state, setState] = useState(() => ({ app: getAmbassador(), ref: getReferralState() }));
   useEffect(() => {
     setState({ app: getAmbassador(), ref: getReferralState() });

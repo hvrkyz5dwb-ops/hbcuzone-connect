@@ -28,6 +28,7 @@ import { blockUser } from "@/lib/moderation";
 import { isAppReviewEmail } from "@/lib/auth";
 import { findCampusCoord, haversineKm } from "@/lib/campus-coords";
 import { openAppSettings } from "@/lib/native";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 
 const CampusMap = lazy(() => import("@/components/campus/CampusMap"));
@@ -406,6 +407,7 @@ function MapPage() {
           onClose={() => setSelected(null)}
           saved={(saved.data ?? []).includes(selected.id)}
           onSaveToggle={async (isSaved) => {
+            if (!session) { requestAuthentication(); return; }
             try {
               await toggleSavedPlace(selected.id, isSaved);
               await saved.refetch();

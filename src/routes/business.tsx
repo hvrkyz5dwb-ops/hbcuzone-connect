@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import {
   Store, Package, Scissors, Image as ImageIcon, Tag, Calendar,
@@ -205,6 +205,7 @@ function NewListingSheet({
 /* ---------------- Page ---------------- */
 
 function BusinessCenter() {
+  return <Navigate to="/seller" replace />;
   const [tab, setTab] = useState<TabKey>("overview");
   const [sheet, setSheet] = useState<null | "product" | "service">(null);
   const [discountCode, setDiscountCode] = useState("");

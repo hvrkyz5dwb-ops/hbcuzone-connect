@@ -13,6 +13,7 @@ import { ReportDialog } from "@/components/ReportDialog";
 import { blockUser, unblockUser } from "@/lib/moderation";
 import { useSession } from "@/hooks/use-session";
 import { useBlocklist, useRefreshBlocklist } from "@/hooks/use-blocklist";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 export const Route = createFileRoute("/u/$username")({
   ssr: false,
@@ -107,7 +108,7 @@ function PublicProfile() {
   const blockedByMe = isBlocked(p.id);
 
   async function onBlock() {
-    if (!meId) return toast.error("Sign in to block");
+    if (!meId) { requestAuthentication(); return; }
     setBlocking(true);
     try {
       await blockUser(p!.id);
@@ -194,12 +195,12 @@ function PublicProfile() {
 
         {p.bio && <p className="mt-3 text-sm text-muted-foreground max-w-sm mx-auto">{p.bio}</p>}
 
-        {!isSelf && meId && (
+        {!isSelf && (
           <div className="mt-4 flex justify-center gap-2">
-            <button onClick={() => setReportOpen(true)} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-accent/40 text-accent bg-accent/5">
+            <button onClick={() => meId ? setReportOpen(true) : requestAuthentication()} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-accent/40 text-accent bg-accent/5">
               <Flag className="h-3 w-3"/> Report
             </button>
-            <button onClick={() => setConfirmBlock(true)} disabled={blocking} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-destructive/40 text-destructive bg-destructive/5 disabled:opacity-60">
+            <button onClick={() => meId ? setConfirmBlock(true) : requestAuthentication()} disabled={blocking} className="tap inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] border border-destructive/40 text-destructive bg-destructive/5 disabled:opacity-60">
               <Ban className="h-3 w-3"/> {blocking ? "Blocking…" : "Block"}
             </button>
           </div>

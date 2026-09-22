@@ -10,6 +10,7 @@ import { blockUser, type ReportTargetType } from "@/lib/moderation";
 import { hideContent } from "@/lib/ugc-safety";
 import { useRefreshBlocklist } from "@/hooks/use-blocklist";
 import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 type Props = {
   targetType: ReportTargetType;
@@ -106,7 +107,11 @@ export function ContentMenu({
             <div className="mt-2">
               <button
                 type="button"
-                onClick={() => { setOpen(false); setReportOpen(true); }}
+                onClick={() => {
+                  setOpen(false);
+                  if (!session) requestAuthentication();
+                  else setReportOpen(true);
+                }}
                 className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm hover:bg-secondary border-t border-border"
               >
                 <Flag className="h-4 w-4 text-accent" /> Report
@@ -131,7 +136,10 @@ export function ContentMenu({
               {authorUserId && !isSelf && (
                 <button
                   type="button"
-                  onClick={() => setConfirmBlock(true)}
+                  onClick={() => {
+                    if (!session) { setOpen(false); requestAuthentication(); }
+                    else setConfirmBlock(true);
+                  }}
                   className="w-full flex items-center gap-2 px-4 py-4 text-left text-sm text-destructive hover:bg-secondary border-t border-border"
                 >
                   <Ban className="h-4 w-4" /> Block user

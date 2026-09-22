@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Crown, Trophy, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/ambassadors")({
 });
 
 function AmbassadorsPage() {
+  return <Navigate to="/" replace />;
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [app, setApp] = useState<AmbassadorApp>({ status: "none" });

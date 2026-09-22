@@ -23,6 +23,8 @@ import { useSchool } from "@/hooks/use-school";
 import { CampusBar } from "@/components/campus/CampusBar";
 import { useProfile } from "@/hooks/use-profile";
 import { FULFILLMENT_OPTIONS } from "@/lib/categories";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -40,6 +42,7 @@ function Market() {
   const navigate = useNavigate();
   const school = useSchool();
   const { profile } = useProfile();
+  const { session } = useSession();
   const qc = useQueryClient();
   const isVisible = useContentVisibility();
 
@@ -71,6 +74,7 @@ function Market() {
   const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
   async function onToggleFavorite(id: string, currently: boolean) {
+    if (!session) { requestAuthentication(); return; }
     try {
       await toggleFavorite(id);
       toast(currently ? "Removed from saved" : "Saved to your collection");
@@ -242,7 +246,7 @@ function Market() {
         />
       ) : (
       <section className="mt-5 px-5 grid grid-cols-2 gap-3 slide-up">
-        {rows.map((l, i) => <ListingCard key={l.id} l={l} index={i} onToggleFavorite={onToggleFavorite} />)}
+        {rows.map((l, i) => <ListingCard key={l.id} l={l} index={i} onToggleFavorite={onToggleFavorite} signedIn={!!session} />)}
       </section>
       )}
 
@@ -270,6 +274,9 @@ function Market() {
       {/* Floating create button → real seller CRUD */}
       <Link
         to="/seller/listings"
+        onClick={(event) => {
+          if (!session) { event.preventDefault(); requestAuthentication(); }
+        }}
         aria-label="Create listing"
         className="tap fixed bottom-24 right-5 h-14 w-14 rounded-full grid place-items-center shadow-[var(--shadow-glow)] z-40"
         style={{ background: "var(--gradient-bronze)", color: "var(--primary-foreground)" }}
@@ -292,14 +299,16 @@ function ChipToggle({ active, onClick, children }: { active: boolean; onClick: (
 }
 
 function ListingCard({
-  l, index, onToggleFavorite,
+  l, index, onToggleFavorite, signedIn,
 }: {
   l: ListingWithExtras;
   index: number;
   onToggleFavorite: (id: string, currently: boolean) => void;
+  signedIn: boolean;
 }) {
   const navigate = useNavigate();
-  const cover = l.images[0]?.url ?? "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600";
+  const cover = l.images[0]?.url;
+  if (!cover) return null;
   const saved = !!l.is_favorited;
   return (
     <article
@@ -341,6 +350,7 @@ function ListingCard({
           </button>
           <button
             onClick={async () => {
+              if (!signedIn) { requestAuthentication(); return; }
               try {
                 const convId = await getOrCreateConversation(l.seller_user_id, l.id);
                 navigate({ to: "/messages/$id", params: { id: convId } });
