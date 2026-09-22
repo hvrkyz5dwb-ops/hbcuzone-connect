@@ -241,7 +241,13 @@ function Market() {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={SearchX}
-          title={query ? `No results for "${query}"` : scope === "mine" ? `Nothing posted at ${school.name} yet` : "Nothing in this category yet"}
+          title={
+            query
+              ? `No results for "${query}"`
+              : scope === "mine" && school.verified
+                ? `Nothing posted at ${school.name} yet`
+                : "Nothing posted here yet"
+          }
           description={
             query
               ? "Try a different keyword, or clear your filters."
