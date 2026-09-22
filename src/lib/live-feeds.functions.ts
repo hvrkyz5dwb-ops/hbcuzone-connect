@@ -182,7 +182,7 @@ const NEWS_TOPICS: Record<string, { q: string; tag: string; emoji: string }> = {
   HBCUs: { q: "HBCU students OR homecoming OR campus", tag: "HBCU", emoji: "🎓" },
   "All HBCUs": { q: "HBCU students OR homecoming OR campus", tag: "HBCU", emoji: "🎓" },
   "Black Culture": {
-    q: "Black culture OR Black community news",
+    q: '"Black culture" OR "Black community" OR "Black students"',
     tag: "Culture",
     emoji: "✊🏾",
   },
