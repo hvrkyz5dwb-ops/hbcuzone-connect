@@ -67,13 +67,14 @@ function Market() {
     category: category === "all" ? undefined : category,
     campus_scope: scope,
     school_id: activeSchoolId ?? undefined,
+    school_ids: activeSchoolIds.length ? activeSchoolIds : undefined,
     price_max_cents: priceMax !== null ? priceMax * 100 : undefined,
     fulfillment: fulfillment.length ? fulfillment : undefined,
     verified_only: verifiedOnly || undefined,
     sort,
     limit: PAGE_SIZE,
     offset,
-  }), [query, category, scope, activeSchoolId, priceMax, fulfillment, verifiedOnly, sort, offset]);
+  }), [query, category, scope, activeSchoolId, activeSchoolIds, priceMax, fulfillment, verifiedOnly, sort, offset]);
 
   const { data: listings, isPending, isError, isFetching, refetch } = useMarketplace(filters);
 
