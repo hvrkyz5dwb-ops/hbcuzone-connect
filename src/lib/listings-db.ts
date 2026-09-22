@@ -50,7 +50,10 @@ export type DiscoveryFilters = {
   q?: string;
   category?: string;              // category key, e.g. "hair"
   school_id?: string | null;
+  /** Every school row id that matches the browsed campus (some campuses have duplicates). */
+  school_ids?: string[];
   campus_scope?: "mine" | "all";  // "mine" filters by school_id
+
   price_min_cents?: number;
   price_max_cents?: number;
   fulfillment?: string[];         // any of these must overlap
