@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 // Authenticated form that lets a signed-in student ask us to add their
 // school to the PlugU registry. Writes to public.school_access_requests
 // under RLS (requester_user_id = auth.uid()).
@@ -120,12 +121,20 @@ export function RequestSchoolAccess({ compact }: { compact?: boolean }) {
         )}
         <button
           type="submit"
-          disabled={busy}
+          disabled={busy || !user?.id}
           className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           {busy && <Loader2 className="h-4 w-4 animate-spin" />}
           {busy ? "Submitting…" : "Submit request"}
         </button>
+        {!user?.id && (
+          <p className="text-center text-[11px] text-muted-foreground">
+            Create an account or sign in to send this request.{" "}
+            <Link to="/auth" search={{ next: "/request-school-access", mode: "" }} className="underline text-accent">
+              Sign in
+            </Link>
+          </p>
+        )}
       </form>
 
       {existing.data && existing.data.length > 0 && (

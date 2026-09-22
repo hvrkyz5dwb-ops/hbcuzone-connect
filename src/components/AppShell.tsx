@@ -164,6 +164,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       "/terms", "/privacy", "/community-guidelines", "/prohibited-items",
       "/support", "/safety", "/refunds", "/seller-agreement",
       "/market", "/hub", "/events", "/search", "/campus", "/map", "/hbcus", "/news",
+      // Reporting a problem and asking for a missing school must never be
+      // locked behind an account (App Review: reachable support + coverage gaps).
+      "/report-problem", "/request-school-access",
     ];
 
     const isPublic =
