@@ -166,7 +166,7 @@ export type EmailValidation =
  * member account with no elevated privileges. */
 export const APP_REVIEW_EMAILS = ["appreview@plugu.app", "appreview@plugudemo.com"];
 const APP_REVIEW_SCHOOL: ApprovedSchool = {
-  name: "PlugU Demo University",
+  name: "Talladega College",
   domains: ["plugu.app", "plugudemo.com"],
 };
 export function isAppReviewEmail(email: string): boolean {

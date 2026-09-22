@@ -57,6 +57,8 @@ export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
   const { campusName, homeCampusName, exploring, setCampus, resetToHome } = useCampusScope();
   const state = useVerificationState();
   const [open, setOpen] = useState(false);
+  // True while the student is searching for another campus inside the sheet.
+  const [editing, setEditing] = useState(false);
 
   return (
     <section className="px-5 pt-3">
@@ -129,9 +131,13 @@ export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
 
               <div className="mt-4">
                 <SchoolPicker
-                  value={campusName}
+                  value={editing ? "" : campusName}
                   onChange={(name) => {
+                    // An empty name means "clear the chip and let me search again".
+                    // Keep the sheet open, otherwise changing campus is impossible.
+                    if (!name) { setEditing(true); return; }
                     setCampus(name === homeCampusName ? null : name);
+                    setEditing(false);
                     setOpen(false);
                   }}
                 />
