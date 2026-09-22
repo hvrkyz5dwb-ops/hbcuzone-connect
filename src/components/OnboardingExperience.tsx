@@ -3,8 +3,11 @@
 // animation runs on transform/opacity so it holds 60fps.
 //
 // Used for guests on "/" and signed-in members after the launch splash.
-import { useRef, useState } from "react";
-import { ArrowRight, GraduationCap, HeartHandshake, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  ArrowRight, ArrowLeft, GraduationCap, HeartHandshake, Sparkles, Play, Pause,
+} from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 
 type SceneKind = "campus" | "market" | "income" | "trust";
@@ -20,16 +23,16 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     id: "welcome",
-    eyebrow: "Built for HBCU students",
+    eyebrow: "Built for students",
     title: "Buy, sell, book and build on your campus.",
-    body: "PlugU is made for HBCU students and student-owned businesses. One verified campus community for commerce, services, events and opportunities.",
+    body: "PlugU connects students and local communities at schools across the United States — one app for commerce, services, events and opportunities.",
     scene: "campus",
   },
   {
     id: "market",
     eyebrow: "Your campus, not a catalog",
     title: "Student services, booked on campus.",
-    body: "Barbers, stylists, nail techs, photographers, tutors, cooks, drivers and creatives — all students at your school, bookable with pickup or meetup spots you already know.",
+    body: "Barbers, stylists, nail techs, photographers, tutors, cooks, drivers and creatives — students at your school and trusted people nearby, with pickup and meetup spots you already know.",
     scene: "market",
   },
   {
