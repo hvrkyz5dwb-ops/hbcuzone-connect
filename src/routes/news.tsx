@@ -205,7 +205,14 @@ function NewsCenter() {
             icon={WifiOff}
             title="Headlines didn't load"
             description="We couldn't reach the news source. Check your connection and try again."
-            action={{ label: "Try again", onClick: () => void refetch() }}
+            action={
+              <button
+                onClick={() => void refetch()}
+                className="hit rounded-full bg-[image:var(--gradient-bronze)] px-5 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                Try again
+              </button>
+            }
           />
         ) : list.length === 0 ? (
           <EmptyState
