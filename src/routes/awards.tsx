@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Trophy, GraduationCap, Crown, Award } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/awards")({
 });
 
 function AwardsPage() {
+  return <Navigate to="/hub" replace />;
   const [board, setBoard] = useState<CampusScore[]>([]);
   useEffect(() => setBoard(nationalBoard()), []);
 

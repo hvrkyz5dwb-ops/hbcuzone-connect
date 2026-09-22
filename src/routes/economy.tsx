@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   TrendingUp, Trophy, Crown, Sparkles, Gift, Flame, BarChart3, ShieldCheck,
@@ -33,6 +33,7 @@ type Tab =
 const TABS: Tab[] = ["Dashboard","Rankings","Wealth","Trending","Grant","Awards","Scholarships","Challenges","Insights","Verify"];
 
 function Economy() {
+  return <Navigate to="/market" replace />;
   const [tab, setTab] = useState<Tab>("Dashboard");
   return (
     <AppShell title="ECONOMY">

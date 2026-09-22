@@ -155,7 +155,7 @@ function Home() {
       <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
 
       {/* Which campus this feed belongs to, plus the student's verification state */}
-      <CampusBar subtitle="Built for HBCU students and student-owned businesses" />
+      <CampusBar subtitle={<HomeGreeting />} />
 
       {/* Hero — PlugU's purpose, stated plainly */}
       <section className="px-5 pt-4">

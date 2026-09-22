@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Copy, Share2, Users, Flame, Building2, Award, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/referrals")({
 });
 
 function ReferralsPage() {
+  return <Navigate to="/" replace />;
   const [state, setState] = useState<ReferralState | null>(null);
   useEffect(() => { setState(getReferralState()); }, []);
   if (!state) return null;

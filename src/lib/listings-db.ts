@@ -61,6 +61,21 @@ export type DiscoveryFilters = {
   offset?: number;
 };
 
+function isCompletePublicListing(listing: ListingWithExtras): boolean {
+  return listing.status === "active" &&
+    listing.moderation_status === "approved" &&
+    listing.title.trim().length > 0 &&
+    (listing.description?.trim().length ?? 0) > 0 &&
+    listing.price_cents >= 0 &&
+    listing.category.trim().length > 0 &&
+    !!listing.school_id &&
+    !!listing.campus_name?.trim() &&
+    listing.images.some((image) => /^https?:\/\//i.test(image.url)) &&
+    !!listing.seller &&
+    !!(listing.seller.display_name?.trim() || listing.seller.username?.trim()) &&
+    !!listing.seller.school_name?.trim();
+}
+
 const sel = (s: string): string => s;
 
 /** Public marketplace read: only active + approved listings. */
@@ -131,18 +146,7 @@ export async function fetchMarketplace(filters: DiscoveryFilters = {}): Promise<
     for (const r of rows) r.seller = (byId.get(r.seller_user_id) as ListingWithExtras["seller"]) ?? null;
   }
 
-  const complete = rows.filter((r) =>
-    r.title.trim().length > 0 &&
-    (r.description?.trim().length ?? 0) > 0 &&
-    r.price_cents >= 0 &&
-    r.category.trim().length > 0 &&
-    !!r.school_id &&
-    !!r.campus_name?.trim() &&
-    r.images.some((image) => /^https?:\/\//i.test(image.url)) &&
-    !!r.seller &&
-    !!(r.seller.display_name?.trim() || r.seller.username?.trim()) &&
-    !!r.seller.school_name?.trim()
-  );
+  const complete = rows.filter(isCompletePublicListing);
 
   return filters.verified_only
     ? complete.filter((r) => r.seller?.verification_status === "verified")
@@ -196,7 +200,17 @@ export async function fetchListing(id: string): Promise<ListingWithExtras | null
   const images = (data.listing_images ?? []).slice().sort((a, b) => a.position - b.position);
   const { listing_images, ...rest } = data as typeof data & { listing_images?: unknown };
   void listing_images;
-  return { ...rest, images } as ListingWithExtras;
+  const listing = { ...rest, images } as ListingWithExtras;
+  const { data: seller } = await supabase
+    .from("public_profiles")
+    .select("id,display_name,username,avatar_url,school_name,verification_status,rating_avg")
+    .eq("id", listing.seller_user_id)
+    .maybeSingle();
+  listing.seller = seller as ListingWithExtras["seller"];
+
+  const { data: session } = await supabase.auth.getUser();
+  const isOwner = session.user?.id === listing.seller_user_id;
+  return isOwner || isCompletePublicListing(listing) ? listing : null;
 }
 
 export type ListingInput = {
