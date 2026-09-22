@@ -91,6 +91,17 @@ function AuthPage() {
     setMode(nextMode);
   }
 
+  function continueAsGuest() {
+    if (!agreeTerms) {
+      setErr("Accept the Terms of Use and Privacy Policy to continue as a guest.");
+      return;
+    }
+    try {
+      window.localStorage.setItem("plugu.guest.policy", JSON.stringify({ version: POLICY_VERSION, acceptedAt: new Date().toISOString() }));
+    } catch {}
+    window.location.href = safeNext(next);
+  }
+
   async function onSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
@@ -291,6 +302,22 @@ function AuthPage() {
           </div>
         )}
 
+        {mode !== "forgot" && (
+          <div className="mt-4 border-b border-border pb-4">
+            <Check checked={agreeTerms} onChange={setAgreeTerms}>
+              I agree to PlugU's <Link to="/terms" className="text-primary underline">Terms of Use</Link> and <Link to="/privacy" className="text-primary underline">Privacy Policy</Link>.
+            </Check>
+            <button
+              type="button"
+              disabled={!agreeTerms}
+              onClick={continueAsGuest}
+              className="tap mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-primary bg-primary/10 px-4 text-sm font-bold text-primary disabled:opacity-50"
+            >
+              Continue as Guest
+            </button>
+          </div>
+        )}
+
 
 
         {mode === "sign-in" && (
@@ -306,11 +333,7 @@ function AuthPage() {
                 <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
                 <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
               </div>
-              <Check checked={agreeTerms} onChange={setAgreeTerms}>
-                I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines and
-                Marketplace Agreement. I understand that prohibited or abusive content may be
-                removed and accounts may be suspended.
-              </Check>
+              <p>I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines and Marketplace Agreement. I understand that prohibited or abusive content may be removed and accounts may be suspended.</p>
             </div>
 
             <Feedback err={err} msg={msg} />
@@ -444,9 +467,7 @@ function AuthPage() {
                 <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
                 <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
               </div>
-              <Check checked={agreeTerms} onChange={setAgreeTerms}>
-                {POLICY_CONSENT_TEXT}
-              </Check>
+              <p>{POLICY_CONSENT_TEXT}</p>
             </div>
 
             <Feedback err={err} msg={msg} />

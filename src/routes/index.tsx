@@ -105,8 +105,8 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
-  // The global cinematic is mounted by __root after React is ready. Guests
-  // continue to onboarding or auth independently beneath that bounded overlay.
+  // The global cinematic is mounted by __root after React is ready. New guests
+  // see onboarding once, then can browse Home without creating an account.
   const [guestIntro, setGuestIntro] = useState(false);
   useEffect(() => {
     if (loading) return;
@@ -114,35 +114,17 @@ function Home() {
     try {
       if (!hasSeenIntro()) {
         setGuestIntro(true);
-      } else {
-        navigate({ to: "/auth", search: { next: "/", mode: "" } });
       }
     } catch (err) {
       // Storage blocked / navigation raced: never strand the guest.
-      console.error("[PlugU:entry] guest gate failed, falling through to /auth", err);
-      window.location.assign("/auth?next=%2F&mode=");
+      console.error("[PlugU:entry] guest onboarding failed", err);
+      setGuestIntro(false);
     }
   }, [loading, session, navigate]);
-
-  // Hard entry watchdog (App Review 2.1(a)): whatever happens above — stalled
-  // auth call, blocked storage, failed route transition — a signed-out
-  // visitor must be looking at something interactive within 12s of app open.
-  // Skipped while onboarding is on screen: that is the intended experience,
-  // not a stall. The global cinematic is independently bounded to 3.4s.
-  useEffect(() => {
-    if (session || guestIntro) return;
-    const t = window.setTimeout(() => {
-      if (window.location.pathname !== "/") return;
-      console.warn("[PlugU:entry] entry watchdog fired — forcing /auth");
-      window.location.assign("/auth?next=%2F&mode=");
-    }, 12000);
-    return () => window.clearTimeout(t);
-  }, [session, guestIntro]);
 
   function finishGuestIntro() {
     markIntroSeen();
     setGuestIntro(false);
-    navigate({ to: "/auth", search: { next: "/", mode: "" } });
   }
 
   // One-time animated feed entrance after the coach-mark tour finishes:
@@ -165,10 +147,7 @@ function Home() {
   if (!hydrated || loading) {
     return <EntryLoading />;
   }
-  if (!session) {
-    if (guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
-    return <EntryLoading />;
-  }
+  if (!session && guestIntro) return <OnboardingExperience onComplete={finishGuestIntro} />;
 
   return (
     <AppShell title="PLUGU">
@@ -180,7 +159,7 @@ function Home() {
       {/* Hero — PlugU's purpose, stated plainly */}
       <section className="px-5 pt-4">
         <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--plugu-gold)" }}>
-          Built for HBCU students
+          <HomeGreeting />
         </p>
         <h1 className="mt-2 text-[27px] font-black leading-[1.08] tracking-[-0.02em] text-foreground">
           Buy, sell, book and<br />
@@ -280,6 +259,12 @@ function Home() {
   );
 }
 
+function HomeGreeting() {
+  const { profile } = useProfile();
+  const name = (profile?.display_name || profile?.full_name || "Guest").trim().split(/\s+/)[0] || "Guest";
+  return <>Hello {name}</>;
+}
+
 function VerificationBanner() {
   const { profile } = useProfile();
   if (!profile) return null;
@@ -377,7 +362,7 @@ function TrendingListings() {
           {data.map((l) => <ListingCard key={l.id} l={l} />)}
         </div>
       ) : (
-        <EmptyRow icon={<Sparkles className="h-4 w-4" />} text="No listings yet — be the first to post." cta="Start selling" to="/seller/onboarding" />
+        <EmptyRow icon={<Sparkles className="h-4 w-4" />} text="No complete listings are available right now. Check another category." cta="Browse market" to="/market" />
       )}
     </section>
   );

@@ -14,6 +14,7 @@ import { CoachMarks } from "@/components/CoachMarks";
 import { AchievementBurst } from "@/components/AchievementBurst";
 import { TermsGate } from "@/components/TermsGate";
 import { RealtimeStatusBar } from "@/components/RealtimeStatusBar";
+import { RequireAuthPrompt, requestAuthentication } from "@/components/RequireAuthPrompt";
 
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSession } from "@/hooks/use-session";
@@ -162,10 +163,14 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       "/", "/auth", "/login", "/signup", "/reset-password",
       "/terms", "/privacy", "/community-guidelines", "/prohibited-items",
       "/support", "/safety", "/refunds", "/seller-agreement",
+      "/market", "/hub", "/events", "/search", "/campus", "/map", "/hbcus",
     ];
 
     const isPublic =
       publicRoutes.includes(pathname) ||
+      pathname.startsWith("/checkout/") ||
+      pathname.startsWith("/u/") ||
+      pathname.startsWith("/hbcus/") ||
       pathname.startsWith("/api/") ||
       pathname.startsWith("/.");
     if (!session && !isPublic) {
@@ -205,7 +210,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               <span className="text-muted-foreground">HBC</span>
               <span className={hbcuStudent ? "plugu-us-silver" : "text-muted-foreground/70"}>US</span>
             </Link>
-            <Link
+            {session ? <Link
               to="/notifications"
               aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
               className="tap relative grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-muted-foreground hover:text-foreground transition-colors"
@@ -219,7 +224,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   {unread > 9 ? "9+" : unread}
                 </span>
               )}
-            </Link>
+            </Link> : <Link to="/auth" search={{ next: pathname, mode: "sign-in" }} className="tap inline-flex min-h-11 items-center text-xs font-semibold text-primary">Sign In</Link>}
             <button
               onClick={toggle}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
@@ -310,6 +315,12 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   <li key={t.to} className="flex justify-center" style={{ order: idx < 2 ? idx + 1 : idx + 2 }}>
                     <Link
                       to={t.to}
+                      onClick={(event) => {
+                        if (!session && t.to === "/me") {
+                          event.preventDefault();
+                          requestAuthentication();
+                        }
+                      }}
                       aria-current={active ? "page" : undefined}
                       data-tour={t.label.toLowerCase()}
                       className={`tap relative flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] tracking-wide transition-colors ${
@@ -414,6 +425,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
       <RealtimeStatusBar />
       <TermsGate />
+      <RequireAuthPrompt />
       <Toaster position="top-center" />
 
 

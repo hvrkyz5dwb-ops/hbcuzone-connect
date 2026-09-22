@@ -18,6 +18,7 @@ import { useHomeLayout } from "@/hooks/use-home-layout";
 import { HOME_SECTIONS, type HomeSectionKey } from "@/lib/campus-os";
 import { opportunities, opportunityMeta } from "@/lib/opportunities-data";
 import { useActiveCampus } from "@/hooks/use-campus-os";
+import { useSession } from "@/hooks/use-session";
 
 const db = supabase as any;
 
@@ -251,6 +252,7 @@ function CampusUpdates() {
 /* --------------------------------- Your Activity ------------------------------ */
 
 function YourActivity() {
+  const { session } = useSession();
   const orders = useMyOrders("all");
   const unread = useUnreadCount() ?? 0;
   const open = (orders.data ?? []).filter((o: any) => !["completed", "cancelled", "refunded"].includes(o.status)).length;
@@ -261,6 +263,8 @@ function YourActivity() {
     { to: "/bookings" as const, icon: CalendarDays, label: "Bookings", value: "View" },
     { to: "/saved" as const, icon: Bookmark, label: "Saved", value: "View" },
   ];
+
+  if (!session) return null;
 
   return (
     <section className="mt-7" aria-labelledby="home-activity">
