@@ -405,37 +405,113 @@ export function OnboardingExperience({
           className="relative z-10 shrink-0 px-7 pt-3 bg-black"
           style={{ paddingBottom: "max(calc(env(safe-area-inset-bottom, 0px) + 20px), 24px)" }}
         >
-          <div className="flex items-center justify-center gap-1.5 mb-4">
-            {SLIDES.map((s, idx) => (
+          {/* Indicators + autoplay. Each control keeps a 44pt target. */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => go(i - 1)}
+              disabled={i === 0}
+              aria-label="Previous slide"
+              className="tap grid h-11 w-11 place-items-center rounded-full border border-white/12 text-white/80 disabled:opacity-25"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {SLIDES.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => { setAutoplay(false); go(idx); }}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  aria-current={idx === i}
+                  className="tap grid h-11 place-items-center px-1"
+                  style={{ width: 26 }}
+                >
+                  <span
+                    className="block h-1 rounded-full transition-all"
+                    style={{
+                      width: idx === i ? 22 : 6,
+                      background: idx === i ? "var(--plugu-gold)" : "rgba(255,255,255,0.18)",
+                      boxShadow: idx === i ? "0 0 8px rgba(244,201,106,0.55)" : "none",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+
+            {reducedMotion || last ? (
+              <span className="h-11 w-11" aria-hidden />
+            ) : (
               <button
-                key={s.id}
                 type="button"
-                onClick={() => go(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className="h-1 rounded-full transition-all"
+                onClick={() => setAutoplay((v) => !v)}
+                aria-pressed={autoplay}
+                aria-label={autoplay ? "Pause autoplay" : "Play slides automatically"}
+                className="tap grid h-11 w-11 place-items-center rounded-full border text-white/85"
                 style={{
-                  width: idx === i ? 22 : 6,
-                  background: idx === i ? "var(--plugu-gold)" : "rgba(255,255,255,0.18)",
-                  boxShadow: idx === i ? "0 0 8px rgba(244,201,106,0.55)" : "none",
+                  borderColor: autoplay ? "rgba(244,201,106,0.6)" : "rgba(255,255,255,0.12)",
+                  color: autoplay ? "var(--plugu-gold)" : undefined,
                 }}
-              />
-            ))}
+              >
+                {autoplay ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              </button>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={() => (last ? finish() : go(i + 1))}
-            className="tap w-full h-12 rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
-            style={{
-              background: "var(--gradient-bronze)",
-              boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
-            }}
-          >
-            {last ? "Continue as Guest" : "Next"}
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <p className="text-center text-[11px] text-muted-foreground mt-3">
-            {last ? "Browse PlugU without an account" : `Swipe or tap Next · ${i + 1} of ${SLIDES.length}`}
-          </p>
+
+          {last && showAuthActions ? (
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => goAuth("sign-in")}
+                className="tap w-full min-h-[52px] rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
+                style={{
+                  background: "var(--gradient-bronze)",
+                  boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
+                }}
+              >
+                Student sign in
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goAuth("sign-up")}
+                className="tap w-full min-h-[52px] rounded-2xl font-semibold inline-flex items-center justify-center border"
+                style={{ borderColor: "rgba(244,201,106,0.55)", color: "var(--plugu-gold)" }}
+              >
+                Create account
+              </button>
+              <button
+                type="button"
+                onClick={finish}
+                className="tap w-full min-h-[48px] rounded-2xl text-sm font-medium text-white/75 border border-white/12"
+              >
+                Continue as Guest
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground pt-0.5">
+                Guests can browse. Posting, messaging, saving and booking need a
+                verified student account.
+              </p>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => (last ? finish() : go(i + 1))}
+                className="tap w-full min-h-[52px] rounded-2xl font-bold text-black inline-flex items-center justify-center gap-2"
+                style={{
+                  background: "var(--gradient-bronze)",
+                  boxShadow: "0 10px 30px -12px rgba(244,201,106,0.55)",
+                }}
+              >
+                {last ? "Get started" : "Next"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground mt-3">
+                {`Swipe, or use Back and Next · ${i + 1} of ${SLIDES.length}`}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
