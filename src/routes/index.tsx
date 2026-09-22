@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone, BadgeCheck,
 } from "lucide-react";
@@ -98,6 +99,7 @@ function EntryLoading() {
 
 function Home() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { session, loading } = useSession();
   const [lookingOpen, setLookingOpen] = useState(false);
   // SSR/prerender and the first client render must agree: both paint the
