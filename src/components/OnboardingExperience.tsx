@@ -332,6 +332,7 @@ export function OnboardingExperience({
           >
             Skip
           </button>
+          </div>
         </div>
 
         {/* Slide — drag anywhere. Scrolls on short screens so the copy can
