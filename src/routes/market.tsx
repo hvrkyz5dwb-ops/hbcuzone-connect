@@ -43,7 +43,7 @@ function Market() {
   const navigate = useNavigate();
   const school = useSchool();
   const { profile } = useProfile();
-  const { schoolId: activeSchoolId, campusName, exploring } = useCampusSchoolId();
+  const { schoolId: activeSchoolId, schoolIds: activeSchoolIds, campusName, exploring } = useCampusSchoolId();
   const { session } = useSession();
   const qc = useQueryClient();
   const isVisible = useContentVisibility();
