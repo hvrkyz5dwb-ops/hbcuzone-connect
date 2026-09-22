@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Crown, Bell, ArrowRight, Calendar, Users, Sparkles, BadgeCheck, GraduationCap, Plug as PlugIcon, Gem,
-  TrendingUp, Megaphone, Store, Map as MapIcon, MessageSquare, Plug, Radio, Plus,
+  Bell, Calendar, Users, BadgeCheck, GraduationCap, Plug as PlugIcon, Gem,
+  Store, Map as MapIcon, MessageSquare, Plug, Plus,
 } from "lucide-react";
 import { SectionHeader } from "@/components/AppShell";
 import { Reveal } from "@/components/Reveal";
@@ -12,9 +12,8 @@ import { useSchool } from "@/hooks/use-school";
 import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
 import { getCampusWeather } from "@/lib/campus-intel.functions";
-import { liveActivity, businessSpotlight, aiRecommendations } from "@/lib/opportunities-data";
-import { announcements, events as seedEvents, featuredKingpins, listings, hbcuEvents } from "@/lib/mock-data";
-import { listUserEvents, subscribeUserEvents, type UserEvent } from "@/lib/events-storage";
+import { useCampusEvents } from "@/hooks/use-campus";
+import { useMarketplace } from "@/hooks/use-listings";
 
 function Countdown({ when }: { when: string }) {
   return (
@@ -53,6 +52,17 @@ function badgeWordmarkClass(badge: string): string {
   }
 }
 
+function eventWhen(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(+d)) return "";
+  return d.toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" });
+}
+
+/**
+ * Signed-in campus home. Every number and card on this screen comes from a real
+ * record — campus events and marketplace listings read straight from the
+ * database, weather from a live feed. Nothing here is seeded or simulated.
+ */
 export function CampusPulse() {
   const [persona] = usePersona();
   const school = useSchool();
@@ -61,8 +71,6 @@ export function CampusPulse() {
   const displayBadge = persona.badge;
   const isUpgraded = true;
   const displayCampus = school.name && school.name !== "Your Campus" ? school.name : persona.campus;
-  // Match the Profile tab exactly: full name (first name only for greeting),
-  // school, year, and major all come from the signed-in profile row.
   const firstName = (profile?.full_name?.trim().split(/\s+/)[0]) || "Plug";
   const displayYear = profile?.year || persona.year;
   const displayMajor = profile?.major || persona.major;
@@ -73,36 +81,23 @@ export function CampusPulse() {
     refetchOnWindowFocus: false,
   });
   const weather = weatherQ.data;
-  const [rsvped, setRsvped] = useState<Record<string, boolean>>({});
-  const [tick, setTick] = useState(0);
   const [greeting, setGreeting] = useState("Welcome back");
   useEffect(() => { setGreeting(greetingFor()); }, []);
-  useEffect(() => {
-    const i = setInterval(() => setTick((t) => (t + 1) % liveActivity.length), 3500);
-    return () => clearInterval(i);
-  }, []);
-  const activity = liveActivity[tick];
 
-  // School-scoped upcoming events: user-posted + seeded, filtered to this campus.
-  const [userEvents, setUserEvents] = useState<UserEvent[]>(() => listUserEvents(displayCampus));
-  useEffect(() => {
-    setUserEvents(listUserEvents(displayCampus));
-    return subscribeUserEvents(() => setUserEvents(listUserEvents(displayCampus)));
-  }, [displayCampus]);
-  const normKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const schoolKey = normKey(displayCampus);
-  const seededForSchool = [
-    ...seedEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, school: undefined as string | undefined })),
-    ...hbcuEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, school: e.school as string | undefined })),
-  ].filter((e) => {
-    if (!e.school) return true;
-    const k = normKey(e.school);
-    return k.includes(schoolKey) || schoolKey.includes(k);
+  const eventsQ = useCampusEvents();
+  const now = Date.now();
+  const upcoming = (eventsQ.data ?? [])
+    .filter((e) => e.status !== "cancelled" && +new Date(e.starts_at) >= now - 3 * 60 * 60 * 1000)
+    .sort((a, b) => +new Date(a.starts_at) - +new Date(b.starts_at))
+    .slice(0, 6);
+
+  const listingsQ = useMarketplace({
+    school_id: profile?.school_id ?? undefined,
+    campus_scope: profile?.school_id ? "mine" : "all",
+    sort: "newest",
+    limit: 4,
   });
-  const upcoming = [
-    ...userEvents.map((e) => ({ title: e.title, when: e.when, where: e.where, mine: true })),
-    ...seededForSchool.map((e) => ({ title: e.title, when: e.when, where: e.where, mine: false })),
-  ];
+  const listings = (listingsQ.data ?? []).slice(0, 4);
 
   return (
     <>
@@ -133,44 +128,13 @@ export function CampusPulse() {
             </div>
             <Link to="/notifications" aria-label="Notifications" className="relative h-10 w-10 grid place-items-center rounded-full bg-secondary border border-border">
               <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Campus Pulse summary card */}
-      <Reveal as="section" index={1} className="mt-4 px-5">
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-4">
-          <div
-            className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full blur-3xl opacity-40"
-            style={{ background: "var(--plugu-purple)" }}
-          />
-          <div className="relative">
-            <div className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--plugu-gold)" }}>
-              <Sparkles className="h-3 w-3" /> Today on Campus
-            </div>
-            <h2 className="mt-1.5 text-base font-semibold leading-snug">
-              3 events tonight · 2 scholarships closing this week · Fade God almost booked out.
-            </h2>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {[
-                { n: "3", l: "Events" },
-                { n: "12", l: "New listings" },
-                { n: "2", l: "Closing soon" },
-              ].map((s) => (
-                <div key={s.l} className="rounded-xl border border-border bg-background/50 px-3 py-2">
-                  <p className="text-sm font-bold">{s.n}</p>
-                  <p className="text-[10px] text-muted-foreground">{s.l}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Reveal>
-
       {/* Quick actions */}
-      <Reveal as="section" index={2} className="mt-4 px-5">
+      <Reveal as="section" index={1} className="mt-4 px-5">
         <div className="grid grid-cols-4 gap-3">
           {[
             { to: "/business", label: "Sell", icon: Store },
@@ -206,86 +170,63 @@ export function CampusPulse() {
         </div>
       </Reveal>
 
-      {/* Live activity ticker */}
-      <Reveal as="section" index={3} className="mt-4 px-5">
-        <div className="flex items-center gap-2 rounded-2xl border border-border bg-background/60 px-3 py-2.5">
-          <Radio className="h-3.5 w-3.5 text-primary plugu-pulse shrink-0" />
-          <p key={tick} className="text-xs truncate slide-up">
-            <span className="font-semibold">{activity.who}</span>{" "}
-            <span className="text-muted-foreground">{activity.what}</span>{" "}
-            <span>{activity.detail}</span>{" "}
-            <span className="text-muted-foreground">· {activity.when}</span>
-          </p>
-        </div>
-      </Reveal>
-
-      {/* Trending businesses */}
-      <Reveal as="section" index={4} className="mt-7">
-        <SectionHeader title="Trending businesses" action="See all" />
-        <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {featuredKingpins.map((k) => (
-            <Link
-              key={k.handle}
-              to="/business"
-              className="tap lift-card min-w-[168px] rounded-2xl border border-border bg-card p-4 text-center"
-            >
-              <div
-                className="mx-auto h-14 w-14 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-lg font-bold text-primary-foreground"
-                style={{
-                  boxShadow:
-                    "0 0 0 2px color-mix(in oklab, var(--plugu-gold) 70%, transparent), 0 0 22px -4px rgba(244,201,106,0.55)",
-                }}
+      {/* Marketplace — real listings only */}
+      <Reveal as="section" index={2} className="mt-7">
+        <SectionHeader title="New on the marketplace" action="Open" />
+        {listingsQ.isPending ? (
+          <div className="px-5 grid grid-cols-2 gap-3" aria-hidden="true">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="h-40 rounded-2xl border border-border bg-card animate-pulse" />
+            ))}
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="mx-5 rounded-2xl border border-dashed border-border bg-card/50 p-4 text-center">
+            <p className="text-xs text-muted-foreground">Nothing posted at {displayCampus} yet.</p>
+            <Link to="/business" className="tap mt-2 inline-block text-xs font-semibold text-primary">
+              Post the first listing
+            </Link>
+          </div>
+        ) : (
+          <div className="px-5 grid grid-cols-2 gap-3">
+            {listings.map((l) => (
+              <Link
+                key={l.id}
+                to="/checkout/$listingId"
+                params={{ listingId: l.id }}
+                className="tap lift-card rounded-2xl bg-card border border-border overflow-hidden flex flex-col"
               >
-                {k.name[0]}
-              </div>
-              <p className="mt-2 font-semibold flex items-center justify-center gap-1">
-                {k.name} <BadgeCheck className="h-3.5 w-3.5" style={{ color: "var(--plugu-gold)" }} />
-              </p>
-              <p className="text-[11px] text-muted-foreground">{k.campus}</p>
-              <p className="text-[11px] text-primary mt-1 flex items-center justify-center gap-1">
-                <TrendingUp className="h-3 w-3" /> {k.followers}
-              </p>
-            </Link>
-          ))}
-        </div>
+                <div className="aspect-[4/3] bg-secondary">
+                  {l.images[0]?.url && (
+                    <img src={l.images[0]!.url} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="p-3 flex items-center justify-between gap-2">
+                  <p className="text-xs font-medium line-clamp-1 flex-1">{l.title}</p>
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(244,201,106,0.18), rgba(244,201,106,0.06))",
+                      border: "1px solid color-mix(in oklab, var(--plugu-gold) 45%, transparent)",
+                      color: "var(--plugu-gold)",
+                    }}
+                  >
+                    ${(l.price_cents / 100).toFixed(0)}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </Reveal>
 
-      {/* Marketplace highlights */}
-      <Reveal as="section" index={5} className="mt-7">
-        <SectionHeader title="Marketplace highlights" action="Open" />
-        <div className="px-5 grid grid-cols-2 gap-3">
-          {listings.slice(0, 4).map((l) => (
-            <Link
-              key={l.id}
-              to="/market"
-              className="tap lift-card rounded-2xl bg-card border border-border overflow-hidden flex flex-col"
-            >
-              <div className="aspect-[4/3] bg-secondary">
-                <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
-              </div>
-              <div className="p-3 flex items-center justify-between gap-2">
-                <p className="text-xs font-medium line-clamp-1 flex-1">{l.title}</p>
-                <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(244,201,106,0.18), rgba(244,201,106,0.06))",
-                    border: "1px solid color-mix(in oklab, var(--plugu-gold) 45%, transparent)",
-                    color: "var(--plugu-gold)",
-                  }}
-                >
-                  {l.price}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </Reveal>
-
-      {/* Upcoming events */}
-      <Reveal as="section" index={6} className="mt-7">
-        <SectionHeader title="Tonight & this week" action="All events" />
+      {/* Upcoming events — real campus_events rows */}
+      <Reveal as="section" index={3} className="mt-7">
+        <SectionHeader title="Upcoming on campus" action="All events" />
         <div tabIndex={0} className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {upcoming.length === 0 && (
+          {eventsQ.isPending && (
+            <div className="h-[132px] w-[240px] shrink-0 rounded-2xl border border-border bg-card animate-pulse" aria-hidden="true" />
+          )}
+          {!eventsQ.isPending && upcoming.length === 0 && (
             <Link
               to="/events"
               className="min-w-[240px] rounded-2xl border border-dashed border-primary/50 bg-card p-4 flex flex-col items-center justify-center text-center gap-2"
@@ -301,34 +242,20 @@ export function CampusPulse() {
               <p className="text-[11px] text-muted-foreground">Tap to post the first one</p>
             </Link>
           )}
-          {upcoming.map((e) => {
-            const isRsvp = !!rsvped[e.title];
-            return (
-              <div key={e.title} className="min-w-[240px] rounded-2xl border border-border bg-[image:var(--gradient-surface)] p-4">
-                <Countdown when={e.when} />
-                {e.mine && (
-                  <span className="ml-2 text-[9px] uppercase tracking-widest text-accent">Yours</span>
-                )}
-                <h3 className="mt-2 font-semibold text-base leading-snug">{e.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{e.where}</p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Users className="h-3 w-3" /> {120 + e.title.length * 3} going
-                  </span>
-                  <button
-                    onClick={() => setRsvped((s) => ({ ...s, [e.title]: !s[e.title] }))}
-                    className={`tap text-[11px] font-semibold rounded-full px-3 py-1.5 border transition-colors ${
-                      isRsvp
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-card text-foreground border-border"
-                    }`}
-                  >
-                    {isRsvp ? "Going" : "RSVP"}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {upcoming.map((e) => (
+            <Link
+              key={e.id}
+              to="/events"
+              className="min-w-[240px] rounded-2xl border border-border bg-[image:var(--gradient-surface)] p-4"
+            >
+              <Countdown when={eventWhen(e.starts_at)} />
+              <h3 className="mt-2 font-semibold text-base leading-snug line-clamp-2">{e.title}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">{e.location}</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Users className="h-3 w-3" /> {e.rsvp_count} going
+              </span>
+            </Link>
+          ))}
           {upcoming.length > 0 && (
             <Link
               to="/events"
@@ -345,80 +272,6 @@ export function CampusPulse() {
             </Link>
           )}
         </div>
-      </Reveal>
-
-      {/* Business Spotlight */}
-      <Reveal as="section" index={7} className="mt-7 px-5">
-        <SectionHeader title="Business Spotlight" />
-        <Link
-          to="/business"
-          className="tap relative block overflow-hidden rounded-3xl border border-primary/40 p-5"
-          style={{ background: "var(--gradient-surface)" }}
-        >
-          <div
-            className="pointer-events-none absolute -bottom-20 -left-12 h-44 w-44 rounded-full blur-3xl opacity-40"
-            style={{ background: "var(--plugu-gold)" }}
-          />
-          <div className="relative flex items-start gap-3">
-            <div className="h-12 w-12 grid place-items-center rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground text-lg font-bold">
-              C
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--plugu-gold)" }}>
-                Plug of the week
-              </p>
-              <p className="text-base font-semibold">{businessSpotlight.name}</p>
-              <p className="text-[11px] text-muted-foreground">{businessSpotlight.owner} · {businessSpotlight.school}</p>
-              <p className="text-xs mt-2 text-muted-foreground">{businessSpotlight.blurb}</p>
-              <p className="text-[11px] mt-2 font-semibold text-primary">{businessSpotlight.stat}</p>
-            </div>
-          </div>
-        </Link>
-      </Reveal>
-
-      {/* Announcements */}
-      <Reveal as="section" index={8} className="mt-7">
-        <SectionHeader title="Campus announcements" />
-        <ul className="px-5 space-y-2">
-          {announcements.map((a) => (
-            <li key={a.title} className="flex items-start gap-3 p-3 rounded-2xl bg-card border border-border">
-              <div className="h-9 w-9 grid place-items-center rounded-xl bg-secondary border border-border">
-                <Megaphone className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] tracking-widest uppercase text-primary">{a.tag} · {a.time}</p>
-                <p className="text-sm font-medium mt-0.5 leading-snug">{a.title}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Reveal>
-
-      {/* AI Recommendations */}
-      <Reveal as="section" index={9} className="mt-7 px-5">
-        <SectionHeader title="Smart picks for you" />
-        <ul className="space-y-2">
-          {aiRecommendations.map((r) => (
-            <li key={r.title}>
-              <Link
-                to={r.to as "/hub"}
-                className="tap flex items-center gap-3 p-3 rounded-2xl border border-border bg-card"
-              >
-                <div
-                  className="h-9 w-9 grid place-items-center rounded-xl"
-                  style={{ background: "color-mix(in oklab, var(--plugu-purple) 20%, transparent)", color: "var(--plugu-gold)" }}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{r.title}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{r.reason}</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            </li>
-          ))}
-        </ul>
       </Reveal>
     </>
   );

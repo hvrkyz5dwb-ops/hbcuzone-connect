@@ -1,2491 +1,314 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import {
-  Search,
-  Users,
-  Calendar,
-  Store,
-  Newspaper,
-  GraduationCap,
-  Crown,
-  BadgeCheck,
-  Home as HomeIcon,
-  Check,
-  Trophy,
-  Briefcase,
-  School as SchoolIcon,
-  Sparkles,
-  Heart,
-  ChevronRight,
-  MapPin,
-  Bookmark,
-  Send,
-  TrendingUp,
-  Radio,
-  Bot,
-  Lock,
-  Mail,
-  IdCard,
-  Award,
-  Megaphone,
-  Sun,
-  Quote,
-  Flame,
-} from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { LiveNewsRail } from "@/components/LiveNewsRail";
-import { CampusThumb } from "@/components/CampusThumb";
-import { hbcus } from "@/lib/mock-data";
-import { useHomeCampus } from "@/hooks/use-home-campus";
-import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
-import { useSchool } from "@/hooks/use-school";
-import { useProfile } from "@/hooks/use-profile";
-import { detectHbcuSchool, isHbcuDomain, getDomain } from "@/lib/auth";
-import { ShieldCheck, Pencil } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { suggestConnections } from "@/lib/networking.functions";
-import { getLiveWeather, getLiveNews, getHbcuSports, type LiveGame } from "@/lib/live-feeds.functions";
 import {
-  hbcuNewsFilters,
-  hbcuLiveNews,
-  liveScores,
-  upcomingGames,
-  completedGames,
-  conferenceStandings,
-  topPerformers,
-  sportsTabs,
-  sportLeagues,
-  schoolProfiles,
-  getSchoolDetail,
-  internships,
-  internshipFilters,
-  scholarshipsList,
-  scholarshipCategories,
-  blackBusinesses,
-  networkingProfiles,
-  networkingFilters,
-  liveEvents,
-  pluguDailyTopics,
-  aiSuggestedPrompts,
-  type SchoolProfile,
-  hbcusHomeSections,
-  type HbcusHomeSection,
-  breakingNews,
-  announcements,
-  homecomingCountdowns,
-  successStories,
-  trendingConvos,
-  dailyMotivation,
-  communityFeedSample,
-  communityRails,
-  alumniNetwork,
-  alumniIndustries,
-  excellenceFeed,
-  excellenceCategories,
-  rankingCategories,
-  hbcusRankings,
-  type RankingCategory,
-  studentSpotlights,
-  studyAbroadPrograms,
-  financialTips,
-  marketTickers,
-  marketHeadlines,
-  mustReadNews,
-  careerOpportunities,
-  schoolSlug,
-} from "@/lib/hbcus-data";
-import { launchStatusFor } from "@/lib/launch-data";
-import statueImg from "@/assets/plugu-statue.jpg.asset.json";
-import heroImg from "@/assets/plugu-hero.jpg";
+  Search, Newspaper, Trophy, School as SchoolIcon, Calendar, Store,
+  MapPin, ChevronRight, RefreshCw, ExternalLink, Radio,
+} from "lucide-react";
+import { AppShell, SectionHeader } from "@/components/AppShell";
+import { CampusThumb } from "@/components/CampusThumb";
+import { getLiveNews, getHbcuSports, type LiveGame } from "@/lib/live-feeds.functions";
+import { useCampusEvents } from "@/hooks/use-campus";
+import { schoolProfiles, schoolSlug, type SchoolProfile } from "@/lib/hbcus-data";
 
 export const Route = createFileRoute("/hbcus")({
   head: () => ({
     meta: [
-      { title: "HBC\"US\" — PlugU" },
-      { name: "description", content: "The HBCU experience inside PlugU: live news, sports, schools, internships, scholarships, marketplace, networking, events, and PlugU Daily." },
-      { property: "og:title", content: "HBC\"US\" on PlugU" },
-      { property: "og:description", content: "A complete mini-app for HBCU students — news, sports, scholarships, internships, events, and more." },
+      { title: "HBCUs — PlugU" },
+      { name: "description", content: "HBCU schools, live headlines, live scores and campus events inside PlugU." },
+      { property: "og:title", content: "HBCUs on PlugU" },
+      { property: "og:description", content: "School directory, live HBCU headlines, live scores and real campus events." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HbcusPage,
 });
 
+const TABS = ["Schools", "News", "Sports", "Events"] as const;
+type Tab = (typeof TABS)[number];
+
 function HbcusPage() {
-  const verification = useHbcusVerification();
-  const school = useSchool();
-  const { profile } = useProfile();
-  const domain =
-    (profile?.school_domain?.toLowerCase() || (profile?.email ? getDomain(profile.email) : null)) ?? null;
-  const isHbcu = !!profile?.is_hbcu_student || (!!domain && isHbcuDomain(domain));
-
-  if (!verification.hydrated) {
-    return (
-      <AppShell title='HBC"US"'>
-        <section className="px-5 pt-5" aria-busy="true" aria-label="Loading HBCUS">
-          <div className="rounded-3xl h-44 shimmer border border-border" />
-          <div className="mt-4 flex gap-2 overflow-hidden">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-8 w-20 rounded-full shimmer shrink-0" />
-            ))}
-          </div>
-          <div className="mt-4 space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-2xl shimmer border border-border" />
-            ))}
-          </div>
-        </section>
-      </AppShell>
-    );
-  }
-  if (!profile) return <HbcusApp />;
-  if (!isHbcu || !verification.verified) {
-    return <NonHbcuGate school={school.name} domain={domain ?? undefined} />;
-  }
-  // Fallback: verified but school not in profiles → preview mode with default HBCU.
-  const resolved = verification.school && schoolProfiles.some((s) => s.name === verification.school)
-    ? verification.school
-    : undefined;
-  return <HbcusApp verifiedSchool={resolved} fallbackReason={resolved ? undefined : verification.school ?? school.name} />;
-}
-
-function NonHbcuGate({ school, domain }: { school: string; domain?: string }) {
-  return (
-    <AppShell title='HBC"US"'>
-      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
-        <div className="hbcus-theme-bg" aria-hidden="true" />
-        <section className="px-5 pt-8 hbcus-rise">
-          <div className="hbcus-card overflow-hidden">
-            <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.15] mix-blend-luminosity" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--hbcu-night) 92%, transparent) 80%)" }} />
-            <div className="relative p-6 text-center">
-              <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full border border-white/15 bg-black/40">
-                <Lock className="h-6 w-6" style={{ color: "var(--hbcu-gold)" }} />
-              </div>
-              <span className="hbcus-chip mx-auto"><Crown className="h-3 w-3 hbcus-crown" /> HBCU Students Only</span>
-              <h1 className="mt-3 text-2xl font-black tracking-tight">
-                <span className="text-muted-foreground">HBC</span>
-                <span className="plugu-us-silver">US</span>{" "}
-                is exclusive.
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                This network is reserved for verified students of Historically Black Colleges & Universities.
-                Based on your <span className="font-semibold text-foreground">{domain ? `@${domain}` : school}</span>{" "}
-                email, {school} isn't recognized as an HBCU.
-              </p>
-              <p className="mt-3 text-xs text-muted-foreground/80">
-                Good news — the rest of PlugU is fully free and available to you. If you actually attend an HBCU,
-                update your account with your school email to unlock this tab.
-              </p>
-              <div className="mt-5 flex flex-col gap-2">
-                <Link
-                  to="/profile"
-                  className="tap inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
-                  style={{ background: "var(--hbcu-gold)", color: "#111" }}
-                >
-                  <Mail className="h-4 w-4" /> Update school email
-                </Link>
-                <Link
-                  to="/"
-                  className="tap inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold border border-white/15 text-foreground"
-                >
-                  Back to PlugU
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </AppShell>
-  );
-}
-
-function HbcusApp({ verifiedSchool, fallbackReason }: { verifiedSchool?: string; fallbackReason?: string }) {
-  const { home, active, setActive, setHomeCampus } = useHomeCampus();
-  const [showSwitch, setShowSwitch] = useState(false);
-  const [section, setSection] = useState<HbcusHomeSection>("Home");
-  const [showAI, setShowAI] = useState(false);
-  const sectionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const { profile } = useProfile();
-  const emailDomain =
-    (profile?.school_domain?.toLowerCase() || (profile?.email ? getDomain(profile.email) : null)) ?? null;
-  const detected = profile?.email ? detectHbcuSchool(profile.email) : null;
-  const hbcuMatch = !!emailDomain && isHbcuDomain(emailDomain);
-
-  function Row({ label, value, good }: { label: string; value: string; good?: boolean }) {
-    return (
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-[10px] uppercase tracking-wider" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 55%, transparent)" }}>
-          {label}
-        </span>
-        <span
-          className="font-semibold truncate max-w-[60%] text-right"
-          style={{ color: good ? "var(--hbcu-gold)" : undefined }}
-        >
-          {value}
-        </span>
-      </div>
-    );
-  }
-
-  useEffect(() => {
-    if (verifiedSchool) setActive(verifiedSchool);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verifiedSchool]);
-
-  // Scroll horizontally to active section pill
-  useEffect(() => {
-    const el = sectionRefs.current[section];
-    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [section]);
+  const [tab, setTab] = useState<Tab>("Schools");
 
   return (
-    <AppShell title='HBC"US"'>
-      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
-        <div className="hbcus-theme-bg" aria-hidden="true" />
+    <AppShell title="HBCUs">
+      <section className="px-5 pt-5">
+        <div className="rounded-3xl border border-border bg-[image:var(--gradient-surface)] p-5">
+          <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>
+            Inside PlugU
+          </p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight">HBCU schools & culture</h1>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            School facts, live headlines from real publishers, live scores from ESPN, and events students
+            actually posted. PlugU is not affiliated with or endorsed by any school.
+          </p>
+        </div>
+      </section>
 
-        {/* Hero */}
-        <section className="px-5 pt-5 hbcus-rise">
-          <div className="hbcus-card overflow-hidden">
-            <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.18] mix-blend-luminosity" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--hbcu-night) 88%, transparent) 80%)" }} />
-            <div className="relative p-5">
-              <div className="flex items-center gap-2">
-                <span className="hbcus-chip">
-                  <Crown className="h-3 w-3 hbcus-crown" /> Exclusive Network
-                </span>
-                <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-emerald-400/40 text-emerald-200 bg-emerald-500/10">
-                  <BadgeCheck className="h-3 w-3" /> Verified
-                </span>
-              </div>
-              <h1 className="mt-3 text-[2.6rem] leading-none tracking-tight">
-                <span className="hbcus-wordmark">HBC</span>
-                <span className="hbcus-wordmark italic">"US"</span>
-              </h1>
-              <div className="hbcus-rule my-3 max-w-[12rem]" />
-              <p className="text-[12px] leading-relaxed max-w-xs" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 78%, transparent)" }}>
-                The members-only digital home of Historically Black Colleges & Universities — built for the culture, by the culture.
-              </p>
-              <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={() => setShowSwitch(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold tap"
-                  style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)", boxShadow: "0 8px 22px -10px color-mix(in oklab, var(--hbcu-gold) 70%, transparent)" }}
-                >
-                  <SchoolIcon className="h-3.5 w-3.5" />
-                  {active}
-                </button>
-                <span className="text-[10px] inline-flex items-center gap-1" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 65%, transparent)" }}>
-                  <HomeIcon className="h-3 w-3" /> Home: {home}
-                </span>
-                <button
-                  onClick={() => setShowAI(true)}
-                  className="ml-auto inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs tap"
-                  style={{ border: "1px solid color-mix(in oklab, var(--hbcu-gold) 45%, transparent)", color: "var(--hbcu-gold)", background: "color-mix(in oklab, var(--hbcu-deep) 70%, transparent)" }}
-                >
-                  <Bot className="h-3.5 w-3.5" /> Ask AI
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Eligibility panel — shows why HBCUS unlocked for this account */}
-        <section className="px-5 mt-4 hbcus-rise">
-          <div
-            className="rounded-2xl p-4"
-            style={{
-              background: "color-mix(in oklab, var(--hbcu-deep) 78%, transparent)",
-              border: "1px solid color-mix(in oklab, var(--hbcu-gold) 28%, transparent)",
-            }}
+      <nav className="mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {TABS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`tap shrink-0 rounded-full border px-4 min-h-[44px] text-xs font-semibold ${
+              tab === t ? "border-primary bg-primary/15 text-primary" : "border-border bg-card text-muted-foreground"
+            }`}
           >
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4" style={{ color: "var(--hbcu-gold)" }} />
-              <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: "var(--hbcu-gold)" }}>
-                Why you see HBCUS
-              </p>
-            </div>
-            <div className="mt-3 grid grid-cols-1 gap-2 text-[12px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 82%, transparent)" }}>
-              <Row label="Signed-in email" value={profile?.email ?? "—"} />
-              <Row label="Verified domain" value={emailDomain ?? "—"} />
-              <Row
-                label="HBCU match"
-                value={hbcuMatch ? (detected?.name ?? profile?.school_name ?? "Recognized HBCU") : "Not detected"}
-                good={hbcuMatch}
-              />
-              <Row
-                label="Active campus"
-                value={active}
-                good={!!verifiedSchool && active === verifiedSchool}
-              />
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSwitch(true)}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tap"
-                style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)" }}
-              >
-                <Pencil className="h-3 w-3" /> Correct my campus
-              </button>
-              {fallbackReason && (
-                <span className="text-[10px]" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 60%, transparent)" }}>
-                  Showing national HBCU information · “{fallbackReason}” is not in the directory
-                </span>
-              )}
-            </div>
-          </div>
-        </section>
+            {t}
+          </button>
+        ))}
+      </nav>
 
-        {/* Sticky section nav */}
-        <nav
-          className="sticky top-0 z-30 mt-4 backdrop-blur-xl"
-          style={{
-            background: "color-mix(in oklab, var(--hbcu-night) 72%, transparent)",
-            borderTop: "1px solid color-mix(in oklab, var(--hbcu-gold) 18%, transparent)",
-            borderBottom: "1px solid color-mix(in oklab, var(--hbcu-gold) 18%, transparent)",
-          }}
-        >
-          <div tabIndex={0} className="px-5 flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {hbcusHomeSections.map((key) => {
-              const isActive = section === key;
-              return (
-                <button
-                  key={key}
-                  ref={(el) => { sectionRefs.current[key] = el; }}
-                  onClick={() => setSection(key)}
-                  data-active={isActive}
-                  className="hbcus-tab shrink-0 tap"
-                >
-                  {key}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <section className="px-5 pt-4 pb-6 view-enter hbcus-rise" key={section}>
-        {fallbackReason && (
-          <div className="mb-4 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-[11px]">
-            <p className="text-amber-200 font-semibold">National HBCU information</p>
-            <p className="text-amber-100/80 mt-0.5">
-              We couldn't match <span className="text-foreground">{fallbackReason}</span> to an HBCU yet — showing national HBC"US" content sampled from {active}.
-              Pick a specific school from the Schools tab to personalize.
-            </p>
-          </div>
-        )}
-        {section === "Home" && <HomePanel activeSchool={active} onJump={setSection} />}
-        {section === "News" && <NewsPanel activeSchool={active} />}
-        {section === "Sports" && <SportsPanel />}
-        {section === "Schools" && <SchoolsPanel onPick={setActive} />}
-        {section === "Greek Life" && <GreekLifePanel />}
-        {section === "Communities" && <CommunitiesPanel activeSchool={active} />}
-        {section === "Internships" && <InternshipsPanel />}
-        {section === "Scholarships" && <ScholarshipsPanel />}
-        {section === "Marketplace" && <MarketplacePanel />}
-        {section === "Networking" && <NetworkingPanel />}
-        {section === "Alumni" && <AlumniPanel />}
-        {section === "Excellence" && <ExcellencePanel />}
-        {section === "Rankings" && <RankingsPanel />}
-        {section === "Events" && <EventsPanel />}
-        {section === "PlugU Daily" && <DailyPanel />}
-        </section>
+      <div className="px-5 pt-4 pb-10">
+        {tab === "Schools" && <SchoolsPanel />}
+        {tab === "News" && <NewsPanel />}
+        {tab === "Sports" && <SportsPanel />}
+        {tab === "Events" && <EventsPanel />}
       </div>
-
-      {showSwitch && (
-        <SwitchSheet
-          home={home}
-          active={active}
-          setActive={(n) => { setActive(n); setShowSwitch(false); }}
-          setHome={setHomeCampus}
-          onClose={() => setShowSwitch(false)}
-        />
-      )}
-
-      {showAI && <AISheet onClose={() => setShowAI(false)} />}
     </AppShell>
   );
 }
 
-/* ============================================================
-   VERIFICATION WALL — non-HBCU students see info; HBCU students verify
-============================================================ */
-function VerificationWall({
-  onVerified, previewSchool,
-}: { onVerified: (v: { method: "edu" | "id" | "school"; email?: string; school?: string }) => void; previewSchool?: string }) {
-  const [tab, setTab] = useState<"edu" | "id" | "school">("edu");
-  const [email, setEmail] = useState("");
-  const [school, setSchool] = useState(schoolProfiles[0].name);
-  const [error, setError] = useState<string | null>(null);
+/* --------------------------------- Schools --------------------------------- */
 
-  const eduDomains = ["howard.edu", "spelman.edu", "morehouse.edu", "hamptonu.edu", "famu.edu", "talladega.edu", "tuskegee.edu", "nccu.edu", "jsums.edu", "subr.edu", "bethune.edu", "cau.edu"];
-
-  function submit() {
-    setError(null);
-    if (tab === "edu") {
-      const domain = email.split("@")[1]?.toLowerCase();
-      if (!domain || !eduDomains.some((d) => domain.endsWith(d))) {
-        setError("Please use a valid HBCU .edu email.");
-        return;
-      }
-      const match = schoolProfiles.find((s) => domain.includes(s.website.split(".")[0].toLowerCase()));
-      onVerified({ method: "edu", email, school: match?.name ?? schoolProfiles[0].name });
-    } else if (tab === "id") {
-      onVerified({ method: "id", school });
-    } else {
-      onVerified({ method: "school", school });
-    }
-  }
+function SchoolsPanel() {
+  const [q, setQ] = useState("");
+  const items = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    if (!t) return schoolProfiles;
+    return schoolProfiles.filter(
+      (s) => s.name.toLowerCase().includes(t) || s.city.toLowerCase().includes(t) || s.state.toLowerCase().includes(t),
+    );
+  }, [q]);
 
   return (
-    <AppShell title='HBC"US"'>
-      <div className="hbcus-theme relative min-h-[calc(100dvh-9rem)]">
-        <div className="hbcus-theme-bg" aria-hidden="true" />
-        <section className="px-5 pt-5 hbcus-rise">
-        <div className="relative overflow-hidden rounded-3xl border border-border">
-          <img src={statueImg.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
-          <div className="relative p-6">
-            <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/40 text-primary bg-primary/10">
-              <Lock className="h-3 w-3" /> Members Only
-            </span>
-            <h1 className="mt-3 text-[2.6rem] leading-none tracking-tight">
-              <span className="hbcus-wordmark">HBC</span>
-              <span className="hbcus-wordmark italic">"US"</span>
-            </h1>
-            <div className="hbcus-rule my-3 max-w-[10rem]" />
-            <p className="text-sm mt-2 max-w-sm" style={{ color: "color-mix(in oklab, var(--hbcu-cream) 78%, transparent)" }}>
-              HBC"US" is an exclusive experience for verified HBCU students. Verify your status below to unlock the full network.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 pt-5 space-y-3">
-        <h2 className="text-xs tracking-widest uppercase text-muted-foreground">What you unlock</h2>
-        <ul className="grid grid-cols-2 gap-2 text-xs">
-          {[
-            ["School Communities", Users],
-            ["Live Sports Center", Trophy],
-            ["Alumni Network", Award],
-            ["Black Excellence", Sparkles],
-            ["HBCU Marketplace", Store],
-            ["National Rankings", TrendingUp],
-          ].map(([label, Icon]) => {
-            const I = Icon as typeof Users;
-            return (
-              <li key={label as string} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-2">
-                <I className="h-4 w-4 text-accent" />
-                <span>{label as string}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      <section className="px-5 pt-6">
-        <div className="rounded-3xl border border-border bg-card p-5">
-          <h3 className="font-semibold">Verify your HBCU status</h3>
-          <p className="text-xs text-muted-foreground mt-1">Choose one method. You only need to do this once.</p>
-
-          <div className="mt-4 grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-secondary border border-border">
-            {([
-              ["edu", "Email", Mail],
-              ["id", "Student ID", IdCard],
-              ["school", "School", SchoolIcon],
-            ] as const).map(([key, label, Icon]) => (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className={`py-2 rounded-xl text-[11px] font-medium inline-flex items-center justify-center gap-1.5 tap ${
-                  tab === key ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" /> {label}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {tab === "edu" && (
-              <label className="block">
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">HBCU .edu email</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@howard.edu"
-                  className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border outline-none text-sm"
-                />
-              </label>
-            )}
-            {tab === "id" && (
-              <div className="space-y-2">
-                <label className="block">
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">School</span>
-                  <select
-                    value={school}
-                    onChange={(e) => setSchool(e.target.value)}
-                    className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border text-sm"
-                  >
-                    {schoolProfiles.map((s) => <option key={s.name}>{s.name}</option>)}
-                  </select>
-                </label>
-                <div className="border border-dashed border-border rounded-xl p-4 text-center text-xs text-muted-foreground">
-                  Upload a photo of your student ID
-                  <br />
-                  <span className="text-[10px]">(simulated — accepted instantly in this build)</span>
-                </div>
-              </div>
-            )}
-            {tab === "school" && (
-              <div>
-                <label className="block">
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">School verification</span>
-                  <select
-                    value={school}
-                    onChange={(e) => setSchool(e.target.value)}
-                    className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary border border-border text-sm"
-                  >
-                    {schoolProfiles.map((s) => <option key={s.name}>{s.name}</option>)}
-                  </select>
-                </label>
-                <p className="mt-2 text-[10px] text-muted-foreground">Eligibility is confirmed from your verified .edu student email.</p>
-              </div>
-            )}
-
-            {error && <p className="text-xs text-rose-400">{error}</p>}
-
-            <button
-              onClick={submit}
-              className="w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
-            >
-              Verify & Unlock HBC"US"
-            </button>
-            {previewSchool && (
-              <button
-                onClick={() => { onVerified({ method: "school", school: schoolProfiles[0].name }); toast.success("HBCU directory opened"); }}
-                className="w-full py-2.5 rounded-2xl bg-card border border-border text-xs tap"
-              >
-                Explore the HBCU directory
-              </button>
-            )}
-            <p className="text-[10px] text-muted-foreground text-center">
-              Not at an HBCU? You'll keep all your PlugU features — HBC"US" stays exclusive to verified HBCU students.
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="space-y-4">
+      <SectionHeader title="School directory" />
+      <div className="flex items-center gap-2 rounded-2xl border border-border bg-secondary px-4 py-3">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search by school, city or state"
+          className="min-h-[24px] flex-1 bg-transparent text-sm outline-none"
+        />
       </div>
-    </AppShell>
+      {items.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
+          No school matches "{q}".
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map((s) => (
+            <li key={s.name}>
+              <SchoolRow school={s} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
-/* ============================================================
-   HOME — intelligent dashboard
-============================================================ */
-function HomePanel({ activeSchool, onJump }: { activeSchool: string; onJump: (s: HbcusHomeSection) => void }) {
-  const quote = useMemo(() => dailyMotivation[new Date().getDate() % dailyMotivation.length], []);
-  const homecoming = homecomingCountdowns.find((h) => h.school === activeSchool) ?? homecomingCountdowns[0];
-  const sportsQ = useQuery({
-    queryKey: ["hbcu-sports"],
-    queryFn: () => getHbcuSports(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-  });
-  const breakingQ = useQuery({
-    queryKey: ["hbcus-breaking"],
-    queryFn: () => getLiveNews({ data: { topic: "All HBCUs", count: 8 } }),
-    staleTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
-  });
-  const breaking = breakingQ.data?.items ?? [];
-  const featuredGame =
-    sportsQ.data?.live[0] ?? sportsQ.data?.upcoming[0] ?? sportsQ.data?.final[0] ?? null;
-  const gameLive = featuredGame?.state === "in";
-  const profile = schoolProfiles.find((s) => s.name === activeSchool);
-  const weatherQ = useQuery({
-    queryKey: ["hbcus-weather", activeSchool],
-    queryFn: () => getLiveWeather({ data: { school: activeSchool, city: profile?.city, state: profile?.state } }),
+function SchoolRow({ school }: { school: SchoolProfile }) {
+  return (
+    <Link
+      to="/hbcus/school/$slug"
+      params={{ slug: schoolSlug(school.name) }}
+      className="tap flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
+    >
+      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+        <CampusThumb school={school.name} city={school.city} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-semibold">{school.name}</p>
+        <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+          <MapPin className="h-3 w-3" /> {school.city} · Founded {school.founded}
+        </p>
+        <p className="truncate text-[11px] text-muted-foreground">
+          {school.mascot} · {school.conference} · {school.enrollment} students
+        </p>
+      </div>
+      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+    </Link>
+  );
+}
+
+/* ---------------------------------- News ----------------------------------- */
+
+function NewsPanel() {
+  const fn = useServerFn(getLiveNews);
+  const { data, isPending, isFetching, refetch, isError } = useQuery({
+    queryKey: ["hbcus-live-news"],
+    queryFn: () => fn({ data: { topic: "HBCUs", count: 20 } }),
     staleTime: 10 * 60_000,
     refetchOnWindowFocus: false,
   });
-  const weather = weatherQ.data;
+  const items = data?.items ?? [];
 
   return (
-    <div className="space-y-5">
-      {/* Today briefing header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-[22px] font-black leading-none tracking-tight">
-            HBCU Today
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
-            </span>
-          </h2>
-          <p className="mt-1 truncate text-[12px] text-muted-foreground">Your {activeSchool} briefing</p>
-        </div>
-        <span
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold"
-          style={{ border: "1px solid color-mix(in oklab, var(--hbcu-gold) 45%, transparent)", color: "var(--hbcu-gold)" }}
-        >
-          <Sparkles className="h-3.5 w-3.5" /> Powered by PlugU AI
-        </span>
-      </div>
-
-      {/* Top story */}
-      <button
-        onClick={() => onJump("News")}
-        className="tap relative block w-full overflow-hidden rounded-3xl border border-border text-left"
-      >
-        <img src={heroImg} alt="" className="h-56 w-full object-cover" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.92) 100%)" }} />
-        <div className="absolute inset-0 flex flex-col justify-between p-4">
-          <span
-            className="w-fit inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
-            style={{ background: "var(--hbcu-gold-grad)", color: "var(--hbcu-night)" }}
-          >
-            <Trophy className="h-3 w-3" /> Top story
-          </span>
-          <div>
-            <p className="text-[22px] font-black leading-[1.1] text-primary-foreground">
-              The stories moving HBCU culture today
-            </p>
-            <p className="mt-1.5 text-[12px] leading-snug text-primary-foreground/75">
-              Campus events, leadership wins, and culture shaping the next generation.
-            </p>
-            <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] text-primary-foreground/60">Updated live · {breaking.length || breakingNews.length} stories</span>
-              <span className="inline-flex items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
-                Open briefing <ChevronRight className="h-3.5 w-3.5" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </button>
-
-      {/* Breaking rail */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <p className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.18em] text-rose-400">
-            <Radio className="h-3.5 w-3.5" /> Breaking
-          </p>
-          <button onClick={() => onJump("News")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>See all →</button>
-        </div>
-        <div tabIndex={0} className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {breakingQ.isPending &&
-            [0, 1, 2].map((i) => (
-              <div key={i} className="shrink-0 w-52 h-28 rounded-2xl border border-border bg-card animate-pulse" />
-            ))}
-          {breaking.map((b) => (
-            <a
-              key={b.id}
-              href={b.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tap shrink-0 w-52 rounded-2xl border border-rose-500/30 bg-rose-500/5 p-3 text-left"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-black" style={{ color: "var(--hbcu-gold)" }}>{b.emoji}</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
-                </span>
-              </div>
-              <p className="mt-2 line-clamp-3 text-[13px] font-semibold leading-snug">{b.headline}</p>
-              <p className="mt-1.5 truncate text-[10px] text-muted-foreground">{b.source} · {b.time} ago</p>
-            </a>
-          ))}
-          {!breakingQ.isPending && breaking.length === 0 && (
-            <div className="shrink-0 w-64 rounded-2xl border border-border bg-card p-3 text-[12px] text-muted-foreground">
-              The news wire is quiet right now — check back shortly.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Sports & scores */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <p className="inline-flex items-center gap-1.5 text-[13px] font-bold">
-            <Trophy className="h-4 w-4" style={{ color: "var(--hbcu-gold)" }} /> HBCU Sports &amp; Scores
-          </p>
-          <button onClick={() => onJump("Sports")} className="tap text-[11px]" style={{ color: "var(--hbcu-gold)" }}>View all →</button>
-        </div>
-        {sportsQ.isPending ? (
-          <div className="h-28 w-full rounded-3xl border border-border bg-card animate-pulse" />
-        ) : featuredGame ? (
-          <button
-            onClick={() => onJump("Sports")}
-            className="tap w-full rounded-3xl border border-border bg-card p-4 text-left"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0 flex-1 text-center">
-                <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{featuredGame.home.short || featuredGame.home.name}</p>
-                <p className="mt-1 text-3xl font-black">{featuredGame.state === "pre" ? "–" : featuredGame.home.score}</p>
-              </div>
-              <div className="shrink-0 text-center">
-                {gameLive ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
-                  </span>
-                ) : (
-                  <span className="inline-flex rounded-full bg-secondary px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                    {featuredGame.state === "pre" ? "Next up" : "Final"}
-                  </span>
-                )}
-                <p className="mt-1.5 text-[11px] text-muted-foreground">{featuredGame.status}</p>
-              </div>
-              <div className="min-w-0 flex-1 text-center">
-                <p className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{featuredGame.away.short || featuredGame.away.name}</p>
-                <p className="mt-1 text-3xl font-black">{featuredGame.state === "pre" ? "–" : featuredGame.away.score}</p>
-              </div>
-            </div>
-            <p className="mt-3 border-t border-border pt-2 text-[11px] text-muted-foreground">
-              {featuredGame.sport} · {featuredGame.broadcast ?? featuredGame.venue ?? "ESPN wire"}
-            </p>
-          </button>
-        ) : (
-          <button onClick={() => onJump("Sports")} className="tap w-full rounded-3xl border border-border bg-card p-4 text-left">
-            <p className="text-sm font-semibold">No HBCU games on the board</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Scores appear here the moment the wire goes live.</p>
-          </button>
-        )}
-      </div>
-
-      {/* Spotlight + Greek life */}
-      <div className="grid grid-cols-2 gap-3">
-        <button onClick={() => onJump("Schools")} className="tap rounded-3xl border border-border bg-card p-4 text-left">
-          <SchoolIcon className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
-          <p className="mt-2 text-[13px] font-bold leading-tight">School Spotlight</p>
-          <p className="mt-1 text-[11px] font-semibold">{schoolProfiles[0].name}</p>
-          <p className="mt-1 line-clamp-3 text-[11px] text-muted-foreground">
-            Explore campus culture, student life and the numbers behind every HBCU.
-          </p>
-          <span className="mt-2 inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--hbcu-gold)" }}>
-            Learn more <ChevronRight className="h-3 w-3" />
-          </span>
-        </button>
-        <button onClick={() => onJump("Greek Life")} className="tap rounded-3xl border border-border bg-card p-4 text-left">
-          <Crown className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
-          <p className="mt-2 text-[13px] font-bold leading-tight">Greek Life</p>
-          <p className="mt-1 text-[11px] font-semibold">Divine 9. Real impact.</p>
-          <p className="mt-1 line-clamp-3 text-[11px] text-muted-foreground">
-            Service, sisterhood, brotherhood, and legacy across every campus.
-          </p>
-          <span className="mt-2 inline-flex items-center gap-1 text-[11px]" style={{ color: "var(--hbcu-gold)" }}>
-            Explore <ChevronRight className="h-3 w-3" />
-          </span>
+    <div className="space-y-3">
+      <SectionHeader title="Live headlines" />
+      <div className="flex items-center justify-between">
+        <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <Radio className="h-3 w-3" style={{ color: "var(--plugu-gold)" }} /> Live wire
+        </p>
+        <button onClick={() => refetch()} disabled={isFetching} className="tap inline-flex min-h-[44px] items-center gap-1 text-[11px] text-accent">
+          <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
 
-      {/* Scholarships banner */}
-      <button
-        onClick={() => onJump("Scholarships")}
-        className="tap flex w-full items-center gap-3 rounded-3xl p-4 text-left"
-        style={{
-          border: "1px solid color-mix(in oklab, var(--hbcu-gold) 40%, transparent)",
-          background: "linear-gradient(120deg, color-mix(in oklab, var(--hbcu-gold) 16%, transparent), transparent 65%)",
-        }}
-      >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ background: "color-mix(in oklab, var(--hbcu-gold) 20%, transparent)" }}>
-          <GraduationCap className="h-5 w-5" style={{ color: "var(--hbcu-gold)" }} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[14px] font-bold">Scholarships &amp; Opportunities</span>
-          <span className="block text-[11px] text-muted-foreground">Find funding, internships, and programs built for you.</span>
-        </span>
-        <span className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold" style={{ color: "var(--hbcu-gold)" }}>
-          Browse <ChevronRight className="h-3.5 w-3.5" />
-        </span>
-      </button>
-
-      {/* Live AI feeds (real-world) */}
-      <div className="rounded-3xl border border-border bg-card/60 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Bot className="h-4 w-4 text-accent" />
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Live · Real newsroom wires</p>
-          </div>
-          <button onClick={() => onJump("News")} className="text-[11px] text-accent tap">See all →</button>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5 text-yellow-300" /> HBCU Sports & Scores</p>
-            <LiveNewsRail topic="Sports" count={4} />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-accent" /> Black Excellence & Alumni Wins</p>
-            <LiveNewsRail topic="Culture" count={4} />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-emerald-300" /> Scholarships & Internships</p>
-            <LiveNewsRail topic="Careers" count={4} />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-pink-300" /> Events on the Yard & Nationally</p>
-            <LiveNewsRail topic="Campus" count={4} />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Flame className="h-3.5 w-3.5 text-orange-300" /> {activeSchool} in the news</p>
-            <LiveNewsRail topic="All HBCUs" school={activeSchool} count={5} />
-          </div>
-        </div>
-      </div>
-
-      {/* Quick tiles row */}
-      <div className="grid grid-cols-2 gap-3">
-        <button onClick={() => onJump("Sports")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
-          <p className="text-[10px] uppercase tracking-widest text-rose-400 inline-flex items-center gap-1">
-            {gameLive && <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" />}
-            {featuredGame ? `${gameLive ? "Live · " : ""}${featuredGame.sport}` : "Sports"}
-          </p>
-          <p className="mt-2 text-sm font-semibold">
-            {featuredGame
-              ? featuredGame.state === "pre"
-                ? `${featuredGame.away.short || featuredGame.away.name} @ ${featuredGame.home.short || featuredGame.home.name}`
-                : `${featuredGame.home.short || featuredGame.home.name} ${featuredGame.home.score} — ${featuredGame.away.score} ${featuredGame.away.short || featuredGame.away.name}`
-              : "Scores on the wire"}
-          </p>
-          <p className="text-[11px] text-muted-foreground">{featuredGame?.status ?? "Nothing scheduled right now"}</p>
-        </button>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] uppercase tracking-widest text-primary">Homecoming</p>
-          <p className="mt-2 text-3xl font-black tracking-tight" style={{ color: "var(--plugu-gold)" }}>{homecoming.days}</p>
-          <p className="text-[11px] text-muted-foreground">days · {homecoming.school} · {homecoming.theme}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] uppercase tracking-widest text-primary">Campus Weather</p>
-          <p className="mt-2 text-2xl font-bold flex items-center gap-2">
-            <span>{weather?.emoji ?? "🌡️"}</span>{" "}
-            {weather && !weather.error ? `${weather.tempF}°` : weatherQ.isPending ? "…" : "—"}
-          </p>
-          <p className="text-[11px] text-muted-foreground truncate">
-            {weather && !weather.error
-              ? `${weather.condition} · H${weather.high}° L${weather.low}°`
-              : weatherQ.isPending
-                ? "Loading live conditions…"
-                : "Live weather unavailable"}
-          </p>
-          {weather?.blurb && (
-            <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5">{weather.blurb}</p>
-          )}
-          {weather && !weather.error && (
-            <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">
-              {weather.place} · 💨 {weather.windMph} mph · 💧 {weather.humidity}% · ☔ {weather.precipChance}%
-            </p>
-          )}
-        </div>
-        <button onClick={() => onJump("Scholarships")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
-          <p className="text-[10px] uppercase tracking-widest text-accent">Scholarship</p>
-          <p className="mt-2 text-sm font-semibold">{scholarshipsList[0].name}</p>
-          <p className="text-[11px] text-muted-foreground">{scholarshipsList[0].amount} · {scholarshipsList[0].deadline}</p>
-        </button>
-      </div>
-
-      {/* Announcements */}
-      <DashRow title="School Announcements" onMore={() => onJump("News")}>
-        <ul className="space-y-2">
-          {announcements.map((a) => (
-            <li key={a.id} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-3">
-              <span className="text-[10px] uppercase tracking-widest text-accent">{a.tag}</span>
-              <span className="text-sm flex-1">{a.title}</span>
-              <span className="text-[10px] text-muted-foreground">{a.school}</span>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Upcoming events horizontal */}
-      <DashRow title="Upcoming Events" onMore={() => onJump("Events")}>
-        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {liveEvents.slice(0, 5).map((e) => (
-            <div key={e.id} className="shrink-0 w-56 rounded-2xl bg-card border border-border p-3">
-              <p className="text-[10px] uppercase tracking-widest text-primary">{e.type}</p>
-              <p className="font-semibold text-sm mt-1 line-clamp-2">{e.title}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">{e.when} · {e.school}</p>
-            </div>
-          ))}
-        </div>
-      </DashRow>
-
-      {/* Opportunities */}
-      <div className="grid grid-cols-2 gap-3">
-        <button onClick={() => onJump("Internships")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
-          <p className="text-[10px] uppercase tracking-widest text-primary">Internship</p>
-          <p className="font-semibold mt-1 text-sm">{internships[0].role}</p>
-          <p className="text-[11px] text-muted-foreground">{internships[0].company} · {internships[0].pay}</p>
-        </button>
-        <button onClick={() => onJump("Alumni")} className="text-left rounded-2xl border border-border bg-card p-4 tap">
-          <p className="text-[10px] uppercase tracking-widest text-accent">Alumni Spotlight</p>
-          <p className="font-semibold mt-1 text-sm">{alumniNetwork[0].name}</p>
-          <p className="text-[11px] text-muted-foreground">{alumniNetwork[0].role} @ {alumniNetwork[0].company}</p>
-        </button>
-      </div>
-
-      {/* Business spotlight */}
-      <DashRow title="Black-Owned Business" onMore={() => onJump("Marketplace")}>
-        <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
-          <div className="h-14 w-14 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-black text-xl">
-            {blackBusinesses[0].name[0]}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold flex items-center gap-1">{blackBusinesses[0].name}<BadgeCheck className="h-3.5 w-3.5 text-accent" /></p>
-            <p className="text-[11px] text-muted-foreground">{blackBusinesses[0].owner} · {blackBusinesses[0].school}</p>
-          </div>
-          <span className="text-[11px] text-accent">{blackBusinesses[0].followers}</span>
-        </div>
-      </DashRow>
-
-      {/* Student success */}
-      <DashRow title="Student Success" onMore={() => onJump("Excellence")}>
-        <ul className="space-y-2">
-          {successStories.map((s) => (
-            <li key={s.id} className="p-3 rounded-2xl bg-card border border-border">
-              <p className="text-sm font-semibold">{s.name} <span className="text-[10px] text-muted-foreground">· {s.school}</span></p>
-              <p className="text-xs text-muted-foreground mt-0.5">{s.note}</p>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Trending convos */}
-      <DashRow title="Trending Conversations" onMore={() => onJump("Communities")}>
-        <ul className="space-y-2">
-          {trendingConvos.map((c) => (
-            <li key={c.id} className="p-3 rounded-2xl bg-card border border-border flex items-center justify-between">
-              <span className="text-sm">{c.title}</span>
-              <span className="text-[11px] text-muted-foreground">{c.replies} replies</span>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Student Spotlights */}
-      <DashRow title="Student Spotlights" onMore={() => onJump("Excellence")}>
-        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {studentSpotlights.map((s) => (
-            <div key={s.id} className="shrink-0 w-60 rounded-2xl bg-card border border-border p-4">
-              <p className="text-2xl">{s.emoji}</p>
-              <p className="mt-1 font-semibold text-sm">{s.name}</p>
-              <p className="text-[11px] text-accent">{s.title}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{s.school}</p>
-              <p className="text-xs text-muted-foreground mt-2">{s.note}</p>
-            </div>
-          ))}
-        </div>
-      </DashRow>
-
-      {/* Career Opportunities */}
-      <DashRow title="Career Opportunities" onMore={() => onJump("Internships")}>
-        <ul className="space-y-2">
-          {careerOpportunities.map((c) => (
-            <li key={c.id} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-3">
-              <span className="text-xl">{c.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{c.role}</p>
-                <p className="text-[11px] text-muted-foreground">{c.company} · {c.type}</p>
-              </div>
-              <span className="text-[10px] uppercase tracking-widest text-rose-300">Due {c.deadline}</span>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Study Abroad */}
-      <DashRow title="Study Abroad">
-        <div tabIndex={0} className="-mx-5 px-5 flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {studyAbroadPrograms.map((p) => (
-            <div key={p.id} className="shrink-0 w-56 rounded-2xl bg-card border border-border p-4">
-              <p className="text-2xl">{p.emoji}</p>
-              <p className="text-[10px] uppercase tracking-widest text-primary mt-1">{p.country}</p>
-              <p className="mt-1 text-sm font-semibold leading-tight">{p.program}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">{p.school} · {p.term}</p>
-              <p className="text-[11px] text-accent mt-1">{p.cost}</p>
-            </div>
-          ))}
-        </div>
-      </DashRow>
-
-      {/* Financial Literacy */}
-      <DashRow title="Financial Literacy">
-        <ul className="grid grid-cols-1 gap-2">
-          {financialTips.map((t) => (
-            <li key={t.id} className="p-3.5 rounded-2xl bg-card border border-border">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{t.title}</p>
-                <span className="text-[10px] uppercase tracking-widest text-accent">{t.tag}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{t.body}</p>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Stocks & Market */}
-      <DashRow title="Stocks & Market News">
-        <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
-          {marketTickers.map((t) => (
-            <div key={t.symbol} className="shrink-0 px-3 py-2 rounded-xl bg-card border border-border min-w-[120px]">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.symbol}</p>
-              <p className="text-sm font-semibold">{t.price}</p>
-              <p className={`text-[11px] font-semibold ${t.up ? "text-emerald-400" : "text-rose-400"}`}>{t.change}</p>
-            </div>
-          ))}
-        </div>
-        <ul className="space-y-2">
-          {marketHeadlines.map((m) => (
-            <li key={m.id} className="p-3 rounded-2xl bg-card border border-border flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-emerald-400 shrink-0" />
-              <span className="text-sm flex-1">{m.title}</span>
-              <span className="text-[10px] text-muted-foreground">{m.time}</span>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* News Black college students should know */}
-      <DashRow title="News You Should Know" onMore={() => onJump("News")}>
-        <ul className="space-y-2">
-          {mustReadNews.map((n) => (
-            <li key={n.id} className="p-3.5 rounded-2xl bg-card border border-border">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-widest text-primary">{n.tag}</span>
-                <span className="text-[10px] text-muted-foreground">· {n.source} · {n.time}</span>
-              </div>
-              <p className="text-sm font-semibold mt-1">{n.title}</p>
-            </li>
-          ))}
-        </ul>
-      </DashRow>
-
-      {/* Motivation */}
-      <div className="rounded-3xl border border-border p-5 bg-[image:var(--gradient-bronze)] text-primary-foreground">
-        <Quote className="h-5 w-5 opacity-70" />
-        <p className="mt-2 text-base font-semibold leading-snug">"{quote}"</p>
-        <p className="mt-1 text-[10px] uppercase tracking-widest opacity-80">Daily motivation</p>
-      </div>
-    </div>
-  );
-}
-
-function DashRow({ title, onMore, children }: { title: string; onMore?: () => void; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        {onMore && (
-          <button onClick={onMore} className="text-[11px] text-accent inline-flex items-center gap-0.5 tap">
-            See all <ChevronRight className="h-3 w-3" />
-          </button>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/* ============================================================
-   COMMUNITIES — per-school digital campus
-============================================================ */
-function CommunitiesPanel({ activeSchool }: { activeSchool: string }) {
-  const [rail, setRail] = useState<string>("School Feed");
-  const school = schoolProfiles.find((s) => s.name === activeSchool) ?? schoolProfiles[0];
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Users} title="School Communities" subtitle={`${school.name} · ${school.pluguStudents} on PlugU`} />
-
-      <div className={`relative h-28 rounded-3xl overflow-hidden bg-gradient-to-br ${school.color} border border-border`}>
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <p className="text-white font-bold">{school.name}</p>
-          <p className="text-white/70 text-[11px]">{school.mascot} · {school.conference} · {school.liveActivity}</p>
-        </div>
-      </div>
-
-      <FilterChips values={communityRails as readonly string[]} active={rail} onChange={setRail} />
-
-      <ul className="space-y-2">
-        {communityFeedSample.map((c) => (
-          <li key={c.id} className="p-3.5 rounded-2xl bg-card border border-border">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground text-xs font-bold">
-                {c.user[0]}
-              </div>
-              <div>
-                <p className="text-sm font-semibold">{c.user}</p>
-                <p className="text-[10px] text-muted-foreground">{c.tag} · {c.time}</p>
-              </div>
-              <span className="ml-auto text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                <Heart className="h-3 w-3" /> {c.likes}
-              </span>
-            </div>
-            <p className="text-sm mt-2">{c.post}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   ALUMNI NETWORK
-============================================================ */
-function AlumniPanel() {
-  const [industry, setIndustry] = useState<string>("All");
-  const [q, setQ] = useState("");
-  const navigate = useNavigate();
-  const [connected, setConnected] = useState<Set<string>>(new Set());
-  const items = useMemo(() => {
-    return alumniNetwork.filter((a) => {
-      const matchInd = industry === "All" || a.industry === industry;
-      const t = q.toLowerCase();
-      const matchQ = !t || a.name.toLowerCase().includes(t) || a.school.toLowerCase().includes(t) || a.company.toLowerCase().includes(t) || a.year.includes(t);
-      return matchInd && matchQ;
-    });
-  }, [industry, q]);
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Award} title="Alumni Network" subtitle="Mentorship, jobs, internships, capital" />
-      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by school, company, year" className="bg-transparent outline-none text-sm flex-1" />
-      </div>
-      <FilterChips values={alumniIndustries as readonly string[]} active={industry} onChange={setIndustry} />
-      <ul className="space-y-2">
-        {items.map((a) => (
-          <li key={a.id} className="p-4 rounded-2xl bg-card border border-border">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">{a.name[0]}</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold">{a.name} <span className="text-[10px] text-accent uppercase tracking-widest">· {a.industry}</span></p>
-                <p className="text-xs text-muted-foreground truncate">{a.role} @ {a.company}</p>
-                <p className="text-[11px] text-muted-foreground">{a.school} '{a.year.slice(2)} · {a.location}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setConnected((s) => new Set(s).add(a.id));
-                  toast.success(`Request sent to ${a.name}`, { description: "We'll ping you when they accept." });
-                  setTimeout(() => navigate({ to: "/messages" }), 400);
-                }}
-                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${connected.has(a.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
-              >
-                {connected.has(a.id) ? "Requested" : "Connect"}
-              </button>
-            </div>
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {a.offers.map((o) => (
-                <span key={o} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary border border-border text-accent">{o}</span>
-              ))}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   BLACK EXCELLENCE HUB
-============================================================ */
-function ExcellencePanel() {
-  const [cat, setCat] = useState<string>("All");
-  const items = useMemo(() => (cat === "All" ? excellenceFeed : excellenceFeed.filter((e) => e.category === cat)), [cat]);
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Sparkles} title="Black Excellence Hub" subtitle="Celebrating HBCU culture & achievement" />
-      <FilterChips values={excellenceCategories as readonly string[]} active={cat} onChange={setCat} />
-      <div className="grid grid-cols-1 gap-3">
-        {items.map((e) => (
-          <article key={e.id} className="rounded-3xl border border-border bg-card overflow-hidden">
-            <div className="h-28 bg-[image:var(--gradient-bronze)] relative">
-              <div className="absolute inset-0 bg-black/40" />
-              <span className="absolute top-3 left-3 text-[10px] uppercase tracking-widest bg-background/80 backdrop-blur px-2 py-1 rounded-full text-accent">{e.category}</span>
-              <div className="absolute bottom-3 left-3">
-                <p className="text-white font-bold text-lg">{e.name}</p>
-                <p className="text-white/70 text-[11px]">{e.school}</p>
-              </div>
-            </div>
-            <p className="p-4 text-sm text-muted-foreground">{e.highlight}</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================
-   NATIONAL RANKINGS
-============================================================ */
-function RankingsPanel() {
-  const [cat, setCat] = useState<RankingCategory>("Campus Economy");
-  const data = hbcusRankings[cat];
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Crown} title="HBCU National Rankings" subtitle="Exclusive to HBC&quot;US&quot; members" />
-      <FilterChips values={rankingCategories as readonly string[]} active={cat} onChange={(v) => setCat(v as RankingCategory)} />
-      <ol className="space-y-2">
-        {data.map((row, i) => (
-          <li key={row.school} className="p-4 rounded-2xl bg-card border border-border flex items-center gap-3">
-            <span className={`h-8 w-8 grid place-items-center rounded-xl font-black ${i === 0 ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-              {i + 1}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold">{row.school}</p>
-              <p className="text-[11px] text-muted-foreground">{row.metric}</p>
-            </div>
-            <span className={`text-xs font-semibold ${row.delta.startsWith("-") || row.delta.startsWith("↓") ? "text-rose-400" : "text-emerald-400"}`}>
-              {row.delta}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-/* ============================================================
-   NEWS
-============================================================ */
-function NewsPanel({ activeSchool }: { activeSchool: string }) {
-  const [filter, setFilter] = useState<(typeof hbcuNewsFilters)[number]>("All HBCUs");
-  const isMine = filter === "My School";
-  const newsQ = useQuery({
-    queryKey: ["hbcus-live-news", filter, isMine ? activeSchool : ""],
-    queryFn: () =>
-      getLiveNews({
-        data: {
-          topic: isMine ? "All HBCUs" : String(filter),
-          school: isMine ? activeSchool : undefined,
-          count: 12,
-        },
-      }),
-    staleTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
-  });
-  const items = newsQ.data?.items ?? [];
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Radio} title="Live HBCU News" subtitle="Real headlines from real outlets" live />
-      <FilterChips
-        values={hbcuNewsFilters as readonly string[]}
-        active={filter}
-        onChange={(v) => setFilter(v as typeof filter)}
-      />
-
-      {newsQ.isPending && (
-        <ul className="space-y-2">
-          {[0, 1, 2, 3].map((i) => (
-            <li key={i} className="h-24 rounded-2xl border border-border bg-card animate-pulse" />
+      {isPending && (
+        <ul className="space-y-2" aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li key={i} className="h-16 animate-pulse rounded-2xl border border-border bg-card" />
           ))}
         </ul>
       )}
 
-      {!newsQ.isPending && items.length === 0 && (
-        <div className="rounded-2xl border border-border bg-card p-5 text-center">
-          <p className="text-sm font-semibold">No live stories right now</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">
-            We pull directly from national and HBCU newsrooms. Try another filter or refresh.
-          </p>
-          <button
-            onClick={() => newsQ.refetch()}
-            className="tap mt-3 rounded-full border border-accent/40 px-4 py-1.5 text-[11px] uppercase tracking-widest text-accent"
-          >
-            Refresh
+      {!isPending && items.length === 0 && (
+        <div className="rounded-2xl border border-border bg-card p-4 text-center">
+          <p className="text-sm font-semibold">{isError ? "Headlines didn't load" : "No stories on this wire right now"}</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">We only show articles we can fetch from the publisher.</p>
+          <button onClick={() => refetch()} className="tap mt-2 min-h-[44px] text-xs font-semibold text-primary">
+            Try again
           </button>
         </div>
       )}
 
       <ul className="space-y-2">
         {items.map((n) => (
-          <li key={n.id} className="rounded-2xl border border-border bg-card p-4 slide-up">
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
-              <span className="text-primary">{n.emoji} {n.tag}</span>
-              <span className="text-muted-foreground">{n.time} ago</span>
-            </div>
+          <li key={n.id}>
             <a
               href={n.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="tap mt-2 block text-[15px] font-semibold leading-snug hover:underline"
+              className="tap block rounded-2xl border border-border bg-card p-3"
             >
-              {n.headline}
+              <p className="text-sm font-semibold leading-snug">{n.headline}</p>
+              <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                {n.source}
+                {n.publishedAt && ` · ${new Date(n.publishedAt).toLocaleString()}`}
+                <ExternalLink className="h-3 w-3" />
+              </p>
             </a>
-            {n.summary ? (
-              <p className="mt-1 text-[12px] leading-snug text-muted-foreground line-clamp-3">{n.summary}</p>
-            ) : null}
-            <div className="mt-2 flex items-center justify-between text-[11px]">
-              <span className="text-muted-foreground">{n.source}</span>
-              <a
-                href={n.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tap font-semibold text-accent"
-              >
-                Read story →
-              </a>
-            </div>
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
 
-      {items.length > 0 && (
-        <p className="text-center text-[10px] uppercase tracking-widest text-muted-foreground">
-          Live wire · updated {new Date(newsQ.data!.fetchedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+/* --------------------------------- Sports ---------------------------------- */
+
+function GameRow({ g }: { g: LiveGame }) {
+  return (
+    <li className="rounded-2xl border border-border bg-card p-3">
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+        {g.sport} · {g.status}
+      </p>
+      <div className="mt-1 flex items-center justify-between text-sm">
+        <span className="truncate">{g.away.name}</span>
+        <span className="font-bold">{g.state === "pre" ? "" : g.away.score}</span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="truncate">{g.home.name}</span>
+        <span className="font-bold">{g.state === "pre" ? "" : g.home.score}</span>
+      </div>
+      {g.state === "pre" && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {new Date(g.startsAt).toLocaleString()}
+          {g.broadcast ? ` · ${g.broadcast}` : ""}
         </p>
       )}
-    </div>
+    </li>
   );
 }
 
-function ArticleActions() {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  return (
-    <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-      <button onClick={() => setLiked((v) => !v)} className="inline-flex items-center gap-1 tap">
-        <Heart className={`h-4 w-4 ${liked ? "fill-current text-rose-500" : ""}`} />
-        {liked ? "Liked" : "Like"}
-      </button>
-      <button onClick={() => setSaved((v) => !v)} className="inline-flex items-center gap-1 tap">
-        <Bookmark className={`h-4 w-4 ${saved ? "fill-current text-accent" : ""}`} />
-        {saved ? "Saved" : "Save"}
-      </button>
-      <button
-        onClick={() => {
-          if (typeof navigator !== "undefined" && navigator.share) {
-            navigator.share({ title: "PlugU", url: typeof location !== "undefined" ? location.href : "" }).catch(() => {});
-          } else {
-            toast.success("Link copied", { description: "Share it with the plug." });
-            if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(location.href).catch(() => {});
-          }
-        }}
-        className="inline-flex items-center gap-1 tap ml-auto"
-      >
-        <Send className="h-4 w-4" /> Share
-      </button>
-    </div>
-  );
-}
-
-/* ============================================================
-   SPORTS
-============================================================ */
 function SportsPanel() {
-  return <SportsPanelInner />;
-}
-
-function SportsList({
-  games,
-  pending,
-  emptyTitle,
-  emptyBody,
-  live,
-  notify,
-  onNotify,
-}: {
-  games: LiveGame[];
-  pending: boolean;
-  emptyTitle: string;
-  emptyBody: string;
-  live?: boolean;
-  notify?: Set<string>;
-  onNotify?: (g: LiveGame) => void;
-}) {
-  if (pending) {
-    return (
-      <ul className="space-y-2">
-        {[0, 1, 2].map((i) => (
-          <li key={i} className="h-24 rounded-2xl border border-border bg-card animate-pulse" />
-        ))}
-      </ul>
-    );
-  }
-  if (!games.length) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-5 text-center">
-        <p className="text-sm font-semibold">{emptyTitle}</p>
-        <p className="mt-1 text-[12px] text-muted-foreground">{emptyBody}</p>
-      </div>
-    );
-  }
-  return (
-    <ul className="space-y-2">
-      {games.map((g) => {
-        const when = new Date(g.startsAt);
-        return (
-          <li key={g.id} className="rounded-2xl border border-border bg-card p-4 slide-up">
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
-              <span className={live ? "inline-flex items-center gap-1 text-rose-400" : "text-primary"}>
-                {live && <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" />}
-                {live ? "LIVE · " : ""}
-                {g.sport}
-              </span>
-              <span className="text-muted-foreground">
-                {g.status ||
-                  when.toLocaleString([], { weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })}
-              </span>
-            </div>
-            {[g.away, g.home].map((t, i) => (
-              <div key={i} className="mt-2 flex items-center gap-2">
-                {t.logo && <img src={t.logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />}
-                <span className={`flex-1 truncate text-sm ${t.hbcu ? "font-bold" : "font-medium text-muted-foreground"}`}>
-                  {t.name}
-                  {t.record ? <span className="ml-1.5 text-[10px] text-muted-foreground">({t.record})</span> : null}
-                </span>
-                {g.state !== "pre" && <span className="text-sm font-black tabular-nums">{t.score}</span>}
-              </div>
-            ))}
-            <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-              <span className="truncate">
-                {[g.broadcast, g.venue].filter(Boolean).join(" · ") || "Details TBA"}
-              </span>
-              {onNotify ? (
-                <button
-                  onClick={() => onNotify(g)}
-                  className={`tap shrink-0 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-widest ${
-                    notify?.has(g.id) ? "border-emerald-500/40 text-emerald-300" : "border-accent/40 text-accent"
-                  }`}
-                >
-                  {notify?.has(g.id) ? "Notifying" : "Notify"}
-                </button>
-              ) : g.link ? (
-                <a href={g.link} target="_blank" rel="noopener noreferrer" className="tap shrink-0 font-semibold text-accent">
-                  Box score →
-                </a>
-              ) : null}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-function SportsPanelInner() {
-  const [tab, setTab] = useState<(typeof sportsTabs)[number]>("Live");
-  const [league, setLeague] = useState<(typeof sportLeagues)[number] | "All">("All");
-  const [notify, setNotify] = useState<Set<string>>(new Set());
-  const sportsQ = useQuery({
-    queryKey: ["hbcu-sports"],
-    queryFn: () => getHbcuSports(),
+  const fn = useServerFn(getHbcuSports);
+  const { data, isPending, isFetching, refetch } = useQuery({
+    queryKey: ["hbcus-live-sports"],
+    queryFn: () => fn(),
     staleTime: 60_000,
-    refetchInterval: 90_000,
+    refetchOnWindowFocus: false,
   });
-  const matches = (g: LiveGame) =>
-    league === "All" || g.sport.toLowerCase().includes(String(league).toLowerCase().split(" ")[0]);
-  const live = (sportsQ.data?.live ?? []).filter(matches);
-  const upcoming = (sportsQ.data?.upcoming ?? []).filter(matches).slice(0, 20);
-  const finals = (sportsQ.data?.final ?? []).filter(matches).slice(0, 20);
+  const games = [...(data?.live ?? []), ...(data?.upcoming ?? []), ...(data?.final ?? [])];
 
   return (
-    <div className="space-y-4">
-      <SectionHeader icon={Trophy} title="Sports Center" subtitle="Live HBCU scores from the ESPN wire" />
-
-      <FilterChips values={sportsTabs as readonly string[]} active={tab} onChange={(v) => setTab(v as typeof tab)} />
-      <div className="-mt-1">
-        <FilterChips
-          values={(["All", ...sportLeagues] as readonly string[])}
-          active={league}
-          onChange={(v) => setLeague(v as typeof league)}
-          small
-        />
-      </div>
-
-      {tab === "Live" && (
-        <SportsList
-          games={live}
-          pending={sportsQ.isPending}
-          emptyTitle="No HBCU games in progress"
-          emptyBody="Nothing is live on the wire right now. Check Upcoming for the next kickoff or tip-off."
-          live
-        />
-      )}
-
-      {tab === "Upcoming" && (
-        <SportsList
-          games={upcoming}
-          pending={sportsQ.isPending}
-          emptyTitle="No games scheduled"
-          emptyBody="No HBCU matchups on the board for this window."
-          notify={notify}
-          onNotify={(g) => {
-            setNotify((s) => {
-              const n = new Set(s);
-              n.has(g.id) ? n.delete(g.id) : n.add(g.id);
-              return n;
-            });
-            toast.success(
-              notify.has(g.id)
-                ? "Notification off"
-                : `We'll ping you before ${g.away.short || g.away.name} @ ${g.home.short || g.home.name}`,
-            );
-          }}
-        />
-      )}
-
-      {tab === "Final" && (
-        <SportsList
-          games={finals}
-          pending={sportsQ.isPending}
-          emptyTitle="No recent finals"
-          emptyBody="Once HBCU games wrap, the final scores land here automatically."
-        />
-      )}
-
-      {tab === "Standings" && (
-        <div className="space-y-3">
-          {conferenceStandings.map((c) => (
-            <div key={c.conf} className="rounded-2xl bg-card border border-border overflow-hidden">
-              <div className="px-4 py-2.5 text-[10px] tracking-widest uppercase text-primary border-b border-border bg-secondary/40">
-                {c.conf}
-              </div>
-              <ul>
-                {c.teams.map((t, i) => (
-                  <li key={t.name} className="px-4 py-2.5 flex items-center justify-between text-sm border-t border-border first:border-t-0">
-                    <span className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground w-4">{i + 1}</span>
-                      {t.name}
-                    </span>
-                    <span className="text-xs text-accent font-semibold">{t.record}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === "Top Performers" && (
-        <ul className="space-y-2">
-          {topPerformers.map((p) => (
-            <li key={p.name} className="p-4 rounded-2xl bg-card border border-border flex items-center gap-3">
-              <div className="h-11 w-11 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
-                {p.name[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold">{p.name}</p>
-                <p className="text-xs text-muted-foreground">{p.school} · {p.sport}</p>
-              </div>
-              <span className="text-xs text-accent font-semibold">{p.stat}</span>
-            </li>
+    <div className="space-y-3">
+      <SectionHeader title="Scores" />
+      {isPending && (
+        <ul className="space-y-2" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li key={i} className="h-20 animate-pulse rounded-2xl border border-border bg-card" />
           ))}
         </ul>
       )}
-    </div>
-  );
-}
-
-function ScoreSide({ name, score, right }: { name: string; score: number; right?: boolean }) {
-  return (
-    <div className={`flex flex-col ${right ? "items-end" : "items-start"}`}>
-      <span className="text-xs text-muted-foreground">{name}</span>
-      <span className="text-2xl font-black tracking-tight">{score}</span>
-    </div>
-  );
-}
-
-/* ============================================================
-   SCHOOLS DIRECTORY
-============================================================ */
-function SchoolsPanel({ onPick }: { onPick: (name: string) => void }) {
-  const [query, setQuery] = useState("");
-  const [picked, setPicked] = useState<SchoolProfile | null>(null);
-  const [stateFilter, setStateFilter] = useState<string>("All");
-  const [typeFilter, setTypeFilter] = useState<"All" | "Public" | "Private">("All");
-
-  const states = useMemo(
-    () => ["All", ...Array.from(new Set(schoolProfiles.map((s) => s.state))).sort()],
-    [],
-  );
-
-  const filtered = useMemo(
-    () => {
-      const q = query.trim().toLowerCase();
-      return schoolProfiles.filter((s) => {
-        if (stateFilter !== "All" && s.state !== stateFilter) return false;
-        if (typeFilter !== "All" && s.type !== typeFilter) return false;
-        if (!q) return true;
-        return (
-          s.name.toLowerCase().includes(q) ||
-          s.city.toLowerCase().includes(q) ||
-          s.state.toLowerCase().includes(q) ||
-          s.mascot.toLowerCase().includes(q) ||
-          s.conference.toLowerCase().includes(q) ||
-          s.topMajors.some((m) => m.toLowerCase().includes(q))
-        );
-      });
-    },
-    [query, stateFilter, typeFilter],
-  );
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={SchoolIcon} title="School Directory" subtitle="Every HBCU, beautifully indexed" />
-
-      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by school, city, mascot, major…"
-          className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-        />
-        {query && (
-          <button
-            onClick={() => setQuery("")}
-            className="text-[10px] uppercase tracking-widest text-muted-foreground tap"
-          >
-            Clear
+      {!isPending && games.length === 0 && (
+        <div className="rounded-2xl border border-border bg-card p-4 text-center">
+          <p className="text-sm font-semibold">
+            {data?.error ? "Scores didn't load" : "No games scheduled right now"}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">Scores come straight from the ESPN scoreboard.</p>
+          <button onClick={() => refetch()} disabled={isFetching} className="tap mt-2 min-h-[44px] text-xs font-semibold text-primary">
+            Try again
           </button>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <label className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-full bg-secondary border border-border">
-          <MapPin className="h-3 w-3 text-accent" />
-          <select
-            value={stateFilter}
-            onChange={(e) => setStateFilter(e.target.value)}
-            className="bg-transparent outline-none text-[11px] pr-1"
-            aria-label="Filter by state"
-          >
-            {states.map((st) => (
-              <option key={st} value={st}>{st === "All" ? "All States" : st}</option>
-            ))}
-          </select>
-        </label>
-        <div className="inline-flex rounded-full bg-secondary border border-border p-0.5">
-          {(["All", "Public", "Private"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className={`text-[11px] px-2.5 py-1 rounded-full tap ${
-                typeFilter === t ? "bg-[image:var(--gradient-bronze)] text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <span className="ml-auto text-[10px] uppercase tracking-widest text-muted-foreground">
-          {filtered.length} school{filtered.length === 1 ? "" : "s"}
-        </span>
-      </div>
-
-      {filtered.length === 0 && (
-        <EmptyFilters
-          title="No schools match those filters"
-          hint="Try another state, clear filters, or search a mascot."
-          chips={[
-            { label: "Clear filters", onClick: () => { setQuery(""); setStateFilter("All"); setTypeFilter("All"); } },
-            { label: "Georgia", onClick: () => setStateFilter("GA") },
-            { label: "Alabama", onClick: () => setStateFilter("AL") },
-            { label: "North Carolina", onClick: () => setStateFilter("NC") },
-            { label: "Aggies", onClick: () => setQuery("Aggies") },
-            { label: "Bison", onClick: () => setQuery("Bison") },
-          ]}
-        />
-      )}
-
-      <div className="grid grid-cols-2 gap-3">
-        {filtered.map((s) => (
-          <div key={s.name} className="relative">
-            {(() => {
-              const status = launchStatusFor(schoolSlug(s.name));
-              if (status === "coming-soon") return null;
-              return null;
-            })()}
-            <Link
-              to="/hbcus/school/$slug"
-              params={{ slug: schoolSlug(s.name) }}
-              className="block relative aspect-[3/4] rounded-2xl overflow-hidden text-left border border-border tap"
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${s.color}`} />
-              <div className="absolute inset-0 opacity-70">
-                <CampusThumb school={s.name} city={s.city} />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.35)" }}
-              />
-              <div className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 plugu-pulse" />
-                Live
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-3">
-                <p className="text-white font-bold text-sm leading-tight">{s.name}</p>
-                <p className="text-white/70 text-[11px] mt-0.5 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> {s.city}
-                </p>
-                <p className="text-white/90 text-[11px] mt-2 flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {s.pluguStudents} on PlugU
-                </p>
-              </div>
-            </Link>
-            <button
-              onClick={() => setPicked(s)}
-              className="absolute top-2 left-2 text-[10px] px-2 py-1 rounded-full bg-background/80 backdrop-blur text-accent tap"
-              aria-label="Quick preview"
-            >
-              Preview
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {picked && (
-        <SchoolSheet
-          school={picked}
-          onClose={() => setPicked(null)}
-          onPick={() => { onPick(picked.name); setPicked(null); }}
-        />
-      )}
-    </div>
-  );
-}
-
-function SchoolSheet({
-  school, onClose, onPick,
-}: { school: SchoolProfile; onClose: () => void; onPick: () => void }) {
-  const detail = getSchoolDetail(school.name);
-  const [view, setView] = useState<"About" | "Alumni" | "Greek">("About");
-  return (
-    <BottomSheet onClose={onClose}>
-      <div className={`h-32 rounded-2xl bg-gradient-to-br ${school.color} mb-4 relative overflow-hidden`}>
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="absolute bottom-3 left-3">
-          <p className="text-white font-bold text-lg">{school.name}</p>
-          <p className="text-white/80 text-xs">{school.city} · Est. {school.founded}</p>
-        </div>
-      </div>
-      <dl className="grid grid-cols-2 gap-2 text-xs">
-        <Stat label="Enrollment" value={school.enrollment} />
-        <Stat label="Acceptance" value={school.acceptance} />
-        <Stat label="Tuition" value={school.tuition} />
-        <Stat label="Mascot" value={school.mascot} />
-        <Stat label="Conference" value={school.conference} />
-        <Stat label="On PlugU" value={`${school.pluguStudents}`} />
-      </dl>
-
-      {detail && (
-        <div className="mt-4">
-          <div className="flex gap-1.5 mb-3">
-            {(["About", "Alumni", "Greek"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className="text-[11px] px-3 py-1.5 rounded-full border tap"
-                style={{
-                  background: view === v ? "var(--gradient-bronze)" : "transparent",
-                  borderColor: view === v ? "transparent" : "var(--border)",
-                  color: view === v ? "var(--primary-foreground)" : "var(--foreground)",
-                }}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-          {view === "About" && (
-            <div>
-              <p className="text-xs leading-relaxed text-muted-foreground">{detail.about}</p>
-              <p className="mt-2 text-[11px] italic text-accent">{detail.legacy}</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {school.topMajors.map((m) => (
-                  <span key={m} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{m}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          {view === "Alumni" && (
-            <ul className="space-y-1.5">
-              {detail.alumni.slice(0, 5).map((a) => (
-                <li key={a.name} className="p-2.5 rounded-xl bg-secondary border border-border">
-                  <p className="text-xs font-semibold">{a.name}{a.era ? <span className="text-accent"> · {a.era}</span> : null}</p>
-                  <p className="text-[11px] text-muted-foreground">{a.note}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-          {view === "Greek" && (
-            <div className="space-y-2">
-              {detail.greek.fraternities.length > 0 && (
-                <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Fraternities</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {detail.greek.fraternities.map((f) => (
-                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {detail.greek.sororities.length > 0 && (
-                <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Sororities</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {detail.greek.sororities.map((f) => (
-                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <p className="text-[11px] text-muted-foreground pt-1">{detail.greek.tradition}</p>
-            </div>
-          )}
         </div>
       )}
-
-      <Link
-        to="/hbcus/school/$slug"
-        params={{ slug: schoolSlug(school.name) }}
-        className="mt-4 block w-full text-center py-2.5 rounded-2xl bg-secondary border border-border text-xs font-semibold tap"
-      >
-        Open full {school.name} page →
-      </Link>
-      <button
-        onClick={onPick}
-        className="mt-2 w-full py-3 rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
-      >
-        Switch to {school.name}
-      </button>
-    </BottomSheet>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="p-2.5 rounded-xl bg-secondary border border-border">
-      <dt className="text-[10px] tracking-widest uppercase text-muted-foreground">{label}</dt>
-      <dd className="font-semibold mt-0.5">{value}</dd>
-    </div>
-  );
-}
-
-/* ============================================================
-   GREEK LIFE — Divine Nine across every HBCU
-============================================================ */
-function GreekLifePanel() {
-  const [query, setQuery] = useState("");
-  const [org, setOrg] = useState<string>("All");
-
-  const allOrgs = useMemo(() => {
-    const set = new Set<string>();
-    schoolProfiles.forEach((s) => {
-      const d = getSchoolDetail(s.name);
-      d?.greek.fraternities.forEach((f) => set.add(f));
-      d?.greek.sororities.forEach((f) => set.add(f));
-    });
-    return ["All", ...Array.from(set)];
-  }, []);
-
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return schoolProfiles
-      .map((s) => ({ school: s, detail: getSchoolDetail(s.name) }))
-      .filter(({ school, detail }) => {
-        if (!detail) return false;
-        if (org !== "All") {
-          const has = detail.greek.fraternities.includes(org) || detail.greek.sororities.includes(org);
-          if (!has) return false;
-        }
-        if (!q) return true;
-        return (
-          school.name.toLowerCase().includes(q) ||
-          school.city.toLowerCase().includes(q) ||
-          detail.greek.tradition.toLowerCase().includes(q) ||
-          detail.greek.fraternities.some((f) => f.toLowerCase().includes(q)) ||
-          detail.greek.sororities.some((f) => f.toLowerCase().includes(q))
-        );
-      });
-  }, [query, org]);
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Crown} title="Greek Life" subtitle="The Divine Nine across the Yard" />
-
-      <div className="rounded-3xl border border-border bg-card p-4">
-        <p className="text-[10px] tracking-widest uppercase text-muted-foreground">The Divine Nine (NPHC)</p>
-        <div className="mt-2 grid grid-cols-2 gap-1.5">
-          {[
-            "Alpha Phi Alpha", "Alpha Kappa Alpha",
-            "Kappa Alpha Psi", "Delta Sigma Theta",
-            "Omega Psi Phi", "Zeta Phi Beta",
-            "Phi Beta Sigma", "Sigma Gamma Rho",
-            "Iota Phi Theta",
-          ].map((o) => (
-            <span key={o} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border text-center">{o}</span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search Greek life by school or chapter…"
-          className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-        />
-      </div>
-      <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {allOrgs.map((o) => (
-          <button
-            key={o}
-            onClick={() => setOrg(o)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium tap border ${
-              org === o
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-muted-foreground border-border"
-            }`}
-          >
-            {o}
-          </button>
-        ))}
-      </div>
-
-      {rows.length === 0 && (
-        <EmptyFilters
-          title="No chapters match those filters"
-          hint="Try a different org or search a school name."
-          chips={[
-            { label: "Clear filters", onClick: () => { setQuery(""); setOrg("All"); } },
-            { label: "Alpha Phi Alpha", onClick: () => setOrg("Alpha Phi Alpha") },
-            { label: "Delta Sigma Theta", onClick: () => setOrg("Delta Sigma Theta") },
-            { label: "Alpha Kappa Alpha", onClick: () => setOrg("Alpha Kappa Alpha") },
-          ]}
-        />
-      )}
-
-      <ul className="space-y-3">
-        {rows.map(({ school, detail }) => (
-          <li key={school.name} className="rounded-3xl border border-border bg-card overflow-hidden">
-            <div className={`h-14 bg-gradient-to-br ${school.color} relative`}>
-              <div className="absolute inset-0 bg-black/30" />
-              <div className="absolute inset-0 px-4 flex items-center justify-between">
-                <div>
-                  <p className="text-white text-sm font-bold leading-tight">{school.name}</p>
-                  <p className="text-white/70 text-[10px]">{school.city} · {detail!.colors}</p>
-                </div>
-                <Link
-                  to="/hbcus/school/$slug"
-                  params={{ slug: schoolSlug(school.name) }}
-                  className="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/15 backdrop-blur text-white tap"
-                >
-                  Open →
-                </Link>
-              </div>
-            </div>
-            <div className="p-4 space-y-3">
-              {detail!.greek.fraternities.length > 0 && (
-                <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Fraternities</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {detail!.greek.fraternities.map((f) => (
-                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {detail!.greek.sororities.length > 0 && (
-                <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1.5">Sororities</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {detail!.greek.sororities.map((f) => (
-                      <span key={f} className="text-[11px] px-2.5 py-1 rounded-full bg-secondary border border-border">{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <p className="text-[11px] text-muted-foreground italic">{detail!.greek.tradition}</p>
-              <p className="text-[10px] text-accent">{detail!.greek.houses}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   INTERNSHIPS
-============================================================ */
-function InternshipsPanel() {
-  const [filter, setFilter] = useState<string>("All");
-  const [applied, setApplied] = useState<Set<string>>(new Set());
-  const items = useMemo(() => {
-    if (filter === "All") return internships;
-    if (filter === "Remote") return internships.filter((i) => i.type === "Remote");
-    return internships.filter((i) => i.tag === filter);
-  }, [filter]);
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Briefcase} title="Internship Hub" subtitle="Opportunities tailored to HBCU students" />
-      <FilterChips values={internshipFilters as readonly string[]} active={filter} onChange={setFilter} />
       <ul className="space-y-2">
-        {items.map((it) => (
-          <li key={it.id} className="p-4 rounded-2xl bg-card border border-border">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] tracking-widest uppercase text-primary">{it.tag} · {it.type}</p>
-                <p className="font-semibold mt-1">{it.role}</p>
-                <p className="text-xs text-muted-foreground">{it.company} · {it.location}</p>
-              </div>
-              <span className="text-xs font-bold text-accent shrink-0">{it.pay}</span>
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">Deadline: {it.deadline}</span>
-              <button
-                onClick={() => {
-                  setApplied((s) => new Set(s).add(it.id));
-                  toast.success(`Application started · ${it.company}`, { description: "We'll save your progress." });
-                }}
-                className={`text-[11px] px-3 py-1.5 rounded-full font-semibold tap ${applied.has(it.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-[image:var(--gradient-bronze)] text-primary-foreground"}`}
-              >
-                {applied.has(it.id) ? "Applied" : "Apply"}
-              </button>
-            </div>
-          </li>
+        {games.map((g) => (
+          <GameRow key={g.id} g={g} />
         ))}
       </ul>
     </div>
   );
 }
 
-/* ============================================================
-   SCHOLARSHIPS
-============================================================ */
-function ScholarshipsPanel() {
-  const [cat, setCat] = useState<string>("All");
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-  const items = useMemo(
-    () => (cat === "All" ? scholarshipsList : scholarshipsList.filter((s) => s.category === cat)),
-    [cat],
-  );
-  const toggleSave = (id: string) => {
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+/* --------------------------------- Events ---------------------------------- */
 
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={GraduationCap} title="Scholarship Center" subtitle="Track deadlines. Save apps. Win money." />
-      <FilterChips values={scholarshipCategories as readonly string[]} active={cat} onChange={setCat} />
-      <ul className="space-y-2">
-        {items.map((s) => (
-          <li key={s.id} className="p-4 rounded-2xl bg-card border border-border flex items-center gap-3">
-            <div className="h-11 w-11 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold truncate">{s.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{s.org} · {s.category}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Deadline: {s.deadline}</p>
-            </div>
-            <div className="flex flex-col items-end gap-1.5">
-              <span className="text-sm font-bold text-accent">{s.amount}</span>
-              <button onClick={() => toggleSave(s.id)} className="tap">
-                <Bookmark className={`h-4 w-4 ${saved.has(s.id) ? "fill-current text-accent" : "text-muted-foreground"}`} />
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   BLACK BUSINESS HUB / MARKETPLACE
-============================================================ */
-function MarketplacePanel() {
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Store} title="Black Business Hub" subtitle="Spotlighting student entrepreneurs" />
-      <div className="grid grid-cols-2 gap-3">
-        {blackBusinesses.map((b) => (
-          <div key={b.id} className="rounded-2xl bg-card border border-border p-3 tap">
-            <div className="h-20 rounded-xl bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-black text-2xl">
-              {b.name[0]}
-            </div>
-            <p className="mt-2 font-semibold text-sm flex items-center gap-1">
-              {b.name}
-              {b.verified && <BadgeCheck className="h-3.5 w-3.5 text-accent" />}
-            </p>
-            <p className="text-[11px] text-muted-foreground truncate">{b.owner} · {b.school}</p>
-            <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>{b.category}</span>
-              <span className="text-accent">{b.followers}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================
-   NETWORKING
-============================================================ */
-function AiMatchmaker() {
-  const [interest, setInterest] = useState("");
-  const [q, setQ] = useState<string | null>(null);
-  const run = useServerFn(suggestConnections);
-  const { data, isFetching } = useQuery({
-    queryKey: ["network-matches", q],
-    queryFn: () => run({ data: { interest: q ?? undefined } }),
-    enabled: q !== null,
-    staleTime: 5 * 60_000,
-  });
-
-  return (
-    <section className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-sm font-semibold flex items-center gap-1.5">
-        <Sparkles className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} /> AI connection matches
-      </p>
-      <p className="text-[11px] text-muted-foreground mt-0.5">
-        Uses your school and major to pair you with people and Indeed searches worth your time.
-      </p>
-      <div className="mt-3 flex gap-2">
-        <input
-          value={interest}
-          onChange={(e) => setInterest(e.target.value)}
-          placeholder="What field? e.g. marketing, nursing, finance"
-          className="flex-1 min-w-0 rounded-xl bg-secondary border border-border px-3 py-2 text-sm"
-        />
-        <button
-          onClick={() => setQ(interest.trim() || "")}
-          disabled={isFetching}
-          className="tap rounded-xl px-3.5 py-2 text-[12px] font-bold disabled:opacity-60"
-          style={{ background: "var(--plugu-gold)", color: "#0b0b0b" }}
-        >
-          {isFetching ? "Matching…" : "Match me"}
-        </button>
-      </div>
-      {data?.error && <p className="mt-2 text-[11px] text-muted-foreground">{data.error}</p>}
-      {!!data?.matches?.length && (
-        <ul className="mt-3 space-y-2">
-          {data.matches.map((m, idx) => (
-            <li key={`${m.name}-${idx}`} className="rounded-xl border border-border bg-background/40 p-3">
-              <p className="text-sm font-semibold">{m.name}</p>
-              <p className="text-[11px] text-muted-foreground">{[m.role, m.company].filter(Boolean).join(" @ ")}</p>
-              {m.why && <p className="mt-1 text-[12px] text-muted-foreground">{m.why}</p>}
-              <a
-                href={m.indeedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold"
-                style={{ color: "var(--plugu-gold)" }}
-              >
-                {m.indeedLabel} ↗
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-function NetworkingPanel() {
-  const [filter, setFilter] = useState<string>("All");
-  const navigate = useNavigate();
-  const [connected, setConnected] = useState<Set<string>>(new Set());
-  const items = useMemo(
-    () => (filter === "All" ? networkingProfiles : networkingProfiles.filter((p) => p.tag === filter)),
-    [filter],
-  );
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Users} title="Networking" subtitle="Mentors, founders, athletes, investors" />
-      <AiMatchmaker />
-      <FilterChips values={networkingFilters as readonly string[]} active={filter} onChange={setFilter} />
-      <ul className="space-y-2">
-        {items.map((p) => (
-          <li key={p.id} className="p-4 rounded-2xl bg-card border border-border">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-[image:var(--gradient-bronze)] grid place-items-center text-primary-foreground font-bold">
-                {p.name[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold flex items-center gap-1.5">
-                  {p.name}
-                  <span className="text-[10px] tracking-widest uppercase text-accent">· {p.tag}</span>
-                </p>
-                <p className="text-xs text-muted-foreground truncate">{p.role} @ {p.company}</p>
-                <p className="text-[11px] text-muted-foreground">{p.school}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setConnected((s) => new Set(s).add(p.id));
-                  toast.success(`Message sent to ${p.name}`);
-                  setTimeout(() => navigate({ to: "/messages" }), 400);
-                }}
-                className={`text-[11px] px-3 py-1.5 rounded-full tap ${connected.has(p.id) ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-secondary border border-border"}`}
-              >
-                {connected.has(p.id) ? "Requested" : "Connect"}
-              </button>
-            </div>
-            <p className="mt-2.5 text-sm text-muted-foreground italic">"{p.bio}"</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   EVENTS
-============================================================ */
 function EventsPanel() {
-  const [rsvped, setRsvped] = useState<Set<string>>(new Set());
-  const [bumped, setBumped] = useState<string | null>(null);
-  const toggle = (id: string) => {
-    setRsvped((prev) => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id); else n.add(id);
-      return n;
-    });
-    setBumped(id);
-    setTimeout(() => setBumped((v) => (v === id ? null : v)), 700);
-  };
+  const { data, isPending } = useCampusEvents();
+  const now = Date.now();
+  const upcoming = (data ?? [])
+    .filter((e) => e.status !== "cancelled" && +new Date(e.starts_at) >= now - 3 * 60 * 60 * 1000)
+    .sort((a, b) => +new Date(a.starts_at) - +new Date(b.starts_at));
 
   return (
-    <div className="space-y-4">
-      <SectionHeader icon={Calendar} title="Live Events" subtitle="Homecoming, step shows, mixers, more" />
+    <div className="space-y-3">
+      <SectionHeader title="Campus events" />
+      {isPending && <div className="h-20 animate-pulse rounded-2xl border border-border bg-card" aria-hidden="true" />}
+      {!isPending && upcoming.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-5 text-center">
+          <p className="text-sm font-semibold">Nothing posted here yet</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">Be the first — post an event for your campus.</p>
+          <Link to="/events" className="tap mt-2 inline-block min-h-[44px] text-xs font-semibold text-primary">
+            Open events
+          </Link>
+        </div>
+      )}
       <ul className="space-y-2">
-        {liveEvents.map((e) => {
-          const yes = rsvped.has(e.id);
-          return (
-            <li key={e.id} className="p-4 rounded-2xl bg-card border border-border">
-              <p className="text-[10px] tracking-widest uppercase text-primary">{e.type} · {e.school}</p>
-              <p className="font-semibold mt-1">{e.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                <Calendar className="h-3 w-3" /> {e.when} · {e.where}
-              </p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className={`text-[11px] inline-flex items-center gap-1 ${bumped === e.id ? "text-accent plugu-pulse" : "text-muted-foreground"}`}>
-                  <Users className="h-3 w-3" /> {(e.rsvp + (yes ? 1 : 0)).toLocaleString()} going
-                </span>
-                <button
-                  onClick={() => toggle(e.id)}
-                  className={`text-[11px] px-3 py-1.5 rounded-full tap font-semibold ${
-                    yes
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                      : "bg-[image:var(--gradient-bronze)] text-primary-foreground"
-                  }`}
-                >
-                  {yes ? "RSVP'd" : "RSVP"}
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-/* ============================================================
-   PLUGU DAILY
-============================================================ */
-function DailyPanel() {
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Sparkles} title="PlugU Daily" subtitle="Curated for college minds, 18–24" />
-      <LiveNewsRail topic="All HBCUs" count={10} />
-    </div>
-  );
-}
-
-/* ============================================================
-   SHARED
-============================================================ */
-function SectionHeader({
-  icon: Icon, title, subtitle, live,
-}: { icon: typeof Newspaper; title: string; subtitle: string; live?: boolean }) {
-  return (
-    <header className="flex items-end justify-between gap-3">
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <Icon className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-          <h2 className="text-xl font-bold tracking-tight">{title}</h2>
-          {live && (
-            <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest text-rose-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 plugu-pulse" /> Live
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-      </div>
-    </header>
-  );
-}
-
-function FilterChips({
-  values, active, onChange, small,
-}: { values: readonly string[]; active: string; onChange: (v: string) => void; small?: boolean }) {
-  return (
-    <div tabIndex={0} className="-mx-5 px-5 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {values.map((v) => {
-        const a = v === active;
-        return (
-          <button
-            key={v}
-            onClick={() => onChange(v)}
-            className={`shrink-0 rounded-full ${small ? "px-2.5 py-1 text-[10px]" : "px-3 py-1.5 text-[11px]"} font-medium tap border ${
-              a
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-muted-foreground border-border"
-            }`}
-          >
-            {v}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function EmptyFilters({
-  title,
-  hint,
-  chips,
-}: {
-  title: string;
-  hint: string;
-  chips: { label: string; onClick: () => void }[];
-}) {
-  return (
-    <div className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center">
-      <div className="mx-auto h-11 w-11 rounded-2xl grid place-items-center bg-[image:var(--gradient-bronze)] text-primary-foreground">
-        <Search className="h-5 w-5" />
-      </div>
-      <p className="mt-3 text-sm font-semibold">{title}</p>
-      <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>
-      <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-        {chips.map((c) => (
-          <button
-            key={c.label}
-            onClick={c.onClick}
-            className="text-[11px] px-3 py-1.5 rounded-full border border-accent/40 text-accent bg-secondary tap"
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <button className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
-      <div className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl p-5 pb-[max(2rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom max-h-[85vh] overflow-y-auto">
-        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function SwitchSheet({
-  home, active, setActive, setHome, onClose,
-}: { home: string; active: string; setActive: (n: string) => void; setHome: (n: string) => void; onClose: () => void }) {
-  return (
-    <BottomSheet onClose={onClose}>
-      <h3 className="text-lg font-semibold">Switch campus</h3>
-      <p className="text-xs text-muted-foreground">
-        Browsing as <span className="text-foreground">{active}</span>. Set a new home to make it default.
-      </p>
-      <ul className="mt-4 space-y-2">
-        {hbcus.map((h) => {
-          const isHome = h.name === home;
-          const isActive = h.name === active;
-          return (
-            <li key={h.name}>
-              <div className="flex items-center gap-2 p-3 rounded-2xl bg-secondary border border-border">
-                <button onClick={() => setActive(h.name)} className="flex-1 flex items-center gap-3 text-left min-w-0">
-                  <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${h.color}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate flex items-center gap-1.5">
-                      {h.name}
-                      {isHome && <HomeIcon className="h-3 w-3 text-accent" />}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">{h.city}</p>
-                  </div>
-                  {isActive && <Check className="h-4 w-4 text-primary" />}
-                </button>
-                {!isHome && (
-                  <button onClick={() => setHome(h.name)} className="text-[10px] tracking-wider uppercase px-2 py-1 rounded-full border border-accent/40 text-accent">
-                    Set home
-                  </button>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </BottomSheet>
-  );
-}
-
-function AISheet({ onClose }: { onClose: () => void }) {
-  const [q, setQ] = useState("");
-  const navigate = useNavigate();
-  const ask = () => {
-    if (!q.trim()) { toast.error("Type a question first"); return; }
-    onClose();
-    navigate({ to: "/search", search: { q, tab: "ai" } });
-  };
-  return (
-    <BottomSheet onClose={onClose}>
-      <div className="flex items-center gap-2">
-        <div className="h-9 w-9 rounded-xl grid place-items-center bg-[image:var(--gradient-bronze)] text-primary-foreground">
-          <Bot className="h-4 w-4" />
-        </div>
-        <div>
-          <h3 className="font-semibold">HBC"US" AI</h3>
-          <p className="text-[11px] text-muted-foreground">Ask anything about HBCU life.</p>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center gap-2 px-3 py-2.5 rounded-2xl bg-secondary border border-border">
-        <Sparkles className="h-4 w-4 text-accent" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Ask: 'Find internships near me…'"
-          className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
-        />
-        <button
-          onClick={ask}
-          className="text-[11px] px-3 py-1.5 rounded-full bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold tap"
-        >
-          Ask
-        </button>
-      </div>
-      <p className="mt-4 text-[10px] tracking-widest uppercase text-muted-foreground">Try one of these</p>
-      <ul className="mt-2 space-y-1.5">
-        {aiSuggestedPrompts.map((p) => (
-          <li key={p}>
-            <button onClick={() => setQ(p)} className="w-full text-left text-sm p-3 rounded-xl bg-secondary border border-border tap">
-              {p}
-            </button>
+        {upcoming.map((e) => (
+          <li key={e.id}>
+            <Link to="/events" className="tap block rounded-2xl border border-border bg-card p-3">
+              <p className="text-[11px] text-muted-foreground">{new Date(e.starts_at).toLocaleString()}</p>
+              <p className="mt-0.5 font-semibold leading-snug">{e.title}</p>
+              <p className="truncate text-[11px] text-muted-foreground">{e.location}</p>
+            </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-[10px] text-muted-foreground text-center">
-        Powered by PlugU. AI answers coming online soon.
-      </p>
-    </BottomSheet>
+      <Link
+        to="/market"
+        className="tap flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold">
+          <Store className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} /> Campus marketplace
+        </span>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      </Link>
+    </div>
   );
 }
-
-

@@ -152,7 +152,8 @@ function Home() {
 
   return (
     <AppShell title="PLUGU">
-      <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
+      {/* Real refresh: refetch the live queries feeding this screen. */}
+      <PullToRefresh onRefresh={async () => { await queryClient.refetchQueries({ type: "active" }); }}>
 
       {/* Which campus this feed belongs to, plus the student's verification state */}
       <CampusBar subtitle={<HomeGreeting />} />

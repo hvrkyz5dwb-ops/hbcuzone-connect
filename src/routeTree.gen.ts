@@ -38,7 +38,6 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NewsRouteImport } from './routes/news'
-import { Route as NationalsRouteImport } from './routes/nationals'
 import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MeRouteImport } from './routes/me'
@@ -78,7 +77,6 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as LearnTrackRouteImport } from './routes/learn.$track'
-import { Route as LaunchSlugRouteImport } from './routes/launch.$slug'
 import { Route as HiringBusinessRouteImport } from './routes/hiring.business'
 import { Route as HiringIdRouteImport } from './routes/hiring.$id'
 import { Route as CheckoutListingIdRouteImport } from './routes/checkout.$listingId'
@@ -237,11 +235,6 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NationalsRoute = NationalsRouteImport.update({
-  id: '/nationals',
-  path: '/nationals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MilestonesRoute = MilestonesRouteImport.update({
@@ -439,11 +432,6 @@ const LearnTrackRoute = LearnTrackRouteImport.update({
   path: '/learn/$track',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LaunchSlugRoute = LaunchSlugRouteImport.update({
-  id: '/launch/$slug',
-  path: '/launch/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HiringBusinessRoute = HiringBusinessRouteImport.update({
   id: '/hiring/business',
   path: '/hiring/business',
@@ -547,7 +535,6 @@ export interface FileRoutesByFullPath {
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
-  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -583,7 +570,6 @@ export interface FileRoutesByFullPath {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hiring/$id': typeof HiringIdRoute
   '/hiring/business': typeof HiringBusinessRoute
-  '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
@@ -633,7 +619,6 @@ export interface FileRoutesByTo {
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
-  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -669,7 +654,6 @@ export interface FileRoutesByTo {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hiring/$id': typeof HiringIdRoute
   '/hiring/business': typeof HiringBusinessRoute
-  '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
@@ -720,7 +704,6 @@ export interface FileRoutesById {
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
   '/milestones': typeof MilestonesRoute
-  '/nationals': typeof NationalsRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -756,7 +739,6 @@ export interface FileRoutesById {
   '/checkout/$listingId': typeof CheckoutListingIdRoute
   '/hiring/$id': typeof HiringIdRoute
   '/hiring/business': typeof HiringBusinessRoute
-  '/launch/$slug': typeof LaunchSlugRoute
   '/learn/$track': typeof LearnTrackRoute
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
@@ -808,7 +790,6 @@ export interface FileRouteTypes {
     | '/me'
     | '/messages'
     | '/milestones'
-    | '/nationals'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -844,7 +825,6 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/hiring/$id'
     | '/hiring/business'
-    | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
@@ -894,7 +874,6 @@ export interface FileRouteTypes {
     | '/me'
     | '/messages'
     | '/milestones'
-    | '/nationals'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -930,7 +909,6 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/hiring/$id'
     | '/hiring/business'
-    | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
@@ -980,7 +958,6 @@ export interface FileRouteTypes {
     | '/me'
     | '/messages'
     | '/milestones'
-    | '/nationals'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -1016,7 +993,6 @@ export interface FileRouteTypes {
     | '/checkout/$listingId'
     | '/hiring/$id'
     | '/hiring/business'
-    | '/launch/$slug'
     | '/learn/$track'
     | '/messages/$id'
     | '/orders/$id'
@@ -1067,7 +1043,6 @@ export interface RootRouteChildren {
   MeRoute: typeof MeRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   MilestonesRoute: typeof MilestonesRoute
-  NationalsRoute: typeof NationalsRoute
   NewsRoute: typeof NewsRoute
   NotificationsRoute: typeof NotificationsRoute
   OrdersRoute: typeof OrdersRouteWithChildren
@@ -1101,7 +1076,6 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   HiringIdRoute: typeof HiringIdRoute
   HiringBusinessRoute: typeof HiringBusinessRoute
-  LaunchSlugRoute: typeof LaunchSlugRoute
   LearnTrackRoute: typeof LearnTrackRoute
   SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
@@ -1322,13 +1296,6 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/nationals': {
-      id: '/nationals'
-      path: '/nationals'
-      fullPath: '/nationals'
-      preLoaderRoute: typeof NationalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/milestones': {
@@ -1604,13 +1571,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/launch/$slug': {
-      id: '/launch/$slug'
-      path: '/launch/$slug'
-      fullPath: '/launch/$slug'
-      preLoaderRoute: typeof LaunchSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/hiring/business': {
       id: '/hiring/business'
       path: '/hiring/business'
@@ -1812,7 +1772,6 @@ const rootRouteChildren: RootRouteChildren = {
   MeRoute: MeRoute,
   MessagesRoute: MessagesRouteWithChildren,
   MilestonesRoute: MilestonesRoute,
-  NationalsRoute: NationalsRoute,
   NewsRoute: NewsRoute,
   NotificationsRoute: NotificationsRoute,
   OrdersRoute: OrdersRouteWithChildren,
@@ -1847,7 +1806,6 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   HiringIdRoute: HiringIdRoute,
   HiringBusinessRoute: HiringBusinessRoute,
-  LaunchSlugRoute: LaunchSlugRoute,
   LearnTrackRoute: LearnTrackRoute,
   SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
