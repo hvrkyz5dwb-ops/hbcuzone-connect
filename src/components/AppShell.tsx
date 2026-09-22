@@ -397,7 +397,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   <li key={a.to}>
                     <Link
                       to={a.to}
-                      onClick={() => setPlugOpen(false)}
+                      onClick={(event) => {
+                        setPlugOpen(false);
+                        if (!session && a.to !== "/pulse") {
+                          event.preventDefault();
+                          requestAuthentication();
+                        }
+                      }}
                       className="tap lift-card flex items-center gap-3 p-3.5 rounded-2xl border border-white/10 bg-background/60"
                     >
                       <div

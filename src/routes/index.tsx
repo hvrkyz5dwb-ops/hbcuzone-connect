@@ -26,6 +26,7 @@ import { categoryImage } from "@/lib/category-icons";
 import { useMarketplace } from "@/hooks/use-listings";
 import { useMyBusiness } from "@/hooks/use-business";
 import type { ListingWithExtras } from "@/lib/listings-db";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -187,7 +188,7 @@ function Home() {
         </button>
         <button
           type="button"
-          onClick={() => setLookingOpen(true)}
+          onClick={() => session ? setLookingOpen(true) : requestAuthentication()}
           className="tap flex shrink-0 items-center gap-1.5 rounded-full border border-primary/50 bg-primary/5 px-4 py-3.5 text-xs font-bold text-primary"
         >
           <Megaphone className="h-4 w-4" /> Post a Request
@@ -375,6 +376,9 @@ function SellCta() {
     <section className="mt-7 px-5">
       <Link
         to={target}
+        onClick={(event) => {
+          if (!business) { event.preventDefault(); requestAuthentication(); }
+        }}
         className="tap group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/40 p-4"
         style={{ background: "var(--gradient-bronze)" }}
       >
@@ -448,6 +452,9 @@ function SafetyStandards() {
             <Link
               key={i.to}
               to={i.to}
+              onClick={(event) => {
+                if (!profile && i.to === "/blocked") { event.preventDefault(); requestAuthentication(); }
+              }}
               className="tap flex min-h-[56px] flex-col justify-center rounded-2xl border border-border bg-background px-3 py-2"
             >
               <span className="text-xs font-semibold">{i.label}</span>
