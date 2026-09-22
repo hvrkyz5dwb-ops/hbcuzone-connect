@@ -102,7 +102,11 @@ async function fetchMarketplaceRaw(
     .eq("moderation_status", "approved");
 
   if (filters.category && filters.category !== "all") q = q.eq("category", filters.category);
-  if (filters.campus_scope === "mine" && filters.school_id) q = q.eq("school_id", filters.school_id);
+  if (filters.campus_scope === "mine") {
+    const ids = filters.school_ids?.length ? filters.school_ids : filters.school_id ? [filters.school_id] : [];
+    if (ids.length === 1) q = q.eq("school_id", ids[0]);
+    else if (ids.length > 1) q = q.in("school_id", ids);
+  }
   if (typeof filters.price_min_cents === "number") q = q.gte("price_cents", filters.price_min_cents);
   if (typeof filters.price_max_cents === "number") q = q.lte("price_cents", filters.price_max_cents);
   if (filters.fulfillment && filters.fulfillment.length > 0) q = q.overlaps("fulfillment", filters.fulfillment);
