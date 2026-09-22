@@ -7,7 +7,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { listMyOrders, centsToDollars, statusToneClass, STATUS_LABEL } from "@/lib/orders-db";
-import { toast } from "sonner";
+import { SupportForm } from "@/components/SupportForm";
+import type { SupportCategory } from "@/lib/support-db";
 
 export const Route = createFileRoute("/trust")({
   head: () => ({
@@ -115,13 +116,13 @@ function Trust() {
 function SectionDetail({ section }: { section: SectionKey }) {
   switch (section) {
     case "refund":
-      return <FormBlock title="Refund Request" desc="Tell us what went wrong. Refunds are reviewed within 24 hours." cta="Submit Refund" />;
+      return <FormBlock category="payments" title="Refund Request" desc="Tell us what went wrong and PlugU support will review it." cta="Submit refund request" />;
     case "report-seller":
-      return <FormBlock title="Report Seller" desc="Help keep PlugU safe. Reports stay anonymous." cta="Send Report" />;
+      return <FormBlock category="safety" title="Report Seller" desc="Help keep PlugU safe. The seller is not told who reported them." cta="Send report" />;
     case "report-buyer":
-      return <FormBlock title="Report Buyer" desc="No-shows, scams, or harassment. Tell us everything." cta="Send Report" />;
+      return <FormBlock category="safety" title="Report Buyer" desc="No-shows, scams, or harassment. Tell us everything." cta="Send report" />;
     case "dispute":
-      return <FormBlock title="Dispute Transaction" desc="Open a formal dispute. PlugU mediates within 48 hours." cta="Open Dispute" />;
+      return <FormBlock category="payments" title="Dispute Transaction" desc="Open a formal dispute and PlugU support will review it." cta="Open dispute" />;
     case "guidelines":
       return (
         <InfoBlock title="Community Guidelines" items={[
@@ -157,40 +158,15 @@ function SectionDetail({ section }: { section: SectionKey }) {
   }
 }
 
-function FormBlock({ title, desc, cta }: { title: string; desc: string; cta: string }) {
-  const [sent, setSent] = useState(false);
+function FormBlock({ title, desc, cta, category }: { title: string; desc: string; cta: string; category: SupportCategory }) {
+  // Real submission: this writes a support request to PlugU support. Nothing
+  // here reports success unless the request was actually saved.
   return (
     <section className="px-5 mt-3">
       <h2 className="text-lg font-bold">{title}</h2>
       <p className="text-xs text-muted-foreground mt-1">{desc}</p>
-      <div className="mt-4 space-y-3">
-        <input
-          placeholder="Order ID or @username"
-          className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary/60"
-        />
-        <select className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary/60">
-          <option>Item not as described</option>
-          <option>Never delivered / no-show</option>
-          <option>Harassment or unsafe behavior</option>
-          <option>Suspected scam</option>
-          <option>Other</option>
-        </select>
-        <textarea
-          rows={5}
-          placeholder="Add details…"
-          className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary/60 resize-none"
-        />
-        <button
-          onClick={() => { setSent(true); toast.success("Submitted — we'll get back within 24 hours"); }}
-          className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold tap"
-        >
-          {cta}
-        </button>
-        {sent && (
-          <p className="text-xs text-emerald-300 inline-flex items-center gap-1">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Case opened. Check Inbox for updates.
-          </p>
-        )}
+      <div className="mt-4">
+        <SupportForm defaultCategory={category} lockCategory defaultSubject={title} cta={cta} />
       </div>
     </section>
   );

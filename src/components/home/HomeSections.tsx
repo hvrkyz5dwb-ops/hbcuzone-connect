@@ -4,7 +4,7 @@ import type React from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  CalendarDays, ChevronRight, GraduationCap, MapPin, Megaphone,
+  CalendarDays, ChevronRight, GraduationCap, MapPin, Megaphone, Briefcase,
   Package, MessageSquare, Bookmark, SlidersHorizontal, ArrowUp, ArrowDown, Eye, EyeOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ import { useMyOrders } from "@/hooks/use-orders";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useHomeLayout } from "@/hooks/use-home-layout";
 import { HOME_SECTIONS, type HomeSectionKey } from "@/lib/campus-os";
-import { opportunities, opportunityMeta } from "@/lib/opportunities-data";
+import { fetchOpportunities } from "@/lib/hiring-db";
 import { useActiveCampus } from "@/hooks/use-campus-os";
 import { useSession } from "@/hooks/use-session";
 
@@ -169,34 +169,41 @@ function Tonight() {
 
 function Opportunities() {
   const navigate = useNavigate();
-  const picks = opportunities.filter((o) => o.kind === "scholarship" || o.kind === "internship" || o.kind === "job").slice(0, 6);
+  // Real postings only — every row comes from the `opportunities` table.
+  const { data, isLoading } = useQuery({
+    queryKey: ["home-opportunities"],
+    queryFn: () => fetchOpportunities({}),
+    staleTime: 120_000,
+  });
+  const picks = (data ?? []).slice(0, 6);
   return (
     <section className="mt-7" aria-labelledby="home-opps">
-      <SectionHeader title="Scholarships and Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
-      <h2 id="home-opps" className="sr-only">Scholarships and Opportunities</h2>
-      <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {picks.map((o) => {
-          const meta = opportunityMeta[o.kind];
-          const Icon = meta.icon;
-          return (
+      <SectionHeader title="Jobs and Opportunities" action="See all" onAction={() => navigate({ to: "/hub" })} />
+      <h2 id="home-opps" className="sr-only">Jobs and Opportunities</h2>
+      {isLoading ? (
+        <Skeleton rail />
+      ) : picks.length === 0 ? (
+        <Empty text="No opportunities posted yet." cta="Open the hub" to="/hub" />
+      ) : (
+        <ul tabIndex={0} className="flex snap-x gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {picks.map((o) => (
             <li key={o.id} className="w-[210px] shrink-0 snap-start">
               <Link to="/hub" className="tap block h-full rounded-2xl border border-border bg-card p-3.5">
                 <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  <Icon className="h-3 w-3" aria-hidden="true" /> {meta.label}
+                  <Briefcase className="h-3 w-3" aria-hidden="true" /> {o.category}
                 </span>
                 <p className="mt-1.5 line-clamp-2 text-sm font-semibold">{o.title}</p>
-                <p className="mt-1 truncate text-[11px] text-muted-foreground">{o.org}</p>
-                <p className="mt-1 text-xs font-bold" style={{ color: "var(--plugu-gold)" }}>
-                  {o.meta}{o.due ? ` · due ${o.due}` : ""}
-                </p>
+                <p className="mt-1 truncate text-[11px] text-muted-foreground">{o.business?.name ?? ""}</p>
+                {o.compensation && (
+                  <p className="mt-1 text-xs font-bold" style={{ color: "var(--plugu-gold)" }}>
+                    {o.compensation}
+                  </p>
+                )}
               </Link>
             </li>
-          );
-        })}
-      </ul>
-      <p className="mt-2 flex items-center gap-1 px-5 text-[10px] text-muted-foreground">
-        <GraduationCap className="h-3 w-3" aria-hidden="true" /> Always confirm deadlines on the provider's official site.
-      </p>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

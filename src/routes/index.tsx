@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone, BadgeCheck,
 } from "lucide-react";
@@ -98,6 +99,7 @@ function EntryLoading() {
 
 function Home() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { session, loading } = useSession();
   const [lookingOpen, setLookingOpen] = useState(false);
   // SSR/prerender and the first client render must agree: both paint the
@@ -152,7 +154,8 @@ function Home() {
 
   return (
     <AppShell title="PLUGU">
-      <PullToRefresh onRefresh={async () => { await new Promise(r => setTimeout(r, 600)); toast.success("You're all caught up"); }}>
+      {/* Real refresh: refetch the live queries feeding this screen. */}
+      <PullToRefresh onRefresh={async () => { await queryClient.refetchQueries({ type: "active" }); }}>
 
       {/* Which campus this feed belongs to, plus the student's verification state */}
       <CampusBar subtitle={<HomeGreeting />} />
