@@ -46,7 +46,7 @@ const SLIDES: Slide[] = [
     id: "trust",
     eyebrow: "Our mission",
     title: "Don't Run Off on the Plug.",
-    body: "Help students earn while building real businesses. Every verified purchase helps create opportunities for students. Members who actively build their businesses may become eligible for future PlugU programs, grants, rewards, and community initiatives as they become available.",
+    body: "Help students earn while building real businesses. Verified school email, seller reputation, reporting and blocking are built in, so you always know who you're dealing with.",
     scene: "trust",
   },
 ];
