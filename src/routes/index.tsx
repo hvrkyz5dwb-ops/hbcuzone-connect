@@ -430,6 +430,7 @@ function MoreLinks() {
  */
 function SafetyStandards() {
   const { campusName } = useCampusScope();
+  const { profile } = useProfile();
   const items = [
     { to: "/safety" as const, label: "Safety Center", hint: "How reporting and moderation work" },
     { to: "/community-guidelines" as const, label: "Community Standards", hint: "What's allowed on campus" },
