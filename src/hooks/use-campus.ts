@@ -13,12 +13,12 @@ import {
 
 export function useCampusEvents() {
   const instanceId = useId();
-  const { schoolId } = useCampusSchoolId();
+  const { schoolIds } = useCampusSchoolId();
   const qc = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["campus-events", schoolId],
-    queryFn: () => fetchEvents({ schoolId }),
+    queryKey: ["campus-events", schoolIds.join(",")],
+    queryFn: () => fetchEvents({ schoolIds }),
     staleTime: 20_000,
   });
 
