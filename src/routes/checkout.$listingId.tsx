@@ -18,6 +18,8 @@ import {
 } from "@/lib/orders-db";
 import { useOpenSlots } from "@/hooks/use-orders";
 import { getStripeStatus, createCheckoutSession } from "@/lib/stripe.functions";
+import { useSession } from "@/hooks/use-session";
+import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
 type PaymentMethod = "apple_pay" | "cash_app" | "card";
 const paymentLabel = (m: PaymentMethod) =>
@@ -42,6 +44,7 @@ const PROCESSING_FLAT_CENTS = 30;
 function ProtectedCheckout() {
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
+  const { session } = useSession();
   const { data: listing, isPending, isError, refetch } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListing(listingId),
@@ -103,14 +106,25 @@ function ProtectedCheckout() {
     );
   }
 
-  const cover = listing.images[0]?.url ?? "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600";
-  const sellerName = listing.campus_name ?? "PlugU seller";
+  const cover = listing.images[0]?.url;
+  if (!cover) {
+    return (
+      <AppShell title="LISTING">
+        <section className="px-5 pt-10 text-center">
+          <p className="text-sm text-muted-foreground">This listing is no longer available.</p>
+          <Link to="/market" className="tap mt-4 inline-flex min-h-11 items-center text-xs text-accent">Back to market</Link>
+        </section>
+      </AppShell>
+    );
+  }
+  const sellerName = listing.seller?.display_name ?? listing.seller?.username ?? listing.campus_name ?? "Student seller";
   const campusName = listing.campus_name ?? "";
   const fulfillmentOptions = listing.fulfillment && listing.fulfillment.length > 0 ? listing.fulfillment : ["pickup"];
   const effectiveFulfillment = fulfillment || fulfillmentOptions[0];
 
   async function placeOrder() {
     if (!listing) return;
+    if (!session) { requestAuthentication(); return; }
     if (loading) return;
     setLoading(true);
     try {
