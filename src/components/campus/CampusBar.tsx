@@ -131,6 +131,9 @@ export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
                 <SchoolPicker
                   value={campusName}
                   onChange={(name) => {
+                    // An empty name means "clear the chip and let me search again".
+                    // Keep the sheet open, otherwise changing campus is impossible.
+                    if (!name) return;
                     setCampus(name === homeCampusName ? null : name);
                     setOpen(false);
                   }}
