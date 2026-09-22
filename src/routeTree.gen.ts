@@ -38,7 +38,6 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NewsRouteImport } from './routes/news'
-import { Route as MilestonesRouteImport } from './routes/milestones'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -47,12 +46,10 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as ManagePlanRouteImport } from './routes/manage-plan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HubRouteImport } from './routes/hub'
-import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as HbcusRouteImport } from './routes/hbcus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as DeleteAccountRouteImport } from './routes/delete-account'
-import { Route as DailyRouteImport } from './routes/daily'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -72,7 +69,6 @@ import { Route as SellerPlansRouteImport } from './routes/seller.plans'
 import { Route as SellerOnboardingRouteImport } from './routes/seller.onboarding'
 import { Route as SellerListingsRouteImport } from './routes/seller.listings'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
-import { Route as SeasonSlugRouteImport } from './routes/season.$slug'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
@@ -237,11 +233,6 @@ const NewsRoute = NewsRouteImport.update({
   path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MilestonesRoute = MilestonesRouteImport.update({
-  id: '/milestones',
-  path: '/milestones',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -282,11 +273,6 @@ const HubRoute = HubRouteImport.update({
   path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HeatmapRoute = HeatmapRouteImport.update({
-  id: '/heatmap',
-  path: '/heatmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HbcusRoute = HbcusRouteImport.update({
   id: '/hbcus',
   path: '/hbcus',
@@ -305,11 +291,6 @@ const EconomyRoute = EconomyRouteImport.update({
 const DeleteAccountRoute = DeleteAccountRouteImport.update({
   id: '/delete-account',
   path: '/delete-account',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DailyRoute = DailyRouteImport.update({
-  id: '/daily',
-  path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
@@ -405,11 +386,6 @@ const SellerListingsRoute = SellerListingsRouteImport.update({
 const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   id: '/seller/analytics',
   path: '/seller/analytics',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SeasonSlugRoute = SeasonSlugRouteImport.update({
-  id: '/season/$slug',
-  path: '/season/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
@@ -520,12 +496,10 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
-  '/daily': typeof DailyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
-  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -534,7 +508,6 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -574,7 +547,6 @@ export interface FileRoutesByFullPath {
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
-  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
@@ -604,12 +576,10 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
-  '/daily': typeof DailyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
-  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -618,7 +588,6 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -658,7 +627,6 @@ export interface FileRoutesByTo {
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
-  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
@@ -689,12 +657,10 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRouteWithChildren
   '/community': typeof CommunityRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
-  '/daily': typeof DailyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/economy': typeof EconomyRoute
   '/events': typeof EventsRoute
   '/hbcus': typeof HbcusRoute
-  '/heatmap': typeof HeatmapRoute
   '/hub': typeof HubRoute
   '/login': typeof LoginRoute
   '/manage-plan': typeof ManagePlanRoute
@@ -703,7 +669,6 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/me': typeof MeRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/milestones': typeof MilestonesRoute
   '/news': typeof NewsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
@@ -743,7 +708,6 @@ export interface FileRoutesById {
   '/messages/$id': typeof MessagesIdRoute
   '/orders/$id': typeof OrdersIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
-  '/season/$slug': typeof SeasonSlugRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/listings': typeof SellerListingsRoute
   '/seller/onboarding': typeof SellerOnboardingRoute
@@ -775,12 +739,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/community'
     | '/community-guidelines'
-    | '/daily'
     | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
-    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -789,7 +751,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/me'
     | '/messages'
-    | '/milestones'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -829,7 +790,6 @@ export interface FileRouteTypes {
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
-    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/listings'
     | '/seller/onboarding'
@@ -859,12 +819,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/community'
     | '/community-guidelines'
-    | '/daily'
     | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
-    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -873,7 +831,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/me'
     | '/messages'
-    | '/milestones'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -913,7 +870,6 @@ export interface FileRouteTypes {
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
-    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/listings'
     | '/seller/onboarding'
@@ -943,12 +899,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/community'
     | '/community-guidelines'
-    | '/daily'
     | '/delete-account'
     | '/economy'
     | '/events'
     | '/hbcus'
-    | '/heatmap'
     | '/hub'
     | '/login'
     | '/manage-plan'
@@ -957,7 +911,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/me'
     | '/messages'
-    | '/milestones'
     | '/news'
     | '/notifications'
     | '/orders'
@@ -997,7 +950,6 @@ export interface FileRouteTypes {
     | '/messages/$id'
     | '/orders/$id'
     | '/profile/edit'
-    | '/season/$slug'
     | '/seller/analytics'
     | '/seller/listings'
     | '/seller/onboarding'
@@ -1028,12 +980,10 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRouteWithChildren
   CommunityRoute: typeof CommunityRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
-  DailyRoute: typeof DailyRoute
   DeleteAccountRoute: typeof DeleteAccountRoute
   EconomyRoute: typeof EconomyRoute
   EventsRoute: typeof EventsRoute
   HbcusRoute: typeof HbcusRoute
-  HeatmapRoute: typeof HeatmapRoute
   HubRoute: typeof HubRoute
   LoginRoute: typeof LoginRoute
   ManagePlanRoute: typeof ManagePlanRoute
@@ -1042,7 +992,6 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   MeRoute: typeof MeRoute
   MessagesRoute: typeof MessagesRouteWithChildren
-  MilestonesRoute: typeof MilestonesRoute
   NewsRoute: typeof NewsRoute
   NotificationsRoute: typeof NotificationsRoute
   OrdersRoute: typeof OrdersRouteWithChildren
@@ -1077,7 +1026,6 @@ export interface RootRouteChildren {
   HiringIdRoute: typeof HiringIdRoute
   HiringBusinessRoute: typeof HiringBusinessRoute
   LearnTrackRoute: typeof LearnTrackRoute
-  SeasonSlugRoute: typeof SeasonSlugRoute
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
   SellerListingsRoute: typeof SellerListingsRoute
   SellerOnboardingRoute: typeof SellerOnboardingRoute
@@ -1298,13 +1246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/milestones': {
-      id: '/milestones'
-      path: '/milestones'
-      fullPath: '/milestones'
-      preLoaderRoute: typeof MilestonesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/messages': {
       id: '/messages'
       path: '/messages'
@@ -1361,13 +1302,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/heatmap': {
-      id: '/heatmap'
-      path: '/heatmap'
-      fullPath: '/heatmap'
-      preLoaderRoute: typeof HeatmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/hbcus': {
       id: '/hbcus'
       path: '/hbcus'
@@ -1394,13 +1328,6 @@ declare module '@tanstack/react-router' {
       path: '/delete-account'
       fullPath: '/delete-account'
       preLoaderRoute: typeof DeleteAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/daily': {
-      id: '/daily'
-      path: '/daily'
-      fullPath: '/daily'
-      preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community-guidelines': {
@@ -1534,13 +1461,6 @@ declare module '@tanstack/react-router' {
       path: '/seller/analytics'
       fullPath: '/seller/analytics'
       preLoaderRoute: typeof SellerAnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/season/$slug': {
-      id: '/season/$slug'
-      path: '/season/$slug'
-      fullPath: '/season/$slug'
-      preLoaderRoute: typeof SeasonSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile/edit': {
@@ -1757,12 +1677,10 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRouteWithChildren,
   CommunityRoute: CommunityRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
-  DailyRoute: DailyRoute,
   DeleteAccountRoute: DeleteAccountRoute,
   EconomyRoute: EconomyRoute,
   EventsRoute: EventsRoute,
   HbcusRoute: HbcusRoute,
-  HeatmapRoute: HeatmapRoute,
   HubRoute: HubRoute,
   LoginRoute: LoginRoute,
   ManagePlanRoute: ManagePlanRoute,
@@ -1771,7 +1689,6 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   MeRoute: MeRoute,
   MessagesRoute: MessagesRouteWithChildren,
-  MilestonesRoute: MilestonesRoute,
   NewsRoute: NewsRoute,
   NotificationsRoute: NotificationsRoute,
   OrdersRoute: OrdersRouteWithChildren,
@@ -1807,7 +1724,6 @@ const rootRouteChildren: RootRouteChildren = {
   HiringIdRoute: HiringIdRoute,
   HiringBusinessRoute: HiringBusinessRoute,
   LearnTrackRoute: LearnTrackRoute,
-  SeasonSlugRoute: SeasonSlugRoute,
   SellerAnalyticsRoute: SellerAnalyticsRoute,
   SellerListingsRoute: SellerListingsRoute,
   SellerOnboardingRoute: SellerOnboardingRoute,
