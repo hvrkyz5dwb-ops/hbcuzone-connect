@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search, Plus, Calendar, MapPin, Users, Flame, Sparkles, Trophy, Building2,
-  Radio, CheckCircle2,
+  Radio, CheckCircle2, SlidersHorizontal, Scissors, Utensils, Car, Shirt,
+  GraduationCap, ArrowRight, ShieldCheck, BriefcaseBusiness,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { PageLoader } from "@/components/QueryStates";
@@ -14,6 +15,10 @@ import { bucketOf, categoryMeta, EVENT_CATEGORIES, type CampusEvent } from "@/li
 import { toast } from "sonner";
 import { useSession } from "@/hooks/use-session";
 import { requestAuthentication } from "@/components/RequireAuthPrompt";
+import { CampusBar } from "@/components/campus/CampusBar";
+import { useMarketplace } from "@/hooks/use-listings";
+import { useCampusSchoolId } from "@/hooks/use-campus-scope";
+import { formatPrice, type PriceType } from "@/lib/categories";
 
 export const Route = createFileRoute("/campus")({
   validateSearch: (s: Record<string, unknown>): { event?: string } => ({
@@ -57,6 +62,14 @@ function CampusHub() {
   const [createOpen, setCreateOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(deepLinkId ?? null);
   const { session } = useSession();
+  const { schoolId, schoolIds, campusName } = useCampusSchoolId();
+  const marketplace = useMarketplace({
+    school_id: schoolId ?? undefined,
+    school_ids: schoolIds.length ? schoolIds : undefined,
+    campus_scope: "mine",
+    sort: "newest",
+    limit: 8,
+  });
 
   // Remember the last section the student visited.
   useEffect(() => { setSection(readLastSection()); }, []);
@@ -104,13 +117,102 @@ function CampusHub() {
   }
 
   return (
-    <AppShell title="CAMPUS HUB">
-      <section className="px-5 pt-5">
+    <AppShell title="PLUGU">
+      <section className="px-5 pt-4 text-center">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">PlugU campus discovery</p>
+        <h1 className="mt-1 text-[26px] font-black leading-tight">Your people. Your next plug.</h1>
+      </section>
+      <CampusBar subtitle="Your campus + nearby" />
+      <section className="px-5 pt-3">
+        <div className="flex items-center gap-2">
+          <Link to="/search" search={{ tab: "browse" }} className="tap flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl bg-foreground px-4 text-left text-sm text-background">
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="truncate opacity-70">Find a service, item, or event</span>
+          </Link>
+          <Link to="/market" aria-label="Open marketplace filters" className="tap grid h-12 w-12 place-items-center rounded-xl border border-border bg-card">
+            <SlidersHorizontal className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="mt-4 grid grid-cols-6 gap-2">
+          {[
+            { label: "Haircuts", icon: Scissors, category: "hair" },
+            { label: "Nails", icon: Sparkles, category: "nails" },
+            { label: "Food", icon: Utensils, category: "food" },
+            { label: "Rides", icon: Car, category: "rides" },
+            { label: "Clothes", icon: Shirt, category: "clothing" },
+            { label: "Tutoring", icon: GraduationCap, category: "tutoring" },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.category} to="/market" search={{ category: item.category } as never} className="tap min-w-0 text-center">
+                <span className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-primary/40 bg-card text-primary"><Icon className="h-4 w-4" /></span>
+                <span className="mt-1 block truncate text-[9px] text-muted-foreground">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="flex items-center justify-between px-5">
+          <h2 className="text-base font-bold">Around you tonight</h2>
+          <Link to="/events" className="tap inline-flex min-h-11 items-center gap-1 text-[11px] font-semibold text-primary">See all <ArrowRight className="h-3 w-3" /></Link>
+        </div>
+        {events.filter((e) => bucketOf(e) === "today" || bucketOf(e) === "now").length ? (
+          <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {events.filter((e) => bucketOf(e) === "today" || bucketOf(e) === "now").slice(0, 4).map((ev) => (
+              <button key={ev.id} onClick={() => setOpenId(ev.id)} className="tap relative h-36 w-[82%] shrink-0 overflow-hidden rounded-xl border border-border bg-card text-left">
+                {ev.cover_url && <img src={ev.cover_url} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+                <span className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                <span className="absolute inset-x-0 bottom-0 p-3">
+                  <span className="block text-sm font-bold">{ev.title}</span>
+                  <span className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground"><Calendar className="h-3 w-3" />{new Date(ev.starts_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} · {ev.location || "Location TBA"}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="mx-5 rounded-xl border border-dashed border-border bg-card/50 p-4 text-center text-xs text-muted-foreground">Nothing confirmed around {campusName} tonight.</div>
+        )}
+      </section>
+
+      <section className="mt-5">
+        <div className="flex items-center justify-between px-5">
+          <h2 className="text-base font-bold">Trusted student plugs</h2>
+          <Link to="/market" className="tap inline-flex min-h-11 items-center gap-1 text-[11px] font-semibold text-primary">See all <ArrowRight className="h-3 w-3" /></Link>
+        </div>
+        {marketplace.isLoading ? (
+          <div className="flex gap-3 overflow-hidden px-5"><div className="h-48 w-36 shrink-0 animate-pulse rounded-xl bg-card" /><div className="h-48 w-36 shrink-0 animate-pulse rounded-xl bg-card" /></div>
+        ) : marketplace.data?.length ? (
+          <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {marketplace.data.slice(0, 8).map((listing) => (
+              <Link key={listing.id} to="/checkout/$listingId" params={{ listingId: listing.id }} className="tap w-36 shrink-0 overflow-hidden rounded-xl border border-border bg-card">
+                {listing.images[0]?.url && <img src={listing.images[0].url} alt={listing.title} className="aspect-square w-full object-cover" />}
+                <span className="block p-2.5">
+                  <span className="block truncate text-xs font-bold">{listing.title}</span>
+                  <span className="mt-0.5 flex items-center gap-1 truncate text-[10px] text-muted-foreground">{listing.seller?.display_name ?? listing.seller?.username ?? "Student seller"}{listing.seller?.verification_status === "verified" && <CheckCircle2 className="h-3 w-3 shrink-0 text-primary" />}</span>
+                  <span className="mt-1 block text-xs font-bold text-primary">{formatPrice(listing.price_cents, listing.price_type as PriceType)}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="mx-5 rounded-xl border border-dashed border-border bg-card/50 p-4 text-center text-xs text-muted-foreground">No complete listings at {campusName} yet. <Link to="/market" className="font-semibold text-primary">Open Market</Link></div>
+        )}
+      </section>
+
+      <section className="mx-5 mt-5 grid grid-cols-3 gap-2">
+        <Link to="/hub" className="tap rounded-xl border border-primary/25 bg-primary/10 p-3"><GraduationCap className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Scholarships</span><span className="text-[9px] text-muted-foreground">Verified posts</span></Link>
+        <Link to="/hub" className="tap rounded-xl border border-border bg-card p-3"><BriefcaseBusiness className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Opportunities</span><span className="text-[9px] text-muted-foreground">Jobs and internships</span></Link>
+        <Link to="/trust" className="tap rounded-xl border border-border bg-card p-3"><ShieldCheck className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Protected</span><span className="text-[9px] text-muted-foreground">Safer transactions</span></Link>
+      </section>
+
+      <section className="px-5 pt-7">
         <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--plugu-gold)" }}>
           The heartbeat of campus
         </p>
         <div className="mt-1 flex items-end justify-between gap-3">
-          <h1 className="text-2xl font-bold tracking-tight">Campus Hub</h1>
+          <h2 className="text-xl font-bold tracking-tight">Events and organizations</h2>
           <button
             onClick={() => session ? setCreateOpen(true) : requestAuthentication()}
             className="tap inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-semibold text-primary-foreground"
