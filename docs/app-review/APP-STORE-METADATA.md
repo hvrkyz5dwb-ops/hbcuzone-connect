@@ -6,7 +6,7 @@ PlugU is a students-only campus commerce and services app built for HBCU
 students and student-owned businesses. Buy, sell, book and build on your
 campus.
 
-## Long description (draft)
+## Long description
 
 PlugU connects verified students at the same school. Book a barber, stylist,
 nail tech, photographer, tutor, cook or driver who studies where you study.
@@ -29,10 +29,12 @@ reported content disappears immediately.
 | Generic feed | Campus sections: Happening at [School], Services Near You, Campus Events, Trending Student Businesses, Scholarships and Opportunities |
 | Separate regional apps | One Bundle ID, in-app campus switcher |
 
-## Reviewer credentials placeholder
+## Reviewer credentials
 
-See `REVIEWER-WALKTHROUGH.md`. Enter the same credentials in App Store Connect
-under **App Review Information → Sign-in required**.
+Use the permanent pre-verified account documented in `REVIEWER-WALKTHROUGH.md`.
+Enter the same credentials in App Store Connect under **App Review Information
+→ Sign-in required**. Do not ask reviewers to create an account or provide a
+school inbox.
 
 ## Strongest screens for screenshots
 

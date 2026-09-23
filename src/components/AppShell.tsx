@@ -22,7 +22,8 @@ import { useProfile } from "@/hooks/use-profile";
 import { useKeyboardOffset } from "@/hooks/use-keyboard-offset";
 import { useUnreadCount } from "@/hooks/use-messages";
 import { useMyBusiness } from "@/hooks/use-business";
-import { isHbcuDomain, getDomain } from "@/lib/auth";
+import { isAppReviewEmail } from "@/lib/auth";
+import { useHbcusVerification } from "@/hooks/use-hbcus-verification";
 import {
   hasOnboarded,
   markOnboarded,
@@ -120,15 +121,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       hint: "Pin it to the campus map — free for every student.",
     });
   }
-  // AI-style HBCU detection: trust the stored flag, but always re-derive from
-  // the verified school domain / email so returning students who signed up
-  // before the flag existed still see HBCUS. Any @<hbcu>.edu qualifies.
-  const emailDomain =
-    profile?.school_domain?.toLowerCase() ||
-    (profile?.email ? getDomain(profile.email) : null) ||
-    (session?.user?.email ? getDomain(session.user.email) : null);
-  const hbcuStudent =
-    !!profile?.is_hbcu_student || (!!emailDomain && isHbcuDomain(emailDomain));
+  const { verified: hbcuStudent } = useHbcusVerification();
+  const canAccessHbcus =
+    hbcuStudent || isAppReviewEmail(profile?.email ?? session?.user?.email ?? "");
 
   // First-launch journey for signed-in members after the global cinematic:
   //   onboarding slides → coach-mark tour → welcome card.
@@ -181,6 +176,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     }
   }, [pathname, session, sessionLoading, navigate]);
 
+  useEffect(() => {
+    if (sessionLoading || !pathname.startsWith("/hbcus")) return;
+    if (!canAccessHbcus) navigate({ to: "/", replace: true });
+  }, [canAccessHbcus, navigate, pathname, sessionLoading]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-nav">
@@ -205,14 +205,16 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              to="/hbcus"
-              className="tap shrink-0 pr-1 text-[11px] font-black tracking-[0.22em] transition-colors"
-              aria-label={hbcuStudent ? "Open HBCUS — exclusive HBCU network" : "HBCUS — HBCU students only"}
-            >
-              <span className="text-muted-foreground">HBC</span>
-              <span className={hbcuStudent ? "plugu-us-silver" : "text-muted-foreground/70"}>US</span>
-            </Link>
+            {canAccessHbcus && (
+              <Link
+                to="/hbcus"
+                className="tap shrink-0 pr-1 text-[11px] font-black tracking-[0.22em] transition-colors"
+                aria-label="Open HBCUS — exclusive HBCU network"
+              >
+                <span className="text-muted-foreground">HBC</span>
+                <span className="plugu-us-silver">US</span>
+              </Link>
+            )}
             {session ? <Link
               to="/notifications"
               aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}

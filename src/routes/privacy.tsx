@@ -31,7 +31,7 @@ function Privacy() {
           We use your data to operate PlugU, personalize your campus experience, communicate with you, enforce our Terms and Community Guidelines, and comply with legal obligations.
         </Section>
         <Section title="Who receives it">
-          Service providers acting on our behalf, including Stripe for payments, our authentication and hosting providers, and analytics tools used to keep PlugU reliable. We do not sell your personal data.
+          Service providers acting on our behalf, including Stripe for payments and our authentication and hosting providers. We do not sell your personal data.
         </Section>
         <Section title="Your rights">
           You can request access, correction, export, or deletion of your account data by contacting support in the app. You can also delete your account from Settings; some records are retained where required by law or to prevent fraud.

@@ -45,7 +45,7 @@ export function useGeolocation() {
           error: err.message,
         });
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+      { enableHighAccuracy: false, maximumAge: 30000, timeout: 10000 },
     );
   }, [stop]);
 

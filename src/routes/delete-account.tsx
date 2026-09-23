@@ -65,8 +65,8 @@ function DeleteAccount() {
           <p className="mt-1 text-xs text-muted-foreground">
             This is permanent and immediate. Your profile, listings, posts, uploaded media, messages,
             reviews, saved items and notifications are deleted, and every active session is revoked.
-            Completed order and payout records are kept in de-identified form for the period tax and
-            fraud-prevention law requires; they are no longer linked to your name or contact details.
+            Some transaction, payout, dispute and safety records may be retained where tax, fraud
+            prevention or legal obligations require it, subject to the retention rules in our Privacy Policy.
           </p>
         </header>
 

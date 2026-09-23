@@ -68,9 +68,10 @@ Ship a release build only with the production URL.
 - **Privacy Policy URL:** `https://hbcuzone-connect.lovable.app/privacy`
 - **Support URL:** `https://hbcuzone-connect.lovable.app/support`
 - **Account deletion:** required by Apple — `/delete-account` is live in the app.
-- **Demo account:** App Review must be able to sign in. Because sign-up requires
-  a `.edu` address, create a reviewer account with a real `.edu` inbox (or a
-  pre-verified test profile) and put the credentials in App Review Notes.
+- **Demo account:** App Review must be able to sign in. Use the permanent,
+  pre-verified account in `docs/app-review/REVIEWER-WALKTHROUGH.md` and put the
+  same credentials in App Review Notes. Do not ask Apple to create an account
+  or provide a school inbox.
 - **Age rating:** user-generated content + messaging → declare UGC and confirm
   you have reporting and blocking (PlugU has both: report dialogs and blocks).
 - **Data safety / privacy nutrition labels:** email, name, campus, photos,

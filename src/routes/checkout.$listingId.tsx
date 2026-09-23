@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  ArrowLeft, ShieldCheck, Lock, CreditCard, Smartphone, DollarSign,
+  ArrowLeft, ShieldCheck, Lock, CreditCard,
   BadgeCheck, RefreshCw, MessageSquare, MapPin, Calendar, Truck, Package, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -21,10 +21,6 @@ import { getStripeStatus, createCheckoutSession } from "@/lib/stripe.functions";
 import { useSession } from "@/hooks/use-session";
 import { requestAuthentication } from "@/components/RequireAuthPrompt";
 
-type PaymentMethod = "apple_pay" | "cash_app" | "card";
-const paymentLabel = (m: PaymentMethod) =>
-  m === "apple_pay" ? "Apple Pay" : m === "cash_app" ? "Cash App Pay" : "Card";
-
 export const Route = createFileRoute("/checkout/$listingId")({
   head: () => ({ meta: [
     { title: "Listing Details — PlugU" },
@@ -36,12 +32,6 @@ export const Route = createFileRoute("/checkout/$listingId")({
   ] }),
   component: ProtectedCheckout,
 });
-
-const METHODS: { key: PaymentMethod; label: string; sub: string; Icon: typeof CreditCard }[] = [
-  { key: "apple_pay", label: "Apple Pay", sub: "Face ID · Instant", Icon: Smartphone },
-  { key: "cash_app", label: "Cash App Pay", sub: "Pay with $cashtag", Icon: DollarSign },
-  { key: "card", label: "Debit / Credit Card", sub: "Visa · Mastercard · Amex", Icon: CreditCard },
-];
 
 // Client-side preview only — the server RPC is the source of truth.
 const PLATFORM_FEE = 0.08;
@@ -70,7 +60,6 @@ function ProtectedCheckout() {
     return { platform, processing, total: subtotalCents + platform + processing };
   }, [subtotalCents]);
 
-  const [method, setMethod] = useState<PaymentMethod>("apple_pay");
   const [fulfillment, setFulfillment] = useState<string>("");
   const [meetup, setMeetup] = useState("Student Center · Today 5pm");
   const [note, setNote] = useState("");
@@ -353,42 +342,16 @@ function ProtectedCheckout() {
           </ul>
         </div>}
 
-        {/* Payment methods */}
+        {/* Payment method */}
         {paymentsLive && <>
         <p className="mt-5 text-[11px] tracking-[0.24em] uppercase text-muted-foreground px-1">Payment</p>
-        <div className="mt-2 space-y-2">
-          {METHODS.map((m) => {
-            const Icon = m.Icon;
-            const active = method === m.key;
-            return (
-              <button
-                key={m.key}
-                onClick={() => setMethod(m.key)}
-                className={`tap w-full flex items-center gap-3 p-3.5 rounded-2xl border transition-colors ${
-                  active ? "border-accent bg-secondary" : "border-border bg-card"
-                }`}
-              >
-                <div
-                  className="h-10 w-10 grid place-items-center rounded-xl"
-                  style={{
-                    background: "linear-gradient(160deg, #1c1c1c, #0f0f0f)",
-                    border: "1px solid color-mix(in oklab, var(--plugu-gold) 40%, transparent)",
-                  }}
-                >
-                  <Icon className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold">{m.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{m.sub}</p>
-                </div>
-                <span
-                  aria-hidden
-                  className={`h-4 w-4 rounded-full border ${active ? "border-accent" : "border-border"}`}
-                  style={active ? { background: "var(--plugu-gold)" } : {}}
-                />
-              </button>
-            );
-          })}
+        <div className="mt-2 flex items-center gap-3 rounded-2xl border border-border bg-card p-3.5">
+          <CreditCard className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} />
+          <div className="flex-1">
+            <p className="text-sm font-semibold">Secure Stripe checkout</p>
+            <p className="text-[11px] text-muted-foreground">Payment options are shown securely by Stripe</p>
+          </div>
+          <BadgeCheck className="h-4 w-4 text-accent" />
         </div>
 
 
@@ -424,7 +387,7 @@ function ProtectedCheckout() {
           className="mt-4 w-full py-3.5 rounded-2xl text-sm font-semibold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-bronze)" }}
         >
-          {loading ? "Opening secure checkout…" : `Pay ${centsToDollars(preview.total)} with ${paymentLabel(method)}`}
+          {loading ? "Opening secure checkout…" : `Pay ${centsToDollars(preview.total)} securely`}
         </button>
         <p className="mt-2 text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
           Secure checkout

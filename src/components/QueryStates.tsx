@@ -57,9 +57,9 @@ export function RoutePendingFallback() {
   return <ChargingLoader full message="Plugging you in…" />;
 }
 
-export function RouteErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
+export function RouteErrorFallback({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
-  const detail = (error as any)?.message ? String((error as any).message) : "";
+  const detail = error instanceof Error ? error.message : String(error ?? "");
   if (typeof window !== "undefined") {
     // Surface the underlying cause so it shows up in the console, not just the card.
     console.error("[PlugU route error]", error);
