@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  Home, Map, MessageSquare, User, Store, Sun, Moon,
+  Home, RadioTower, MessageSquare, User, Store, Sun, Moon,
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon, Radio, Briefcase,
 } from "lucide-react";
@@ -40,7 +40,7 @@ type Tab = { to: string; label: string; icon: LucideIcon };
 // them — the floating "P" is an action, not a sixth tab.
 const tabs: Tab[] = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/map", label: "Live Map", icon: Map },
+  { to: "/pulse", label: "PlugU Now", icon: RadioTower },
   { to: "/market", label: "Market", icon: Store },
   { to: "/me", label: "Me", icon: User },
 ];

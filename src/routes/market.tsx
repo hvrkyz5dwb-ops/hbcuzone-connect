@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Search, SlidersHorizontal, Heart, MessageSquare, Star, Flag, SearchX,
-  Sparkles, ShoppingBag, Plus, Loader2,
+  Sparkles, ShoppingBag, Plus, Loader2, Map, LayoutGrid,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import { useCampusSchoolId } from "@/hooks/use-campus-scope";
 import { FULFILLMENT_OPTIONS } from "@/lib/categories";
 import { useSession } from "@/hooks/use-session";
 import { requestAuthentication } from "@/components/RequireAuthPrompt";
+import { categoryImage } from "@/lib/category-icons";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -102,7 +103,23 @@ function Market() {
   return (
     <AppShell title="MARKET">
       <PullToRefresh onRefresh={async () => { await refetch(); }}>
-      <CampusBar subtitle="Student-owned businesses and campus services" />
+      <section className="px-5 pt-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Marketplace</p>
+            <h1 className="mt-1 text-3xl font-black leading-none">Explore</h1>
+          </div>
+          <div className="flex gap-2" aria-label="Marketplace view">
+            <button type="button" aria-label="Map view" onClick={() => navigate({ to: "/map" })} className="tap grid h-11 w-11 place-items-center rounded-xl border border-border bg-card text-muted-foreground">
+              <Map className="h-4 w-4" />
+            </button>
+            <button type="button" aria-label="Grid view" aria-pressed="true" className="tap grid h-11 w-11 place-items-center rounded-xl border border-primary bg-primary text-primary-foreground">
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+      <CampusBar subtitle="School and nearby community" />
       <section className="px-5 pt-5">
         <div className="flex gap-2 p-1 rounded-2xl bg-secondary border border-border">
           {(["shop", "posts"] as const).map((t) => (
@@ -153,7 +170,7 @@ function Market() {
           </button>
         </div>
 
-        <div tabIndex={0} className="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div tabIndex={0} className="mt-4 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[{ key: "all", label: "All" }, ...MVP_CATEGORIES].map((c) => {
             const isActive = category === c.key;
             return (
@@ -162,13 +179,17 @@ function Market() {
                 onClick={() => {
                   setCategory(c.key); setOffset(0);
                 }}
-                className={`tap shrink-0 px-4 py-2 rounded-full text-xs border transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-primary text-primary-foreground font-semibold border-primary shadow-[var(--shadow-glow)]"
-                    : "bg-card text-muted-foreground border-border hover:text-foreground"
-                }`}
+                className="tap group w-[62px] shrink-0 text-center"
               >
-                {c.label}
+                <span className={`relative mx-auto grid h-14 w-14 place-items-center overflow-hidden rounded-full border transition-all ${isActive ? "border-primary shadow-[var(--shadow-glow)]" : "border-border"}`}>
+                  {c.key === "all" ? (
+                    <ShoppingBag className="h-5 w-5 text-primary" />
+                  ) : (
+                    <img src={categoryImage(c.key)} alt="" className="h-full w-full object-cover" />
+                  )}
+                  <span className={`absolute inset-0 ${isActive ? "bg-primary/10" : "bg-background/10"}`} />
+                </span>
+                <span className={`mt-1 block truncate text-[10px] ${isActive ? "font-bold text-primary" : "text-muted-foreground"}`}>{c.label}</span>
               </button>
             );
           })}
@@ -288,7 +309,7 @@ function Market() {
           }
         />
       ) : (
-      <section className="mt-5 px-5 grid grid-cols-2 gap-3 slide-up">
+      <section className="mt-5 grid grid-cols-2 gap-2.5 px-3 slide-up sm:px-5 sm:gap-3">
         {rows.map((l, i) => <ListingCard key={l.id} l={l} index={i} onToggleFavorite={onToggleFavorite} signedIn={!!session} />)}
       </section>
       )}
@@ -356,7 +377,7 @@ function ListingCard({
   const saved = !!l.is_favorited;
   return (
     <article
-      className="rounded-2xl bg-card border border-border overflow-hidden flex flex-col hover:border-primary/40 transition-colors"
+      className="overflow-hidden rounded-xl border border-border bg-card flex flex-col hover:border-primary/40 transition-colors"
       style={{ animation: `plugu-fade-up 0.4s ease-out ${Math.min(index, 12) * 35}ms both` }}
     >
       <div className="relative aspect-square bg-secondary">
@@ -382,9 +403,9 @@ function ListingCard({
         <p className="text-sm font-medium line-clamp-2">{l.title}</p>
         <p className="text-primary font-bold mt-1">{formatPrice(l.price_cents, l.price_type as PriceType)}</p>
         <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="truncate inline-flex items-center gap-1">
-            {l.campus_name ?? "PlugU"}
-            <VerifiedStudentBadge size="xs" iconOnly />
+          <span className="min-w-0 truncate inline-flex items-center gap-1">
+            {l.seller?.display_name ?? l.seller?.username ?? l.campus_name ?? "Student seller"}
+            {l.seller?.verification_status === "verified" && <VerifiedStudentBadge size="xs" iconOnly />}
           </span>
           <span className="flex items-center gap-1">
             <Star className="h-3 w-3 text-accent fill-accent" />
