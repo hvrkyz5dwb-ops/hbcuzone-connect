@@ -157,7 +157,7 @@ export async function fetchOpportunities(
 ): Promise<OpportunityWithBusiness[]> {
   let query = supabase
     .from("opportunities")
-    .select("*")
+    .select("id,business_id,school_id,title,category,description,compensation,location,is_remote,deadline,required_skills,status,moderation_status,applicant_count,created_at")
     .eq("status", "open")
     .eq("moderation_status", "approved")
     .order("created_at", { ascending: false })

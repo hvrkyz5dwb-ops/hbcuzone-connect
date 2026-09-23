@@ -4,15 +4,15 @@ import {
 } from "@/lib/listings-db";
 import { useSession } from "./use-session";
 
-// Listings are students-only at the database level (no anonymous read path),
-// so a signed-out visitor would get "permission denied" and a scary error
-// screen. Return an empty result instead and let the auth gate do its job.
+// Marketplace discovery is public. The database exposes only complete,
+// approved listings to anonymous visitors; account checks stay on actions
+// such as saving, messaging, and checkout.
 export function useMarketplace(filters: DiscoveryFilters) {
-  const { user, loading } = useSession();
+  const { loading } = useSession();
   return useQuery({
-    queryKey: ["marketplace", user?.id ?? null, filters],
+    queryKey: ["marketplace", filters],
     enabled: !loading,
-    queryFn: () => (user ? fetchMarketplace(filters) : Promise.resolve([] as ListingWithExtras[])),
+    queryFn: () => fetchMarketplace(filters),
     staleTime: 30_000,
   });
 }

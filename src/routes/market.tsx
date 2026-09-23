@@ -350,8 +350,9 @@ function ListingCard({
   signedIn: boolean;
 }) {
   const navigate = useNavigate();
+  const [imageAvailable, setImageAvailable] = useState(true);
   const cover = l.images[0]?.url;
-  if (!cover) return null;
+  if (!cover || !imageAvailable) return null;
   const saved = !!l.is_favorited;
   return (
     <article
@@ -359,7 +360,13 @@ function ListingCard({
       style={{ animation: `plugu-fade-up 0.4s ease-out ${Math.min(index, 12) * 35}ms both` }}
     >
       <div className="relative aspect-square bg-secondary">
-        <img src={cover} alt={l.title} loading="lazy" className="w-full h-full object-cover" />
+        <img
+          src={cover}
+          alt={l.title}
+          loading="lazy"
+          onError={() => setImageAvailable(false)}
+          className="w-full h-full object-cover"
+        />
         <button
           onClick={() => onToggleFavorite(l.id, saved)}
           aria-label={saved ? "Unsave" : "Save"}
