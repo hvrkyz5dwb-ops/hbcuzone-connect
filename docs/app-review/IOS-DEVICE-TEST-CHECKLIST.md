@@ -25,7 +25,7 @@ git rm --cached .env        # still pending; .env must not be in the repo
 npm ci
 npm run build
 npx cap sync ios
-open ios/App/App.xcworkspace
+   open ios/App/App.xcodeproj
 ```
 
 In Xcode:
@@ -50,7 +50,7 @@ In Xcode:
 - [ ] NOT TESTED — Onboarding slides advance and go back; Skip works.
 - [ ] NOT TESTED — Terms acknowledgement appears and must be accepted.
 - [ ] NOT TESTED — **Continue as Guest** enters the app without any account.
-- [ ] NOT TESTED — Guest can browse Home, Market, Events, Search, HBCUS, Map without being bounced to sign-in.
+- [ ] NOT TESTED — Guest can browse Home, Market, Events, Search, school pages and Map without being bounced to sign-in. HBCUS remains limited to verified HBCU students.
 
 ### Sign-in return path (most important native item)
 - [ ] NOT TESTED — Email sign-in with `appreview@plugudemo.com` returns into the app, signed in.
