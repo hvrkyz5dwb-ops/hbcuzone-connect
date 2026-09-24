@@ -1,7 +1,11 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const readBytes = (path) => readFileSync(new URL(`../${path}`, import.meta.url));
+const sourceFiles = (directory) => readdirSync(new URL(`../${directory}`, import.meta.url), { withFileTypes: true })
+  .flatMap((entry) => entry.isDirectory()
+    ? sourceFiles(`${directory}/${entry.name}`)
+    : /\.(ts|tsx)$/.test(entry.name) ? [`${directory}/${entry.name}`] : []);
 const failures = [];
 const requireCheck = (ok, message) => {
   if (!ok) failures.push(message);
@@ -13,6 +17,8 @@ const infoPlist = read("ios/App/App/Info.plist");
 const project = read("ios/App/App.xcodeproj/project.pbxproj");
 const fallbackSource = read("native/www/index.html");
 const fallbackIos = read("ios/App/App/public/index.html");
+const authSource = read("src/lib/auth.ts");
+const mobileSetup = read("MOBILE_SETUP.md");
 
 requireCheck(
   nativeConfig.server?.url === "https://hbcuzone-connect.lovable.app",
@@ -54,6 +60,26 @@ requireCheck(
   "The Xcode target must include both iPhone and iPad.",
 );
 requireCheck(
+  infoPlist.includes("CFBundleURLSchemes") && infoPlist.includes("<string>plugu</string>"),
+  "The iOS app must register the PlugU auth callback URL scheme.",
+);
+for (const redirect of [
+  "https://hbcuzone-connect.lovable.app/auth",
+  "https://hbcuzone-connect.lovable.app/reset-password",
+  "plugu://auth",
+  "plugu://reset-password",
+]) {
+  requireCheck(
+    authSource.includes(redirect) || mobileSetup.includes(`- \`${redirect}\``),
+    `The documented or emitted auth redirect is missing: ${redirect}`,
+  );
+}
+requireCheck(
+  infoPlist.includes("UIInterfaceOrientationLandscapeLeft") &&
+    infoPlist.includes("UIInterfaceOrientationLandscapeRight"),
+  "The iPhone target must support landscape orientation for iPad review and rotation testing.",
+);
+requireCheck(
   fallbackSource === fallbackIos,
   "The checked-in iOS fallback is out of sync with native/www.",
 );
@@ -73,6 +99,16 @@ for (const path of ["README.md", "MOBILE_SETUP.md", "docs/app-review/APP-STORE-M
   requireCheck(
     !forbiddenMarketing.test(read(path)),
     `${path} contains retired paid-tier marketing.`,
+  );
+}
+
+for (const path of ["src", "MOBILE_SETUP.md", "README.md"]) {
+  const contents = path === "src"
+    ? sourceFiles("src").map((file) => read(file)).join("\n")
+    : read(path);
+  requireCheck(
+    !/Verified Pro|KingPin Annual|boosts?\s+for sale|premium placement/i.test(contents),
+    `${path} contains retired paid-feature language.`,
   );
 }
 

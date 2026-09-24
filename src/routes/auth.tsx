@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { validateStudentEmail, isHbcuDomain } from "@/lib/auth";
+import { validateStudentEmail, isHbcuDomain, authRedirectUrl } from "@/lib/auth";
 import { SchoolPicker } from "@/components/SchoolPicker";
 import { ShieldCheck, Mail, AlertCircle, Loader2 } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
@@ -111,10 +111,6 @@ function AuthPage() {
       setErr("Enter your email and password.");
       return;
     }
-    if (!agreeTerms) {
-      setErr("Accept the Terms of Use and Privacy Policy to continue.");
-      return;
-    }
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
@@ -133,7 +129,9 @@ function AuthPage() {
     }
     // Record the acceptance date + policy version for this sign-in (no-op if
     // the current version is already on file).
-    try { await recordPolicyAcceptance(); } catch {}
+    if (agreeTerms) {
+      try { await recordPolicyAcceptance(); } catch {}
+    }
     window.location.href = safeNext(next);
   }
 
@@ -179,7 +177,7 @@ function AuthPage() {
       email: email.trim().toLowerCase(),
       password,
       options: {
-        emailRedirectTo: window.location.origin + "/auth",
+        emailRedirectTo: authRedirectUrl("/auth"),
         data: metadata,
       },
     });
@@ -223,7 +221,7 @@ function AuthPage() {
     }
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo: window.location.origin + "/reset-password",
+      redirectTo: authRedirectUrl("/reset-password"),
     });
     setBusy(false);
     if (error) {
@@ -241,7 +239,7 @@ function AuthPage() {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: window.location.origin + "/auth" },
+      options: { emailRedirectTo: authRedirectUrl("/auth") },
     });
     setBusy(false);
     if (error) setErr(friendlyError(error));
@@ -325,7 +323,8 @@ function AuthPage() {
             <EmailField value={email} onChange={setEmail} />
             <PasswordField value={password} onChange={setPassword} autoComplete="current-password" />
 
-            {/* Affirmative agreement before login (App Review 1.2). */}
+            {/* Existing accounts can authenticate first; TermsGate records any
+              missing current acceptance immediately after session recovery. */}
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
                 <Link to="/terms" className="tap underline text-primary py-1">Terms of Use</Link>
@@ -339,7 +338,7 @@ function AuthPage() {
             <Feedback err={err} msg={msg} />
             <button
               type="submit"
-              disabled={busy || !agreeTerms}
+              disabled={busy}
               className="tap w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}

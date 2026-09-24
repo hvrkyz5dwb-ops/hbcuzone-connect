@@ -479,7 +479,7 @@ export function OnboardingExperience({
                 className="tap w-full min-h-[52px] rounded-2xl font-semibold inline-flex items-center justify-center border"
                 style={{ borderColor: "rgba(244,201,106,0.55)", color: "var(--plugu-gold)" }}
               >
-                Create account
+                Get started
               </button>
               <button
                 type="button"

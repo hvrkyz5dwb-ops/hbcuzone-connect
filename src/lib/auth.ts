@@ -92,6 +92,21 @@ export const APPROVED_SCHOOLS: ApprovedSchool[] = [
   { name: "Jarvis Christian",      domains: ["jarvis.edu"] },
 ];
 
+/**
+ * Supabase redirects back into the installed app when Capacitor is running.
+ * The custom scheme must also be present in Supabase Auth URL Configuration.
+ */
+export function authRedirectUrl(path: "/auth" | "/reset-password"): string {
+  if (typeof window !== "undefined") {
+    const capacitor = (window as unknown as {
+      Capacitor?: { isNativePlatform?: () => boolean };
+    }).Capacitor;
+    if (capacitor?.isNativePlatform?.()) return `plugu://${path.slice(1)}`;
+    return `${window.location.origin}${path}`;
+  }
+  return path;
+}
+
 // Fast lookup set of every HBCU-affiliated domain. Used by isHbcuStudent().
 const HBCU_DOMAINS = new Set(
   APPROVED_SCHOOLS.flatMap((s) => s.domains.map((d) => d.toLowerCase())),

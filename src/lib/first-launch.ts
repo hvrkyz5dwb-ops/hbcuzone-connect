@@ -30,8 +30,9 @@ export function shouldPlaySplash(): boolean {
   try {
     return window.localStorage.getItem(INTRO_RELEASE_KEY) !== INTRO_RELEASE;
   } catch {
-    // If persistence is unavailable, skip rather than replaying every launch.
-    return false;
+    // Storage is optional. Keep the launch experience available on a clean
+    // install or restricted webview, while the runtime guard prevents loops.
+    return true;
   }
 }
 

@@ -63,6 +63,21 @@ CocoaPods step and no `.xcworkspace` — open `App.xcodeproj` directly.
 
 Ship a release build only with the production URL.
 
+### Auth callback configuration
+
+The native build registers `plugu://` for Supabase email verification and
+password recovery. Add these exact redirect URLs to Supabase Auth → URL
+Configuration before review:
+
+- `https://hbcuzone-connect.lovable.app/auth`
+- `https://hbcuzone-connect.lovable.app/reset-password`
+- `plugu://auth`
+- `plugu://reset-password`
+
+The repository contains no Supabase or Stripe secrets. Confirm the production
+site URL, publishable key, email provider, and redirect allowlist in the
+connected Supabase project before archiving.
+
 ## App Store Connect checklist
 
 - **Privacy Policy URL:** `https://hbcuzone-connect.lovable.app/privacy`

@@ -4,6 +4,38 @@
 
 let started = false;
 
+async function handleAuthCallback(rawUrl: string): Promise<void> {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return;
+  }
+  if (url.protocol !== "plugu:") return;
+
+  const queryCode = url.searchParams.get("code");
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+  const isRecovery = hash.get("type") === "recovery" || url.searchParams.get("type") === "recovery";
+  if (!queryCode && (!accessToken || !refreshToken)) return;
+
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    if (queryCode) {
+      const { error } = await supabase.auth.exchangeCodeForSession(queryCode);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.auth.setSession({ access_token: accessToken!, refresh_token: refreshToken! });
+      if (error) throw error;
+    }
+    window.location.replace(isRecovery ? "/reset-password" : "/auth");
+  } catch (error) {
+    console.error("[PlugU:auth] native callback failed", error);
+    window.location.replace("/auth");
+  }
+}
+
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
   const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
@@ -82,6 +114,9 @@ export async function initNative(): Promise<void> {
 
   try {
     const { App } = await import("@capacitor/app");
+    await App.addListener("appUrlOpen", ({ url }) => { void handleAuthCallback(url); });
+    const launch = await App.getLaunchUrl();
+    if (launch?.url) void handleAuthCallback(launch.url);
     App.addListener("backButton", ({ canGoBack }) => {
       if (canGoBack && window.history.length > 1) window.history.back();
       else void App.exitApp();
