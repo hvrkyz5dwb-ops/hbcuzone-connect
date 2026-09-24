@@ -3549,6 +3549,7 @@ export type Database = {
         Args: { _conv: string; _user: string }
         Returns: boolean
       }
+      is_hbcu_member: { Args: { _uid: string }; Returns: boolean }
       is_suspended: { Args: { _user_id: string }; Returns: boolean }
       is_verified_local_business: {
         Args: { _user_id: string }
