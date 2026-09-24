@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  Home, RadioTower, MessageSquare, User, Store, Sun, Moon,
+  Home, RadioTower, User, Store, Sun, Moon,
   Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
   Bell, type LucideIcon, Radio, Briefcase,
 } from "lucide-react";
@@ -40,7 +40,7 @@ type Tab = { to: string; label: string; icon: LucideIcon };
 // them — the floating "P" is an action, not a sixth tab.
 const tabs: Tab[] = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/pulse", label: "PlugU Now", icon: RadioTower },
+  { to: "/pulse", label: "Now", icon: RadioTower },
   { to: "/market", label: "Market", icon: Store },
   { to: "/me", label: "Me", icon: User },
 ];
@@ -183,16 +183,16 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-md min-h-screen flex flex-col relative pb-nav">
+      <div className="mx-auto min-h-screen max-w-md flex flex-col relative pb-nav">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-[image:var(--gradient-bronze)] focus:px-4 focus:py-2 focus:text-[11px] focus:font-semibold focus:text-primary-foreground"
         >
           Skip to main content
         </a>
-        <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-background/75 backdrop-blur-xl border-b border-border/50">
+        <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/50 bg-background/88 px-4 py-3 backdrop-blur-xl sm:px-5">
 
-          <div className="flex items-center -space-x-1">
+           <div className="flex min-w-0 items-center -space-x-1">
             <img
               src={pluguLogo}
               alt="PlugU"
@@ -200,11 +200,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               width={32}
               height={32}
             />
-            <span className="font-bold tracking-[0.2em] text-sm plugu-wordmark pl-1">
+             <span className="truncate pl-1 text-sm font-bold tracking-[0.2em] plugu-wordmark">
               {title ?? "PLUGU"}
             </span>
           </div>
-          <div className="flex items-center gap-3">
+           <div className="flex shrink-0 items-center gap-2">
             {canAccessHbcus && (
               <Link
                 to="/hbcus"
@@ -264,18 +264,18 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.94) 100%)" }}
           />
           <div
-            className="mx-3 rounded-[28px] border border-white/10 shadow-[var(--shadow-elegant)]"
+            className="border-t border-border/80 shadow-[var(--shadow-elegant)]"
             style={{
-              background: "linear-gradient(180deg, rgba(20,20,20,0.94), rgba(6,6,6,0.985))",
+              background: "linear-gradient(180deg, rgba(17,17,17,0.97), rgba(5,5,5,0.995))",
               backdropFilter: "blur(28px) saturate(160%)",
               WebkitBackdropFilter: "blur(28px) saturate(160%)",
               boxShadow:
-                "0 1px 0 rgba(255,255,255,0.06) inset, 0 24px 60px -24px rgba(0,0,0,0.85), 0 0 40px -20px rgba(244,201,106,0.25)",
+                "0 1px 0 rgba(255,255,255,0.05) inset, 0 -18px 50px -30px rgba(244,201,106,0.28)",
             }}
           >
-            <ul className="grid grid-cols-5 items-end px-2 py-2 relative">
+            <ul className="relative grid grid-cols-5 items-end px-3 pb-2 pt-2">
               {/* Floating action: tap for the Campus Hub, hold for quick actions. */}
-              <li className="order-3 flex justify-center -mt-6 z-10">
+              <li className="order-3 z-10 -mt-5 flex justify-center">
                 <button
                   onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
                   onPointerDown={() => {
@@ -284,7 +284,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                   }}
                   onPointerUp={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
                   onPointerLeave={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
-                  className="tap plugu-breathe pointer-events-auto grid place-items-center w-14 h-14 rounded-full relative overflow-hidden"
+                    className="tap plugu-breathe pointer-events-auto relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border-4 border-background"
                   style={{
                     background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
                     border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
@@ -328,13 +328,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                       }}
                       aria-current={active ? "page" : undefined}
                       data-tour={t.label.toLowerCase()}
-                      className={`tap relative flex flex-col items-center gap-0.5 py-1 px-2 text-[10px] tracking-wide transition-colors ${
+                      className={`tap relative flex min-w-0 flex-col items-center gap-0.5 px-1 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${
                         active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <span className="relative">
                         <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.75} />
-                        {t.label === "Inbox" && inboxUnread > 0 && (
+                        {t.label === "Me" && inboxUnread > 0 && (
                           <span
                             className="absolute -top-1 -right-2 min-w-[16px] h-[16px] px-1 grid place-items-center rounded-full text-[9px] font-bold text-black"
                             style={{ background: "var(--plugu-gold)" }}
@@ -343,7 +343,8 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                           </span>
                         )}
                       </span>
-                      <span>{t.label}</span>
+                      <span className="truncate">{t.label}</span>
+                      {t.label === "Me" && inboxUnread > 0 && <span className="sr-only">{inboxUnread} unread messages</span>}
                       {active && (
                         <span
                           className="plugu-underline absolute -bottom-1 h-[3px] w-6 rounded-full"

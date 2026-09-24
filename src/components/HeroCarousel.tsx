@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { getLearnTrack, type LearnTrack } from "@/lib/learn-tracks";
 import plugImg from "@/assets/spotlight-plug.jpg";
 import businessImg from "@/assets/spotlight-business.jpg";
@@ -27,6 +27,16 @@ type Slide = {
   image: string;
 };
 
+const PURPOSE_SLIDE: Slide = {
+  key: "plugu-purpose",
+  title: "Plug your campus in.",
+  subtitle: "Buy what you need. Book student talent. Find tonight's plans.",
+  meta: "Real people · Real campuses · Nearby community",
+  cta: "Explore PlugU",
+  to: "/market",
+  image: heroImg,
+};
+
 /** Builds a rotating slide from a learn track deck so each card stays fresh. */
 function fromTrack(slug: LearnTrack["slug"], seed: number, image: string): Slide {
   const track = getLearnTrack(slug)!;
@@ -48,7 +58,7 @@ function Card({ slide }: { slide: Slide }) {
     <Link
       to={slide.to as "/hub"}
       params={slide.params as never}
-      className="tap relative block h-[246px] w-[86%] shrink-0 snap-center overflow-hidden rounded-3xl border border-border"
+      className="tap group relative block h-[214px] w-[90%] shrink-0 snap-center overflow-hidden rounded-xl border border-border"
     >
       <img src={slide.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
       <div
@@ -58,9 +68,9 @@ function Card({ slide }: { slide: Slide }) {
             "linear-gradient(105deg, rgba(6,6,6,0.96) 0%, rgba(6,6,6,0.86) 40%, rgba(6,6,6,0.35) 72%, rgba(6,6,6,0.12) 100%)",
         }}
       />
-      <div className="relative flex h-full w-[66%] flex-col justify-between p-5">
+      <div className="relative flex h-full w-[76%] flex-col justify-between p-5">
         <div>
-          <h3 className="text-[22px] font-black leading-[1.1] tracking-[-0.015em] text-foreground line-clamp-3">
+          <h3 className="font-editorial text-[27px] font-bold leading-[1.02] text-foreground line-clamp-3">
             {slide.title}
           </h3>
           <p className="mt-2 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">
@@ -71,10 +81,9 @@ function Card({ slide }: { slide: Slide }) {
           )}
         </div>
         <span
-          className="inline-flex w-fit items-center gap-1 rounded-xl px-3.5 py-2 text-[12px] font-bold"
-          style={{ background: GOLD, color: "#0b0b0b" }}
+          className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-[12px] font-bold text-primary-foreground"
         >
-          {slide.cta} <ChevronRight className="h-3.5 w-3.5" />
+          {slide.cta} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>
     </Link>
@@ -96,6 +105,7 @@ export function HeroCarousel() {
   const slides = useMemo<Slide[]>(() => {
     const seed = dayOfYear() + tick;
     return [
+      PURPOSE_SLIDE,
       fromTrack("plug", seed, plugImg),
       fromTrack("business-101", seed, businessImg),
       fromTrack("indeed", seed, indeedImg),
@@ -153,7 +163,7 @@ export function HeroCarousel() {
   useEffect(() => () => { if (resumeTimer.current) clearTimeout(resumeTimer.current); }, []);
 
   return (
-    <section className="mt-4" aria-label="Highlights" aria-roledescription="carousel">
+    <section className="mt-3" aria-label="Highlights" aria-roledescription="carousel">
       <div className="relative">
         <div
           ref={scroller}
@@ -166,7 +176,7 @@ export function HeroCarousel() {
             if (e.key === "ArrowLeft") { holdAutoplay(); goTo(i - 1); }
           }}
           tabIndex={0}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-5 pb-1 outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-5"
         >
           {slides.map((s) => (
             <Card key={s.key} slide={s} />

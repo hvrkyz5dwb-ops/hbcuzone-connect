@@ -17,6 +17,7 @@ import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { addComment, listCommunityPosts, subscribeCommunityPosts, type CommunityPost } from "@/lib/community-storage";
 import { bucketOf } from "@/lib/campus-db";
 import { formatPrice, type PriceType } from "@/lib/categories";
+import { LookingForSheet } from "@/components/LookingForSheet";
 
 export const Route = createFileRoute("/pulse")({
   ssr: false,
@@ -73,6 +74,7 @@ function PlugUNow() {
   const [offerFor, setOfferFor] = useState<CommunityPost | null>(null);
   const [offer, setOffer] = useState("");
   const [sending, setSending] = useState(false);
+  const [requestOpen, setRequestOpen] = useState(false);
 
   useEffect(() => {
     const refresh = () => setRequests(listCommunityPosts(school.name).filter((post) => post.tag === "looking"));
@@ -108,13 +110,13 @@ function PlugUNow() {
     <AppShell title="PLUGU NOW">
       <PullToRefresh onRefresh={async () => { await qc.refetchQueries({ type: "active" }); }}>
         <CampusBar subtitle="Book, buy, or attend nearby" />
-        <section className="px-5 pt-5">
+        <section className="px-4 pt-5 sm:px-5">
           <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-primary"><RadioTower className="h-3 w-3" /> Live board</p>
-          <h1 className="mt-1 text-[26px] font-black leading-tight">PlugU Now</h1>
+          <h1 className="font-editorial mt-1 text-[30px] font-bold leading-none">PlugU Now</h1>
           <p className="mt-1 text-xs text-muted-foreground">Real things students can book, buy, or attend around {campusName}.</p>
           <div className="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="PlugU Now views">
             {TABS.map((item) => (
-              <button key={item.key} type="button" role="tab" aria-selected={tab === item.key} onClick={() => setTab(item.key)} className={`tap h-11 shrink-0 rounded-full border px-4 text-xs font-semibold ${tab === item.key ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`}>{item.label}</button>
+               <button key={item.key} type="button" role="tab" aria-selected={tab === item.key} onClick={() => setTab(item.key)} className={`tap h-11 shrink-0 rounded-lg border px-4 text-xs font-semibold ${tab === item.key ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`}>{item.label}</button>
             ))}
           </div>
         </section>
@@ -160,14 +162,14 @@ function PlugUNow() {
           )}
 
           {tab === "requests" && (
-            requests.length ? <div className="space-y-3 px-5">{requests.map((post) => (
+             requests.length ? <div className="space-y-3 px-4 sm:px-5">{requests.map((post) => (
               <article key={post.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between gap-3"><p className="flex items-center gap-1 text-xs font-semibold">{post.author}<BadgeCheck className="h-3 w-3 text-primary" /></p><span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock3 className="h-3 w-3" />{relativeTime(post.createdAt).replace("Updated ", "")}</span></div>
+                <div className="flex items-center justify-between gap-3"><p className="truncate text-xs font-semibold">{post.author}</p><span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground"><Clock3 className="h-3 w-3" />{relativeTime(post.createdAt).replace("Updated ", "")}</span></div>
                 <p className="mt-2 text-sm leading-relaxed">{post.text}</p>
                 <p className="mt-2 text-[10px] text-muted-foreground">{post.school || campusName}</p>
                 <button type="button" onClick={() => session ? setOfferFor(post) : requestAuthentication()} className="tap mt-3 inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-4 text-xs font-bold text-primary-foreground"><MessageCircle className="h-3.5 w-3.5" />Make an offer</button>
               </article>
-            ))}</div> : <Empty title="No requests here yet" text="Students can ask for something they can't find, and sellers can respond with a real offer." action="Post a request" onAction={() => session ? navigate({ to: "/market" }) : requestAuthentication()} />
+             ))}</div> : <Empty title="No requests here yet" text="Students can ask for something they can't find, and sellers can respond with a real offer." action="Post a request" onAction={() => session ? setRequestOpen(true) : requestAuthentication()} />
           )}
         </section>
       </PullToRefresh>
@@ -183,6 +185,7 @@ function PlugUNow() {
           </div>
         </div>
       )}
+      <LookingForSheet open={requestOpen} onClose={() => setRequestOpen(false)} />
     </AppShell>
   );
 }

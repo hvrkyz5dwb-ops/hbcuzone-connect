@@ -59,6 +59,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-editorial: "Cormorant Garamond", ui-serif, Georgia, serif;
 }
 
 :root {
@@ -302,6 +303,11 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+}
+
+@utility font-editorial {
+  font-family: var(--font-editorial);
+  letter-spacing: 0;
 }
 img, video { content-visibility: auto; }
 

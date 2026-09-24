@@ -68,8 +68,9 @@ function MePage() {
 
   return (
     <AppShell title="ME">
-      <section className="px-5 pt-5">
-        <h1 className="text-2xl font-bold tracking-tight">
+      <section className="px-4 pt-5 sm:px-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Your PlugU</p>
+        <h1 className="font-editorial mt-1 text-3xl font-bold leading-none">
           {profile?.display_name || profile?.full_name || "Your account"}
         </h1>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -84,20 +85,20 @@ function MePage() {
           <section key={g.title} className="mt-6" aria-labelledby={`me-${g.title}`}>
             <h2
               id={`me-${g.title}`}
-              className="px-1 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground"
+             className="px-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground"
             >
               {g.title}
             </h2>
-            <ul className="mt-2 divide-y divide-border rounded-2xl border border-border bg-card">
+             <ul className="mt-2 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card/80">
               {g.items.map((item) => {
                 const Icon = item.icon;
                 return (
                   <li key={`${g.title}-${item.label}`}>
                     <Link
                       to={item.to as "/profile"}
-                      className="tap flex min-h-11 items-center gap-3 px-4 py-3.5"
+                       className="tap flex min-h-14 items-center gap-3 px-4 py-3.5 transition-colors hover:bg-secondary/60"
                     >
-                      <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/10"><Icon className="h-4 w-4 text-primary" aria-hidden="true" /></span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-semibold">{item.label}</span>
                         <span className="block truncate text-[11px] text-muted-foreground">{item.hint}</span>

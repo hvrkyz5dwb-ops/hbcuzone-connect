@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Plug, Search, ArrowRight, Sparkles, CalendarDays, MapPin, ChevronRight, Megaphone, BadgeCheck,
+  ShoppingBag, Tag, Wrench, CalendarCheck,
 } from "lucide-react";
 import { AppShell, SectionHeader } from "@/components/AppShell";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "The campus marketplace + utility app for HBCU students. Find vendors, services, events, rides, and deals on or near campus." },
       { property: "og:title", content: "PlugU — Connecting Campus" },
       { property: "og:description", content: "Plug in. Stand out. Stay connected." },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
@@ -157,34 +160,29 @@ function Home() {
       {/* Real refresh: refetch the live queries feeding this screen. */}
       <PullToRefresh onRefresh={async () => { await queryClient.refetchQueries({ type: "active" }); }}>
 
-      {/* Which campus this feed belongs to, plus the student's verification state */}
-      <CampusBar subtitle={<HomeGreeting />} />
+       {/* Campus context plus a compact purpose statement. */}
+       <CampusBar subtitle={<><HomeGreeting /> · campus + nearby</>} />
 
-      {/* Hero — PlugU's purpose, stated plainly */}
-      <section className="px-5 pt-4">
-        <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--plugu-gold)" }}>
-          <HomeGreeting />
-        </p>
-        <h1 className="mt-2 text-[27px] font-black leading-[1.08] tracking-[-0.02em] text-foreground">
-          Buy, sell, book and<br />
-          build on <span style={{ color: "var(--plugu-gold)" }}>your campus.</span>
-        </h1>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Student-owned businesses, campus services, events and opportunities — verified
-          student to verified student.
-        </p>
-      </section>
+       <section className="px-4 pt-4 sm:px-5">
+         <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-primary">Your campus, connected</p>
+         <h1 className="font-editorial mt-1 text-[30px] font-bold leading-[1.02] text-foreground">
+           Buy. Sell. Book. <span className="text-primary">Show up.</span>
+         </h1>
+         <p className="mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground">
+           Find trusted student businesses, useful services, real events, and opportunities around your school.
+         </p>
+       </section>
 
       <div className={feedStagger ? "fse fse-d1" : undefined}>
         <HeroCarousel />
       </div>
 
-      {/* Search + Post a Request */}
-      <section className="mt-4 flex gap-2 px-5">
+       {/* Search + Post a Request */}
+       <section className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 px-4 sm:px-5">
         <button
           type="button"
           onClick={() => navigate({ to: "/search" })}
-          className="tap flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-left text-sm text-muted-foreground"
+           className="tap flex h-12 min-w-0 items-center gap-2 rounded-xl border border-border bg-card px-4 text-left text-sm text-muted-foreground"
         >
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <span className="truncate">Search campus services, food, events…</span>
@@ -192,31 +190,52 @@ function Home() {
         <button
           type="button"
           onClick={() => session ? setLookingOpen(true) : requestAuthentication()}
-          className="tap flex shrink-0 items-center gap-1.5 rounded-full border border-primary/50 bg-primary/5 px-4 py-3.5 text-xs font-bold text-primary"
+           className="tap flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-3 text-xs font-bold text-primary"
         >
           <Megaphone className="h-4 w-4" /> Post a Request
         </button>
       </section>
       <LookingForSheet open={lookingOpen} onClose={() => setLookingOpen(false)} />
 
+       <section className="mt-3 grid grid-cols-4 gap-2 px-4 sm:px-5" aria-label="Start on PlugU">
+         {[
+           { label: "Buy", icon: ShoppingBag, to: "/market", search: {} },
+           { label: "Sell", icon: Tag, to: "/seller/listings", protected: true, search: {} },
+           { label: "Services", icon: Wrench, to: "/market", search: { kind: "service" } },
+           { label: "Events", icon: CalendarCheck, to: "/events", search: {} },
+         ].map((item) => {
+           const Icon = item.icon;
+           return (
+             <Link
+               key={item.label}
+               to={item.to as "/market"}
+               search={item.search as never}
+               onClick={(event) => {
+                 if (item.protected && !session) { event.preventDefault(); requestAuthentication(); }
+               }}
+               className="tap group flex min-w-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-1 py-3 text-center transition-colors hover:border-primary/40"
+             >
+               <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+               <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em]">{item.label}</span>
+             </Link>
+           );
+         })}
+       </section>
+
       <VerificationBanner />
 
       <PersonalizedHome />
 
-      {/* Marketplace categories */}
-      <section className="mt-6">
+       {/* Marketplace categories */}
+       <section className="mt-7">
         <SectionHeader title="Buy and Sell on Campus" action="See all" onAction={() => navigate({ to: "/market" })} />
-        <div className="px-5 grid grid-cols-4 gap-2.5">
+         <div className="grid grid-cols-4 gap-2 px-4 sm:px-5">
           {AVAILABLE_CATEGORIES.slice(0, 8).map((c) => (
             <Link
               key={c.key}
               to="/market"
               search={{ category: c.key } as never}
-              className="tap group relative flex aspect-square flex-col items-end justify-end overflow-hidden rounded-2xl border"
-              style={{
-                borderColor: "color-mix(in oklab, var(--plugu-gold) 28%, transparent)",
-                background: "#08080a",
-              }}
+                className="tap group relative flex aspect-square flex-col items-end justify-end overflow-hidden rounded-xl border border-primary/30 bg-background"
             >
               <img
                 src={categoryImage(c.key)}
@@ -227,14 +246,8 @@ function Home() {
                 height={512}
                 className="absolute inset-0 h-full w-full object-cover opacity-90"
               />
-              <span
-                className="absolute inset-0"
-                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 22%, rgba(0,0,0,0.15) 62%, transparent)" }}
-              />
-              <span
-                className="relative w-full px-1.5 pb-1.5 text-center text-[10px] font-semibold leading-tight"
-                style={{ color: "var(--plugu-gold)" }}
-              >
+               <span className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+               <span className="relative w-full px-1.5 pb-1.5 text-center text-[10px] font-semibold leading-tight text-primary">
                 {c.label}
               </span>
             </Link>
@@ -302,11 +315,11 @@ function centsToPrice(cents: number) {
 
 function EmptyRow({ icon, text, cta, to }: { icon: React.ReactNode; text: string; cta: string; to: string }) {
   return (
-    <div className="px-5">
-      <div className="rounded-2xl border border-dashed border-border bg-card/50 p-4 flex items-center gap-3">
-        <div className="h-9 w-9 grid place-items-center rounded-xl border border-border text-primary">{icon}</div>
+    <div className="px-4 sm:px-5">
+      <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/50 p-4">
+        <div className="grid h-9 w-9 place-items-center rounded-lg border border-border text-primary">{icon}</div>
         <p className="flex-1 text-xs text-muted-foreground">{text}</p>
-        <Link to={to as never} className="tap rounded-xl bg-primary text-primary-foreground text-[11px] font-semibold px-3 py-1.5">{cta}</Link>
+        <Link to={to as never} className="tap rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground">{cta}</Link>
       </div>
     </div>
   );
@@ -320,7 +333,7 @@ function ListingCard({ l }: { l: ListingWithExtras }) {
     <Link
       to="/checkout/$listingId"
       params={{ listingId: l.id }}
-      className="tap min-w-[176px] w-44 shrink-0 overflow-hidden rounded-3xl border border-border bg-card"
+        className="tap min-w-[176px] w-44 shrink-0 overflow-hidden rounded-xl border border-border bg-card"
     >
       <div className="relative h-32 bg-black/40">
         {cover ? (
@@ -358,7 +371,7 @@ function TrendingListings() {
       {isLoading ? (
         <div tabIndex={0} className="px-5 flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[176px] w-44 h-52 rounded-3xl bg-card border border-border animate-pulse" />
+            <div key={i} className="min-w-[176px] w-44 h-52 rounded-xl bg-card border border-border animate-pulse" />
           ))}
         </div>
       ) : data && data.length > 0 ? (
@@ -382,7 +395,7 @@ function SellCta() {
         onClick={(event) => {
           if (!business) { event.preventDefault(); requestAuthentication(); }
         }}
-        className="tap group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/40 p-4"
+        className="tap group relative flex items-center gap-3 overflow-hidden rounded-xl border border-primary/40 p-4"
         style={{ background: "var(--gradient-bronze)" }}
       >
         <div className="h-11 w-11 grid place-items-center rounded-2xl bg-black/30 border border-white/15">
@@ -442,7 +455,7 @@ function SafetyStandards() {
   ];
   return (
     <section className="mt-8 px-5">
-      <div className="rounded-3xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <p className="text-[10px] uppercase tracking-[0.24em]" style={{ color: "var(--plugu-gold)" }}>
           Campus safety
         </p>
