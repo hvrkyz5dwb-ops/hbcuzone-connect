@@ -28,18 +28,25 @@ import { requestAuthentication } from "@/components/RequireAuthPrompt";
 import { categoryImage } from "@/lib/category-icons";
 
 export const Route = createFileRoute("/market")({
+  validateSearch: (search: Record<string, unknown>): { category?: string; kind?: "service" } => ({
+    ...(typeof search.category === "string" ? { category: search.category } : {}),
+    ...(search.kind === "service" ? { kind: "service" as const } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Market — PlugU" },
       { name: "description", content: "Buy, sell, and book on the campus marketplace — haircuts, nails, food, rides, tutoring, dorm items, tickets and more." },
       { property: "og:title", content: "PlugU Market" },
       { property: "og:description", content: "Campus marketplace for students." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Market,
 });
 
 function Market() {
+  const routeSearch = Route.useSearch();
   const navigate = useNavigate();
   const school = useSchool();
   const { profile } = useProfile();
@@ -48,7 +55,7 @@ function Market() {
   const qc = useQueryClient();
   const isVisible = useContentVisibility();
 
-  const [category, setCategory] = useState<string>("all");
+  const [category, setCategory] = useState<string>(routeSearch.category ?? "all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"newest" | "popular" | "rating">("newest");
   const [scope, setScope] = useState<"mine" | "all">("mine");
@@ -95,38 +102,39 @@ function Market() {
   const rows = useMemo(
     () =>
       (listings ?? []).filter((l) =>
+        (!routeSearch.kind || l.kind === routeSearch.kind) &&
         isVisible({ type: "listing", id: l.id, authorId: (l as { seller_user_id?: string | null }).seller_user_id ?? null }),
       ),
-    [listings, isVisible],
+    [listings, isVisible, routeSearch.kind],
   );
 
   return (
     <AppShell title="MARKET">
       <PullToRefresh onRefresh={async () => { await refetch(); }}>
-      <section className="px-5 pt-4">
+      <section className="px-4 pt-4 sm:px-5">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Marketplace</p>
-            <h1 className="mt-1 text-3xl font-black leading-none">Explore</h1>
+             <h1 className="font-editorial mt-1 text-3xl font-bold leading-none">Explore</h1>
           </div>
           <div className="flex gap-2" aria-label="Marketplace view">
             <button type="button" aria-label="Map view" onClick={() => navigate({ to: "/map" })} className="tap grid h-11 w-11 place-items-center rounded-xl border border-border bg-card text-muted-foreground">
               <Map className="h-4 w-4" />
             </button>
-            <button type="button" aria-label="Grid view" aria-pressed="true" className="tap grid h-11 w-11 place-items-center rounded-xl border border-primary bg-primary text-primary-foreground">
+             <span aria-label="Grid view selected" className="grid h-11 w-11 place-items-center rounded-xl border border-primary bg-primary text-primary-foreground">
               <LayoutGrid className="h-4 w-4" />
-            </button>
+             </span>
           </div>
         </div>
       </section>
       <CampusBar subtitle="School and nearby community" />
-      <section className="px-5 pt-5">
-        <div className="flex gap-2 p-1 rounded-2xl bg-secondary border border-border">
+      <section className="px-4 pt-4 sm:px-5">
+        <div className="flex gap-2 rounded-xl border border-border bg-secondary p-1">
           {(["shop", "posts"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`tap flex-1 py-2 text-xs rounded-xl transition-colors ${
+              className={`tap flex-1 rounded-lg py-2 text-xs transition-colors ${
                 tab === t
                   ? "bg-[image:var(--gradient-bronze)] text-primary-foreground font-semibold"
                   : "text-muted-foreground"
@@ -144,9 +152,9 @@ function Market() {
         </div>
       ) : (
       <>
-      <section className="px-5 pt-5 slide-up">
+      <section className="px-4 pt-4 slide-up sm:px-5">
         <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary border border-border">
+          <div className="flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-secondary px-4">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={query}
@@ -164,7 +172,7 @@ function Market() {
           <button
             aria-label="Filters"
             onClick={() => setShowFilters((s) => !s)}
-            className={`tap h-11 w-11 grid place-items-center rounded-2xl border ${showFilters ? "bg-primary/15 border-primary/50" : "bg-card border-border"}`}
+            className={`tap grid h-12 w-12 place-items-center rounded-xl border ${showFilters ? "bg-primary/15 border-primary/50" : "bg-card border-border"}`}
           >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
@@ -196,7 +204,7 @@ function Market() {
         </div>
 
         {showFilters && (
-          <div className="mt-3 rounded-2xl border border-border bg-card p-3 space-y-3">
+          <div className="mt-3 space-y-3 rounded-xl border border-border bg-card p-3">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">School</p>
               <div className="mt-1.5 flex gap-2">
@@ -309,7 +317,7 @@ function Market() {
           }
         />
       ) : (
-      <section className="mt-5 grid grid-cols-2 gap-2.5 px-3 slide-up sm:px-5 sm:gap-3">
+      <section className="mt-5 grid grid-cols-2 gap-2.5 px-4 slide-up sm:px-5 sm:gap-3">
         {rows.map((l, i) => <ListingCard key={l.id} l={l} index={i} onToggleFavorite={onToggleFavorite} signedIn={!!session} />)}
       </section>
       )}

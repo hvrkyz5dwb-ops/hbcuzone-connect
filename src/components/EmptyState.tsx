@@ -13,13 +13,13 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="relative mx-5 my-8 overflow-hidden rounded-3xl border border-dashed border-border bg-card/50 px-6 py-10 text-center view-enter">
+    <div className="relative mx-4 my-6 overflow-hidden rounded-xl border border-dashed border-border bg-card/50 px-6 py-8 text-center view-enter sm:mx-5">
       <span
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{ background: "radial-gradient(120% 80% at 50% 0%, rgba(244,201,106,0.07), transparent 70%)" }}
       />
-      <div className="relative mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]">
+      <div className="relative mx-auto grid h-12 w-12 place-items-center rounded-lg bg-[image:var(--gradient-bronze)] text-primary-foreground shadow-[var(--shadow-glow)]">
         <Icon className="h-6 w-6" />
       </div>
       <h3 className="relative mt-4 text-base font-semibold tracking-tight">{title}</h3>

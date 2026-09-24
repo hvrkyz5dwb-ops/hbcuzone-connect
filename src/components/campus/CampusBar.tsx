@@ -61,10 +61,10 @@ export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <section className="px-5 pt-3">
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5">
+    <section className="px-4 pt-3 sm:px-5">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-border bg-card/80 px-3 py-2 backdrop-blur">
         <span
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border"
           style={{ borderColor: "color-mix(in oklab, var(--plugu-gold) 40%, transparent)" }}
         >
           <GraduationCap className="h-4 w-4" style={{ color: "var(--plugu-gold)" }} aria-hidden="true" />
@@ -76,12 +76,12 @@ export function CampusBar({ subtitle }: { subtitle?: ReactNode }) {
           <p className="truncate text-sm font-bold text-foreground">{campusName}</p>
           {subtitle && <p className="truncate text-[10px] text-muted-foreground">{subtitle}</p>}
         </div>
-        {!exploring && <VerificationPill state={state} className="shrink-0" />}
+        {!exploring && <VerificationPill state={state} className="hidden shrink-0 sm:inline-flex" />}
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Switch campus"
-          className="tap inline-flex h-11 shrink-0 items-center gap-1 rounded-xl border border-border px-2.5 text-[11px] font-semibold text-muted-foreground"
+          className="tap inline-flex h-11 shrink-0 items-center gap-1 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-muted-foreground"
         >
           Switch <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
         </button>

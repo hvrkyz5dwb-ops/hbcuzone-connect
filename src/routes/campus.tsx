@@ -118,14 +118,14 @@ function CampusHub() {
 
   return (
     <AppShell title="PLUGU">
-      <section className="px-5 pt-4 text-center">
+      <section className="px-4 pt-5 sm:px-5">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">PlugU campus discovery</p>
-        <h1 className="mt-1 text-[26px] font-black leading-tight">Your people. Your next plug.</h1>
+        <h1 className="font-editorial mt-1 text-[30px] font-bold leading-none">Your people. Your next plug.</h1>
       </section>
       <CampusBar subtitle="Your campus + nearby" />
-      <section className="px-5 pt-3">
+      <section className="px-4 pt-3 sm:px-5">
         <div className="flex items-center gap-2">
-          <Link to="/search" search={{ tab: "browse" }} className="tap flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl bg-foreground px-4 text-left text-sm text-background">
+          <Link to="/search" search={{ tab: "browse" }} className="tap flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-card px-4 text-left text-sm text-muted-foreground">
             <Search className="h-4 w-4 shrink-0" />
             <span className="truncate opacity-70">Find a service, item, or event</span>
           </Link>
@@ -133,7 +133,7 @@ function CampusHub() {
             <SlidersHorizontal className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-6 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
           {[
             { label: "Haircuts", icon: Scissors, category: "hair" },
             { label: "Nails", icon: Sparkles, category: "nails" },
@@ -145,8 +145,8 @@ function CampusHub() {
             const Icon = item.icon;
             return (
               <Link key={item.category} to="/market" search={{ category: item.category } as never} className="tap min-w-0 text-center">
-                <span className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-primary/40 bg-card text-primary"><Icon className="h-4 w-4" /></span>
-                <span className="mt-1 block truncate text-[9px] text-muted-foreground">{item.label}</span>
+                <span className="mx-auto grid h-11 w-11 place-items-center rounded-lg border border-primary/30 bg-card text-primary"><Icon className="h-4 w-4" /></span>
+                <span className="mt-1 block truncate text-[9px] font-semibold text-muted-foreground">{item.label}</span>
               </Link>
             );
           })}
@@ -201,18 +201,18 @@ function CampusHub() {
         )}
       </section>
 
-      <section className="mx-5 mt-5 grid grid-cols-3 gap-2">
-        <Link to="/hub" className="tap rounded-xl border border-primary/25 bg-primary/10 p-3"><GraduationCap className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Scholarships</span><span className="text-[9px] text-muted-foreground">Verified posts</span></Link>
-        <Link to="/hub" className="tap rounded-xl border border-border bg-card p-3"><BriefcaseBusiness className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Opportunities</span><span className="text-[9px] text-muted-foreground">Jobs and internships</span></Link>
-        <Link to="/trust" className="tap rounded-xl border border-border bg-card p-3"><ShieldCheck className="h-4 w-4 text-primary" /><span className="mt-2 block text-xs font-bold">Protected</span><span className="text-[9px] text-muted-foreground">Safer transactions</span></Link>
+      <section className="mx-4 mt-5 grid grid-cols-3 gap-2 sm:mx-5">
+        <Link to="/hub" className="tap rounded-xl border border-primary/25 bg-primary/10 p-3"><GraduationCap className="h-4 w-4 text-primary" /><span className="mt-2 block truncate text-xs font-bold">Scholarships</span><span className="line-clamp-2 text-[9px] text-muted-foreground">Verified posts</span></Link>
+        <Link to="/hub" className="tap rounded-xl border border-border bg-card p-3"><BriefcaseBusiness className="h-4 w-4 text-primary" /><span className="mt-2 block truncate text-xs font-bold">Opportunities</span><span className="line-clamp-2 text-[9px] text-muted-foreground">Jobs and internships</span></Link>
+        <Link to="/trust" className="tap rounded-xl border border-border bg-card p-3"><ShieldCheck className="h-4 w-4 text-primary" /><span className="mt-2 block truncate text-xs font-bold">Protected</span><span className="line-clamp-2 text-[9px] text-muted-foreground">Safer transactions</span></Link>
       </section>
 
-      <section className="px-5 pt-7">
+      <section className="px-4 pt-7 sm:px-5">
         <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: "var(--plugu-gold)" }}>
           The heartbeat of campus
         </p>
         <div className="mt-1 flex items-end justify-between gap-3">
-          <h2 className="text-xl font-bold tracking-tight">Events and organizations</h2>
+          <h2 className="font-editorial text-2xl font-bold">Events and organizations</h2>
           <button
             onClick={() => session ? setCreateOpen(true) : requestAuthentication()}
             className="tap inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-semibold text-primary-foreground"
@@ -222,12 +222,12 @@ function CampusHub() {
           </button>
         </div>
 
-        <div className="mt-3 flex items-center gap-2 rounded-2xl border border-border bg-secondary px-4 py-3">
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-3">
           <Search className="h-4 w-4 text-muted-foreground" />
           <label className="sr-only" htmlFor="campus-search">Search campus events and organizations</label>
           <input
             id="campus-search" value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="Search events, orgs, locations…"
+            placeholder="Filter this campus section…"
             className="flex-1 bg-transparent text-sm outline-none"
           />
         </div>
