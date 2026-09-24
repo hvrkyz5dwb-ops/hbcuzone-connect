@@ -82,7 +82,7 @@ export function referralAchievements(state: ReferralState): ReferralAchievement[
     { key: "builder", label: "Campus Builder", hint: "10 verified students", earned: verified >= 10, progress: Math.min(100, (verified / 10) * 100) },
     { key: "recruiter", label: "Top Recruiter", hint: "25 total referrals", earned: total >= 25, progress: Math.min(100, (total / 25) * 100) },
     { key: "ambassador", label: "School Ambassador", hint: "50 verified + 5 businesses", earned: verified >= 50 && businesses >= 5, progress: Math.min(100, ((verified / 50) * 60) + ((businesses / 5) * 40)) },
-    { key: "kingpin", label: "KingPin Recruiter", hint: "100 verified referrals", earned: verified >= 100, progress: Math.min(100, verified) },
+    { key: "kingpin", label: "Top Recruiter", hint: "100 verified referrals", earned: verified >= 100, progress: Math.min(100, verified) },
     { key: "streak", label: "Momentum Streak", hint: `${streak} in a row`, earned: streak >= 5, progress: Math.min(100, streak * 20) },
   ];
 }

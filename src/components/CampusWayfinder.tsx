@@ -224,22 +224,38 @@ function LocationGate({
   check: ReturnType<typeof evaluateOnCampus> | null;
   school: string;
 }) {
+  const [declined, setDeclined] = useState(false);
+  if (geo.status === "idle" && declined) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-3 flex items-center justify-between gap-2">
+        <p className="text-[11px] text-muted-foreground">Wayfinding is off. The campus layout still works without location.</p>
+        <button onClick={() => setDeclined(false)} className="min-h-11 px-3 text-[11px] font-semibold text-primary tap">Turn on</button>
+      </div>
+    );
+  }
   if (geo.status === "idle") {
     return (
       <div className="rounded-xl border border-border bg-card p-3 flex items-start gap-2.5">
         <ShieldCheck className="h-4 w-4 mt-0.5 text-accent shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-[12px] font-semibold">Turn on wayfinding</p>
+          <p className="text-[12px] font-semibold">Wayfinding</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            PlugU uses your location <span className="text-foreground">only while using the app</span> to place you on the {school} layout and route you to buildings. Works only when you're on campus.
+            To place you on the {school} layout and route you to buildings, PlugU needs your location while you use this feature. Everything else works without it.
           </p>
-          <button
-            onClick={geo.request}
-            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border border-border tap"
-            style={{ background: "color-mix(in oklab, var(--plugu-gold) 18%, transparent)" }}
-          >
-            <LocateFixed className="h-3.5 w-3.5" /> Allow while using
-          </button>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={geo.request}
+              className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-full text-[12px] font-semibold border border-border bg-primary/15 tap"
+            >
+              <LocateFixed className="h-3.5 w-3.5" /> Continue
+            </button>
+            <button
+              onClick={() => setDeclined(true)}
+              className="min-h-11 px-4 rounded-full text-[12px] font-semibold text-muted-foreground tap"
+            >
+              Not Now
+            </button>
+          </div>
         </div>
       </div>
     );
