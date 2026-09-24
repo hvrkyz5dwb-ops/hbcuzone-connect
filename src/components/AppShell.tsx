@@ -183,7 +183,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto min-h-screen max-w-md flex flex-col relative pb-nav">
+  <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col pb-nav">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-[image:var(--gradient-bronze)] focus:px-4 focus:py-2 focus:text-[11px] focus:font-semibold focus:text-primary-foreground"
