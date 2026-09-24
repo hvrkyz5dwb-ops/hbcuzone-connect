@@ -1025,6 +1025,173 @@ export type Database = {
           },
         ]
       }
+      circle_memberships: {
+        Row: {
+          circle: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          circle: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          circle?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      circle_posts: {
+        Row: {
+          author_id: string
+          body: string
+          circle: string
+          created_at: string
+          id: string
+          kind: string
+          link_url: string | null
+          school_name: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          circle: string
+          created_at?: string
+          id?: string
+          kind?: string
+          link_url?: string | null
+          school_name?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          circle?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          link_url?: string | null
+          school_name?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collab_requests: {
+        Row: {
+          author_id: string
+          circle: string | null
+          compensation: string
+          compensation_note: string | null
+          created_at: string
+          description: string
+          id: string
+          location: string | null
+          mode: string
+          skills: string[]
+          status: string
+          timeline: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          circle?: string | null
+          compensation: string
+          compensation_note?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          location?: string | null
+          mode: string
+          skills?: string[]
+          status?: string
+          timeline?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          circle?: string | null
+          compensation?: string
+          compensation_note?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string | null
+          mode?: string
+          skills?: string[]
+          status?: string
+          timeline?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collab_responses: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          request_id: string
+          responder_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          request_id: string
+          responder_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          request_id?: string
+          responder_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collab_responses_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "collab_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversation_members: {
         Row: {
           conversation_id: string
@@ -1682,6 +1849,42 @@ export type Database = {
           reviewer_note?: string | null
           reviewer_user_id?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      network_profiles: {
+        Row: {
+          created_at: string
+          goals: string | null
+          interests: string[]
+          is_discoverable: boolean
+          portfolio_url: string | null
+          show_major: boolean
+          skills: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goals?: string | null
+          interests?: string[]
+          is_discoverable?: boolean
+          portfolio_url?: string | null
+          show_major?: boolean
+          skills?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goals?: string | null
+          interests?: string[]
+          is_discoverable?: boolean
+          portfolio_url?: string | null
+          show_major?: boolean
+          skills?: string[]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

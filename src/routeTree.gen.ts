@@ -83,6 +83,7 @@ import { Route as SellerAvailabilityListingIdRouteImport } from './routes/seller
 import { Route as OrdersIdReviewRouteImport } from './routes/orders.$id.review'
 import { Route as OrdersIdDisputeRouteImport } from './routes/orders.$id.dispute'
 import { Route as HbcusSchoolSlugRouteImport } from './routes/hbcus_.school.$slug'
+import { Route as HbcusCircleSlugRouteImport } from './routes/hbcus_.circle.$slug'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as ApiPublicCampusImageRouteImport } from './routes/api/public/campus-image'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -461,6 +462,11 @@ const HbcusSchoolSlugRoute = HbcusSchoolSlugRouteImport.update({
   path: '/hbcus/school/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HbcusCircleSlugRoute = HbcusCircleSlugRouteImport.update({
+  id: '/hbcus_/circle/$slug',
+  path: '/hbcus/circle/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
   path: '/api/public/stripe-webhook',
@@ -558,6 +564,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/hbcus/circle/$slug': typeof HbcusCircleSlugRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
   '/orders/$id/review': typeof OrdersIdReviewRoute
@@ -638,6 +645,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/hbcus/circle/$slug': typeof HbcusCircleSlugRoute
   '/hbcus/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
   '/orders/$id/review': typeof OrdersIdReviewRoute
@@ -719,6 +727,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/campus-image': typeof ApiPublicCampusImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/hbcus_/circle/$slug': typeof HbcusCircleSlugRoute
   '/hbcus_/school/$slug': typeof HbcusSchoolSlugRoute
   '/orders/$id/dispute': typeof OrdersIdDisputeRoute
   '/orders/$id/review': typeof OrdersIdReviewRoute
@@ -801,6 +810,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
+    | '/hbcus/circle/$slug'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
     | '/orders/$id/review'
@@ -881,6 +891,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
+    | '/hbcus/circle/$slug'
     | '/hbcus/school/$slug'
     | '/orders/$id/dispute'
     | '/orders/$id/review'
@@ -961,6 +972,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/campus-image'
     | '/api/public/stripe-webhook'
+    | '/hbcus_/circle/$slug'
     | '/hbcus_/school/$slug'
     | '/orders/$id/dispute'
     | '/orders/$id/review'
@@ -1037,6 +1049,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCampusImageRoute: typeof ApiPublicCampusImageRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
+  HbcusCircleSlugRoute: typeof HbcusCircleSlugRoute
   HbcusSchoolSlugRoute: typeof HbcusSchoolSlugRoute
   SellerAvailabilityListingIdRoute: typeof SellerAvailabilityListingIdRoute
 }
@@ -1561,6 +1574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HbcusSchoolSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hbcus_/circle/$slug': {
+      id: '/hbcus_/circle/$slug'
+      path: '/hbcus/circle/$slug'
+      fullPath: '/hbcus/circle/$slug'
+      preLoaderRoute: typeof HbcusCircleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
       path: '/api/public/stripe-webhook'
@@ -1735,6 +1755,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCampusImageRoute: ApiPublicCampusImageRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
+  HbcusCircleSlugRoute: HbcusCircleSlugRoute,
   HbcusSchoolSlugRoute: HbcusSchoolSlugRoute,
   SellerAvailabilityListingIdRoute: SellerAvailabilityListingIdRoute,
 }

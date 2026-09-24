@@ -10,13 +10,14 @@ import { AppShell, SectionHeader } from "@/components/AppShell";
 import { CampusThumb } from "@/components/CampusThumb";
 import { getLiveNews, getHbcuSports, type LiveGame } from "@/lib/live-feeds.functions";
 import { useCampusEvents } from "@/hooks/use-campus";
+import { HomePanel, CirclesPanel, DiscoverPanel, OpportunitiesPanel, NetworkProfilePanel, CollabForm } from "@/components/hbcus/NetworkPanels";
 import { schoolProfiles, schoolSlug, type SchoolProfile } from "@/lib/hbcus-data";
 
 export const Route = createFileRoute("/hbcus")({
   head: () => ({
     meta: [
       { title: "HBCUs — PlugU" },
-      { name: "description", content: "HBCU schools, live headlines, live scores and campus events inside PlugU." },
+      { name: "description", content: "Cross-campus HBCU network: Circles, collab board, people, events and verified opportunities." },
       { property: "og:title", content: "HBCUs on PlugU" },
       { property: "og:description", content: "School directory, live HBCU headlines, live scores and real campus events." },
       { property: "og:type", content: "website" },
@@ -26,33 +27,34 @@ export const Route = createFileRoute("/hbcus")({
   component: HbcusPage,
 });
 
-const TABS = ["Schools", "News", "Sports", "Events"] as const;
+const TABS = ["Home", "Circles", "Discover", "Opportunities", "Profile"] as const;
 type Tab = (typeof TABS)[number];
+const CULTURE = ["Schools", "News", "Sports", "Events"] as const;
 
 function HbcusPage() {
-  const [tab, setTab] = useState<Tab>("Schools");
+  const [tab, setTab] = useState<Tab>("Home");
+  const [culture, setCulture] = useState<(typeof CULTURE)[number]>("Schools");
+  const [build, setBuild] = useState(false);
 
   return (
     <AppShell title="HBCUs">
-      <section className="px-5 pt-5">
-        <div className="rounded-3xl border border-border bg-[image:var(--gradient-surface)] p-5">
-          <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: "var(--plugu-gold)" }}>
-            Inside PlugU
-          </p>
-          <h1 className="mt-1 text-2xl font-black tracking-tight">HBCU schools & culture</h1>
+      <section className="px-4 pt-5 sm:px-5">
+        <div className="rounded-xl border border-primary/30 bg-[image:var(--gradient-surface)] p-5">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-primary">HBCUS · Cross-campus network</p>
+          <h1 className="font-editorial mt-1 text-3xl leading-tight">Find your people. Build across campuses.</h1>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            School facts, live headlines from real publishers, live scores from ESPN, and events students
-            actually posted. PlugU is not affiliated with or endorsed by any school.
+            Bring what you learn back home. PlugU is not affiliated with or endorsed by any school.
           </p>
         </div>
       </section>
 
-      <nav className="mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav aria-label="HBCUS sections" className="sticky top-0 z-10 mt-3 flex gap-2 overflow-x-auto bg-background/90 px-4 py-2 backdrop-blur sm:px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`tap shrink-0 rounded-full border px-4 min-h-[44px] text-xs font-semibold ${
+            aria-pressed={tab === t}
+            className={`tap shrink-0 rounded-lg border px-4 min-h-[44px] text-xs font-semibold ${
               tab === t ? "border-primary bg-primary/15 text-primary" : "border-border bg-card text-muted-foreground"
             }`}
           >
@@ -61,12 +63,31 @@ function HbcusPage() {
         ))}
       </nav>
 
-      <div className="px-5 pt-4 pb-10">
-        {tab === "Schools" && <SchoolsPanel />}
-        {tab === "News" && <NewsPanel />}
-        {tab === "Sports" && <SportsPanel />}
-        {tab === "Events" && <EventsPanel />}
+      <div className="px-4 pt-4 pb-10 sm:px-5">
+        {tab === "Home" && (
+          <div className="space-y-6">
+            <HomePanel onGo={(t) => setTab(t as Tab)} onBuild={() => setBuild(true)} />
+            <section>
+              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Schools & culture</h2>
+              <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+                {CULTURE.map((c) => (
+                  <button key={c} onClick={() => setCulture(c)} aria-pressed={culture === c}
+                    className={`tap min-h-[44px] shrink-0 rounded-full border px-4 text-xs font-semibold ${culture === c ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`}>{c}</button>
+                ))}
+              </div>
+              {culture === "Schools" && <SchoolsPanel />}
+              {culture === "News" && <NewsPanel />}
+              {culture === "Sports" && <SportsPanel />}
+              {culture === "Events" && <EventsPanel />}
+            </section>
+          </div>
+        )}
+        {tab === "Circles" && <CirclesPanel onBuild={() => setBuild(true)} />}
+        {tab === "Discover" && <DiscoverPanel />}
+        {tab === "Opportunities" && <OpportunitiesPanel />}
+        {tab === "Profile" && <NetworkProfilePanel />}
       </div>
+      <CollabForm open={build} onClose={() => setBuild(false)} />
     </AppShell>
   );
 }
