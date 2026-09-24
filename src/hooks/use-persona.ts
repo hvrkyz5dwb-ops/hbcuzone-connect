@@ -4,7 +4,7 @@ export type PersonaInterest =
   | "entrepreneur" | "athlete" | "artist" | "freshman" | "senior" | "tech" | "creative" | "greek";
 
 export type PersonaBadge =
-  | "Student" | "Plug" | "Verified Plug" | "Gold Plug" | "Kingpin";
+  | "Student" | "Plug" | "Verified Plug" | "Gold Plug" | "Top Plug";
 
 export type Persona = {
   name: string;
@@ -18,12 +18,12 @@ export type Persona = {
 const KEY = "plugu.persona";
 
 const DEFAULT: Persona = {
-  name: "Kingpin",
+  name: "Student",
   year: "Junior",
   campus: "Talladega College",
   major: "Business",
   interests: ["entrepreneur", "senior"],
-  badge: "Kingpin",
+  badge: "Student",
 };
 
 export function usePersona(): [Persona, (next: Partial<Persona>) => void] {
@@ -61,7 +61,7 @@ export function usePersona(): [Persona, (next: Partial<Persona>) => void] {
 }
 
 export const badgeOrder: PersonaBadge[] = [
-  "Student", "Plug", "Verified Plug", "Gold Plug", "Kingpin",
+  "Student", "Plug", "Verified Plug", "Gold Plug", "Top Plug",
 ];
 
 export const interestOptions: { key: PersonaInterest; label: string; emoji: string }[] = [
