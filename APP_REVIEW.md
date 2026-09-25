@@ -7,7 +7,7 @@ review team. It is a regular member account with no admin privileges.
 ## Demo credentials
 
 - Email: `appreview@plugudemo.com`
-- Password: `PlugUReview2026!`
+- Password: `APPROVEMEPLEASE`
 - School shown in app: Demo University
 
 The account is pre-confirmed and pre-verified: email confirmation, student
