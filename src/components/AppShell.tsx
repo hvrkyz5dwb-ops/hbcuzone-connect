@@ -1,8 +1,21 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  Home, RadioTower, User, Store, Sun, Moon,
-  Sparkles, X, Plus, Scissors, Megaphone, LayoutDashboard,
-  Bell, type LucideIcon, Radio, Briefcase,
+  Home,
+  RadioTower,
+  User,
+  Store,
+  Sun,
+  Moon,
+  Sparkles,
+  X,
+  Plus,
+  Scissors,
+  Megaphone,
+  LayoutDashboard,
+  Bell,
+  type LucideIcon,
+  Radio,
+  Briefcase,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
@@ -71,53 +84,75 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   // Only surface actions the current user can actually use.
   const quickActions: QuickAction[] = [];
   quickActions.push({
-    to: "/pulse", label: "See what's live", icon: Radio,
+    to: "/pulse",
+    label: "See what's live",
+    icon: Radio,
     hint: "Who's available now, flash drops, events tonight.",
   });
   if (isBusinessAccount) {
     quickActions.push({
-      to: "/hiring/business", label: "Business dashboard", icon: LayoutDashboard,
+      to: "/hiring/business",
+      label: "Business dashboard",
+      icon: LayoutDashboard,
       hint: "Verification, opportunities, applicants, find student Plugs.",
     });
   } else {
     quickActions.push({
-      to: "/hiring", label: "Businesses hiring", icon: Briefcase,
+      to: "/hiring",
+      label: "Businesses hiring",
+      icon: Briefcase,
       hint: "Paid gigs local businesses posted for student Plugs.",
     });
   }
   if (isSeller && !isBusinessAccount) {
     quickActions.push({
-      to: "/seller/listings", label: "Create listing", icon: Plus,
+      to: "/seller/listings",
+      label: "Create listing",
+      icon: Plus,
       hint: "Post something to sell on your campus market.",
     });
     quickActions.push({
-      to: "/seller/listings", label: "Offer a service", icon: Scissors,
+      to: "/seller/listings",
+      label: "Offer a service",
+      icon: Scissors,
       hint: "Haircuts, nails, tutoring, rides — book by the slot.",
     });
     quickActions.push({
-      to: "/promote", label: "Promote an event", icon: Megaphone,
+      to: "/promote",
+      label: "Promote an event",
+      icon: Megaphone,
       hint: "Pin it to the campus map — free for every student.",
     });
     quickActions.push({
-      to: "/seller", label: "Open seller dashboard", icon: LayoutDashboard,
+      to: "/seller",
+      label: "Open seller dashboard",
+      icon: LayoutDashboard,
       hint: "Listings, orders, payouts, analytics.",
     });
   } else if (hasDraftBusiness) {
     quickActions.push({
-      to: "/seller/onboarding", label: "Finish seller setup", icon: Sparkles,
+      to: "/seller/onboarding",
+      label: "Finish seller setup",
+      icon: Sparkles,
       hint: `Step ${business!.onboarding_step}/5 — get approved to sell.`,
     });
     quickActions.push({
-      to: "/promote", label: "Promote an event", icon: Megaphone,
+      to: "/promote",
+      label: "Promote an event",
+      icon: Megaphone,
       hint: "You can promote events without being a full seller.",
     });
   } else {
     quickActions.push({
-      to: "/seller/onboarding", label: "Become a Plug", icon: Sparkles,
+      to: "/seller/onboarding",
+      label: "Become a Plug",
+      icon: Sparkles,
       hint: "Set up your business to unlock listings & services.",
     });
     quickActions.push({
-      to: "/promote", label: "Promote an event", icon: Megaphone,
+      to: "/promote",
+      label: "Promote an event",
+      icon: Megaphone,
       hint: "Pin it to the campus map — free for every student.",
     });
   }
@@ -155,13 +190,32 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
     // Public surfaces that anyone can see. Everything else requires a session.
     // Public surfaces that must work without a login (App Review 1.5).
     const publicRoutes = [
-      "/", "/auth", "/login", "/signup", "/reset-password",
-      "/terms", "/privacy", "/community-guidelines", "/prohibited-items",
-      "/support", "/safety", "/refunds", "/seller-agreement",
-      "/market", "/hub", "/events", "/search", "/campus", "/map", "/pulse", "/hbcus", "/news",
+      "/",
+      "/auth",
+      "/login",
+      "/signup",
+      "/reset-password",
+      "/terms",
+      "/privacy",
+      "/community-guidelines",
+      "/prohibited-items",
+      "/support",
+      "/safety",
+      "/refunds",
+      "/seller-agreement",
+      "/market",
+      "/hub",
+      "/events",
+      "/search",
+      "/campus",
+      "/map",
+      "/pulse",
+      "/hbcus",
+      "/news",
       // Reporting a problem and asking for a missing school must never be
       // locked behind an account (App Review: reachable support + coverage gaps).
-      "/report-problem", "/request-school-access",
+      "/report-problem",
+      "/request-school-access",
     ];
 
     const isPublic =
@@ -183,7 +237,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-  <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col pb-nav">
+      <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col pb-nav">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-[image:var(--gradient-bronze)] focus:px-4 focus:py-2 focus:text-[11px] focus:font-semibold focus:text-primary-foreground"
@@ -191,8 +245,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           Skip to main content
         </a>
         <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/50 bg-background/88 px-4 py-3 backdrop-blur-xl sm:px-5">
-
-           <div className="flex min-w-0 items-center -space-x-1">
+          <div className="flex min-w-0 items-center -space-x-1">
             <img
               src={pluguLogo}
               alt="PlugU"
@@ -200,11 +253,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               width={32}
               height={32}
             />
-             <span className="truncate pl-1 text-sm font-bold tracking-[0.2em] plugu-wordmark">
+            <span className="truncate pl-1 text-sm font-bold tracking-[0.2em] plugu-wordmark">
               {title ?? "PLUGU"}
             </span>
           </div>
-           <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {canAccessHbcus && (
               <Link
                 to="/hbcus"
@@ -215,21 +268,34 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                 <span className="plugu-us-silver">US</span>
               </Link>
             )}
-            {session ? <Link
-              to="/notifications"
-              aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
-              className="tap relative grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Bell className="h-4 w-4" />
-              {unread > 0 && (
-                <span
-                  className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold grid place-items-center text-black"
-                  style={{ background: "var(--plugu-gold)", boxShadow: "0 0 8px rgba(244,201,106,0.65)" }}
-                >
-                  {unread > 9 ? "9+" : unread}
-                </span>
-              )}
-            </Link> : <Link to="/auth" search={{ next: pathname, mode: "sign-in" }} className="tap inline-flex min-h-11 items-center text-xs font-semibold text-primary">Sign In</Link>}
+            {session ? (
+              <Link
+                to="/notifications"
+                aria-label={unread > 0 ? `${unread} new notifications` : "Notifications"}
+                className="tap relative grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Bell className="h-4 w-4" />
+                {unread > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold grid place-items-center text-black"
+                    style={{
+                      background: "var(--plugu-gold)",
+                      boxShadow: "0 0 8px rgba(244,201,106,0.65)",
+                    }}
+                  >
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                search={{ next: pathname, mode: "sign-in" }}
+                className="tap inline-flex min-h-11 items-center text-xs font-semibold text-primary"
+              >
+                Sign In
+              </Link>
+            )}
             <button
               onClick={toggle}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
@@ -240,7 +306,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           </div>
         </header>
 
-        <main id="main-content" tabIndex={-1} key={pathname} className="flex-1 view-enter">{children}</main>
+        <main id="main-content" tabIndex={-1} key={pathname} className="flex-1 view-enter">
+          {children}
+        </main>
 
         <AchievementBurst />
 
@@ -261,7 +329,10 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 bottom-0 h-28 -z-10"
-            style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.94) 100%)" }}
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 45%, rgba(0,0,0,0.94) 100%)",
+            }}
           />
           <div
             className="border-t border-border/80 shadow-[var(--shadow-elegant)]"
@@ -277,16 +348,30 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               {/* Floating action: tap for the Campus Hub, hold for quick actions. */}
               <li className="order-3 z-10 -mt-5 flex justify-center">
                 <button
-                  onClick={() => { if (longPress.current) { longPress.current = false; return; } navigate({ to: "/campus" }); }}
+                  onClick={() => {
+                    if (longPress.current) {
+                      longPress.current = false;
+                      return;
+                    }
+                    navigate({ to: "/campus" });
+                  }}
                   onPointerDown={() => {
                     longPress.current = false;
-                    pressTimer.current = window.setTimeout(() => { longPress.current = true; setPlugOpen(true); }, 500);
+                    pressTimer.current = window.setTimeout(() => {
+                      longPress.current = true;
+                      setPlugOpen(true);
+                    }, 500);
                   }}
-                  onPointerUp={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
-                  onPointerLeave={() => { if (pressTimer.current) window.clearTimeout(pressTimer.current); }}
-                    className="tap plugu-breathe pointer-events-auto relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border-4 border-background"
+                  onPointerUp={() => {
+                    if (pressTimer.current) window.clearTimeout(pressTimer.current);
+                  }}
+                  onPointerLeave={() => {
+                    if (pressTimer.current) window.clearTimeout(pressTimer.current);
+                  }}
+                  className="tap plugu-breathe pointer-events-auto relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border-4 border-background"
                   style={{
-                    background: "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
+                    background:
+                      "radial-gradient(circle at 30% 25%, #1c1c1c 0%, #0a0a0a 60%, #000 100%)",
                     border: "1px solid color-mix(in oklab, var(--plugu-gold) 65%, transparent)",
                   }}
                   aria-label="Open Campus Hub — hold for quick actions"
@@ -317,7 +402,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                 const Icon = t.icon;
                 const active = pathname === t.to;
                 return (
-                  <li key={t.to} className="flex justify-center" style={{ order: idx < 2 ? idx + 1 : idx + 2 }}>
+                  <li
+                    key={t.to}
+                    className="flex justify-center"
+                    style={{ order: idx < 2 ? idx + 1 : idx + 2 }}
+                  >
                     <Link
                       to={t.to}
                       onClick={(event) => {
@@ -344,7 +433,9 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                         )}
                       </span>
                       <span className="truncate">{t.label}</span>
-                      {t.label === "Me" && inboxUnread > 0 && <span className="sr-only">{inboxUnread} unread messages</span>}
+                      {t.label === "Me" && inboxUnread > 0 && (
+                        <span className="sr-only">{inboxUnread} unread messages</span>
+                      )}
                       {active && (
                         <span
                           className="plugu-underline absolute -bottom-1 h-[3px] w-6 rounded-full"
@@ -382,10 +473,19 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-[10px] tracking-[0.25em] uppercase" style={{ color: "var(--plugu-gold)" }}>The Plug</p>
+                <p
+                  className="text-[10px] tracking-[0.25em] uppercase"
+                  style={{ color: "var(--plugu-gold)" }}
+                >
+                  The Plug
+                </p>
                 <h3 className="text-lg font-bold">Quick actions</h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {isSeller ? "You're set up as a seller." : hasDraftBusiness ? "Finish setup to unlock listings." : "Become a Plug to start selling."}
+                  {isSeller
+                    ? "You're set up as a seller."
+                    : hasDraftBusiness
+                      ? "Finish setup to unlock listings."
+                      : "Become a Plug to start selling."}
                 </p>
               </div>
               <button
@@ -416,15 +516,23 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
                         className="h-11 w-11 grid place-items-center rounded-xl"
                         style={{
                           background: "linear-gradient(160deg, #1c1c1c, #0f0f0f)",
-                          border: "1px solid color-mix(in oklab, var(--plugu-gold) 40%, transparent)",
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px -8px rgba(244,201,106,0.55)",
+                          border:
+                            "1px solid color-mix(in oklab, var(--plugu-gold) 40%, transparent)",
+                          boxShadow:
+                            "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px -8px rgba(244,201,106,0.55)",
                         }}
                       >
-                        <Icon className="h-5 w-5" strokeWidth={1.75} style={{ color: "var(--plugu-gold)" }} />
+                        <Icon
+                          className="h-5 w-5"
+                          strokeWidth={1.75}
+                          style={{ color: "var(--plugu-gold)" }}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{a.label}</p>
-                        <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">{a.hint}</p>
+                        <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">
+                          {a.hint}
+                        </p>
                       </div>
                     </Link>
                   </li>
@@ -439,7 +547,6 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
       <TermsGate />
       <RequireAuthPrompt />
       <Toaster position="top-center" />
-
 
       {showOnboarding && (
         <OnboardingExperience
@@ -460,7 +567,11 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             // then greet the newest member of the yard.
             setFeedStaggerPending();
             consumeWelcomePending();
-            try { window.dispatchEvent(new CustomEvent(FIRST_FEED_EVENT)); } catch {}
+            try {
+              window.dispatchEvent(new CustomEvent(FIRST_FEED_EVENT));
+            } catch {
+              // Event dispatch is best effort; the welcome card should still show.
+            }
             setShowWelcome(true);
           }}
         />

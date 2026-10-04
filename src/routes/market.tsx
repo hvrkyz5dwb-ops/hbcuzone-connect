@@ -58,7 +58,7 @@ function Market() {
   const [category, setCategory] = useState<string>(routeSearch.category ?? "all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"newest" | "popular" | "rating">("newest");
-  const [scope, setScope] = useState<"mine" | "all">("mine");
+  const [scope, setScope] = useState<"mine" | "all">("all");
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [fulfillment, setFulfillment] = useState<string[]>([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);

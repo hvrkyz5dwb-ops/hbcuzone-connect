@@ -19,77 +19,77 @@ export type ApprovedSchool = {
 // student's email domain matching one of these entries. Add more as the
 // network expands.
 export const APPROVED_SCHOOLS: ApprovedSchool[] = [
-  { name: "Howard University",     domains: ["howard.edu", "bison.howard.edu"] },
-  { name: "Spelman College",       domains: ["spelman.edu"] },
-  { name: "Morehouse College",     domains: ["morehouse.edu"] },
-  { name: "Hampton University",    domains: ["hamptonu.edu", "my.hamptonu.edu"] },
-  { name: "FAMU",                  domains: ["famu.edu", "rattlers.famu.edu"] },
-  { name: "Talladega College",     domains: ["talladega.edu"] },
-  { name: "Tuskegee University",   domains: ["tuskegee.edu"] },
-  { name: "NCCU",                  domains: ["nccu.edu", "eagles.nccu.edu"] },
-  { name: "Jackson State",         domains: ["jsums.edu"] },
-  { name: "Southern University",   domains: ["subr.edu"] },
-  { name: "Alabama State",         domains: ["alasu.edu", "myasu.alasu.edu"] },
-  { name: "Alabama A&M",           domains: ["aamu.edu", "bulldogs.aamu.edu"] },
-  { name: "Grambling State",       domains: ["gram.edu"] },
-  { name: "Prairie View A&M",      domains: ["pvamu.edu"] },
-  { name: "Texas Southern",        domains: ["tsu.edu"] },
-  { name: "Tennessee State",       domains: ["tnstate.edu", "my.tnstate.edu"] },
-  { name: "Fisk University",       domains: ["fisk.edu"] },
-  { name: "Clark Atlanta",         domains: ["cau.edu"] },
-  { name: "Morgan State",          domains: ["morgan.edu"] },
-  { name: "Bowie State",           domains: ["bowiestate.edu"] },
-  { name: "Coppin State",          domains: ["coppin.edu"] },
-  { name: "Delaware State",        domains: ["desu.edu"] },
-  { name: "Lincoln University",    domains: ["lincoln.edu", "lincolnu.edu"] },
-  { name: "Cheyney University",    domains: ["cheyney.edu"] },
-  { name: "North Carolina A&T",    domains: ["ncat.edu", "aggies.ncat.edu"] },
-  { name: "Winston-Salem State",   domains: ["wssu.edu"] },
-  { name: "Fayetteville State",    domains: ["uncfsu.edu"] },
-  { name: "Elizabeth City State",  domains: ["ecsu.edu"] },
-  { name: "Johnson C. Smith",      domains: ["jcsu.edu"] },
-  { name: "Livingstone College",   domains: ["livingstone.edu"] },
-  { name: "Shaw University",       domains: ["shawu.edu"] },
-  { name: "Saint Augustine's",     domains: ["st-aug.edu"] },
-  { name: "Bennett College",       domains: ["bennett.edu"] },
-  { name: "Bethune-Cookman",       domains: ["cookman.edu"] },
-  { name: "Edward Waters",         domains: ["ewu.edu"] },
-  { name: "Florida Memorial",      domains: ["fmuniv.edu"] },
-  { name: "South Carolina State",  domains: ["scsu.edu"] },
-  { name: "Claflin University",    domains: ["claflin.edu"] },
-  { name: "Benedict College",      domains: ["benedict.edu"] },
-  { name: "Allen University",      domains: ["allenuniversity.edu"] },
-  { name: "Voorhees University",   domains: ["voorhees.edu"] },
-  { name: "Norfolk State",         domains: ["nsu.edu"] },
-  { name: "Virginia State",        domains: ["vsu.edu"] },
-  { name: "Virginia Union",        domains: ["vuu.edu"] },
+  { name: "Howard University", domains: ["howard.edu", "bison.howard.edu"] },
+  { name: "Spelman College", domains: ["spelman.edu"] },
+  { name: "Morehouse College", domains: ["morehouse.edu"] },
+  { name: "Hampton University", domains: ["hamptonu.edu", "my.hamptonu.edu"] },
+  { name: "FAMU", domains: ["famu.edu", "rattlers.famu.edu"] },
+  { name: "Talladega College", domains: ["talladega.edu"] },
+  { name: "Tuskegee University", domains: ["tuskegee.edu"] },
+  { name: "NCCU", domains: ["nccu.edu", "eagles.nccu.edu"] },
+  { name: "Jackson State", domains: ["jsums.edu"] },
+  { name: "Southern University", domains: ["subr.edu"] },
+  { name: "Alabama State", domains: ["alasu.edu", "myasu.alasu.edu"] },
+  { name: "Alabama A&M", domains: ["aamu.edu", "bulldogs.aamu.edu"] },
+  { name: "Grambling State", domains: ["gram.edu"] },
+  { name: "Prairie View A&M", domains: ["pvamu.edu"] },
+  { name: "Texas Southern", domains: ["tsu.edu"] },
+  { name: "Tennessee State", domains: ["tnstate.edu", "my.tnstate.edu"] },
+  { name: "Fisk University", domains: ["fisk.edu"] },
+  { name: "Clark Atlanta", domains: ["cau.edu"] },
+  { name: "Morgan State", domains: ["morgan.edu"] },
+  { name: "Bowie State", domains: ["bowiestate.edu"] },
+  { name: "Coppin State", domains: ["coppin.edu"] },
+  { name: "Delaware State", domains: ["desu.edu"] },
+  { name: "Lincoln University", domains: ["lincoln.edu", "lincolnu.edu"] },
+  { name: "Cheyney University", domains: ["cheyney.edu"] },
+  { name: "North Carolina A&T", domains: ["ncat.edu", "aggies.ncat.edu"] },
+  { name: "Winston-Salem State", domains: ["wssu.edu"] },
+  { name: "Fayetteville State", domains: ["uncfsu.edu"] },
+  { name: "Elizabeth City State", domains: ["ecsu.edu"] },
+  { name: "Johnson C. Smith", domains: ["jcsu.edu"] },
+  { name: "Livingstone College", domains: ["livingstone.edu"] },
+  { name: "Shaw University", domains: ["shawu.edu"] },
+  { name: "Saint Augustine's", domains: ["st-aug.edu"] },
+  { name: "Bennett College", domains: ["bennett.edu"] },
+  { name: "Bethune-Cookman", domains: ["cookman.edu"] },
+  { name: "Edward Waters", domains: ["ewu.edu"] },
+  { name: "Florida Memorial", domains: ["fmuniv.edu"] },
+  { name: "South Carolina State", domains: ["scsu.edu"] },
+  { name: "Claflin University", domains: ["claflin.edu"] },
+  { name: "Benedict College", domains: ["benedict.edu"] },
+  { name: "Allen University", domains: ["allenuniversity.edu"] },
+  { name: "Voorhees University", domains: ["voorhees.edu"] },
+  { name: "Norfolk State", domains: ["nsu.edu"] },
+  { name: "Virginia State", domains: ["vsu.edu"] },
+  { name: "Virginia Union", domains: ["vuu.edu"] },
   { name: "Virginia University of Lynchburg", domains: ["vul.edu"] },
-  { name: "West Virginia State",   domains: ["wvstateu.edu"] },
-  { name: "Bluefield State",       domains: ["bluefieldstate.edu"] },
-  { name: "Kentucky State",        domains: ["kysu.edu"] },
-  { name: "Central State",         domains: ["centralstate.edu"] },
-  { name: "Wilberforce University",domains: ["wilberforce.edu"] },
+  { name: "West Virginia State", domains: ["wvstateu.edu"] },
+  { name: "Bluefield State", domains: ["bluefieldstate.edu"] },
+  { name: "Kentucky State", domains: ["kysu.edu"] },
+  { name: "Central State", domains: ["centralstate.edu"] },
+  { name: "Wilberforce University", domains: ["wilberforce.edu"] },
   { name: "Lincoln University (MO)", domains: ["lincolnu.edu"] },
-  { name: "Harris-Stowe State",    domains: ["hssu.edu"] },
-  { name: "Langston University",   domains: ["langston.edu"] },
-  { name: "Philander Smith",       domains: ["philander.edu"] },
-  { name: "Arkansas Baptist",      domains: ["arkansasbaptist.edu"] },
-  { name: "UAPB",                  domains: ["uapb.edu"] },
+  { name: "Harris-Stowe State", domains: ["hssu.edu"] },
+  { name: "Langston University", domains: ["langston.edu"] },
+  { name: "Philander Smith", domains: ["philander.edu"] },
+  { name: "Arkansas Baptist", domains: ["arkansasbaptist.edu"] },
+  { name: "UAPB", domains: ["uapb.edu"] },
   { name: "Xavier University of Louisiana", domains: ["xula.edu"] },
-  { name: "Dillard University",    domains: ["dillard.edu"] },
+  { name: "Dillard University", domains: ["dillard.edu"] },
   { name: "Southern University at New Orleans", domains: ["suno.edu"] },
-  { name: "Miles College",         domains: ["miles.edu"] },
-  { name: "Stillman College",      domains: ["stillman.edu"] },
-  { name: "Oakwood University",    domains: ["oakwood.edu"] },
-  { name: "Selma University",      domains: ["selmauniversity.edu"] },
-  { name: "Rust College",          domains: ["rustcollege.edu"] },
-  { name: "Tougaloo College",      domains: ["tougaloo.edu"] },
-  { name: "Alcorn State",          domains: ["alcorn.edu"] },
+  { name: "Miles College", domains: ["miles.edu"] },
+  { name: "Stillman College", domains: ["stillman.edu"] },
+  { name: "Oakwood University", domains: ["oakwood.edu"] },
+  { name: "Selma University", domains: ["selmauniversity.edu"] },
+  { name: "Rust College", domains: ["rustcollege.edu"] },
+  { name: "Tougaloo College", domains: ["tougaloo.edu"] },
+  { name: "Alcorn State", domains: ["alcorn.edu"] },
   { name: "Mississippi Valley State", domains: ["mvsu.edu"] },
-  { name: "Paul Quinn College",    domains: ["pqc.edu"] },
-  { name: "Wiley University",      domains: ["wileyc.edu"] },
-  { name: "Huston-Tillotson",      domains: ["htu.edu"] },
-  { name: "Jarvis Christian",      domains: ["jarvis.edu"] },
+  { name: "Paul Quinn College", domains: ["pqc.edu"] },
+  { name: "Wiley University", domains: ["wileyc.edu"] },
+  { name: "Huston-Tillotson", domains: ["htu.edu"] },
+  { name: "Jarvis Christian", domains: ["jarvis.edu"] },
 ];
 
 /**
@@ -98,9 +98,11 @@ export const APPROVED_SCHOOLS: ApprovedSchool[] = [
  */
 export function authRedirectUrl(path: "/auth" | "/reset-password"): string {
   if (typeof window !== "undefined") {
-    const capacitor = (window as unknown as {
-      Capacitor?: { isNativePlatform?: () => boolean };
-    }).Capacitor;
+    const capacitor = (
+      window as unknown as {
+        Capacitor?: { isNativePlatform?: () => boolean };
+      }
+    ).Capacitor;
     if (capacitor?.isNativePlatform?.()) return `plugu://${path.slice(1)}`;
     return `${window.location.origin}${path}`;
   }
@@ -124,9 +126,7 @@ export function detectHbcuSchool(email: string): ApprovedSchool | null {
   const exact = APPROVED_SCHOOLS.find((s) => s.domains.some((x) => x === d));
   if (exact) return exact;
   return (
-    APPROVED_SCHOOLS.find((s) =>
-      s.domains.some((x) => d === x || d.endsWith("." + x)),
-    ) ?? null
+    APPROVED_SCHOOLS.find((s) => s.domains.some((x) => d === x || d.endsWith("." + x))) ?? null
   );
 }
 
@@ -163,7 +163,10 @@ export type StudentAccount = {
 export function getDomain(email: string): string | null {
   const at = email.lastIndexOf("@");
   if (at < 0) return null;
-  return email.slice(at + 1).trim().toLowerCase();
+  return email
+    .slice(at + 1)
+    .trim()
+    .toLowerCase();
 }
 
 export function findSchoolByDomain(domain: string): ApprovedSchool | null {
@@ -172,8 +175,7 @@ export function findSchoolByDomain(domain: string): ApprovedSchool | null {
 }
 
 export type EmailValidation =
-  | { ok: true; school: ApprovedSchool; domain: string }
-  | { ok: false; reason: string };
+  { ok: true; school: ApprovedSchool; domain: string } | { ok: false; reason: string };
 
 /* App Store review access.
  * Apple's reviewers have no .edu address, so a single documented demo
@@ -202,9 +204,7 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
     return { ok: true, school, domain };
   }
   // Subdomain match (e.g. bison.howard.edu → howard.edu).
-  const subMatch = APPROVED_SCHOOLS.find((s) =>
-    s.domains.some((x) => domain.endsWith("." + x)),
-  );
+  const subMatch = APPROVED_SCHOOLS.find((s) => s.domains.some((x) => domain.endsWith("." + x)));
   if (subMatch) {
     const rootDomain = subMatch.domains.find((x) => domain.endsWith("." + x)) ?? domain;
     return { ok: true, school: subMatch, domain: rootDomain };
@@ -220,7 +220,10 @@ export function validateStudentEmail(email: string, requestedSchool?: string): E
   const rootDomain = domain.split(".").slice(-2).join(".");
   const derivedName =
     (requestedSchool && requestedSchool.trim()) ||
-    rootDomain.replace(/\.edu$/i, "").replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    rootDomain
+      .replace(/\.edu$/i, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   return {
     ok: true,
     school: { name: derivedName, domains: [rootDomain] },

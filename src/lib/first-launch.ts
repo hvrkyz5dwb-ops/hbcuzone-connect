@@ -4,15 +4,23 @@
 
 function get(key: string): string | null {
   if (typeof window === "undefined") return null;
-  try { return window.localStorage.getItem(key); } catch { return null; }
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 function set(key: string, value: string) {
   if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(key, value); } catch {}
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {}
 }
 function remove(key: string) {
   if (typeof window === "undefined") return;
-  try { window.localStorage.removeItem(key); } catch {}
+  try {
+    window.localStorage.removeItem(key);
+  } catch {}
 }
 
 /* — Cinematic intro gating — */
@@ -53,15 +61,27 @@ function markSlidesSeen() {
   set(INTRO_SEEN_KEY, "1");
   set(ONBOARDED_KEY, "1");
 }
-export function hasSeenIntro(): boolean { return !!get(INTRO_SEEN_KEY) || !!get(ONBOARDED_KEY); }
-export function markIntroSeen() { markSlidesSeen(); }
-export function hasOnboarded(): boolean { return hasSeenIntro(); }
-export function markOnboarded() { markSlidesSeen(); }
+export function hasSeenIntro(): boolean {
+  return !!get(INTRO_SEEN_KEY) || !!get(ONBOARDED_KEY);
+}
+export function markIntroSeen() {
+  markSlidesSeen();
+}
+export function hasOnboarded(): boolean {
+  return hasSeenIntro();
+}
+export function markOnboarded() {
+  markSlidesSeen();
+}
 
 /* — Coach-mark tour — */
 const TOUR_KEY = "plugu.tour.done";
-export function hasToured(): boolean { return !!get(TOUR_KEY); }
-export function markToured() { set(TOUR_KEY, "1"); }
+export function hasToured(): boolean {
+  return !!get(TOUR_KEY);
+}
+export function markToured() {
+  set(TOUR_KEY, "1");
+}
 
 /* — Post-signup welcome card — */
 const WELCOME_PENDING_KEY = "plugu.welcome.pending";
@@ -74,7 +94,9 @@ export function consumeWelcomePending(): boolean {
 /* — One-time animated feed entrance after the tour — */
 const FEED_STAGGER_KEY = "plugu.feed.staggerPending";
 export const FIRST_FEED_EVENT = "plugu:first-feed";
-export function setFeedStaggerPending() { set(FEED_STAGGER_KEY, "1"); }
+export function setFeedStaggerPending() {
+  set(FEED_STAGGER_KEY, "1");
+}
 export function consumeFeedStaggerPending(): boolean {
   const pending = !!get(FEED_STAGGER_KEY);
   if (pending) remove(FEED_STAGGER_KEY);

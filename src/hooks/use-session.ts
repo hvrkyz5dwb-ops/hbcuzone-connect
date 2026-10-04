@@ -20,14 +20,18 @@ async function clearBrokenSession(reason: string): Promise<void> {
   console.warn(`[PlugU:auth] clearing invalid stored session — ${reason}`);
   try {
     await supabase.auth.signOut({ scope: "local" });
-  } catch {}
+  } catch {
+    // Ignore local sign-out failures; the app should still recover as signed-out.
+  }
   try {
     const ls = window.localStorage;
     for (let i = ls.length - 1; i >= 0; i--) {
       const key = ls.key(i);
       if (key && (key.startsWith("sb-") || key.startsWith("supabase.auth"))) ls.removeItem(key);
     }
-  } catch {}
+  } catch {
+    // Storage may be blocked in a restricted browser; we continue without a purge.
+  }
 }
 
 export function useSession(): SessionState {

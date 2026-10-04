@@ -6,7 +6,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  ArrowRight, ArrowLeft, GraduationCap, HeartHandshake, Sparkles, Play, Pause,
+  ArrowRight,
+  ArrowLeft,
+  GraduationCap,
+  HeartHandshake,
+  Sparkles,
+  Play,
+  Pause,
 } from "lucide-react";
 import pluguLogo from "@/assets/plugu-charger-mark.png";
 
@@ -77,10 +83,42 @@ function SceneCampus() {
     <svg viewBox="0 0 320 210" className="ob-float w-full max-w-[320px]" aria-hidden="true">
       {/* campus silhouette */}
       <g opacity="0.95">
-        <rect x="24" y="120" width="52" height="70" rx="4" fill="#1c1c1c" stroke="rgba(244,201,106,0.4)" />
-        <rect x="92" y="96" width="66" height="94" rx="4" fill="#181818" stroke="rgba(244,201,106,0.5)" />
-        <rect x="176" y="112" width="48" height="78" rx="4" fill="#1c1c1c" stroke="rgba(244,201,106,0.4)" />
-        <rect x="240" y="132" width="56" height="58" rx="4" fill="#151515" stroke="rgba(244,201,106,0.32)" />
+        <rect
+          x="24"
+          y="120"
+          width="52"
+          height="70"
+          rx="4"
+          fill="#1c1c1c"
+          stroke="rgba(244,201,106,0.4)"
+        />
+        <rect
+          x="92"
+          y="96"
+          width="66"
+          height="94"
+          rx="4"
+          fill="#181818"
+          stroke="rgba(244,201,106,0.5)"
+        />
+        <rect
+          x="176"
+          y="112"
+          width="48"
+          height="78"
+          rx="4"
+          fill="#1c1c1c"
+          stroke="rgba(244,201,106,0.4)"
+        />
+        <rect
+          x="240"
+          y="132"
+          width="56"
+          height="58"
+          rx="4"
+          fill="#151515"
+          stroke="rgba(244,201,106,0.32)"
+        />
         {[110, 126, 142].map((y) => (
           <g key={y}>
             <rect x="104" y={y} width="8" height="6" rx="1" fill="rgba(244,201,106,0.55)" />
@@ -90,10 +128,25 @@ function SceneCampus() {
         ))}
       </g>
       {/* glowing gold connections */}
-      <g fill="none" stroke="var(--plugu-gold)" strokeWidth="1.6" strokeLinecap="round" opacity="0.9">
+      <g
+        fill="none"
+        stroke="var(--plugu-gold)"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        opacity="0.9"
+      >
         <path className="ob-line" d="M60 64 C 100 30, 140 92, 168 52" />
-        <path className="ob-line" d="M168 52 C 200 22, 236 66, 262 44" style={{ animationDelay: "0.35s" }} />
-        <path className="ob-line" d="M60 64 C 92 96, 210 96, 262 44" opacity="0.45" style={{ animationDelay: "0.7s" }} />
+        <path
+          className="ob-line"
+          d="M168 52 C 200 22, 236 66, 262 44"
+          style={{ animationDelay: "0.35s" }}
+        />
+        <path
+          className="ob-line"
+          d="M60 64 C 92 96, 210 96, 262 44"
+          opacity="0.45"
+          style={{ animationDelay: "0.7s" }}
+        />
       </g>
       {/* student nodes */}
       {[
@@ -103,7 +156,14 @@ function SceneCampus() {
         { cx: 118, cy: 90, d: "1.2s" },
       ].map((n) => (
         <g key={`${n.cx}-${n.cy}`} className="ob-node" style={{ ["--d" as string]: n.d }}>
-          <circle cx={n.cx} cy={n.cy} r="9" fill="#0a0a0a" stroke="var(--plugu-gold)" strokeWidth="1.6" />
+          <circle
+            cx={n.cx}
+            cy={n.cy}
+            r="9"
+            fill="#0a0a0a"
+            stroke="var(--plugu-gold)"
+            strokeWidth="1.6"
+          />
           <circle cx={n.cx} cy={n.cy - 2.4} r="2.4" fill="var(--plugu-gold)" />
           <path d={`M${n.cx - 3.6} ${n.cy + 4.4} a3.6 3.2 0 0 1 7.2 0`} fill="var(--plugu-gold)" />
         </g>
@@ -127,7 +187,9 @@ function SceneMarket() {
         >
           <div className="text-2xl">{c.emoji}</div>
           <p className="mt-1 text-[10px] font-semibold text-white/85">{c.label}</p>
-          <p className="text-[10px] font-bold" style={{ color: "var(--plugu-gold)" }}>{c.price}</p>
+          <p className="text-[10px] font-bold" style={{ color: "var(--plugu-gold)" }}>
+            {c.price}
+          </p>
         </div>
       ))}
     </div>
@@ -249,7 +311,9 @@ export function OnboardingExperience({
     onComplete();
     // Release the lock if the screen is somehow still mounted (e.g. a slow
     // route transition), so the button can never become permanently dead.
-    window.setTimeout(() => { finishing.current = false; }, 1200);
+    window.setTimeout(() => {
+      finishing.current = false;
+    }, 1200);
   }
 
   function go(next: number) {
@@ -264,14 +328,19 @@ export function OnboardingExperience({
     finishing.current = true;
     onComplete();
     navigate({ to: "/auth", search: { next: "", mode } });
-    window.setTimeout(() => { finishing.current = false; }, 1200);
+    window.setTimeout(() => {
+      finishing.current = false;
+    }, 1200);
   }
 
   // Optional autoplay: manual navigation stays the default, motion
   // preferences win, and it always stops on the final slide.
   useEffect(() => {
     if (!autoplay || reducedMotion) return;
-    if (i >= SLIDES.length - 1) { setAutoplay(false); return; }
+    if (i >= SLIDES.length - 1) {
+      setAutoplay(false);
+      return;
+    }
     const t = window.setTimeout(() => go(i + 1), 4200);
     return () => window.clearTimeout(t);
   }, [autoplay, reducedMotion, i]);
@@ -308,9 +377,16 @@ export function OnboardingExperience({
     >
       <div className="mx-auto w-full max-w-md flex-1 flex flex-col min-h-0">
         {/* Header — brand + Skip */}
-        <div className="flex items-center justify-between px-5 pb-2" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)" }}>
+        <div
+          className="flex items-center justify-between px-5 pb-2"
+          style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 18px)" }}
+        >
           <div className="flex items-center gap-2">
-            <img src={pluguLogo} alt="" className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
+            <img
+              src={pluguLogo}
+              alt=""
+              className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]"
+            />
             <span className="font-bold tracking-[0.2em] text-xs plugu-wordmark">PLUGU</span>
           </div>
           <div className="flex items-center gap-1">
@@ -325,13 +401,13 @@ export function OnboardingExperience({
                 Sign in
               </button>
             )}
-          <button
-            type="button"
-            onClick={finish}
-            className="tap min-h-[44px] text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
-          >
-            Skip
-          </button>
+            <button
+              type="button"
+              onClick={finish}
+              className="tap min-h-[44px] text-[11px] tracking-widest uppercase text-muted-foreground hover:text-foreground px-3 py-2"
+            >
+              Skip
+            </button>
           </div>
         </div>
 
@@ -348,7 +424,10 @@ export function OnboardingExperience({
             {/* Illustration layer lags slightly against the copy — parallax */}
             <div
               className="flex justify-center mb-9"
-              style={{ transform: `translate3d(${dragX * -0.14}px,0,0)`, transition: dragTransition }}
+              style={{
+                transform: `translate3d(${dragX * -0.14}px,0,0)`,
+                transition: dragTransition,
+              }}
             >
               {slide.scene === "campus" && <SceneCampus key={i} />}
               {slide.scene === "market" && <SceneMarket key={i} />}
@@ -357,13 +436,19 @@ export function OnboardingExperience({
             </div>
 
             <div key={i} className="ob-copy text-center">
-              <p className="text-[11px] tracking-[0.32em] uppercase mb-3" style={{ color: "var(--plugu-gold)" }}>
+              <p
+                className="text-[11px] tracking-[0.32em] uppercase mb-3"
+                style={{ color: "var(--plugu-gold)" }}
+              >
                 {slide.eyebrow}
               </p>
-              <h1 className="text-[28px] font-black tracking-tight leading-[1.15]">{slide.title}</h1>
+              <h1 className="text-[28px] font-black tracking-tight leading-[1.15]">
+                {slide.title}
+              </h1>
               {isTrust && (
                 <p className="mt-3 text-sm font-medium text-white/85 leading-relaxed">
-                  PlugU was created to help students earn while learning how to build real businesses.
+                  PlugU was created to help students earn while learning how to build real
+                  businesses.
                 </p>
               )}
               <p className="mt-3 text-[13px] text-muted-foreground leading-relaxed max-w-sm mx-auto">
@@ -422,7 +507,10 @@ export function OnboardingExperience({
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => { setAutoplay(false); go(idx); }}
+                  onClick={() => {
+                    setAutoplay(false);
+                    go(idx);
+                  }}
                   aria-label={`Go to slide ${idx + 1}`}
                   aria-current={idx === i}
                   className="tap grid h-11 place-items-center px-1"
@@ -489,8 +577,8 @@ export function OnboardingExperience({
                 Continue as Guest
               </button>
               <p className="text-center text-[11px] text-muted-foreground pt-0.5">
-                Guests can browse. Posting, messaging, saving and booking need a
-                verified student account.
+                Guests can browse. Posting, messaging, saving and booking need a verified student
+                account.
               </p>
             </div>
           ) : (

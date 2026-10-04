@@ -2,10 +2,15 @@ import { readFileSync, readdirSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const readBytes = (path) => readFileSync(new URL(`../${path}`, import.meta.url));
-const sourceFiles = (directory) => readdirSync(new URL(`../${directory}`, import.meta.url), { withFileTypes: true })
-  .flatMap((entry) => entry.isDirectory()
-    ? sourceFiles(`${directory}/${entry.name}`)
-    : /\.(ts|tsx)$/.test(entry.name) ? [`${directory}/${entry.name}`] : []);
+const sourceFiles = (directory) =>
+  readdirSync(new URL(`../${directory}`, import.meta.url), { withFileTypes: true }).flatMap(
+    (entry) =>
+      entry.isDirectory()
+        ? sourceFiles(`${directory}/${entry.name}`)
+        : /\.(ts|tsx)$/.test(entry.name)
+          ? [`${directory}/${entry.name}`]
+          : [],
+  );
 const failures = [];
 const requireCheck = (ok, message) => {
   if (!ok) failures.push(message);
@@ -103,9 +108,12 @@ for (const path of ["README.md", "MOBILE_SETUP.md", "docs/app-review/APP-STORE-M
 }
 
 for (const path of ["src", "MOBILE_SETUP.md", "README.md"]) {
-  const contents = path === "src"
-    ? sourceFiles("src").map((file) => read(file)).join("\n")
-    : read(path);
+  const contents =
+    path === "src"
+      ? sourceFiles("src")
+          .map((file) => read(file))
+          .join("\n")
+      : read(path);
   requireCheck(
     !/Verified Pro|KingPin Annual|boosts?\s+for sale|premium placement/i.test(contents),
     `${path} contains retired paid-feature language.`,

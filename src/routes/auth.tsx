@@ -14,7 +14,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Create your PlugU account" },
-      { name: "description", content: "PlugU is students-only. Create your account with a verified .edu email." },
+      {
+        name: "description",
+        content: "PlugU is students-only. Create your account with a verified .edu email.",
+      },
     ],
   }),
   validateSearch: (s: Record<string, unknown>): { next?: string; mode?: string } => ({
@@ -71,7 +74,6 @@ function AuthPage() {
   const [year, setYear] = useState("Freshman");
   const [major, setMajor] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
-  
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -97,8 +99,13 @@ function AuthPage() {
       return;
     }
     try {
-      window.localStorage.setItem("plugu.guest.policy", JSON.stringify({ version: POLICY_VERSION, acceptedAt: new Date().toISOString() }));
-    } catch {}
+      window.localStorage.setItem(
+        "plugu.guest.policy",
+        JSON.stringify({ version: POLICY_VERSION, acceptedAt: new Date().toISOString() }),
+      );
+    } catch {
+      // Guest policy persistence is best effort; the public flow should still continue.
+    }
     window.location.href = safeNext(next);
   }
 
@@ -130,7 +137,11 @@ function AuthPage() {
     // Record the acceptance date + policy version for this sign-in (no-op if
     // the current version is already on file).
     if (agreeTerms) {
-      try { await recordPolicyAcceptance(); } catch {}
+      try {
+        await recordPolicyAcceptance();
+      } catch {
+        // The policy record is non-blocking; authentication should still proceed.
+      }
     }
     window.location.href = safeNext(next);
   }
@@ -141,15 +152,21 @@ function AuthPage() {
     setErr(null);
     setMsg(null);
 
-    if (!fullName.trim()) return setErr(isBusiness ? "Enter the owner or representative name." : "Enter your full name.");
+    if (!fullName.trim())
+      return setErr(
+        isBusiness ? "Enter the owner or representative name." : "Enter your full name.",
+      );
     if (isBusiness && !businessName.trim()) return setErr("Enter your business name.");
     if (!isBusiness && !school.trim()) return setErr("Select your school.");
     const check = isBusiness ? null : validateStudentEmail(email, school);
     if (check && !check.ok) return setErr(check.reason);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setErr("Enter a valid email address.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      return setErr("Enter a valid email address.");
     if (password.length < 8) return setErr("Password must be at least 8 characters.");
-    if (!agreeTerms) return setErr("Accept the Terms of Use, Privacy Policy, and Community Guidelines to continue.");
-
+    if (!agreeTerms)
+      return setErr(
+        "Accept the Terms of Use, Privacy Policy, and Community Guidelines to continue.",
+      );
 
     setBusy(true);
     const metadata = isBusiness
@@ -164,7 +181,9 @@ function AuthPage() {
       : {
           account_type: "student",
           full_name: fullName.trim(),
-          school_name: school.trim() || (check as { ok: true; school: { name: string }; domain: string }).school.name,
+          school_name:
+            school.trim() ||
+            (check as { ok: true; school: { name: string }; domain: string }).school.name,
           school_domain: (check as { ok: true; domain: string }).domain,
           year,
           major: major.trim() || "Undeclared",
@@ -188,7 +207,11 @@ function AuthPage() {
     }
     if (data.user) {
       // Ledger the acceptance (user id, policy version, timestamp).
-      try { await recordPolicyAcceptance(data.user.id); } catch {}
+      try {
+        await recordPolicyAcceptance(data.user.id);
+      } catch {
+        // Policy logging is best effort and should never block signup completion.
+      }
     }
     if (!data.session) {
       setMsg(
@@ -202,7 +225,9 @@ function AuthPage() {
     // land on Home with the one-time welcome overlay.
     try {
       window.localStorage.setItem("plugu.welcome.pending", "1");
-    } catch {}
+    } catch {
+      // Welcome post-signup is best-effort; the app should still proceed without it.
+    }
 
     // Businesses go straight to verification — they can't post or contact
     // students until an admin approves them.
@@ -250,8 +275,14 @@ function AuthPage() {
     <main className="min-h-screen flex items-center justify-center bg-background px-4 py-10 text-foreground">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
         <div className="flex items-center gap-2">
-          <img src={pluguLogo} alt="" className="h-8 w-8 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]" />
-          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">PlugU · Students</p>
+          <img
+            src={pluguLogo}
+            alt=""
+            className="h-8 w-8 object-contain drop-shadow-[0_0_10px_rgba(244,201,106,0.55)]"
+          />
+          <p className="text-[10px] tracking-[0.32em] uppercase text-muted-foreground">
+            PlugU · Students
+          </p>
         </div>
         <h1 className="mt-3 text-2xl font-bold plugu-wordmark">
           {mode === "sign-in" && "Sign in"}
@@ -268,7 +299,10 @@ function AuthPage() {
         {mode === "sign-up" && !isBusiness && (
           <p className="mt-2 text-[11px] text-muted-foreground">
             No .edu address at your school?{" "}
-            <Link to="/request-school-access" className="tap font-semibold text-primary underline underline-offset-2">
+            <Link
+              to="/request-school-access"
+              className="tap font-semibold text-primary underline underline-offset-2"
+            >
               Request manual review
             </Link>{" "}
             — a person on the PlugU team verifies you by hand.
@@ -283,7 +317,12 @@ function AuthPage() {
             role="tablist"
             aria-label="Sign in or create an account"
           >
-            {([["sign-in", "Sign in"], ["sign-up", "Create account"]] as const).map(([key, label]) => (
+            {(
+              [
+                ["sign-in", "Sign in"],
+                ["sign-up", "Create account"],
+              ] as const
+            ).map(([key, label]) => (
               <button
                 key={key}
                 type="button"
@@ -303,7 +342,15 @@ function AuthPage() {
         {mode !== "forgot" && (
           <div className="mt-4 border-b border-border pb-4">
             <Check checked={agreeTerms} onChange={setAgreeTerms}>
-              I agree to PlugU's <Link to="/terms" className="text-primary underline">Terms of Use</Link> and <Link to="/privacy" className="text-primary underline">Privacy Policy</Link>.
+              I agree to PlugU's{" "}
+              <Link to="/terms" className="text-primary underline">
+                Terms of Use
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-primary underline">
+                Privacy Policy
+              </Link>
+              .
             </Check>
             <button
               type="button"
@@ -316,23 +363,37 @@ function AuthPage() {
           </div>
         )}
 
-
-
         {mode === "sign-in" && (
           <form onSubmit={onSignIn} className="mt-5 space-y-3">
             <EmailField value={email} onChange={setEmail} />
-            <PasswordField value={password} onChange={setPassword} autoComplete="current-password" />
+            <PasswordField
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+            />
 
             {/* Existing accounts can authenticate first; TermsGate records any
               missing current acceptance immediately after session recovery. */}
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
-                <Link to="/terms" className="tap underline text-primary py-1">Terms of Use</Link>
-                <Link to="/privacy" className="tap underline text-primary py-1">Privacy Policy</Link>
-                <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
-                <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
+                <Link to="/terms" className="tap underline text-primary py-1">
+                  Terms of Use
+                </Link>
+                <Link to="/privacy" className="tap underline text-primary py-1">
+                  Privacy Policy
+                </Link>
+                <Link to="/community-guidelines" className="tap underline text-primary py-1">
+                  Community Guidelines
+                </Link>
+                <Link to="/seller-agreement" className="tap underline text-primary py-1">
+                  Marketplace Agreement
+                </Link>
               </div>
-              <p>I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines and Marketplace Agreement. I understand that prohibited or abusive content may be removed and accounts may be suspended.</p>
+              <p>
+                I agree to PlugU's Terms of Use (EULA), Privacy Policy, Community Guidelines and
+                Marketplace Agreement. I understand that prohibited or abusive content may be
+                removed and accounts may be suspended.
+              </p>
             </div>
 
             <Feedback err={err} msg={msg} />
@@ -354,10 +415,18 @@ function AuthPage() {
               </button>
             )}
             <div className="flex items-center justify-between pt-1">
-              <button type="button" onClick={() => reset("forgot")} className="text-xs text-muted-foreground underline">
+              <button
+                type="button"
+                onClick={() => reset("forgot")}
+                className="text-xs text-muted-foreground underline"
+              >
                 Forgot password?
               </button>
-              <button type="button" onClick={() => reset("sign-up")} className="text-xs text-primary underline">
+              <button
+                type="button"
+                onClick={() => reset("sign-up")}
+                className="text-xs text-primary underline"
+              >
                 Create account
               </button>
             </div>
@@ -368,16 +437,30 @@ function AuthPage() {
           <form onSubmit={onSignUp} className="mt-5 space-y-3">
             {/* Account type — students verify with .edu, businesses get
                 verified by hand and never receive a student badge. */}
-            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/60 p-1" role="radiogroup" aria-label="Account type">
-              {([["student", "Student Plug"], ["business", "Local Business"]] as const).map(([key, label]) => (
+            <div
+              className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/60 p-1"
+              role="radiogroup"
+              aria-label="Account type"
+            >
+              {(
+                [
+                  ["student", "Student Plug"],
+                  ["business", "Local Business"],
+                ] as const
+              ).map(([key, label]) => (
                 <button
                   key={key}
                   type="button"
                   role="radio"
                   aria-checked={accountType === key}
-                  onClick={() => { setAccountType(key); setErr(null); }}
+                  onClick={() => {
+                    setAccountType(key);
+                    setErr(null);
+                  }}
                   className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
-                    accountType === key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                    accountType === key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {label}
@@ -429,42 +512,55 @@ function AuthPage() {
             )}
             {isBusiness && (
               <p className="text-[11px] text-muted-foreground">
-                Next you'll complete business verification — address, phone, website and the services
-                you need. Until it's approved you can't post opportunities or contact students.
+                Next you'll complete business verification — address, phone, website and the
+                services you need. Until it's approved you can't post opportunities or contact
+                students.
               </p>
             )}
             {!isBusiness && (
-            <div className="grid grid-cols-2 gap-3">
-              <Labeled label="Year">
-                <select
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
-                >
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </Labeled>
-              <Labeled label="Major">
-                <input
-                  value={major}
-                  onChange={(e) => setMajor(e.target.value)}
-                  placeholder="Business"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
-                />
-              </Labeled>
-            </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Labeled label="Year">
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+                  >
+                    {YEARS.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label="Major">
+                  <input
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                    placeholder="Business"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+                  />
+                </Labeled>
+              </div>
             )}
             <PasswordField value={password} onChange={setPassword} autoComplete="new-password" />
-            <p className="text-[10px] text-muted-foreground">Min 8 characters. Leaked passwords are blocked.</p>
+            <p className="text-[10px] text-muted-foreground">
+              Min 8 characters. Leaked passwords are blocked.
+            </p>
 
             <div className="mt-1 space-y-2 rounded-xl border border-border bg-background/60 p-3 text-[12px] leading-snug">
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
-                <Link to="/terms" className="tap underline text-primary py-1">Terms of Use (EULA)</Link>
-                <Link to="/privacy" className="tap underline text-primary py-1">Privacy Policy</Link>
-                <Link to="/community-guidelines" className="tap underline text-primary py-1">Community Guidelines</Link>
-                <Link to="/seller-agreement" className="tap underline text-primary py-1">Marketplace Agreement</Link>
+                <Link to="/terms" className="tap underline text-primary py-1">
+                  Terms of Use (EULA)
+                </Link>
+                <Link to="/privacy" className="tap underline text-primary py-1">
+                  Privacy Policy
+                </Link>
+                <Link to="/community-guidelines" className="tap underline text-primary py-1">
+                  Community Guidelines
+                </Link>
+                <Link to="/seller-agreement" className="tap underline text-primary py-1">
+                  Marketplace Agreement
+                </Link>
               </div>
               <p>{POLICY_CONSENT_TEXT}</p>
             </div>
@@ -475,21 +571,35 @@ function AuthPage() {
               disabled={busy || (!isBusiness && !(emailCheck && emailCheck.ok)) || !agreeTerms}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
-
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {busy ? "Creating account…" : isBusiness ? "Create business account" : "Create student account"}
+              {busy
+                ? "Creating account…"
+                : isBusiness
+                  ? "Create business account"
+                  : "Create student account"}
             </button>
-            <button type="button" onClick={() => reset("sign-in")} className="w-full text-xs text-muted-foreground underline">
+            <button
+              type="button"
+              onClick={() => reset("sign-in")}
+              className="w-full text-xs text-muted-foreground underline"
+            >
               Already have an account? Sign in
             </button>
 
             <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-              PlugU does not permit or promote the sale, purchase, distribution, or advertisement of illegal drugs, controlled substances, weapons, or other{" "}
-              <Link to="/community-guidelines" className="underline hover:text-foreground transition-colors">
+              PlugU does not permit or promote the sale, purchase, distribution, or advertisement of
+              illegal drugs, controlled substances, weapons, or other{" "}
+              <Link
+                to="/community-guidelines"
+                className="underline hover:text-foreground transition-colors"
+              >
                 prohibited items
               </Link>
               . Accounts that violate this{" "}
-              <Link to="/community-guidelines" className="underline hover:text-foreground transition-colors">
+              <Link
+                to="/community-guidelines"
+                className="underline hover:text-foreground transition-colors"
+              >
                 policy
               </Link>{" "}
               may be suspended or permanently removed.
@@ -509,13 +619,20 @@ function AuthPage() {
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               {busy ? "Sending…" : "Send reset link"}
             </button>
-            <button type="button" onClick={() => reset("sign-in")} className="w-full text-xs text-muted-foreground underline">
+            <button
+              type="button"
+              onClick={() => reset("sign-in")}
+              className="w-full text-xs text-muted-foreground underline"
+            >
               Back to sign in
             </button>
           </form>
         )}
 
-        <button onClick={() => navigate({ to: "/" })} className="mt-4 w-full text-[11px] text-muted-foreground">
+        <button
+          onClick={() => navigate({ to: "/" })}
+          className="mt-4 w-full text-[11px] text-muted-foreground"
+        >
           Back to PlugU
         </button>
       </div>
@@ -524,8 +641,14 @@ function AuthPage() {
 }
 
 function EmailField({
-  value, onChange, business,
-}: { value: string; onChange: (v: string) => void; business?: boolean }) {
+  value,
+  onChange,
+  business,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  business?: boolean;
+}) {
   return (
     <Labeled label={business ? "Business email" : "Student email"}>
       <div className="relative">
@@ -545,8 +668,14 @@ function EmailField({
 }
 
 function PasswordField({
-  value, onChange, autoComplete,
-}: { value: string; onChange: (v: string) => void; autoComplete: string }) {
+  value,
+  onChange,
+  autoComplete,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: string;
+}) {
   return (
     <Labeled label="Password">
       <input
@@ -573,8 +702,14 @@ function Labeled({ label, children }: { label: string; children: React.ReactNode
 }
 
 function Check({
-  checked, onChange, children,
-}: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  checked,
+  onChange,
+  children,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  children: React.ReactNode;
+}) {
   return (
     // The box itself stays visually small; the surrounding square gives it a
     // full 44x44pt touch target (Apple HIG / Guideline 4).
@@ -596,7 +731,10 @@ function Check({
 function Feedback({ err, msg }: { err: string | null; msg: string | null }) {
   if (!err && !msg) return null;
   return err ? (
-    <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+    <p
+      role="alert"
+      className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+    >
       {err}
     </p>
   ) : (

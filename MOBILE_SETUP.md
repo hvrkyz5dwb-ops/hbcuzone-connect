@@ -6,21 +6,21 @@ with your Apple Developer account, archive, and upload to App Store Connect.
 
 ## What is already configured
 
-| Item | Value |
-| --- | --- |
-| Bundle ID | `app.lovable.plugu` |
-| App name | PlugU |
-| Version / build | Read from Xcode (`MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`) |
-| Deployment target | iOS 15.0 |
-| Orientation | Portrait only (iPhone) |
-| Appearance | Forced dark, light status bar, PlugU black `#0a0a0a` |
-| App icon | 1024×1024 gold "P" on black, opaque (no alpha — App Store safe) |
-| Launch screen | Black with centered PlugU mark |
-| Plugins | App, Haptics, Keyboard, Splash Screen, Status Bar (Swift Package Manager) |
-| Encryption | `ITSAppUsesNonExemptEncryption = false` (skips export-compliance prompts) |
-| Privacy strings | Camera, Photos, Photo add, Location (when in use) |
-| Content | Loads the live PlugU build at `https://hbcuzone-connect.lovable.app` |
-| Offline | Bundled branded fallback page (`native/www`) with auto-retry |
+| Item              | Value                                                                     |
+| ----------------- | ------------------------------------------------------------------------- |
+| Bundle ID         | `app.lovable.plugu`                                                       |
+| App name          | PlugU                                                                     |
+| Version / build   | Read from Xcode (`MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`)         |
+| Deployment target | iOS 15.0                                                                  |
+| Orientation       | Portrait only (iPhone)                                                    |
+| Appearance        | Forced dark, light status bar, PlugU black `#0a0a0a`                      |
+| App icon          | 1024×1024 gold "P" on black, opaque (no alpha — App Store safe)           |
+| Launch screen     | Black with centered PlugU mark                                            |
+| Plugins           | App, Haptics, Keyboard, Splash Screen, Status Bar (Swift Package Manager) |
+| Encryption        | `ITSAppUsesNonExemptEncryption = false` (skips export-compliance prompts) |
+| Privacy strings   | Camera, Photos, Photo add, Location (when in use)                         |
+| Content           | Loads the live PlugU build at `https://hbcuzone-connect.lovable.app`      |
+| Offline           | Bundled branded fallback page (`native/www`) with auto-retry              |
 
 Because the shell loads the hosted build, every web change you publish from
 Lovable reaches installed apps instantly — no resubmission for UI updates.
@@ -36,7 +36,7 @@ npm run ios:sync      # npx cap sync ios
 npx cap open ios      # opens ios/App/App.xcodeproj in Xcode
 ```
 
-> If Xcode reports *"Missing package product 'CapacitorApp'"* or a path under
+> If Xcode reports _"Missing package product 'CapacitorApp'"_ or a path under
 > `node_modules/@capacitor/app` that does not exist, `npm install` has not been
 > run in the repo root. Run `npm run ios:bootstrap` (install + sync), then in
 > Xcode: **File → Packages → Reset Package Caches**.

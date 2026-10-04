@@ -26,7 +26,10 @@ async function handleAuthCallback(rawUrl: string): Promise<void> {
       const { error } = await supabase.auth.exchangeCodeForSession(queryCode);
       if (error) throw error;
     } else {
-      const { error } = await supabase.auth.setSession({ access_token: accessToken!, refresh_token: refreshToken! });
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken!,
+        refresh_token: refreshToken!,
+      });
       if (error) throw error;
     }
     window.location.replace(isRecovery ? "/reset-password" : "/auth");
@@ -52,7 +55,9 @@ export function openAppSettings(): void {
   if (!isNativeApp()) return;
   try {
     window.location.href = "app-settings:";
-  } catch {}
+  } catch {
+    // The Settings URL is only available on native devices; ignore unsupported browsers.
+  }
 }
 
 export function nativePlatform(): "ios" | "android" | "web" {
@@ -71,11 +76,10 @@ export async function hideNativeSplash(): Promise<void> {
   if (!isNativeApp()) return;
   try {
     const { SplashScreen } = await import("@capacitor/splash-screen");
-    await Promise.race([
-      SplashScreen.hide(),
-      new Promise((resolve) => setTimeout(resolve, 1200)),
-    ]);
-  } catch {}
+    await Promise.race([SplashScreen.hide(), new Promise((resolve) => setTimeout(resolve, 1200))]);
+  } catch {
+    // Splash dismissal is a best-effort native polish feature; it must never block launch.
+  }
 }
 
 export async function initNative(): Promise<void> {
@@ -90,7 +94,9 @@ export async function initNative(): Promise<void> {
   void hideNativeSplash();
   // Belt and braces: retry once shortly after in case the bridge wasn't
   // ready yet on the first attempt.
-  setTimeout(() => { void hideNativeSplash(); }, 1500);
+  setTimeout(() => {
+    void hideNativeSplash();
+  }, 1500);
 
   try {
     const { StatusBar, Style } = await import("@capacitor/status-bar");
@@ -100,7 +106,9 @@ export async function initNative(): Promise<void> {
       await StatusBar.setBackgroundColor({ color: "#0a0a0a" });
       await StatusBar.setOverlaysWebView({ overlay: true });
     }
-  } catch {}
+  } catch {
+    // Status bar styling is optional on unsupported or older native shells.
+  }
 
   try {
     const { Keyboard } = await import("@capacitor/keyboard");
@@ -110,18 +118,24 @@ export async function initNative(): Promise<void> {
     Keyboard.addListener("keyboardWillHide", () => {
       document.documentElement.style.setProperty("--kb-offset", "0px");
     });
-  } catch {}
+  } catch {
+    // Keyboard inset listeners are graceful enhancements; failure should not block app launch.
+  }
 
   try {
     const { App } = await import("@capacitor/app");
-    await App.addListener("appUrlOpen", ({ url }) => { void handleAuthCallback(url); });
+    await App.addListener("appUrlOpen", ({ url }) => {
+      void handleAuthCallback(url);
+    });
     const launch = await App.getLaunchUrl();
     if (launch?.url) void handleAuthCallback(launch.url);
     App.addListener("backButton", ({ canGoBack }) => {
       if (canGoBack && window.history.length > 1) window.history.back();
       else void App.exitApp();
     });
-  } catch {}
+  } catch {
+    // App lifecycle callback registration is not required for a hosted web fallback.
+  }
 }
 
 /** Light haptic tap for primary actions. Silent no-op on web. */
@@ -130,5 +144,7 @@ export async function tapHaptic(): Promise<void> {
   try {
     const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
     await Haptics.impact({ style: ImpactStyle.Light });
-  } catch {}
+  } catch {
+    // Haptics are optional and should never break the user flow.
+  }
 }
