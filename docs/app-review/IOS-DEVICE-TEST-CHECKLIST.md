@@ -53,7 +53,7 @@ In Xcode:
 - [ ] NOT TESTED — Guest can browse Home, Market, Events, Search, school pages and Map without being bounced to sign-in. HBCUS remains limited to verified HBCU students.
 
 ### Sign-in return path (most important native item)
-- [ ] NOT TESTED — On a clean install, sign in with `appreview@plugudemo.com` and `PlugUReview2026!`; the app returns signed in with Talladega College as the verified home campus.
+- [ ] NOT TESTED — On a clean install, sign in with `appreview@plugudemo.com` and the reset, production-verified password; the app returns signed in with Talladega College as the verified home campus. The password Apple last received failed and must not be reused without a successful test.
 - [ ] NOT TESTED — Google sign-in (if shown) returns into the app, not into Safari, and the session sticks.
 - [ ] NOT TESTED — Password reset email link opens the app or a working web page.
 - [ ] NOT TESTED — Sign out, then relaunch: app opens signed out, no crash.

@@ -3,7 +3,9 @@
 ## Demo account
 
 - Email: `appreview@plugudemo.com`
-- Password: `PlugUReview2026!`
+- Password: Use the currently verified value in App Store Connect. The
+   previously submitted password failed review; do not resubmit until a new
+   production credential is verified on a clean iPad install.
 - School shown in app: Talladega College (Verified Student)
 
 The account is permanent, pre-confirmed and pre-verified. There is no email
@@ -22,8 +24,9 @@ admin or moderator privileges. Do not delete or suspend it.
 ## Step-by-step
 
 1. **Launch.** The intro plays and is skippable with **Skip**.
-2. **Sign in.** On the account screen tap **Sign in**, enter the credentials
-   above, tap **Sign in**. No verification step appears.
+2. **Sign in.** On the account screen tap **Sign in**, enter the verified
+   App Store Connect credentials, tap **Sign in**. No verification step may
+   appear for this account.
 3. **Verification state.** At the top of Home, the campus bar shows the school
    name with a green **Verified Student** pill.
 4. **Campus feed.** Scroll Home: Happening at [School], Student Services Near

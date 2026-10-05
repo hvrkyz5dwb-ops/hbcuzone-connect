@@ -297,7 +297,17 @@ export async function fetchTours(campusId: string): Promise<CampusTour[]> {
     .eq("is_published", true)
     .order("sort");
   if (error) throw error;
-  return (data ?? []) as CampusTour[];
+  const tours = (data ?? []) as CampusTour[];
+  if (tours.length === 0) return tours;
+
+  const { data: stops, error: stopsError } = await db
+    .from("campus_tour_stops")
+    .select("tour_id")
+    .in("tour_id", tours.map((tour) => tour.id));
+  if (stopsError) throw stopsError;
+
+  const toursWithStops = new Set((stops ?? []).map((stop) => stop.tour_id));
+  return tours.filter((tour) => toursWithStops.has(tour.id));
 }
 
 export async function fetchTourStops(tourId: string) {

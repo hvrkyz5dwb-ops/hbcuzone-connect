@@ -7,13 +7,15 @@ review team. It is a regular member account with no admin privileges.
 ## Demo credentials
 
 - Email: `appreview@plugudemo.com`
-- Password: `PlugUReview2026!`
+- Password: Set and verify the production Supabase Auth password before
+  submission; keep the working password in App Store Connect, not this repo.
 - School shown in app: Talladega College
 
-The account is pre-confirmed and pre-verified: email confirmation, student
-`.edu` verification, Terms acceptance and onboarding are already recorded, so
-signing out and back in never restarts onboarding. It must not be deleted or
-suspended.
+Apple reported that the previously submitted credentials could not sign in.
+The account's existence, confirmation state, password and profile must be
+verified in production Supabase. Do not assume this document proves access
+works. The account must be a normal member with no admin privileges, verified
+for Talladega College, and must not be deleted or suspended.
 
 ## How to sign in
 
@@ -44,9 +46,9 @@ this account.
 
 ## Build 17 release gates
 
-- Use `appreview@plugudemo.com` in App Store Connect and confirm its Supabase Auth
-  password is exactly `PlugUReview2026!`. Updating this document does not
-  change the remote account password.
+- Reset or set the production Supabase Auth password, then test sign-in with a
+  clean install of the exact build. Enter only that verified password in App
+  Store Connect; updating this document does not change the remote account.
 - Before resubmission, populate Talladega College's Market with active
   listings posted by real, verified Talladega students. Do not use generated
   or sample listings. Verify listing details and seller profiles in the

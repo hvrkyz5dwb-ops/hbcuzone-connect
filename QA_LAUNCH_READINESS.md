@@ -139,9 +139,12 @@ above are the authoritative script.
 - Production inventory spot check (2026-10-05): Talladega College resolves to
 	one school record and has **0 active, approved listings**. This is a current
 	resubmission blocker; recheck after genuine student sellers publish listings.
-- Reviewer credentials: confirm Supabase Auth accepts `appreview@plugudemo.com` /
-	`PlugUReview2026!`, and that App Store Connect contains the same values.
-	Documentation changes do not update the remote password.
+- Reviewer credentials: Apple reported that the submitted
+	`appreview@plugudemo.com` credentials could not sign in. Reset/set the
+	production Supabase Auth password, verify it on a clean iPad install, and
+	only then copy that verified value into App Store Connect. A local auth test
+	returned `invalid_credentials`; account absence versus password mismatch is
+	not yet distinguished.
 - Reviewer campus: the signed-in review profile and campus scope must both be
 	Talladega College.
 - Marketplace: create no synthetic inventory. Real, active listings must be
@@ -154,5 +157,7 @@ above are the authoritative script.
 	seller/business actions appear in the action sheet. Source labels contain no
 	test/demo/coming-soon navigation item. The seller dashboard's Stripe Test
 	mode status is intentionally visible and must be verified as Live for release.
+- Campus tours with no stops are now hidden from the map's Guided Tours list;
+	verify populated tours on-device if they are enabled for Talladega.
 - Native test: the clean-install reviewer path on a physical iPad remains
 	**NOT TESTED** until the checklist is completed on the exact Build 17 archive.
