@@ -3,7 +3,7 @@
 ## Demo account
 
 - Email: `appreview@plugudemo.com`
-- Password: `APPROVEMEPLEASE`
+- Password: `PlugUReview2026!`
 - School shown in app: Talladega College (Verified Student)
 
 The account is permanent, pre-confirmed and pre-verified. There is no email
@@ -35,17 +35,14 @@ admin or moderator privileges. Do not delete or suspend it.
    button: School, Sellers (**Verified students only**), Sort, Max price,
    Fulfillment.
 
-   **Please note:** PlugU is a live student-to-student marketplace and it is
-   newly launched, so a campus may legitimately have nothing posted yet. We do
-   not seed feeds with invented sellers, listings, events or reviews. When a
-   campus is empty you will see an intentional empty state — "Nothing posted
-   here yet" — with **Post the first listing** and **Browse all schools**. The
-   quickest way to see the full buyer/seller experience is step 7.
-7. **Create a real listing (recommended).** Tap **+** or **Post the first
-   listing** → add a title, description, price, category and a photo from the
-   device → publish. It then appears in Market and Search, opens with all
-   fields, and links to your seller profile. You can edit and delete it from
-   **Me → My listings**.
+   **Build 17 release gate:** The reviewer account must show active listings
+   posted by real, verified Talladega College students. Open a listing, verify
+   its price, description and seller profile, and do not proceed if the
+   Talladega Market is empty. Never ask the reviewer to create inventory and
+   never substitute sample or generated listings.
+7. **Listing and seller.** Open a Talladega listing and verify its title,
+   description, price, photo and seller profile. Continue through the buyer
+   flow only with a genuine, currently available listing.
 8. **Search.** Open **Search** and query a service such as "braids" or
    "tutoring"; results are campus-scoped first.
 9. **Campus scoping.** Tap **Switch** in the campus bar and choose a different
@@ -87,8 +84,11 @@ Cancel; Cancel returns to the same screen.
 - [x] Demo credentials never expire and require no code, SMS or 2FA
 - [x] No screen requires a purchase; PlugU sells no memberships or upgrades in
       the app
-- [x] No placeholder, sample or invented listings, sellers, events or news;
-      empty campuses show an intentional empty state with a real next action
+- [ ] Build 17: Talladega Market contains active listings from real, verified
+   Talladega students, and listing details and seller profiles load.
+- [ ] Build 17: If Talladega Market is empty or only contains sample content,
+   stop review preparation and obtain genuine seller listings before
+   resubmission.
 - [x] Report, block, unblock and moderation persist across app restarts
 - [x] Terms, Privacy, Community Standards, Safety Center and Support all load
 - [x] Single Bundle ID; no separate per-school application

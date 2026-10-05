@@ -10,11 +10,11 @@ is run on real hardware and the result is reported back.
 | Bundle ID | `app.lovable.plugu` |
 | Display name | PlugU |
 | Marketing version (`MARKETING_VERSION`) | **1.0** |
-| Build number (`CURRENT_PROJECT_VERSION`) | **11** |
+| Build number (`CURRENT_PROJECT_VERSION`) | **17** |
 | Server the shell loads | `https://hbcuzone-connect.lovable.app` |
 
 In Xcode: select the **App** target → **General** → confirm Version `1.0` and
-Build `11`. If either differs, you are not testing the build intended for Apple.
+Build `17`. If either differs, you are not testing the build intended for Apple.
 Bump the build number only if you re-archive, and tell me the new number.
 
 ## Build and install
@@ -53,7 +53,7 @@ In Xcode:
 - [ ] NOT TESTED — Guest can browse Home, Market, Events, Search, school pages and Map without being bounced to sign-in. HBCUS remains limited to verified HBCU students.
 
 ### Sign-in return path (most important native item)
-- [ ] NOT TESTED — Email sign-in with `appreview@plugudemo.com` returns into the app, signed in.
+- [ ] NOT TESTED — On a clean install, sign in with `appreview@plugudemo.com` and `PlugUReview2026!`; the app returns signed in with Talladega College as the verified home campus.
 - [ ] NOT TESTED — Google sign-in (if shown) returns into the app, not into Safari, and the session sticks.
 - [ ] NOT TESTED — Password reset email link opens the app or a working web page.
 - [ ] NOT TESTED — Sign out, then relaunch: app opens signed out, no crash.
@@ -67,13 +67,14 @@ In Xcode:
 - [ ] NOT TESTED — Larger text (Settings ▸ Display ▸ Text Size): nothing overlaps or truncates badly.
 
 ### Market and listings
-- [ ] NOT TESTED — Market opens; with no listings the empty state reads "Nothing posted here yet" with **Post the first listing** and **Browse all schools**.
+- [ ] NOT TESTED — Talladega Market shows active listings from real, verified Talladega students; verify their details, photos and seller profiles. Empty or sample-only inventory blocks resubmission.
 - [ ] NOT TESTED — Signed in, create a real listing: title, description, price, category, **photo upload from the iPad**.
 - [ ] NOT TESTED — The new listing appears in Market and in Search.
 - [ ] NOT TESTED — Open the listing: all fields and the photo render.
 - [ ] NOT TESTED — Tap the seller: their profile opens with their listings.
 - [ ] NOT TESTED — Edit the listing, then delete it; both persist after relaunch.
 - [ ] NOT TESTED — Switch campus to a different school: your listing does **not** appear there; switch back, it does.
+- [ ] NOT TESTED — Seller dashboard shows Stripe Connect **Live** mode; **Test** mode or **Payouts unavailable** blocks release.
 
 ### Safety
 - [ ] NOT TESTED — Report a listing: reason list, submit, confirmation.

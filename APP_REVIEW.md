@@ -7,8 +7,8 @@ review team. It is a regular member account with no admin privileges.
 ## Demo credentials
 
 - Email: `appreview@plugudemo.com`
-- Password: `APPROVEMEPLEASE`
-- School shown in app: Demo University
+- Password: `PlugUReview2026!`
+- School shown in app: Talladega College
 
 The account is pre-confirmed and pre-verified: email confirmation, student
 `.edu` verification, Terms acceptance and onboarding are already recorded, so
@@ -41,3 +41,15 @@ this account.
   **Not Now** is never re-prompted and leaves the rest of the app fully usable.
 - All content is user-generated and moderated: every post, listing, message
   and review can be reported, and blocked users disappear from the feed.
+
+## Build 17 release gates
+
+- Use `appreview@plugudemo.com` in App Store Connect and confirm its Supabase Auth
+  password is exactly `PlugUReview2026!`. Updating this document does not
+  change the remote account password.
+- Before resubmission, populate Talladega College's Market with active
+  listings posted by real, verified Talladega students. Do not use generated
+  or sample listings. Verify listing details and seller profiles in the
+  production review path; an empty Talladega Market blocks resubmission.
+- Complete the clean-install iPad checklist in
+  `docs/app-review/IOS-DEVICE-TEST-CHECKLIST.md` against Build 17.

@@ -82,7 +82,7 @@ use real approved domains from `src/lib/auth.ts`.
 | 2 | Duplicate account | Supabase returns "User already registered" | Sign up twice with same email |
 | 3 | Expired verification link | Supabase renders expired-token page | Click a >24h old confirmation link |
 | 4 | Unsupported college email | Client-side reject on submit | Try `test@gmail.com` at signup |
-| 5 | Empty marketplace | `EmptyRow` CTA renders | Fresh DB with 0 approved listings |
+| 5 | Talladega reviewer marketplace | Active listings from real, verified Talladega students render with details and seller profiles | Build 17 reviewer account on the production review path; empty or sample-only Market blocks resubmission |
 | 6 | No search results | Friendly "no matches" state | `/search?q=zzzzzzz` |
 | 7 | Failed image upload | Toast + form stays editable | Upload >5MB file in `/seller/listings` |
 | 8 | Seller with no listings | Empty state + "Create your first listing" CTA | New seller after onboarding |
@@ -133,3 +133,26 @@ support) continues to render and route correctly.
 End-to-end scenarios requiring real Supabase accounts and a live Stripe key
 must be executed against a staging project before public launch; the steps
 above are the authoritative script.
+
+## 7. Build 17 release gates
+
+- Production inventory spot check (2026-10-05): Talladega College resolves to
+	one school record and has **0 active, approved listings**. This is a current
+	resubmission blocker; recheck after genuine student sellers publish listings.
+- Reviewer credentials: confirm Supabase Auth accepts `appreview@plugudemo.com` /
+	`PlugUReview2026!`, and that App Store Connect contains the same values.
+	Documentation changes do not update the remote password.
+- Reviewer campus: the signed-in review profile and campus scope must both be
+	Talladega College.
+- Marketplace: create no synthetic inventory. Real, active listings must be
+	published by verified Talladega students and checked in the reviewer flow.
+	If none are available, do not resubmit.
+- Payments: the seller dashboard must show Stripe Connect in **Live** mode;
+	**Test** mode or **Payouts unavailable** is a release blocker.
+- Navigation audit: primary destinations are Home, Now, Market and Me; Home
+	links to Campus Map, HBCUS, Money & Career and News Center; role-appropriate
+	seller/business actions appear in the action sheet. Source labels contain no
+	test/demo/coming-soon navigation item. The seller dashboard's Stripe Test
+	mode status is intentionally visible and must be verified as Live for release.
+- Native test: the clean-install reviewer path on a physical iPad remains
+	**NOT TESTED** until the checklist is completed on the exact Build 17 archive.

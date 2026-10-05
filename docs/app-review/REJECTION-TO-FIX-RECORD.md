@@ -10,13 +10,13 @@ Apple's exact wording: **message not available** for every item below. These are
 | 4 | iPad controls | message not available | Small location buttons | Wayfinding buttons now 44pt minimum | Browser iPad sizes | Native NOT TESTED |
 | 5 | Location wording | message not available | Custom "Allow while using" button; plist mentioned removed map hotspots | Neutral "Continue" + "Not Now" before system prompt; decline keeps layout usable; plist string matches the actual features (school finder, campus wayfinding). Location only on user tap | Source review | Resolved in code; native prompt NOT TESTED |
 | 6 | 4.3(a) similarity | message not available | Unknown allegation | See ORIGINALITY.md; factual clarification below | — | **BLOCKED — needs Apple's actual message** |
-| 7 | Reviewer access | — | — | Account `appreview@plugu.app` is recognized server-side for full access, including HBCUS | Not tested from native install | **Pending: you create the password** |
+| 7 | Reviewer access | — | — | Build 17 documented reviewer identity is `appreview@plugudemo.com`, scoped to Talladega College; `appreview@plugu.app` remains a legacy compatibility alias | Not tested from native install | **BLOCKED — confirm Supabase Auth password and clean-iPad sign-in** |
 
 ## Resolution Center draft (paste)
 Thank you for the review. For this submission we fixed first-launch entry (Skip is always available, the intro can never block sign-in, and failed session checks return to the sign-in screen), confirmed Report and Block on listings, profiles, and messages with a moderator review queue and an Unblock page, removed remaining tier names that could look like paid upgrades, and changed location access to a neutral Continue / Not Now step that appears only when a person uses wayfinding. PlugU sells no digital content; payments only cover real-world goods and services between students. Regarding 4.3(a), PlugU is an independently built campus and local-community marketplace; we would appreciate details on which app it was compared to so we can respond specifically. Review sign-in details are in App Review Information.
 
 ## App Store Connect — you enter
-- Review account: sign up in the app with `appreview@plugu.app`, choose a password privately, enter both in App Review Information.
+- Review account: `appreview@plugudemo.com` / `PlugUReview2026!`; confirm the Supabase Auth password matches before entering these values in App Review Information.
 - Support URL: https://hbcuzone-connect.lovable.app/support · Privacy: /privacy · Terms: /terms
 - Location purpose must match Info.plist (updated this build).
 - Build number for the next upload must be higher than the last rejected build.
